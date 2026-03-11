@@ -1,0 +1,394 @@
+{
+  "nav": {
+    "features": "Functies",
+    "pricing": "Prijzen",
+    "help": "Hulp",
+    "signIn": "Inloggen",
+    "getStarted": "Aan de slag",
+    "dashboard": "Dashboard"
+  },
+  "home": {
+    "hero": {
+      "title": "Plan onvergetelijke evenementen, samen",
+      "subtitle": "Van bruiloften tot babyshowers, van verjaardagen tot diners — plan, nodig uit en vier samen met de mensen die ertoe doen."
+    },
+    "stats": {
+      "events": "10.000+",
+      "eventsLabel": "Evenementen gepland",
+      "guests": "50.000+",
+      "guestsLabel": "Gasten uitgenodigd",
+      "rating": "4.9",
+      "ratingLabel": "Gemiddelde beoordeling"
+    },
+    "features": {
+      "title": "Alles wat je nodig hebt",
+      "items": [
+        {
+          "icon": "calendar",
+          "title": "Elk type evenement",
+          "description": "Verjaardagen, bruiloften, diners, babyshowers en meer — allemaal op één plek."
+        },
+        {
+          "icon": "heart",
+          "title": "Digitale geboortekaartjes",
+          "description": "Maak prachtige digitale geboortekaartjes en koppel ze aan een kennismakingsmoment."
+        },
+        {
+          "icon": "users",
+          "title": "Slimme RSVP",
+          "description": "Gasten kunnen reageren per sub-evenement, een +1 meenemen en dieetwensen doorgeven."
+        },
+        {
+          "icon": "chart",
+          "title": "Datum prikken",
+          "description": "Laat gasten stemmen op beschikbare data zodat iedereen erbij kan zijn."
+        },
+        {
+          "icon": "gift",
+          "title": "Verlanglijstjes",
+          "description": "Deel een verlanglijst waar gasten items kunnen afstrepen of samen een cadeau kopen."
+        },
+        {
+          "icon": "message",
+          "title": "Geheime chat",
+          "description": "Een verborgen omgeving waar gasten verrassingen kunnen plannen zonder dat de host het ziet."
+        }
+      ]
+    },
+    "showcases": [
+      {
+        "icon": "users",
+        "title": "Slim RSVP-systeem",
+        "description": "Geen eindeloos heen-en-weer geapp meer. Gasten kunnen per onderdeel aangeven of ze komen — ceremonie, diner, feest — en meteen hun dieetwensen doorgeven. Jij ziet in één overzicht wie er komt."
+      },
+      {
+        "icon": "gift",
+        "title": "Verlanglijsten die werken",
+        "description": "Voeg cadeaus toe aan je verlanglijst en deel deze met je gasten. Ze kunnen items claimen of zelfs samen voor een groter cadeau gaan. Geen dubbele cadeaus meer."
+      },
+      {
+        "icon": "chart",
+        "title": "Plan samen de perfecte datum",
+        "description": "Nog geen datum geprikt? Stel meerdere opties voor en laat je gasten aangeven wanneer ze kunnen. Zo kies je de datum waarop de meeste mensen erbij kunnen zijn."
+      }
+    ],
+    "testimonials": [
+      {
+        "quote": "We hebben onze hele bruiloft georganiseerd via Fishionaire Events. De RSVP-functie bespaarde ons uren werk!",
+        "author": "Sophie de Vries",
+        "role": "Bruid"
+      },
+      {
+        "quote": "De geheime chat was perfect om een verrassingsfeest te plannen zonder dat de jarige er iets van merkte.",
+        "author": "Thomas Bakker",
+        "role": "Feestorganisator"
+      },
+      {
+        "quote": "Eindelijk een app die begrijpt hoe je een evenement plant. De verlanglijst met splitfunctie is geniaal.",
+        "author": "Lisa Jansen",
+        "role": "Kersverse moeder"
+      }
+    ]
+  },
+  "features": {
+    "hero": {
+      "title": "Alles wat je nodig hebt voor het perfecte evenement",
+      "subtitle": "Krachtige tools die het plannen van elk evenement makkelijk en leuk maken."
+    },
+    "items": [
+      {
+        "icon": "calendar",
+        "title": "Elk type evenement",
+        "description": "Of het nu een intieme verjaardag is of een grote bruiloft — maak elk type evenement aan en pas het volledig naar wens aan. Stel sub-evenementen in voor meerdere onderdelen op één dag."
+      },
+      {
+        "icon": "heart",
+        "title": "Digitale geboortekaartjes",
+        "description": "Ontwerp een prachtig digitaal geboortekaartje en deel het met familie en vrienden. Koppel er optioneel een kennismakingsmoment aan zodat iedereen de kleine kan komen bewonderen."
+      },
+      {
+        "icon": "users",
+        "title": "Slim RSVP-systeem",
+        "description": "Gasten reageren per onderdeel van je evenement. Stel in of ze een +1 mogen meenemen, vraag dieetwensen uit en houd alles overzichtelijk bij in één dashboard."
+      },
+      {
+        "icon": "chart",
+        "title": "Datum prikken",
+        "description": "Nog geen datum? Stel meerdere opties voor en laat genodigden stemmen. Het systeem toont automatisch welke datum voor de meeste mensen werkt."
+      },
+      {
+        "icon": "gift",
+        "title": "Verlanglijsten",
+        "description": "Maak een verlanglijst aan bij je evenement. Gasten kunnen items claimen zodat je geen dubbele cadeaus krijgt. Grotere cadeaus? Die kunnen gezamenlijk worden gekocht."
+      },
+      {
+        "icon": "message",
+        "title": "Geheime chat",
+        "description": "Een verborgen chatruimte waar genodigden verrassingen kunnen bespreken, andere cadeau-ideeën kunnen delen en samen iets speciaals kunnen plannen — zonder dat de host het ziet."
+      },
+      {
+        "icon": "camera",
+        "title": "Foto- en videogalerij",
+        "description": "Gasten kunnen tijdens en na het evenement foto's en video's uploaden naar een gedeeld album. Zo verzamel je alle herinneringen op één plek."
+      },
+      {
+        "icon": "wallet",
+        "title": "Budgettracker",
+        "description": "Houd alle uitgaven bij en verdeel kosten tussen mede-organisatoren. Stel een budget in en zie in real-time hoeveel er nog over is."
+      },
+      {
+        "icon": "grid",
+        "title": "Tafelschikking",
+        "description": "Plan je tafelindeling visueel. Sleep gasten naar tafels en houd rekening met voorkeuren en groepsindelingen."
+      },
+      {
+        "icon": "clock",
+        "title": "Evenement-tijdlijn",
+        "description": "Maak een gedetailleerd dagprogramma aan. Van de ceremonie tot het dessert — iedereen weet precies wanneer wat gebeurt."
+      },
+      {
+        "icon": "palette",
+        "title": "Eigen uitnodigingen & thema's",
+        "description": "Personaliseer je evenement met eigen kleuren, lettertypen en uitnodigingsontwerpen. Maak het écht van jou."
+      }
+    ]
+  },
+  "pricing": {
+    "hero": {
+      "title": "Eenvoudige, transparante prijzen",
+      "subtitle": "Kies het plan dat bij je past. Upgraden of downgraden kan altijd."
+    },
+    "plans": [
+      {
+        "name": "Gratis",
+        "price": "€0",
+        "period": "/maand",
+        "features": [
+          "Tot 3 evenementen",
+          "25 gasten per evenement",
+          "Basis RSVP",
+          "Datum prikken",
+          "Basis verlanglijst"
+        ],
+        "ctaLabel": "Start gratis"
+      },
+      {
+        "name": "Plus",
+        "price": "€9",
+        "period": "/maand",
+        "features": [
+          "Onbeperkt evenementen",
+          "100 gasten per evenement",
+          "Sub-evenement RSVP",
+          "Dieetwensen",
+          "Geheime chat",
+          "Fotogalerij",
+          "Eigen thema's"
+        ],
+        "ctaLabel": "Kies Plus",
+        "highlighted": true
+      },
+      {
+        "name": "Premium",
+        "price": "€19",
+        "period": "/maand",
+        "features": [
+          "Alles van Plus",
+          "Onbeperkt gasten",
+          "Budgettracker",
+          "Tafelschikking",
+          "Prioriteit support",
+          "Eigen domein"
+        ],
+        "ctaLabel": "Kies Premium"
+      }
+    ],
+    "faq": {
+      "title": "Veelgestelde vragen over prijzen",
+      "items": [
+        {
+          "question": "Kan ik op elk moment upgraden?",
+          "answer": "Ja, je kunt op elk moment upgraden naar een hoger plan. Het verschil wordt pro-rata berekend voor de resterende periode."
+        },
+        {
+          "question": "Hoe werkt de facturering?",
+          "answer": "Je wordt maandelijks gefactureerd via automatische incasso of creditcard. Je kunt op elk moment opzeggen."
+        },
+        {
+          "question": "Kan ik mijn abonnement opzeggen?",
+          "answer": "Ja, je kunt op elk moment opzeggen. Je houdt toegang tot je plan tot het einde van de huidige factureringsperiode."
+        },
+        {
+          "question": "Is er een gratis proefperiode?",
+          "answer": "Het Gratis plan is altijd gratis. Voor Plus en Premium kun je 14 dagen gratis uitproberen zonder creditcard."
+        },
+        {
+          "question": "Wat gebeurt er met mijn evenementen als ik downgrade?",
+          "answer": "Je bestaande evenementen blijven behouden. Je kunt ze bekijken en beheren, maar sommige premium-functies worden uitgeschakeld."
+        }
+      ]
+    }
+  },
+  "help": {
+    "hero": {
+      "title": "Hoe kunnen we je helpen?",
+      "subtitle": "Vind antwoorden op veelgestelde vragen of neem contact met ons op."
+    },
+    "categories": [
+      {
+        "icon": "star",
+        "title": "Aan de slag",
+        "description": "Leer de basis van het aanmaken van je eerste evenement."
+      },
+      {
+        "icon": "calendar",
+        "title": "Evenementen beheren",
+        "description": "Alles over het aanmaken, bewerken en delen van evenementen."
+      },
+      {
+        "icon": "users",
+        "title": "RSVP & gasten",
+        "description": "Hoe de RSVP-functie werkt en hoe je gasten beheert."
+      },
+      {
+        "icon": "gift",
+        "title": "Verlanglijsten",
+        "description": "Items toevoegen, claimen en gezamenlijk kopen."
+      },
+      {
+        "icon": "chart",
+        "title": "Samen plannen",
+        "description": "Datum prikken, mede-organisatoren en geheime chat."
+      },
+      {
+        "icon": "shield",
+        "title": "Privacy & veiligheid",
+        "description": "Hoe we je gegevens beschermen en je privacy waarborgen."
+      }
+    ],
+    "faq": {
+      "general": {
+        "title": "Algemeen",
+        "items": [
+          {
+            "question": "Wat is Fishionaire Events?",
+            "answer": "Fishionaire Events is een alles-in-één platform om evenementen te plannen, gasten uit te nodigen en samen te organiseren. Van verjaardagen tot bruiloften, alles op één plek."
+          },
+          {
+            "question": "Is Fishionaire Events gratis?",
+            "answer": "Ja! Met het gratis plan kun je tot 3 evenementen aanmaken met basisfunctionaliteit. Voor meer functies kun je upgraden naar Plus of Premium."
+          },
+          {
+            "question": "Welke soorten evenementen kan ik aanmaken?",
+            "answer": "Elk type evenement: verjaardagen, bruiloften, diners, babyshowers, bedrijfsevenementen, en meer. Je kunt ook digitale geboortekaartjes maken."
+          },
+          {
+            "question": "Op welke apparaten werkt Fishionaire Events?",
+            "answer": "Fishionaire Events werkt op elk apparaat met een webbrowser — desktop, tablet en mobiel. Er is geen aparte app nodig."
+          }
+        ]
+      },
+      "rsvp": {
+        "title": "RSVP & gasten",
+        "items": [
+          {
+            "question": "Hoe werken +1's?",
+            "answer": "Als organisator kun je instellen of gasten een +1 (of meer) mogen meenemen. Gasten geven dit aan bij het RSVPen en jij ziet het totaal in je dashboard."
+          },
+          {
+            "question": "Kunnen gasten per sub-evenement RSVPen?",
+            "answer": "Ja! Als je evenement meerdere onderdelen heeft (bijvoorbeeld ceremonie, diner en feest) kunnen gasten per onderdeel aangeven of ze erbij zijn."
+          },
+          {
+            "question": "Hoe werken dieetwensen?",
+            "answer": "Bij evenementen met een diner kunnen gasten hun dieetwensen doorgeven bij het RSVPen. Je krijgt een overzicht van alle wensen in je dashboard."
+          },
+          {
+            "question": "Kan ik een RSVP-deadline instellen?",
+            "answer": "Ja, je kunt een deadline instellen waarna gasten niet meer kunnen reageren. Je kunt ook herinneringen sturen naar gasten die nog niet gereageerd hebben."
+          }
+        ]
+      },
+      "wishlists": {
+        "title": "Verlanglijsten",
+        "items": [
+          {
+            "question": "Hoe kan ik een item claimen?",
+            "answer": "Klik op een item in de verlanglijst en kies 'Ik koop dit'. Het item wordt dan gemarkeerd als geclaimd, zodat anderen het niet ook kopen."
+          },
+          {
+            "question": "Kunnen items gesplitst worden?",
+            "answer": "Ja! Bij duurdere items kan de optie 'Samen kopen' worden ingeschakeld. Meerdere gasten kunnen dan bijdragen aan hetzelfde cadeau."
+          },
+          {
+            "question": "Kan de host zien wie wat koopt?",
+            "answer": "Nee, de host ziet alleen welke items geclaimd zijn, niet door wie. Zo blijft de verrassing bewaard."
+          }
+        ]
+      },
+      "planning": {
+        "title": "Samen plannen",
+        "items": [
+          {
+            "question": "Hoe werkt datum prikken?",
+            "answer": "Maak een datumprikker aan met meerdere opties. Deel de link met genodigden en zij geven aan welke data voor hen werken. Het systeem toont welke datum het beste uitkomt."
+          },
+          {
+            "question": "Wat is de geheime chat?",
+            "answer": "De geheime chat is een verborgen chatruimte waar genodigden onderling kunnen overleggen over verrassingen en cadeaus, zonder dat de host dit kan zien."
+          },
+          {
+            "question": "Kan ik mede-organisatoren toevoegen?",
+            "answer": "Ja, je kunt andere mensen uitnodigen als mede-organisator. Zij krijgen dan toegang om het evenement te bewerken en te beheren."
+          }
+        ]
+      },
+      "privacy": {
+        "title": "Privacy & veiligheid",
+        "items": [
+          {
+            "question": "Wie kan mijn evenement zien?",
+            "answer": "Alleen mensen die je uitnodigt hebben toegang tot je evenement. Evenementen zijn standaard privé en niet vindbaar via zoekmachines."
+          },
+          {
+            "question": "Hoe worden mijn gegevens beschermd?",
+            "answer": "We gebruiken versleuteling voor alle gegevens en slaan deze op in beveiligde datacenters in de EU. We delen je gegevens nooit met derden."
+          },
+          {
+            "question": "Kan ik mijn account en data verwijderen?",
+            "answer": "Ja, je kunt op elk moment je account verwijderen. Al je gegevens worden dan permanent verwijderd, inclusief evenementen en gastenlijsten."
+          }
+        ]
+      }
+    }
+  },
+  "cta": {
+    "home": {
+      "title": "Klaar om je volgende evenement te plannen?",
+      "subtitle": "Begin vandaag nog gratis. Geen creditcard nodig.",
+      "button": "Start gratis"
+    },
+    "features": {
+      "title": "Begin vandaag met plannen",
+      "subtitle": "Probeer alle functies 14 dagen gratis uit.",
+      "button": "Gratis uitproberen"
+    },
+    "help": {
+      "title": "Nog vragen?",
+      "subtitle": "Ons team staat voor je klaar. Neem gerust contact op.",
+      "button": "Neem contact op"
+    }
+  },
+  "footer": {
+    "product": "Product",
+    "support": "Support",
+    "legal": "Juridisch",
+    "features": "Functies",
+    "pricing": "Prijzen",
+    "helpCenter": "Helpcentrum",
+    "contact": "Contact",
+    "privacy": "Privacybeleid",
+    "terms": "Algemene voorwaarden",
+    "copyright": "© 2026 Fishionaire Events. Alle rechten voorbehouden."
+  }
+}

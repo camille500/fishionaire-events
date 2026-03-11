@@ -1,0 +1,394 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "help": "Help",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "dashboard": "Dashboard"
+  },
+  "home": {
+    "hero": {
+      "title": "Plan unforgettable events, together",
+      "subtitle": "From weddings to baby showers, from birthdays to dinners — plan, invite and celebrate together with the people who matter."
+    },
+    "stats": {
+      "events": "10,000+",
+      "eventsLabel": "Events planned",
+      "guests": "50,000+",
+      "guestsLabel": "Guests invited",
+      "rating": "4.9",
+      "ratingLabel": "Average rating"
+    },
+    "features": {
+      "title": "Everything you need",
+      "items": [
+        {
+          "icon": "calendar",
+          "title": "Any event type",
+          "description": "Birthdays, weddings, dinners, baby showers and more — all in one place."
+        },
+        {
+          "icon": "heart",
+          "title": "Digital baby cards",
+          "description": "Create beautiful digital baby cards and optionally link them to a meet-and-greet event."
+        },
+        {
+          "icon": "users",
+          "title": "Smart RSVP",
+          "description": "Guests can respond per sub-event, bring a +1 and share dietary preferences."
+        },
+        {
+          "icon": "chart",
+          "title": "Date polling",
+          "description": "Let guests vote on available dates so everyone can make it."
+        },
+        {
+          "icon": "gift",
+          "title": "Wishlists",
+          "description": "Share a wishlist where guests can claim items or chip in together for a bigger gift."
+        },
+        {
+          "icon": "message",
+          "title": "Secret chat",
+          "description": "A hidden space where guests can plan surprises without the host seeing."
+        }
+      ]
+    },
+    "showcases": [
+      {
+        "icon": "users",
+        "title": "Smart RSVP system",
+        "description": "No more endless group chats. Guests can respond per event part — ceremony, dinner, party — and share dietary preferences right away. You see who's coming in one clear overview."
+      },
+      {
+        "icon": "gift",
+        "title": "Wishlists that work",
+        "description": "Add gifts to your wishlist and share it with your guests. They can claim items or even chip in together for a bigger present. No more duplicate gifts."
+      },
+      {
+        "icon": "chart",
+        "title": "Find the perfect date together",
+        "description": "No date set yet? Suggest multiple options and let your guests indicate when they're available. Pick the date that works for the most people."
+      }
+    ],
+    "testimonials": [
+      {
+        "quote": "We organised our entire wedding through Fishionaire Events. The RSVP feature saved us hours of work!",
+        "author": "Sophie de Vries",
+        "role": "Bride"
+      },
+      {
+        "quote": "The secret chat was perfect for planning a surprise party without the birthday person noticing.",
+        "author": "Thomas Bakker",
+        "role": "Party organiser"
+      },
+      {
+        "quote": "Finally an app that understands how to plan an event. The wishlist with split feature is genius.",
+        "author": "Lisa Jansen",
+        "role": "New mother"
+      }
+    ]
+  },
+  "features": {
+    "hero": {
+      "title": "Everything you need to plan the perfect event",
+      "subtitle": "Powerful tools that make planning any event easy and fun."
+    },
+    "items": [
+      {
+        "icon": "calendar",
+        "title": "Any event type",
+        "description": "Whether it's an intimate birthday or a grand wedding — create any type of event and customise it to your liking. Set up sub-events for multiple parts in one day."
+      },
+      {
+        "icon": "heart",
+        "title": "Digital baby cards",
+        "description": "Design a beautiful digital baby card and share it with family and friends. Optionally link a meet-and-greet event so everyone can come admire the little one."
+      },
+      {
+        "icon": "users",
+        "title": "Smart RSVP system",
+        "description": "Guests respond per part of your event. Set whether they can bring a +1, collect dietary preferences and keep everything organised in one dashboard."
+      },
+      {
+        "icon": "chart",
+        "title": "Date polling",
+        "description": "No date yet? Suggest multiple options and let invitees vote. The system automatically shows which date works for the most people."
+      },
+      {
+        "icon": "gift",
+        "title": "Wishlists",
+        "description": "Create a wishlist for your event. Guests can claim items so you don't get duplicates. Bigger gifts? Those can be purchased together."
+      },
+      {
+        "icon": "message",
+        "title": "Secret chat",
+        "description": "A hidden chat room where invitees can discuss surprises, share gift ideas and plan something special together — without the host seeing."
+      },
+      {
+        "icon": "camera",
+        "title": "Photo & video gallery",
+        "description": "Guests can upload photos and videos during and after the event to a shared album. Collect all memories in one place."
+      },
+      {
+        "icon": "wallet",
+        "title": "Budget tracker",
+        "description": "Track all expenses and split costs between co-organisers. Set a budget and see in real time how much is left."
+      },
+      {
+        "icon": "grid",
+        "title": "Seating arrangements",
+        "description": "Plan your seating layout visually. Drag guests to tables and account for preferences and group arrangements."
+      },
+      {
+        "icon": "clock",
+        "title": "Event timeline",
+        "description": "Create a detailed schedule for the day. From the ceremony to dessert — everyone knows exactly when everything happens."
+      },
+      {
+        "icon": "palette",
+        "title": "Custom invitations & themes",
+        "description": "Personalise your event with custom colours, fonts and invitation designs. Make it truly yours."
+      }
+    ]
+  },
+  "pricing": {
+    "hero": {
+      "title": "Simple, transparent pricing",
+      "subtitle": "Choose the plan that suits you. Upgrade or downgrade anytime."
+    },
+    "plans": [
+      {
+        "name": "Free",
+        "price": "€0",
+        "period": "/month",
+        "features": [
+          "Up to 3 events",
+          "25 guests per event",
+          "Basic RSVP",
+          "Date polling",
+          "Basic wishlist"
+        ],
+        "ctaLabel": "Start free"
+      },
+      {
+        "name": "Plus",
+        "price": "€9",
+        "period": "/month",
+        "features": [
+          "Unlimited events",
+          "100 guests per event",
+          "Sub-event RSVP",
+          "Dietary preferences",
+          "Secret chat",
+          "Photo gallery",
+          "Custom themes"
+        ],
+        "ctaLabel": "Choose Plus",
+        "highlighted": true
+      },
+      {
+        "name": "Premium",
+        "price": "€19",
+        "period": "/month",
+        "features": [
+          "Everything in Plus",
+          "Unlimited guests",
+          "Budget tracker",
+          "Seating arrangements",
+          "Priority support",
+          "Custom domain"
+        ],
+        "ctaLabel": "Choose Premium"
+      }
+    ],
+    "faq": {
+      "title": "Pricing FAQ",
+      "items": [
+        {
+          "question": "Can I upgrade at any time?",
+          "answer": "Yes, you can upgrade to a higher plan at any time. The difference is calculated pro-rata for the remaining period."
+        },
+        {
+          "question": "How does billing work?",
+          "answer": "You are billed monthly via automatic payment or credit card. You can cancel at any time."
+        },
+        {
+          "question": "Can I cancel my subscription?",
+          "answer": "Yes, you can cancel at any time. You keep access to your plan until the end of the current billing period."
+        },
+        {
+          "question": "Is there a free trial?",
+          "answer": "The Free plan is always free. For Plus and Premium you can try 14 days free without a credit card."
+        },
+        {
+          "question": "What happens to my events if I downgrade?",
+          "answer": "Your existing events are preserved. You can view and manage them, but some premium features will be disabled."
+        }
+      ]
+    }
+  },
+  "help": {
+    "hero": {
+      "title": "How can we help?",
+      "subtitle": "Find answers to frequently asked questions or get in touch."
+    },
+    "categories": [
+      {
+        "icon": "star",
+        "title": "Getting started",
+        "description": "Learn the basics of creating your first event."
+      },
+      {
+        "icon": "calendar",
+        "title": "Managing events",
+        "description": "Everything about creating, editing and sharing events."
+      },
+      {
+        "icon": "users",
+        "title": "RSVP & guests",
+        "description": "How the RSVP feature works and how to manage guests."
+      },
+      {
+        "icon": "gift",
+        "title": "Wishlists",
+        "description": "Adding items, claiming and purchasing together."
+      },
+      {
+        "icon": "chart",
+        "title": "Planning together",
+        "description": "Date polling, co-organisers and secret chat."
+      },
+      {
+        "icon": "shield",
+        "title": "Privacy & security",
+        "description": "How we protect your data and ensure your privacy."
+      }
+    ],
+    "faq": {
+      "general": {
+        "title": "General",
+        "items": [
+          {
+            "question": "What is Fishionaire Events?",
+            "answer": "Fishionaire Events is an all-in-one platform for planning events, inviting guests and organising together. From birthdays to weddings, everything in one place."
+          },
+          {
+            "question": "Is Fishionaire Events free?",
+            "answer": "Yes! With the free plan you can create up to 3 events with basic features. For more features you can upgrade to Plus or Premium."
+          },
+          {
+            "question": "What types of events can I create?",
+            "answer": "Any type of event: birthdays, weddings, dinners, baby showers, corporate events, and more. You can also create digital baby cards."
+          },
+          {
+            "question": "What devices does Fishionaire Events work on?",
+            "answer": "Fishionaire Events works on any device with a web browser — desktop, tablet and mobile. No separate app needed."
+          }
+        ]
+      },
+      "rsvp": {
+        "title": "RSVP & guests",
+        "items": [
+          {
+            "question": "How do +1s work?",
+            "answer": "As an organiser you can set whether guests may bring a +1 (or more). Guests indicate this when RSVPing and you see the total in your dashboard."
+          },
+          {
+            "question": "Can guests RSVP per sub-event?",
+            "answer": "Yes! If your event has multiple parts (e.g. ceremony, dinner and party) guests can indicate per part whether they'll attend."
+          },
+          {
+            "question": "How do dietary preferences work?",
+            "answer": "For events with a dinner, guests can share their dietary preferences when RSVPing. You get an overview of all preferences in your dashboard."
+          },
+          {
+            "question": "Can I set an RSVP deadline?",
+            "answer": "Yes, you can set a deadline after which guests can no longer respond. You can also send reminders to guests who haven't responded yet."
+          }
+        ]
+      },
+      "wishlists": {
+        "title": "Wishlists",
+        "items": [
+          {
+            "question": "How do I claim an item?",
+            "answer": "Click on an item in the wishlist and choose 'I'll buy this'. The item is then marked as claimed so others won't buy it too."
+          },
+          {
+            "question": "Can items be split?",
+            "answer": "Yes! For more expensive items the 'Buy together' option can be enabled. Multiple guests can then contribute to the same gift."
+          },
+          {
+            "question": "Can the host see who buys what?",
+            "answer": "No, the host only sees which items are claimed, not by whom. This way the surprise is preserved."
+          }
+        ]
+      },
+      "planning": {
+        "title": "Planning together",
+        "items": [
+          {
+            "question": "How does date polling work?",
+            "answer": "Create a date poll with multiple options. Share the link with invitees and they indicate which dates work for them. The system shows which date is best."
+          },
+          {
+            "question": "What is the secret chat?",
+            "answer": "The secret chat is a hidden chat room where invitees can discuss surprises and gifts amongst themselves, without the host being able to see."
+          },
+          {
+            "question": "Can I add co-organisers?",
+            "answer": "Yes, you can invite other people as co-organisers. They then get access to edit and manage the event."
+          }
+        ]
+      },
+      "privacy": {
+        "title": "Privacy & security",
+        "items": [
+          {
+            "question": "Who can see my event?",
+            "answer": "Only people you invite have access to your event. Events are private by default and not findable via search engines."
+          },
+          {
+            "question": "How is my data protected?",
+            "answer": "We use encryption for all data and store it in secure data centres in the EU. We never share your data with third parties."
+          },
+          {
+            "question": "Can I delete my account and data?",
+            "answer": "Yes, you can delete your account at any time. All your data will then be permanently removed, including events and guest lists."
+          }
+        ]
+      }
+    }
+  },
+  "cta": {
+    "home": {
+      "title": "Ready to plan your next event?",
+      "subtitle": "Start for free today. No credit card required.",
+      "button": "Start free"
+    },
+    "features": {
+      "title": "Start planning today",
+      "subtitle": "Try all features free for 14 days.",
+      "button": "Try for free"
+    },
+    "help": {
+      "title": "Still have questions?",
+      "subtitle": "Our team is here for you. Feel free to get in touch.",
+      "button": "Contact us"
+    }
+  },
+  "footer": {
+    "product": "Product",
+    "support": "Support",
+    "legal": "Legal",
+    "features": "Features",
+    "pricing": "Pricing",
+    "helpCenter": "Help centre",
+    "contact": "Contact",
+    "privacy": "Privacy policy",
+    "terms": "Terms & conditions",
+    "copyright": "© 2026 Fishionaire Events. All rights reserved."
+  }
+}
