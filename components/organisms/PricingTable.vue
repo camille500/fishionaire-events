@@ -5,6 +5,8 @@ defineProps({
     required: true,
   },
 })
+
+const emit = defineEmits(['select'])
 </script>
 
 <template>
@@ -20,8 +22,11 @@ defineProps({
           :features="plan.features"
           :highlighted="plan.highlighted || false"
           :cta-label="plan.ctaLabel"
+          :per-event-price="plan.perEventPrice || ''"
+          :tier="plan.tier || ''"
           class="animate-on-scroll slide-up"
           :class="`stagger-${index + 1}`"
+          @select="emit('select', $event)"
         />
       </div>
     </div>

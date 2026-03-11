@@ -1,14 +1,13 @@
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
-import * as schema from './schema'
+import { PrismaClient } from '#prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
 
-let _db = null
+let _prisma = null
 
-export function useDatabase() {
-  if (!_db) {
+export function usePrisma() {
+  if (!_prisma) {
     const config = useRuntimeConfig()
-    const client = postgres(config.databaseUrl)
-    _db = drizzle(client, { schema })
+    const adapter = new PrismaPg({ connectionString: config.databaseUrl })
+    _prisma = new PrismaClient({ adapter })
   }
-  return _db
+  return _prisma
 }

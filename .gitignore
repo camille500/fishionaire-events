@@ -17,3 +17,5 @@ logs
 
 # Env
 .env
+
+prisma/generated

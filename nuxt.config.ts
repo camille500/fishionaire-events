@@ -1,8 +1,20 @@
+import { resolve } from 'path'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-03-11',
   devtools: { enabled: true },
 
-  modules: ['@clerk/nuxt', '@nuxtjs/i18n'],
+  modules: ['@clerk/nuxt', '@nuxtjs/i18n', '@vueuse/nuxt', '@vueuse/motion/nuxt'],
+
+  nitro: {
+    alias: {
+      '#prisma/client': resolve(__dirname, 'prisma/generated/client/client.ts'),
+    },
+  },
+
+  alias: {
+    '#prisma/client': resolve(__dirname, 'prisma/generated/client/client.ts'),
+  },
 
   css: ['~/assets/css/main.css'],
 
@@ -33,6 +45,10 @@ export default defineNuxtConfig({
       help: {
         nl: '/hulp',
         en: '/help',
+      },
+      billing: {
+        nl: '/facturering',
+        en: '/billing',
       },
     },
   },

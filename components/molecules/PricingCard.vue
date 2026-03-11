@@ -28,7 +28,17 @@ defineProps({
     type: String,
     default: '/sign-up',
   },
+  perEventPrice: {
+    type: String,
+    default: '',
+  },
+  tier: {
+    type: String,
+    default: '',
+  },
 })
+
+const emit = defineEmits(['select'])
 </script>
 
 <template>
@@ -39,6 +49,9 @@ defineProps({
       <span class="pricing-card__amount">{{ price }}</span>
       <span class="pricing-card__period">{{ period }}</span>
     </div>
+    <div v-if="perEventPrice" class="pricing-card__per-event">
+      {{ perEventPrice }}
+    </div>
     <ul class="pricing-card__features">
       <li v-for="(feature, index) in features" :key="index" class="pricing-card__feature">
         <AppIcon name="check" size="sm" />
@@ -47,9 +60,10 @@ defineProps({
     </ul>
     <AppButton
       :variant="highlighted ? 'primary' : 'outline'"
-      :to="ctaTo"
+      :to="tier ? undefined : ctaTo"
       size="md"
       class="pricing-card__cta"
+      @click="tier ? emit('select', tier) : undefined"
     >
       {{ ctaLabel }}
     </AppButton>
@@ -104,6 +118,18 @@ defineProps({
 .pricing-card__period {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+.pricing-card__per-event {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-background-alt);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  margin-top: calc(-1 * var(--space-3));
+  margin-bottom: var(--space-4);
 }
 
 .pricing-card__features {

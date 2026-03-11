@@ -173,7 +173,7 @@
         "ctaLabel": "Start free"
       },
       {
-        "name": "Plus",
+        "name": "Standard",
         "price": "€9",
         "period": "/month",
         "features": [
@@ -185,22 +185,26 @@
           "Photo gallery",
           "Custom themes"
         ],
-        "ctaLabel": "Choose Plus",
-        "highlighted": true
+        "ctaLabel": "Choose Standard",
+        "highlighted": true,
+        "tier": "standard",
+        "perEventPrice": "or €12 per event"
       },
       {
-        "name": "Premium",
+        "name": "Pro",
         "price": "€19",
         "period": "/month",
         "features": [
-          "Everything in Plus",
+          "Everything in Standard",
           "Unlimited guests",
           "Budget tracker",
           "Seating arrangements",
           "Priority support",
           "Custom domain"
         ],
-        "ctaLabel": "Choose Premium"
+        "ctaLabel": "Choose Pro",
+        "tier": "pro",
+        "perEventPrice": "or €25 per event"
       }
     ],
     "faq": {
@@ -224,7 +228,11 @@
         },
         {
           "question": "What happens to my events if I downgrade?",
-          "answer": "Your existing events are preserved. You can view and manage them, but some premium features will be disabled."
+          "answer": "Your existing events keep their features. Events you already created retain their tier. Only new events are affected by the downgrade."
+        },
+        {
+          "question": "Can I pay per event instead of subscribing?",
+          "answer": "Yes! You can purchase Standard or Pro features for a single event without a monthly subscription. This is ideal if you're planning just one special event."
         }
       ]
     }
@@ -362,6 +370,123 @@
       }
     }
   },
+  "dashboard": {
+    "welcome": "Welcome, {name}",
+    "subtitle": "Manage your events and invitations",
+    "newEvent": "New Event",
+    "createEvent": "Create",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "myEvents": "My Events",
+    "invitations": "Invitations",
+    "noEvents": "You don't have any events yet. Create your first event!",
+    "noInvitations": "You haven't received any invitations yet.",
+    "owner": "Owner",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "invited": "invited",
+    "inviteByEmail": "Invite",
+    "send": "Send",
+    "emailPlaceholder": "Enter email address",
+    "eventTitlePlaceholder": "Name your event",
+    "inviteSent": "Invitation sent!",
+    "invalidEmail": "Please enter a valid email address",
+    "errorCreating": "Something went wrong while creating",
+    "errorInviting": "Something went wrong while inviting",
+    "errorLoading": "Could not load data",
+    "retry": "Retry",
+    "editEvent": "Edit",
+    "searchEvents": "Search events...",
+    "viewAll": "View all",
+    "backToDashboard": "Back to dashboard",
+    "greeting": {
+      "morning": "Good morning, {name}",
+      "afternoon": "Good afternoon, {name}",
+      "evening": "Good evening, {name}"
+    },
+    "stats": {
+      "totalEvents": "Total events",
+      "invitations": "Invitations",
+      "totalGuests": "Total guests",
+      "upcomingEvents": "Upcoming"
+    },
+    "quickActions": {
+      "createEvent": "Create event",
+      "createEventDesc": "Start planning your next event",
+      "invitations": "Invitations",
+      "invitationsDesc": "View events you're invited to",
+      "myEvents": "My events",
+      "myEventsDesc": "Manage all your events"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "empty": "No recent activity yet",
+      "eventCreated": "Event \"{name}\" was created"
+    },
+    "timeline": {
+      "title": "Upcoming events",
+      "empty": "No upcoming events",
+      "noDate": "No date set",
+      "guests": "guests"
+    },
+    "sidebar": {
+      "home": "Home",
+      "events": "Events",
+      "invitations": "Invitations",
+      "settings": "Settings",
+      "billing": "Billing",
+      "signOut": "Sign out"
+    },
+    "emptyState": {
+      "noEvents": {
+        "title": "No events yet",
+        "description": "Create your first event to get started",
+        "cta": "Create event"
+      },
+      "noInvitations": {
+        "title": "No invitations",
+        "description": "You haven't been invited to any events yet"
+      },
+      "noResults": {
+        "title": "No results found",
+        "description": "Try a different search term"
+      }
+    },
+    "settings": {
+      "language": "Language",
+      "profile": "Profile",
+      "profilePlaceholder": "Profile settings coming soon",
+      "notifications": "Notifications",
+      "notificationsPlaceholder": "Notification preferences coming soon"
+    },
+    "eventEditor": {
+      "title": "Edit Event",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Give your event a name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe your event...",
+      "featuresSection": "Features",
+      "featuresSubtitle": "Enable the features you need for your event.",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "saved": "Changes saved",
+      "errorSaving": "Something went wrong while saving",
+      "notFound": "Event not found",
+      "noAccess": "You don't have access to this event",
+      "features": {
+        "rsvp": { "label": "Smart RSVP", "description": "Let guests respond and manage attendance" },
+        "datePolling": { "label": "Date polling", "description": "Let guests vote on available dates" },
+        "wishlist": { "label": "Wishlists", "description": "Share gift wishes with your guests" },
+        "secretChat": { "label": "Secret chat", "description": "Hidden space for guests to plan surprises" },
+        "photoGallery": { "label": "Photo & video gallery", "description": "Collect memories in a shared album" },
+        "budgetTracker": { "label": "Budget tracker", "description": "Track expenses and split costs" },
+        "seatingArrangements": { "label": "Seating arrangements", "description": "Plan your seating layout visually" },
+        "timeline": { "label": "Event timeline", "description": "Create a detailed schedule for the day" },
+        "customTheme": { "label": "Custom invitations & themes", "description": "Personalise with custom colours and designs" }
+      }
+    }
+  },
   "cta": {
     "home": {
       "title": "Ready to plan your next event?",
@@ -377,6 +502,55 @@
       "title": "Still have questions?",
       "subtitle": "Our team is here for you. Feel free to get in touch.",
       "button": "Contact us"
+    }
+  },
+  "tiers": {
+    "free": "Free",
+    "standard": "Standard",
+    "pro": "Pro"
+  },
+  "tierSelector": {
+    "label": "Choose event tier",
+    "recommended": "Recommended",
+    "includedWithPlan": "Included with your plan",
+    "tiers": {
+      "free": {
+        "features": ["Basic event", "25 guests"],
+        "eventPrice": ""
+      },
+      "standard": {
+        "features": ["RSVP", "Date polling", "Wishlist", "Secret chat", "Photo gallery"],
+        "eventPrice": "€12 one-time"
+      },
+      "pro": {
+        "features": ["All Standard features", "Budget tracker", "Seating", "Timeline", "Custom theme"],
+        "eventPrice": "€25 one-time"
+      }
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Manage your subscription and billing",
+    "currentPlan": "Current plan",
+    "upgrade": "Upgrade",
+    "upsell": "Upgrade for more features",
+    "managePlan": "Manage",
+    "cancelPlan": "Cancel plan",
+    "changePlan": "Change plan",
+    "confirmCancel": "Are you sure you want to cancel your subscription? You'll lose access to premium features for new events.",
+    "yesCancel": "Yes, cancel",
+    "keepPlan": "Keep plan",
+    "currentLabel": "Current",
+    "backToDashboard": "Back to dashboard",
+    "planDescription": {
+      "free": "Basic features for simple events",
+      "standard": "Extended features for all your events",
+      "pro": "All features unlocked for every event"
+    },
+    "prices": {
+      "free": "€0/month",
+      "standard": "€9/month",
+      "pro": "€19/month"
     }
   },
   "footer": {

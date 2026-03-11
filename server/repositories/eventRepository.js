@@ -1,59 +1,78 @@
-import { eq, desc, sql } from 'drizzle-orm'
-import { useDatabase } from '../database'
-import { events, eventInvitations } from '../database/schema'
+import { usePrisma } from '../database'
 import Event from '../entities/Event'
 
 export default class EventRepository {
   static async create(event) {
-    const db = useDatabase()
+    const prisma = usePrisma()
     const data = event.toJSON()
-    const rows = await db
-      .insert(events)
-      .values({
+    const row = await prisma.event.create({
+      data: {
         title: data.title,
+        description: data.description,
+        tier: data.tier,
+        features: data.features,
         ownerClerkId: data.ownerClerkId,
-      })
-      .returning()
-    return Event.fromJSON(rows[0])
+      },
+    })
+    return Event.fromJSON(row)
+  }
+
+  static async findById(id) {
+    const prisma = usePrisma()
+    const row = await prisma.event.findUnique({ where: { id } })
+    if (!row) return null
+    return Event.fromJSON(row)
   }
 
   static async findByOwner(clerkId) {
-    const db = useDatabase()
-    const rows = await db
-      .select()
-      .from(events)
-      .where(eq(events.ownerClerkId, clerkId))
-      .orderBy(desc(events.createdAt))
+    const prisma = usePrisma()
+    const rows = await prisma.event.findMany({
+      where: { ownerClerkId: clerkId },
+      orderBy: { createdAt: 'desc' },
+    })
     return rows.map((row) => Event.fromJSON(row))
   }
 
   static async findByInviteeEmail(email) {
-    const db = useDatabase()
-    const rows = await db
-      .select({
-        id: events.id,
-        title: events.title,
-        ownerClerkId: events.ownerClerkId,
-        createdAt: events.createdAt,
-        updatedAt: events.updatedAt,
-        invitationStatus: eventInvitations.status,
-      })
-      .from(events)
-      .innerJoin(eventInvitations, eq(events.id, eventInvitations.eventId))
-      .where(eq(eventInvitations.inviteeEmail, email))
-      .orderBy(desc(events.createdAt))
+    const prisma = usePrisma()
+    const rows = await prisma.event.findMany({
+      where: {
+        invitations: {
+          some: { inviteeEmail: email },
+        },
+      },
+      include: {
+        invitations: {
+          where: { inviteeEmail: email },
+          select: { status: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
     return rows.map((row) => ({
       event: Event.fromJSON(row),
-      status: row.invitationStatus,
+      status: row.invitations[0].status,
     }))
   }
 
+  static async update(event) {
+    const prisma = usePrisma()
+    const data = event.toJSON()
+    const row = await prisma.event.update({
+      where: { id: data.id },
+      data: {
+        title: data.title,
+        description: data.description,
+        tier: data.tier,
+        features: data.features,
+        updatedAt: new Date(),
+      },
+    })
+    return Event.fromJSON(row)
+  }
+
   static async getInvitationCount(eventId) {
-    const db = useDatabase()
-    const rows = await db
-      .select({ count: sql`count(*)::int` })
-      .from(eventInvitations)
-      .where(eq(eventInvitations.eventId, eventId))
-    return rows[0]?.count || 0
+    const prisma = usePrisma()
+    return prisma.eventInvitation.count({ where: { eventId } })
   }
 }

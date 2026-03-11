@@ -1,39 +1,34 @@
-import { eq } from 'drizzle-orm'
-import { useDatabase } from '../database'
-import { users } from '../database/schema'
+import { usePrisma } from '../database'
 import User from '../entities/User'
 
 export default class UserRepository {
   static async findByClerkId(clerkId) {
-    const db = useDatabase()
-    const rows = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1)
-    if (!rows.length) return null
-    return User.fromJSON(rows[0])
+    const prisma = usePrisma()
+    const row = await prisma.user.findUnique({ where: { clerkId } })
+    if (!row) return null
+    return User.fromJSON(row)
   }
 
   static async upsert(user) {
-    const db = useDatabase()
     const data = user.toJSON()
-    const rows = await db
-      .insert(users)
-      .values({
+    const prisma = usePrisma()
+    const row = await prisma.user.upsert({
+      where: { clerkId: data.clerkId },
+      create: {
         clerkId: data.clerkId,
         email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
         role: data.role,
         updatedAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: users.clerkId,
-        set: {
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          updatedAt: new Date(),
-        },
-      })
-      .returning()
-    return User.fromJSON(rows[0])
+      },
+      update: {
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        updatedAt: new Date(),
+      },
+    })
+    return User.fromJSON(row)
   }
 }

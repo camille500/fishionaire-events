@@ -173,7 +173,7 @@
         "ctaLabel": "Start gratis"
       },
       {
-        "name": "Plus",
+        "name": "Standaard",
         "price": "€9",
         "period": "/maand",
         "features": [
@@ -185,22 +185,26 @@
           "Fotogalerij",
           "Eigen thema's"
         ],
-        "ctaLabel": "Kies Plus",
-        "highlighted": true
+        "ctaLabel": "Kies Standaard",
+        "highlighted": true,
+        "tier": "standard",
+        "perEventPrice": "of €12 per evenement"
       },
       {
-        "name": "Premium",
+        "name": "Pro",
         "price": "€19",
         "period": "/maand",
         "features": [
-          "Alles van Plus",
+          "Alles van Standaard",
           "Onbeperkt gasten",
           "Budgettracker",
           "Tafelschikking",
           "Prioriteit support",
           "Eigen domein"
         ],
-        "ctaLabel": "Kies Premium"
+        "ctaLabel": "Kies Pro",
+        "tier": "pro",
+        "perEventPrice": "of €25 per evenement"
       }
     ],
     "faq": {
@@ -224,7 +228,11 @@
         },
         {
           "question": "Wat gebeurt er met mijn evenementen als ik downgrade?",
-          "answer": "Je bestaande evenementen blijven behouden. Je kunt ze bekijken en beheren, maar sommige premium-functies worden uitgeschakeld."
+          "answer": "Je bestaande evenementen behouden hun functies. Evenementen die je al hebt aangemaakt behouden hun niveau. Alleen nieuwe evenementen worden beïnvloed door de downgrade."
+        },
+        {
+          "question": "Kan ik per evenement betalen in plaats van een abonnement?",
+          "answer": "Ja! Je kunt Standaard- of Pro-functies kopen voor een enkel evenement zonder maandelijks abonnement. Ideaal als je maar één speciaal evenement plant."
         }
       ]
     }
@@ -362,6 +370,123 @@
       }
     }
   },
+  "dashboard": {
+    "welcome": "Welkom, {name}",
+    "subtitle": "Beheer je evenementen en uitnodigingen",
+    "newEvent": "Nieuw evenement",
+    "createEvent": "Aanmaken",
+    "creating": "Aanmaken...",
+    "cancel": "Annuleren",
+    "myEvents": "Mijn evenementen",
+    "invitations": "Uitnodigingen",
+    "noEvents": "Je hebt nog geen evenementen. Maak je eerste evenement aan!",
+    "noInvitations": "Je hebt nog geen uitnodigingen ontvangen.",
+    "owner": "Eigenaar",
+    "pending": "In afwachting",
+    "accepted": "Geaccepteerd",
+    "declined": "Afgewezen",
+    "invited": "uitgenodigd",
+    "inviteByEmail": "Uitnodigen",
+    "send": "Versturen",
+    "emailPlaceholder": "E-mailadres invoeren",
+    "eventTitlePlaceholder": "Naam van je evenement",
+    "inviteSent": "Uitnodiging verstuurd!",
+    "invalidEmail": "Voer een geldig e-mailadres in",
+    "errorCreating": "Er ging iets mis bij het aanmaken",
+    "errorInviting": "Er ging iets mis bij het uitnodigen",
+    "errorLoading": "Kon gegevens niet laden",
+    "retry": "Opnieuw proberen",
+    "editEvent": "Bewerken",
+    "searchEvents": "Zoek evenementen...",
+    "viewAll": "Bekijk alles",
+    "backToDashboard": "Terug naar dashboard",
+    "greeting": {
+      "morning": "Goedemorgen, {name}",
+      "afternoon": "Goedemiddag, {name}",
+      "evening": "Goedenavond, {name}"
+    },
+    "stats": {
+      "totalEvents": "Totaal evenementen",
+      "invitations": "Uitnodigingen",
+      "totalGuests": "Totaal gasten",
+      "upcomingEvents": "Aankomend"
+    },
+    "quickActions": {
+      "createEvent": "Evenement aanmaken",
+      "createEventDesc": "Begin met het plannen van je volgende evenement",
+      "invitations": "Uitnodigingen",
+      "invitationsDesc": "Bekijk evenementen waarvoor je bent uitgenodigd",
+      "myEvents": "Mijn evenementen",
+      "myEventsDesc": "Beheer al je evenementen"
+    },
+    "activity": {
+      "title": "Recente activiteit",
+      "empty": "Nog geen recente activiteit",
+      "eventCreated": "Evenement \"{name}\" is aangemaakt"
+    },
+    "timeline": {
+      "title": "Aankomende evenementen",
+      "empty": "Geen aankomende evenementen",
+      "noDate": "Geen datum ingesteld",
+      "guests": "gasten"
+    },
+    "sidebar": {
+      "home": "Home",
+      "events": "Evenementen",
+      "invitations": "Uitnodigingen",
+      "settings": "Instellingen",
+      "billing": "Facturering",
+      "signOut": "Uitloggen"
+    },
+    "emptyState": {
+      "noEvents": {
+        "title": "Nog geen evenementen",
+        "description": "Maak je eerste evenement aan om te beginnen",
+        "cta": "Evenement aanmaken"
+      },
+      "noInvitations": {
+        "title": "Geen uitnodigingen",
+        "description": "Je bent nog niet uitgenodigd voor evenementen"
+      },
+      "noResults": {
+        "title": "Geen resultaten gevonden",
+        "description": "Probeer een andere zoekterm"
+      }
+    },
+    "settings": {
+      "language": "Taal",
+      "profile": "Profiel",
+      "profilePlaceholder": "Profielinstellingen komen binnenkort",
+      "notifications": "Meldingen",
+      "notificationsPlaceholder": "Meldingsvoorkeuren komen binnenkort"
+    },
+    "eventEditor": {
+      "title": "Evenement bewerken",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Geef je evenement een naam",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Beschrijf je evenement...",
+      "featuresSection": "Functies",
+      "featuresSubtitle": "Schakel de functies in die je nodig hebt voor je evenement.",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "saved": "Wijzigingen opgeslagen",
+      "errorSaving": "Er ging iets mis bij het opslaan",
+      "notFound": "Evenement niet gevonden",
+      "noAccess": "Je hebt geen toegang tot dit evenement",
+      "features": {
+        "rsvp": { "label": "Slim RSVP", "description": "Laat gasten reageren en beheer aanwezigheid" },
+        "datePolling": { "label": "Datum prikken", "description": "Laat gasten stemmen op beschikbare data" },
+        "wishlist": { "label": "Verlanglijsten", "description": "Deel cadeauwensen met je gasten" },
+        "secretChat": { "label": "Geheime chat", "description": "Verborgen ruimte voor gasten om verrassingen te plannen" },
+        "photoGallery": { "label": "Fotogalerij", "description": "Verzamel herinneringen in een gedeeld album" },
+        "budgetTracker": { "label": "Budgettracker", "description": "Houd uitgaven bij en verdeel kosten" },
+        "seatingArrangements": { "label": "Tafelschikking", "description": "Plan je tafelindeling visueel" },
+        "timeline": { "label": "Tijdlijn", "description": "Maak een gedetailleerd dagprogramma" },
+        "customTheme": { "label": "Eigen thema", "description": "Personaliseer met eigen kleuren en ontwerpen" }
+      }
+    }
+  },
   "cta": {
     "home": {
       "title": "Klaar om je volgende evenement te plannen?",
@@ -377,6 +502,55 @@
       "title": "Nog vragen?",
       "subtitle": "Ons team staat voor je klaar. Neem gerust contact op.",
       "button": "Neem contact op"
+    }
+  },
+  "tiers": {
+    "free": "Gratis",
+    "standard": "Standaard",
+    "pro": "Pro"
+  },
+  "tierSelector": {
+    "label": "Kies evenement-niveau",
+    "recommended": "Aanbevolen",
+    "includedWithPlan": "Inbegrepen bij je plan",
+    "tiers": {
+      "free": {
+        "features": ["Basis evenement", "25 gasten"],
+        "eventPrice": ""
+      },
+      "standard": {
+        "features": ["RSVP", "Datum prikken", "Verlanglijst", "Geheime chat", "Fotogalerij"],
+        "eventPrice": "€12 eenmalig"
+      },
+      "pro": {
+        "features": ["Alle Standaard-functies", "Budgettracker", "Tafelschikking", "Tijdlijn", "Eigen thema"],
+        "eventPrice": "€25 eenmalig"
+      }
+    }
+  },
+  "billing": {
+    "title": "Facturering",
+    "subtitle": "Beheer je abonnement en facturering",
+    "currentPlan": "Huidig plan",
+    "upgrade": "Upgraden",
+    "upsell": "Upgrade voor meer functies",
+    "managePlan": "Beheren",
+    "cancelPlan": "Plan opzeggen",
+    "changePlan": "Plan wijzigen",
+    "confirmCancel": "Weet je zeker dat je je abonnement wilt opzeggen? Je verliest toegang tot premium-functies voor nieuwe evenementen.",
+    "yesCancel": "Ja, opzeggen",
+    "keepPlan": "Plan behouden",
+    "currentLabel": "Huidig",
+    "backToDashboard": "Terug naar dashboard",
+    "planDescription": {
+      "free": "Basisfuncties voor eenvoudige evenementen",
+      "standard": "Uitgebreide functies voor al je evenementen",
+      "pro": "Alle functies ontgrendeld voor elk evenement"
+    },
+    "prices": {
+      "free": "€0/maand",
+      "standard": "€9/maand",
+      "pro": "€19/maand"
     }
   },
   "footer": {

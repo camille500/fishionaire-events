@@ -16,6 +16,7 @@
   --color-border: #d8dbe2;
   --color-success: #2ecc71;
   --color-warning: #f39c12;
+  --color-accent-bg: rgba(255, 107, 107, 0.08);
 
   /* Typography */
   --font-family: system-ui, -apple-system, sans-serif;
@@ -69,4 +70,22 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
+
+  /* Dashboard Layout */
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 64px;
+  --max-width-dashboard: 1400px;
+
+  /* Event Type Colors */
+  --color-event-birthday: #9b59b6;
+  --color-event-wedding: #e91e63;
+  --color-event-dinner: #ff9800;
+  --color-event-baby-shower: #4caf50;
+  --color-event-corporate: #2196f3;
+  --color-event-default: #6c7a89;
+
+  /* Skeleton */
+  --color-skeleton: #e8eaef;
+  --color-skeleton-highlight: #f5f6f8;
 }

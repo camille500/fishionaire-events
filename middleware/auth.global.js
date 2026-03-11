@@ -1,4 +1,4 @@
-const protectedRoutes = createRouteMatcher(['/dashboard(.*)'])
+const protectedRoutes = createRouteMatcher(['/dashboard(.*)', '/billing(.*)', '/facturering(.*)'])
 const adminRoutes = createRouteMatcher(['/admin(.*)'])
 
 export default defineNuxtRouteMiddleware(async (to) => {

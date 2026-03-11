@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  user
+  admin
+
+  @@map("user_role")
+}
+
+enum SubscriptionTier {
+  free
+  standard
+  pro
+
+  @@map("subscription_tier")
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  incomplete
+
+  @@map("subscription_status")
+}
+
+enum EventTier {
+  free
+  standard
+  pro
+
+  @@map("event_tier")
+}
+
+enum PurchaseStatus {
+  pending
+  completed
+  refunded
+  failed
+
+  @@map("purchase_status")
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  declined
+
+  @@map("invitation_status")
+}
+
+model User {
+  clerkId   String   @id @map("clerk_id")
+  email     String
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  role      UserRole @default(user)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  subscription     Subscription?
+  events           Event[]
+  eventPurchases   EventPurchase[]
+  eventInvitations EventInvitation[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                   Int                @id @default(autoincrement())
+  userClerkId          String             @unique @map("user_clerk_id")
+  tier                 SubscriptionTier   @default(free)
+  status               SubscriptionStatus @default(active)
+  stripeCustomerId     String?            @map("stripe_customer_id")
+  stripeSubscriptionId String?            @map("stripe_subscription_id")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userClerkId], references: [clerkId])
+
+  @@map("subscriptions")
+}
+
+model Event {
+  id           Int       @id @default(autoincrement())
+  title        String
+  description  String?
+  tier         EventTier @default(free)
+  features     Json      @default("{}")
+  ownerClerkId String    @map("owner_clerk_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @map("updated_at")
+
+  owner       User              @relation(fields: [ownerClerkId], references: [clerkId])
+  purchases   EventPurchase[]
+  invitations EventInvitation[]
+
+  @@map("events")
+}
+
+model EventPurchase {
+  id                      Int            @id @default(autoincrement())
+  eventId                 Int            @map("event_id")
+  buyerClerkId            String         @map("buyer_clerk_id")
+  tier                    EventTier
+  status                  PurchaseStatus @default(pending)
+  stripeCheckoutSessionId String?        @map("stripe_checkout_session_id")
+  amountCents             Int            @map("amount_cents")
+  createdAt               DateTime       @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id])
+  buyer User  @relation(fields: [buyerClerkId], references: [clerkId])
+
+  @@map("event_purchases")
+}
+
+model EventInvitation {
+  id             Int              @id @default(autoincrement())
+  eventId        Int              @map("event_id")
+  inviteeEmail   String           @map("invitee_email")
+  inviterClerkId String           @map("inviter_clerk_id")
+  status         InvitationStatus @default(pending)
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  event   Event @relation(fields: [eventId], references: [id])
+  inviter User  @relation(fields: [inviterClerkId], references: [clerkId])
+
+  @@map("event_invitations")
+}

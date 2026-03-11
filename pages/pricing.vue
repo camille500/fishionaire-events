@@ -1,7 +1,11 @@
 <script setup>
 const { t, tm, rt } = useI18n()
+const { isSignedIn } = useAuth()
+const { checkout } = useSubscription()
 
 useScrollReveal()
+
+const subscribing = ref(false)
 
 const plans = computed(() =>
   tm('pricing.plans').map((plan) => ({
@@ -11,6 +15,8 @@ const plans = computed(() =>
     ctaLabel: rt(plan.ctaLabel),
     highlighted: plan.highlighted,
     features: plan.features.map((f) => rt(f)),
+    perEventPrice: plan.perEventPrice ? rt(plan.perEventPrice) : '',
+    tier: plan.tier || '',
   }))
 )
 
@@ -20,6 +26,23 @@ const faqItems = computed(() =>
     answer: rt(item.answer),
   }))
 )
+
+async function onPlanSelect(tier) {
+  if (!isSignedIn.value) {
+    navigateTo('/sign-up')
+    return
+  }
+
+  subscribing.value = true
+  try {
+    await checkout(tier)
+    navigateTo('/dashboard')
+  } catch {
+    // Phase 2: handle Stripe redirect
+  } finally {
+    subscribing.value = false
+  }
+}
 </script>
 
 <template>
@@ -31,7 +54,7 @@ const faqItems = computed(() =>
     />
 
     <section class="pricing-page__plans">
-      <PricingTable :plans="plans" />
+      <PricingTable :plans="plans" @select="onPlanSelect" />
     </section>
 
     <section class="pricing-page__faq">
