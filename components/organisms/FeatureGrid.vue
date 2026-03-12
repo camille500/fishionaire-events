@@ -19,8 +19,9 @@ defineProps({
         <div
           v-for="(feature, index) in features"
           :key="index"
-          class="animate-on-scroll slide-up"
-          :class="`stagger-${(index % 6) + 1}`"
+          v-motion
+          :initial="{ opacity: 0, y: 40 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { delay: 100 + index * 100, duration: 500 } }"
         >
           <FeatureCard
             :icon="feature.icon"

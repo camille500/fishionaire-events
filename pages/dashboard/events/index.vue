@@ -25,7 +25,7 @@ function onEventCreated() {
     <div class="events-page__header">
       <h1 class="events-page__title">{{ t('dashboard.sidebar.events') }}</h1>
       <AppButton variant="primary" @click="showCreateForm = !showCreateForm">
-        <AppIcon name="plus" size="sm" />
+        <Icon name="lucide:plus" size="16" />
         {{ t('dashboard.newEvent') }}
       </AppButton>
     </div>
@@ -40,7 +40,7 @@ function onEventCreated() {
     </Transition>
 
     <div class="events-page__search">
-      <AppIcon name="search" size="sm" class="events-page__search-icon" />
+      <Icon name="lucide:search" size="16" class="events-page__search-icon" />
       <input
         v-model="searchQuery"
         type="text"

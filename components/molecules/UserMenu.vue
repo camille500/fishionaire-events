@@ -43,10 +43,10 @@ const avatarUrl = computed(() => {
         <span class="user-menu__name">{{ displayName }}</span>
         <span class="user-menu__email">{{ email }}</span>
       </div>
-      <AppIcon
+      <Icon
         v-show="!collapsed"
-        name="chevron-down"
-        size="sm"
+        name="lucide:chevron-down"
+        size="16"
         :class="['user-menu__chevron', { 'user-menu__chevron--open': menuOpen }]"
       />
     </button>

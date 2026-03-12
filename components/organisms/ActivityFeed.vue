@@ -18,7 +18,7 @@ defineProps({
   >
     <div class="activity-feed__header">
       <h3 class="activity-feed__title">
-        <AppIcon name="activity" size="sm" />
+        <Icon name="lucide:activity" size="16" />
         {{ t('dashboard.activity.title') }}
       </h3>
     </div>
@@ -33,7 +33,7 @@ defineProps({
       />
     </div>
     <div v-else class="activity-feed__empty">
-      <AppIcon name="clock" size="sm" />
+      <Icon name="lucide:clock" size="16" />
       <span>{{ t('dashboard.activity.empty') }}</span>
     </div>
   </div>

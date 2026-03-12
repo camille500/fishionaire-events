@@ -32,13 +32,13 @@ const emit = defineEmits(['click'])
     class="quick-action"
   >
     <div class="quick-action__icon" :style="{ '--icon-color': color }">
-      <AppIcon :name="icon" size="md" />
+      <Icon :name="'lucide:' + icon" size="24" />
     </div>
     <div class="quick-action__text">
       <span class="quick-action__label">{{ label }}</span>
       <span v-if="description" class="quick-action__description">{{ description }}</span>
     </div>
-    <AppIcon name="chevron-right" size="sm" class="quick-action__arrow" />
+    <Icon name="lucide:chevron-right" size="16" class="quick-action__arrow" />
   </NuxtLink>
   <button
     v-else
@@ -46,13 +46,13 @@ const emit = defineEmits(['click'])
     @click="emit('click')"
   >
     <div class="quick-action__icon" :style="{ '--icon-color': color }">
-      <AppIcon :name="icon" size="md" />
+      <Icon :name="'lucide:' + icon" size="24" />
     </div>
     <div class="quick-action__text">
       <span class="quick-action__label">{{ label }}</span>
       <span v-if="description" class="quick-action__description">{{ description }}</span>
     </div>
-    <AppIcon name="chevron-right" size="sm" class="quick-action__arrow" />
+    <Icon name="lucide:chevron-right" size="16" class="quick-action__arrow" />
   </button>
 </template>
 

@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   name: {
     type: String,
     required: true,
@@ -39,10 +39,34 @@ defineProps({
 })
 
 const emit = defineEmits(['select'])
+
+const cardRef = ref(null)
+const tiltStyle = ref({})
+
+function onMouseMove(e) {
+  if (!props.highlighted || !cardRef.value) return
+  const rect = cardRef.value.getBoundingClientRect()
+  const x = (e.clientX - rect.left) / rect.width - 0.5
+  const y = (e.clientY - rect.top) / rect.height - 0.5
+  tiltStyle.value = {
+    transform: `perspective(800px) rotateX(${-y * 6}deg) rotateY(${x * 6}deg) scale(1.03)`,
+  }
+}
+
+function onMouseLeave() {
+  tiltStyle.value = {}
+}
 </script>
 
 <template>
-  <div class="pricing-card" :class="{ 'pricing-card--highlighted': highlighted }">
+  <div
+    ref="cardRef"
+    class="pricing-card"
+    :class="{ 'pricing-card--highlighted': highlighted }"
+    :style="tiltStyle"
+    @mousemove="onMouseMove"
+    @mouseleave="onMouseLeave"
+  >
     <AppBadge v-if="highlighted" label="Populair" variant="accent" class="pricing-card__badge" />
     <AppHeading :level="3" class="pricing-card__name">{{ name }}</AppHeading>
     <div class="pricing-card__price">
@@ -54,12 +78,14 @@ const emit = defineEmits(['select'])
     </div>
     <ul class="pricing-card__features">
       <li v-for="(feature, index) in features" :key="index" class="pricing-card__feature">
-        <AppIcon name="check" size="sm" />
+        <span class="pricing-card__check">
+          <Icon name="lucide:check" size="14" />
+        </span>
         <span>{{ feature }}</span>
       </li>
     </ul>
     <AppButton
-      :variant="highlighted ? 'primary' : 'outline'"
+      :variant="highlighted ? 'gradient' : 'outline'"
       :to="tier ? undefined : ctaTo"
       size="md"
       class="pricing-card__cta"
@@ -73,20 +99,27 @@ const emit = defineEmits(['select'])
 <style scoped>
 .pricing-card {
   background: var(--color-surface);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   padding: var(--space-8);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-light);
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: all var(--transition-base);
+  transition: all 300ms ease;
+  will-change: transform;
+}
+
+.pricing-card:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 .pricing-card--highlighted {
-  border-color: var(--color-accent);
-  border-width: 2px;
-  transform: scale(1.03);
-  box-shadow: var(--shadow-lg);
+  border: 2px solid transparent;
+  background-image: linear-gradient(var(--color-surface), var(--color-surface)),
+    var(--gradient-accent);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: var(--shadow-accent);
 }
 
 .pricing-card__badge {
@@ -94,6 +127,7 @@ const emit = defineEmits(['select'])
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
+  animation: float 3s ease-in-out infinite;
 }
 
 .pricing-card__name {
@@ -109,10 +143,19 @@ const emit = defineEmits(['select'])
 }
 
 .pricing-card__amount {
+  font-family: var(--font-family-heading);
   font-size: var(--text-4xl);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-text-primary);
   line-height: 1;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.pricing-card--highlighted .pricing-card__amount {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .pricing-card__period {
@@ -143,13 +186,21 @@ const emit = defineEmits(['select'])
 .pricing-card__feature {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
-.pricing-card__feature .app-icon {
+.pricing-card__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(46, 204, 113, 0.1);
   color: var(--color-success);
+  flex-shrink: 0;
 }
 
 .pricing-card__cta {

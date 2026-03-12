@@ -57,7 +57,7 @@ async function onSubmit() {
         :disabled="loading"
       />
       <AppButton variant="primary" size="sm" :disabled="loading || !email.trim()">
-        <AppIcon name="mail" size="sm" />
+        <Icon name="lucide:mail" size="16" />
         {{ t('dashboard.send') }}
       </AppButton>
     </div>

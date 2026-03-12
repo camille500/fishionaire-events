@@ -553,6 +553,50 @@
       "pro": "€19/month"
     }
   },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "promptLabel": "Briefly describe your event",
+    "promptPlaceholder": "E.g. 'Lisa's tropical birthday party, 30 guests, Saturday in the garden'",
+    "toneLabel": "Tone",
+    "tones": {
+      "friendly": "Friendly",
+      "formal": "Formal",
+      "playful": "Playful",
+      "professional": "Professional",
+      "festive": "Festive",
+      "casual": "Casual"
+    },
+    "lengthLabel": "Length",
+    "lengths": {
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Long"
+    },
+    "languageLabel": "Language",
+    "eventTypeLabel": "Event type",
+    "eventTypes": {
+      "none": "No preference",
+      "birthday": "Birthday",
+      "wedding": "Wedding",
+      "corporate": "Corporate event",
+      "festival": "Festival",
+      "dinner": "Dinner",
+      "babyshower": "Baby shower",
+      "other": "Other"
+    },
+    "emojiToggle": "Include emojis",
+    "generate": "Generate description",
+    "generating": "Writing...",
+    "cancel": "Cancel",
+    "previewLabel": "Preview",
+    "accept": "Use this",
+    "regenerate": "Regenerate",
+    "discard": "Discard",
+    "refinePlaceholder": "Adjust, e.g. 'make it more formal' or 'add parking info'",
+    "refine": "Refine",
+    "historyLabel": "Previous versions",
+    "error": "Something went wrong. Please try again."
+  },
   "footer": {
     "product": "Product",
     "support": "Support",
@@ -563,6 +607,7 @@
     "contact": "Contact",
     "privacy": "Privacy policy",
     "terms": "Terms & conditions",
-    "copyright": "© 2026 Fishionaire Events. All rights reserved."
+    "copyright": "© 2026 Fishionaire Events. All rights reserved.",
+    "tagline": "Make every event unforgettable"
   }
 }

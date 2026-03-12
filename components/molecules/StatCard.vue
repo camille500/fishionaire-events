@@ -27,7 +27,7 @@ defineProps({
     class="stat-card"
   >
     <div class="stat-card__icon" :style="{ '--icon-color': color }">
-      <AppIcon :name="icon" size="md" />
+      <Icon :name="'lucide:' + icon" size="24" />
     </div>
     <div class="stat-card__value">{{ value }}</div>
     <div class="stat-card__label">{{ label }}</div>

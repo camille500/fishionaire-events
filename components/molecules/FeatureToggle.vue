@@ -24,7 +24,7 @@ const emit = defineEmits(['update:modelValue'])
 <template>
   <div class="feature-toggle" :class="{ 'feature-toggle--active': modelValue }">
     <div class="feature-toggle__icon">
-      <AppIcon :name="icon" size="sm" />
+      <Icon :name="'lucide:' + icon" size="16" />
     </div>
     <div class="feature-toggle__info">
       <span class="feature-toggle__label">{{ label }}</span>

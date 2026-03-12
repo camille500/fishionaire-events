@@ -22,7 +22,7 @@ defineProps({
 <template>
   <div class="activity-item">
     <div class="activity-item__icon" :style="{ color }">
-      <AppIcon :name="icon" size="sm" />
+      <Icon :name="'lucide:' + icon" size="16" />
     </div>
     <div class="activity-item__content">
       <span class="activity-item__message">{{ message }}</span>

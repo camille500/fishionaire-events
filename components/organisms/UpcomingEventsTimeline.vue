@@ -27,7 +27,7 @@ function formatDate(dateStr) {
   >
     <div class="timeline__header">
       <h3 class="timeline__title">
-        <AppIcon name="clock" size="sm" />
+        <Icon name="lucide:clock" size="16" />
         {{ t('dashboard.timeline.title') }}
       </h3>
     </div>
@@ -46,7 +46,7 @@ function formatDate(dateStr) {
           <span class="timeline__date">{{ formatDate(event.date) || t('dashboard.timeline.noDate') }}</span>
           <span class="timeline__event-title">{{ event.title }}</span>
           <span v-if="event.invitationCount" class="timeline__guests">
-            <AppIcon name="users" size="sm" />
+            <Icon name="lucide:users" size="16" />
             {{ event.invitationCount }} {{ t('dashboard.timeline.guests') }}
           </span>
         </div>
@@ -54,7 +54,7 @@ function formatDate(dateStr) {
     </div>
 
     <div v-else class="timeline__empty">
-      <AppIcon name="calendar" size="sm" />
+      <Icon name="lucide:calendar" size="16" />
       <span>{{ t('dashboard.timeline.empty') }}</span>
     </div>
   </div>

@@ -1,8 +1,6 @@
 <script setup>
 const { t, tm, rt } = useI18n()
 
-useScrollReveal()
-
 const featureItems = computed(() =>
   tm('features.items').map((item) => ({
     icon: rt(item.icon),

@@ -2,8 +2,6 @@
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
 
-useScrollReveal()
-
 const stats = computed(() => [
   { value: t('home.stats.events'), label: t('home.stats.eventsLabel') },
   { value: t('home.stats.guests'), label: t('home.stats.guestsLabel') },
@@ -41,7 +39,7 @@ const testimonials = computed(() =>
       :title="t('home.hero.title')"
       :subtitle="t('home.hero.subtitle')"
     >
-      <AppButton variant="primary" :to="localePath('/sign-up')" size="lg">
+      <AppButton variant="gradient" :to="localePath('/sign-up')" size="lg">
         {{ t('cta.home.button') }}
       </AppButton>
       <AppButton variant="outline" :to="localePath('features')" size="lg" class="hero-outline-btn">
@@ -52,9 +50,15 @@ const testimonials = computed(() =>
     <SocialProofBar :stats="stats" />
 
     <section class="page-section">
-      <AppHeading :level="2" align="center" class="section-title">
-        {{ t('home.features.title') }}
-      </AppHeading>
+      <div
+        v-motion
+        :initial="{ opacity: 0, y: 20 }"
+        :visible-once="{ opacity: 1, y: 0, transition: { duration: 500 } }"
+      >
+        <AppHeading :level="2" align="center" class="section-title">
+          {{ t('home.features.title') }}
+        </AppHeading>
+      </div>
       <FeatureGrid :features="features" :columns="3" />
     </section>
 
@@ -71,6 +75,15 @@ const testimonials = computed(() =>
     </section>
 
     <section class="page-section">
+      <div
+        v-motion
+        :initial="{ opacity: 0, y: 20 }"
+        :visible-once="{ opacity: 1, y: 0, transition: { duration: 500 } }"
+      >
+        <AppHeading :level="2" align="center" class="section-title">
+          {{ t('home.testimonials[0].quote') ? '' : '' }}
+        </AppHeading>
+      </div>
       <TestimonialSlider :testimonials="testimonials" />
     </section>
 
@@ -85,7 +98,7 @@ const testimonials = computed(() =>
 
 <style scoped>
 .page-section {
-  padding: var(--space-20) 0;
+  padding: var(--space-24) 0;
 }
 
 .page-section--alt {
@@ -102,11 +115,12 @@ const testimonials = computed(() =>
 
 .hero-outline-btn {
   color: var(--color-text-inverse);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .hero-outline-btn:hover {
   border-color: var(--color-text-inverse);
   background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-inverse);
 }
 </style>

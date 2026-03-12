@@ -12,14 +12,14 @@ const emit = defineEmits(['update:modelValue'])
 
 const featureDefinitions = [
   { key: 'rsvp', icon: 'users' },
-  { key: 'datePolling', icon: 'chart' },
+  { key: 'datePolling', icon: 'bar-chart-3' },
   { key: 'wishlist', icon: 'gift' },
-  { key: 'secretChat', icon: 'message' },
+  { key: 'secretChat', icon: 'message-circle' },
   { key: 'photoGallery', icon: 'camera' },
   { key: 'budgetTracker', icon: 'wallet' },
-  { key: 'seatingArrangements', icon: 'grid' },
+  { key: 'seatingArrangements', icon: 'grid-3x3' },
   { key: 'timeline', icon: 'clock' },
-  { key: 'customTheme', icon: 'palette' },
+  { key: 'customTheme', icon: 'paintbrush' },
 ]
 
 function toggleFeature(key, value) {

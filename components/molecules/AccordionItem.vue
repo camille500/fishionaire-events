@@ -21,7 +21,7 @@ const emit = defineEmits(['toggle'])
   <div class="accordion-item" :class="{ 'accordion-item--open': open }">
     <button class="accordion-item__trigger" @click="emit('toggle')">
       <span class="accordion-item__question">{{ question }}</span>
-      <AppIcon name="chevron-down" size="sm" class="accordion-item__icon" />
+      <Icon name="lucide:chevron-down" size="16" class="accordion-item__icon" />
     </button>
     <div class="accordion-item__content">
       <div class="accordion-item__inner">

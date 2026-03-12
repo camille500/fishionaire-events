@@ -11,6 +11,7 @@ const { subscription } = useSubscription()
 const { stats } = useDashboardStats(computed(() => events.value))
 
 const showCreateForm = ref(false)
+const showConfetti = ref(false)
 
 const displayName = computed(() => user.value?.firstName || 'User')
 
@@ -41,14 +42,23 @@ const mockActivities = computed(() => {
 
 function onEventCreated() {
   showCreateForm.value = false
+  showConfetti.value = true
+  setTimeout(() => { showConfetti.value = false }, 2000)
   refreshEvents()
 }
 </script>
 
 <template>
   <div class="dashboard-home">
+    <ConfettiExplosion :trigger="showConfetti" />
+
     <!-- Greeting -->
-    <section class="dashboard-home__greeting dashboard-home__animated">
+    <section
+      v-motion
+      :initial="{ opacity: 0, y: 20 }"
+      :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
+      class="dashboard-home__greeting"
+    >
       <div>
         <h1 class="dashboard-home__title">{{ getGreeting(displayName) }}</h1>
         <p class="dashboard-home__date">{{ todayFormatted }}</p>
@@ -57,12 +67,20 @@ function onEventCreated() {
     </section>
 
     <!-- Stats -->
-    <section class="dashboard-home__stats">
+    <section
+      v-motion
+      :initial="{ opacity: 0, y: 20 }"
+      :enter="{ opacity: 1, y: 0, transition: { delay: 100, duration: 400 } }"
+    >
       <StatsOverview :stats="stats" />
     </section>
 
     <!-- Quick Actions -->
-    <section class="dashboard-home__quick-actions">
+    <section
+      v-motion
+      :initial="{ opacity: 0, y: 20 }"
+      :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 400 } }"
+    >
       <QuickActions @create-event="showCreateForm = true" />
     </section>
 
@@ -82,7 +100,7 @@ function onEventCreated() {
       <div class="dashboard-home__main-col">
         <div class="dashboard-home__section-header">
           <h2 class="dashboard-home__section-title">
-            <AppIcon name="calendar" size="sm" />
+            <Icon name="lucide:calendar" size="18" />
             {{ t('dashboard.myEvents') }}
           </h2>
           <NuxtLink
@@ -91,7 +109,7 @@ function onEventCreated() {
             class="dashboard-home__view-all"
           >
             {{ t('dashboard.viewAll') }}
-            <AppIcon name="arrow-right" size="sm" />
+            <Icon name="lucide:arrow-right" size="16" />
           </NuxtLink>
         </div>
 
@@ -103,15 +121,19 @@ function onEventCreated() {
         </div>
 
         <div v-else-if="recentEvents.length" class="dashboard-home__events-grid">
-          <EventCard
+          <div
             v-for="(event, index) in recentEvents"
             :key="event.id"
-            class="dashboard-home__card-animated"
-            :style="{ animationDelay: `${200 + index * 80}ms` }"
-            :event="event"
-            :is-owner="true"
-            @invited="refreshEvents"
-          />
+            v-motion
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{ opacity: 1, y: 0, transition: { delay: 300 + index * 80, duration: 400 } }"
+          >
+            <EventCard
+              :event="event"
+              :is-owner="true"
+              @invited="refreshEvents"
+            />
+          </div>
         </div>
 
         <EmptyState
@@ -126,20 +148,24 @@ function onEventCreated() {
         <!-- Invitations section -->
         <div class="dashboard-home__section-header dashboard-home__section-header--mt">
           <h2 class="dashboard-home__section-title">
-            <AppIcon name="inbox" size="sm" />
+            <Icon name="lucide:inbox" size="18" />
             {{ t('dashboard.invitations') }}
           </h2>
         </div>
 
         <div v-if="(events?.invited || []).length" class="dashboard-home__events-grid">
-          <EventCard
+          <div
             v-for="(event, index) in (events?.invited || []).slice(0, 4)"
             :key="event.id"
-            class="dashboard-home__card-animated"
-            :style="{ animationDelay: `${300 + index * 80}ms` }"
-            :event="event"
-            :is-owner="false"
-          />
+            v-motion
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{ opacity: 1, y: 0, transition: { delay: 400 + index * 80, duration: 400 } }"
+          >
+            <EventCard
+              :event="event"
+              :is-owner="false"
+            />
+          </div>
         </div>
 
         <EmptyState
@@ -174,11 +200,13 @@ function onEventCreated() {
 }
 
 .dashboard-home__title {
+  font-family: var(--font-family-heading);
   font-size: var(--text-3xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0;
   line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .dashboard-home__date {
@@ -217,6 +245,7 @@ function onEventCreated() {
 }
 
 .dashboard-home__section-title {
+  font-family: var(--font-family-heading);
   font-size: var(--text-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
@@ -249,9 +278,10 @@ function onEventCreated() {
 
 .dashboard-home__create-form {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
   padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
 }
 
 .dashboard-home__error {
@@ -260,27 +290,8 @@ function onEventCreated() {
   gap: var(--space-3);
   padding: var(--space-4);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.dashboard-home__animated {
-  animation: fade-slide-up 300ms ease both;
-}
-
-.dashboard-home__card-animated {
-  animation: fade-slide-up 300ms ease both;
-}
-
-@keyframes fade-slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
 }
 
 /* Transitions */

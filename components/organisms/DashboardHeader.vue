@@ -13,7 +13,7 @@ const emit = defineEmits(['toggle-sidebar'])
   <header class="dashboard-header">
     <div class="dashboard-header__left">
       <button class="dashboard-header__hamburger" @click="emit('toggle-sidebar')">
-        <AppIcon name="menu" size="md" />
+        <Icon name="lucide:menu" size="24" />
       </button>
       <h2 v-if="title" class="dashboard-header__title">{{ title }}</h2>
     </div>

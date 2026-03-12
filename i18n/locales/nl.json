@@ -553,6 +553,50 @@
       "pro": "€19/maand"
     }
   },
+  "aiAssistant": {
+    "title": "AI Assistent",
+    "promptLabel": "Beschrijf kort je evenement",
+    "promptPlaceholder": "Bijv. 'Tropische verjaardagsfeest van Lisa, 30 gasten, zaterdag in de tuin'",
+    "toneLabel": "Toon",
+    "tones": {
+      "friendly": "Vriendelijk",
+      "formal": "Formeel",
+      "playful": "Speels",
+      "professional": "Professioneel",
+      "festive": "Feestelijk",
+      "casual": "Casual"
+    },
+    "lengthLabel": "Lengte",
+    "lengths": {
+      "short": "Kort",
+      "medium": "Middel",
+      "long": "Lang"
+    },
+    "languageLabel": "Taal",
+    "eventTypeLabel": "Type evenement",
+    "eventTypes": {
+      "none": "Geen voorkeur",
+      "birthday": "Verjaardag",
+      "wedding": "Bruiloft",
+      "corporate": "Bedrijfsevenement",
+      "festival": "Festival",
+      "dinner": "Diner",
+      "babyshower": "Babyshower",
+      "other": "Overig"
+    },
+    "emojiToggle": "Emoji's toevoegen",
+    "generate": "Genereer beschrijving",
+    "generating": "Bezig met schrijven...",
+    "cancel": "Annuleren",
+    "previewLabel": "Voorbeeld",
+    "accept": "Overnemen",
+    "regenerate": "Opnieuw",
+    "discard": "Verwijderen",
+    "refinePlaceholder": "Pas aan, bijv. 'maak het formeler' of 'voeg info over parkeren toe'",
+    "refine": "Aanpassen",
+    "historyLabel": "Eerdere versies",
+    "error": "Er ging iets mis. Probeer het opnieuw."
+  },
   "footer": {
     "product": "Product",
     "support": "Support",
@@ -563,6 +607,7 @@
     "contact": "Contact",
     "privacy": "Privacybeleid",
     "terms": "Algemene voorwaarden",
-    "copyright": "© 2026 Fishionaire Events. Alle rechten voorbehouden."
+    "copyright": "© 2026 Fishionaire Events. Alle rechten voorbehouden.",
+    "tagline": "Maak elk evenement onvergetelijk"
   }
 }

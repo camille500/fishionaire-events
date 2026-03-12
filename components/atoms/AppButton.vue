@@ -1,9 +1,9 @@
 <script setup>
-defineProps({
+const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (v) => ['primary', 'secondary', 'outline', 'ghost'].includes(v),
+    validator: (v) => ['primary', 'secondary', 'outline', 'ghost', 'gradient'].includes(v),
   },
   size: {
     type: String,
@@ -14,23 +14,67 @@ defineProps({
     type: String,
     default: '',
   },
+  icon: {
+    type: String,
+    default: '',
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const iconSize = computed(() => {
+  const sizes = { sm: '14', md: '16', lg: '18' }
+  return sizes[props.size]
+})
+
+const rippleActive = ref(false)
+let rippleTimeout = null
+
+function triggerRipple() {
+  if (props.disabled || props.loading) return
+  rippleActive.value = true
+  clearTimeout(rippleTimeout)
+  rippleTimeout = setTimeout(() => {
+    rippleActive.value = false
+  }, 500)
+}
 </script>
 
 <template>
   <NuxtLink
-    v-if="to"
+    v-if="to && !disabled"
     :to="to"
     class="app-button"
-    :class="[`app-button--${variant}`, `app-button--${size}`]"
+    :class="[
+      `app-button--${variant}`,
+      `app-button--${size}`,
+      { 'app-button--loading': loading, 'app-button--ripple': rippleActive }
+    ]"
+    @click="triggerRipple"
   >
+    <span v-if="loading" class="app-button__spinner" />
+    <Icon v-if="icon && !loading" :name="icon" :size="iconSize" />
     <slot />
   </NuxtLink>
   <button
     v-else
     class="app-button"
-    :class="[`app-button--${variant}`, `app-button--${size}`]"
+    :class="[
+      `app-button--${variant}`,
+      `app-button--${size}`,
+      { 'app-button--loading': loading, 'app-button--disabled': disabled, 'app-button--ripple': rippleActive }
+    ]"
+    :disabled="disabled || loading"
+    @click="triggerRipple"
   >
+    <span v-if="loading" class="app-button__spinner" />
+    <Icon v-if="icon && !loading" :name="icon" :size="iconSize" />
     <slot />
   </button>
 </template>
@@ -41,27 +85,42 @@ defineProps({
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  border-radius: var(--radius-md);
-  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-semibold);
   text-decoration: none;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
   cursor: pointer;
   border: 2px solid transparent;
   line-height: 1;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .app-button:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
+  transition-duration: 100ms;
+}
+
+/* Ripple effect */
+.app-button--ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 70%);
+  animation: ripple 500ms ease-out forwards;
+  pointer-events: none;
 }
 
 /* Sizes */
 .app-button--sm {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
+  border-radius: var(--radius-md);
 }
 
 .app-button--md {
@@ -70,8 +129,9 @@ defineProps({
 }
 
 .app-button--lg {
-  padding: var(--space-4) var(--space-8);
+  padding: calc(var(--space-3) + 2px) var(--space-8);
   font-size: var(--text-lg);
+  border-radius: var(--radius-xl);
 }
 
 /* Variants */
@@ -84,7 +144,19 @@ defineProps({
 .app-button--primary:hover {
   background: var(--color-accent-dark);
   border-color: var(--color-accent-dark);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-accent);
+}
+
+.app-button--gradient {
+  background: var(--gradient-accent);
+  color: var(--color-text-inverse);
+  border-color: transparent;
+  background-size: 150% 150%;
+}
+
+.app-button--gradient:hover {
+  background-position: 100% 50%;
+  box-shadow: var(--shadow-accent-lg);
 }
 
 .app-button--secondary {
@@ -96,7 +168,7 @@ defineProps({
 .app-button--secondary:hover {
   background: var(--color-primary-light);
   border-color: var(--color-primary-light);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .app-button--outline {
@@ -106,7 +178,8 @@ defineProps({
 }
 
 .app-button--outline:hover {
-  border-color: var(--color-text-primary);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
   box-shadow: var(--shadow-sm);
 }
 
@@ -117,6 +190,27 @@ defineProps({
 }
 
 .app-button--ghost:hover {
-  background: var(--color-background);
+  background: var(--color-background-alt);
+}
+
+/* States */
+.app-button--loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.app-button--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Spinner */
+.app-button__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
 }
 </style>

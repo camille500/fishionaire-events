@@ -24,18 +24,24 @@ defineProps({
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  position: relative;
 }
 
 .stat-block__value {
-  font-size: var(--text-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-family: var(--font-family-heading);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-weight-extrabold);
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: var(--line-height-tight);
 }
 
 .stat-block__label {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
 }
 </style>

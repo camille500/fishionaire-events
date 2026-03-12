@@ -1,8 +1,6 @@
 <script setup>
 const { t, tm, rt } = useI18n()
 
-useScrollReveal()
-
 const categories = computed(() =>
   tm('help.categories').map((item) => ({
     icon: rt(item.icon),
@@ -40,6 +38,9 @@ const faqSections = computed(() => {
         <div
           v-for="(section, index) in faqSections"
           :key="index"
+          v-motion
+          :initial="{ opacity: 0, y: 30 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { delay: index * 100, duration: 500 } }"
           class="help-page__faq-section"
         >
           <AppHeading :level="2" class="help-page__faq-section-title">
@@ -61,7 +62,7 @@ const faqSections = computed(() => {
 
 <style scoped>
 .help-page__categories {
-  padding: var(--space-20) 0;
+  padding: var(--space-24) 0;
 }
 
 .help-page__faq {

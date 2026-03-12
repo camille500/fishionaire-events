@@ -13,23 +13,76 @@ defineProps({
     default: false,
   },
 })
+
+const floatingEmojis = [
+  { emoji: '🎂', x: '10%', y: '20%', delay: 0, duration: 8 },
+  { emoji: '🎉', x: '85%', y: '15%', delay: 2, duration: 10 },
+  { emoji: '💍', x: '75%', y: '70%', delay: 4, duration: 9 },
+  { emoji: '🎈', x: '15%', y: '75%', delay: 1, duration: 7 },
+  { emoji: '🎁', x: '50%', y: '10%', delay: 3, duration: 11 },
+  { emoji: '🥂', x: '90%', y: '50%', delay: 5, duration: 8 },
+  { emoji: '🎊', x: '5%', y: '45%', delay: 2.5, duration: 9 },
+  { emoji: '✨', x: '60%', y: '80%', delay: 1.5, duration: 10 },
+]
 </script>
 
 <template>
-  <section class="hero-section" :class="{ 'hero-section--small': small }">
-    <div class="hero-section__decoration">
-      <div class="hero-section__circle hero-section__circle--1" />
-      <div class="hero-section__circle hero-section__circle--2" />
-      <div class="hero-section__circle hero-section__circle--3" />
+  <section class="hero" :class="{ 'hero--small': small }">
+    <!-- Animated gradient mesh background -->
+    <div class="hero__mesh" />
+
+    <!-- Floating emoji decorations -->
+    <div v-if="!small" class="hero__floaters" aria-hidden="true">
+      <span
+        v-for="(item, i) in floatingEmojis"
+        :key="i"
+        class="hero__floater"
+        :style="{
+          left: item.x,
+          top: item.y,
+          animationDelay: item.delay + 's',
+          animationDuration: item.duration + 's',
+        }"
+      >{{ item.emoji }}</span>
     </div>
-    <div class="hero-section__container">
-      <AppHeading :level="1" align="center" class="hero-section__title">
+
+    <!-- Dot particles -->
+    <div class="hero__dots" aria-hidden="true">
+      <span v-for="n in 20" :key="n" class="hero__dot" :style="{
+        left: (n * 4.7 + 3) % 97 + '%',
+        top: (n * 7.3 + 5) % 93 + '%',
+        animationDelay: (n * 0.3) + 's',
+        animationDuration: (3 + (n % 4)) + 's',
+      }" />
+    </div>
+
+    <div class="hero__container">
+      <AppHeading
+        v-motion
+        :initial="{ opacity: 0, y: 40 }"
+        :enter="{ opacity: 1, y: 0, transition: { delay: 100, duration: 600 } }"
+        :level="1"
+        align="center"
+        class="hero__title"
+      >
         {{ title }}
       </AppHeading>
-      <AppText v-if="subtitle" size="lg" align="center" class="hero-section__subtitle">
+      <p
+        v-if="subtitle"
+        v-motion
+        :initial="{ opacity: 0, y: 30 }"
+        :enter="{ opacity: 1, y: 0, transition: { delay: 300, duration: 600 } }"
+        class="hero__subtitle"
+      >
         {{ subtitle }}
-      </AppText>
-      <div v-if="$slots.default" class="hero-section__actions">
+      </p>
+      <div
+        v-if="$slots.default"
+        v-motion
+        :initial="{ opacity: 0, y: 20 }"
+        :enter="{ opacity: 1, y: 0, transition: { delay: 500, duration: 600 } }"
+        class="hero__actions"
+      >
         <slot />
       </div>
     </div>
@@ -37,59 +90,72 @@ defineProps({
 </template>
 
 <style scoped>
-.hero-section {
+.hero {
   position: relative;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  padding: var(--space-24) var(--space-6);
+  padding: var(--space-24) var(--space-6) calc(var(--space-24) + 2rem);
   overflow: hidden;
+  isolation: isolate;
 }
 
-.hero-section--small {
+.hero--small {
   padding: var(--space-16) var(--space-6);
 }
 
-.hero-section__decoration {
+/* Animated gradient mesh */
+.hero__mesh {
   position: absolute;
   inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(255, 107, 107, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(154, 86, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 154, 86, 0.1) 0%, transparent 50%),
+    var(--gradient-hero);
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+/* Floating emojis */
+.hero__floaters {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   pointer-events: none;
   overflow: hidden;
 }
 
-.hero-section__circle {
+.hero__floater {
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.03);
+  font-size: 2rem;
+  opacity: 0.15;
+  animation: float-gentle linear infinite;
+  filter: blur(0.5px);
 }
 
-.hero-section__circle--1 {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  right: -100px;
-  animation: float 8s ease-in-out infinite;
-}
-
-.hero-section__circle--2 {
-  width: 250px;
-  height: 250px;
-  bottom: -50px;
-  left: -50px;
-  animation: float 6s ease-in-out infinite 1s;
-}
-
-.hero-section__circle--3 {
-  width: 150px;
-  height: 150px;
-  top: 50%;
-  left: 60%;
-  animation: float 7s ease-in-out infinite 2s;
-}
-
-.hero-section--small .hero-section__circle {
+.hero--small .hero__floaters {
   display: none;
 }
 
-.hero-section__container {
+/* Dot particles */
+.hero__dots {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero__dot {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  animation: float ease-in-out infinite;
+}
+
+/* Content */
+.hero__container {
   position: relative;
   max-width: var(--max-width-content);
   margin: 0 auto;
@@ -99,22 +165,28 @@ defineProps({
   gap: var(--space-6);
 }
 
-.hero-section__title {
+.hero__title {
   color: var(--color-text-inverse);
   font-size: var(--text-5xl);
+  font-weight: var(--font-weight-extrabold);
   max-width: 800px;
+  letter-spacing: -0.03em;
 }
 
-.hero-section--small .hero-section__title {
+.hero--small .hero__title {
   font-size: var(--text-4xl);
 }
 
-.hero-section__subtitle {
-  color: rgba(255, 255, 255, 0.8);
+.hero__subtitle {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: var(--text-lg);
+  text-align: center;
   max-width: 600px;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
 }
 
-.hero-section__actions {
+.hero__actions {
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -124,16 +196,21 @@ defineProps({
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    padding: var(--space-16) var(--space-6);
+  .hero {
+    padding: var(--space-16) var(--space-6) var(--space-20);
   }
 
-  .hero-section__title {
+  .hero__title {
     font-size: var(--text-3xl);
   }
 
-  .hero-section--small .hero-section__title {
+  .hero--small .hero__title {
     font-size: var(--text-2xl);
+  }
+
+  .hero__floater {
+    font-size: 1.5rem;
+    opacity: 0.1;
   }
 }
 </style>

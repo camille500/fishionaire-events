@@ -17,7 +17,7 @@ const emit = defineEmits(['manage', 'upgrade'])
     <div class="subscription-card__content">
       <div class="subscription-card__info">
         <div class="subscription-card__label-row">
-          <AppIcon name="star" size="sm" class="subscription-card__icon" />
+          <Icon name="lucide:star" size="16" class="subscription-card__icon" />
           <AppText size="sm" class="subscription-card__label">{{ t('billing.currentPlan') }}</AppText>
         </div>
         <div class="subscription-card__plan">
@@ -38,7 +38,7 @@ const emit = defineEmits(['manage', 'upgrade'])
           size="sm"
           @click="emit('upgrade')"
         >
-          <AppIcon name="zap" size="sm" />
+          <Icon name="lucide:zap" size="16" />
           {{ t('billing.upgrade') }}
         </AppButton>
         <AppButton

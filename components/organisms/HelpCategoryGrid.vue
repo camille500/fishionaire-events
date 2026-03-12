@@ -18,7 +18,7 @@ defineProps({
           :class="`stagger-${index + 1}`"
         >
           <div class="help-category-grid__icon">
-            <AppIcon :name="category.icon" size="lg" />
+            <Icon :name="'lucide:' + category.icon" size="32" />
           </div>
           <AppHeading :level="3" class="help-category-grid__title">
             {{ category.title }}

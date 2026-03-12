@@ -54,12 +54,12 @@ async function save() {
 <template>
   <div class="event-editor">
       <AppButton variant="ghost" size="sm" to="/dashboard" class="event-editor__back">
-        <AppIcon name="chevron-down" size="sm" class="event-editor__back-icon" />
+        <Icon name="lucide:chevron-down" size="16" class="event-editor__back-icon" />
         {{ t('dashboard.backToDashboard') }}
       </AppButton>
 
       <div v-if="fetchError" class="event-editor__error-page">
-        <AppIcon name="shield" size="lg" />
+        <Icon name="lucide:shield" size="32" />
         <AppHeading :level="2">
           {{ fetchError.statusCode === 404 ? t('dashboard.eventEditor.notFound') : t('dashboard.eventEditor.noAccess') }}
         </AppHeading>
@@ -94,6 +94,10 @@ async function save() {
               rows="4"
               :placeholder="t('dashboard.eventEditor.descriptionPlaceholder')"
             />
+            <AiDescriptionAssistant
+              v-model="form.description"
+              :event-title="form.title"
+            />
           </div>
         </section>
 
@@ -119,7 +123,7 @@ async function save() {
           </AppButton>
           <Transition name="fade">
             <span v-if="saved" class="event-editor__saved">
-              <AppIcon name="check" size="sm" />
+              <Icon name="lucide:check" size="16" />
               {{ t('dashboard.eventEditor.saved') }}
             </span>
           </Transition>

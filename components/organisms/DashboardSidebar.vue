@@ -50,7 +50,7 @@ const navItems = computed(() => [
         </Transition>
       </NuxtLink>
       <button class="sidebar__toggle" @click="emit('toggle')">
-        <AppIcon :name="collapsed ? 'chevron-right' : 'chevron-left'" size="sm" />
+        <Icon :name="collapsed ? 'lucide:chevron-right' : 'lucide:chevron-left'" size="16" />
       </button>
     </div>
 
@@ -72,15 +72,15 @@ const navItems = computed(() => [
       <div class="sidebar__divider" />
       <UserMenu :collapsed="collapsed">
         <NuxtLink :to="localePath('dashboard') + '/settings'" class="sidebar__menu-item">
-          <AppIcon name="settings" size="sm" />
+          <Icon name="lucide:settings" size="16" />
           <span>{{ t('dashboard.sidebar.settings') }}</span>
         </NuxtLink>
         <NuxtLink :to="localePath('billing')" class="sidebar__menu-item">
-          <AppIcon name="wallet" size="sm" />
+          <Icon name="lucide:wallet" size="16" />
           <span>{{ t('dashboard.sidebar.billing') }}</span>
         </NuxtLink>
         <button class="sidebar__menu-item sidebar__menu-item--danger" @click="$clerk?.signOut()">
-          <AppIcon name="log-out" size="sm" />
+          <Icon name="lucide:log-out" size="16" />
           <span>{{ t('dashboard.sidebar.signOut') }}</span>
         </button>
       </UserMenu>

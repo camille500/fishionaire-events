@@ -35,6 +35,13 @@ const badgeLabel = computed(() => {
   return t(`dashboard.${props.event.status}`)
 })
 
+const accentColor = computed(() => {
+  const tier = props.event.tier
+  if (tier === 'pro') return 'var(--color-event-corporate)'
+  if (tier === 'standard') return 'var(--color-accent)'
+  return 'var(--color-event-default)'
+})
+
 function onInvited() {
   showInviteForm.value = false
   emit('invited')
@@ -42,13 +49,13 @@ function onInvited() {
 </script>
 
 <template>
-  <div class="event-card">
+  <div class="event-card" :style="{ '--card-accent': accentColor }">
     <div class="event-card__accent" />
     <div class="event-card__body">
       <div class="event-card__header">
         <div class="event-card__title-row">
           <div class="event-card__icon">
-            <AppIcon name="calendar" size="sm" />
+            <Icon name="lucide:calendar" size="16" />
           </div>
           <div class="event-card__title-group">
             <h3 class="event-card__title">{{ event.title }}</h3>
@@ -63,7 +70,7 @@ function onInvited() {
 
       <div v-if="isOwner" class="event-card__stats">
         <div class="event-card__stat">
-          <AppIcon name="users" size="sm" />
+          <Icon name="lucide:users" size="14" />
           <span>{{ event.invitationCount || 0 }} {{ t('dashboard.invited') }}</span>
         </div>
       </div>
@@ -74,7 +81,7 @@ function onInvited() {
           size="sm"
           :to="`/dashboard/events/${event.id}`"
         >
-          <AppIcon name="settings" size="sm" />
+          <Icon name="lucide:settings" size="14" />
           {{ t('dashboard.editEvent') }}
         </AppButton>
         <AppButton
@@ -82,7 +89,7 @@ function onInvited() {
           size="sm"
           @click="showInviteForm = !showInviteForm"
         >
-          <AppIcon name="mail" size="sm" />
+          <Icon name="lucide:mail" size="14" />
           {{ t('dashboard.inviteByEmail') }}
         </AppButton>
       </div>
@@ -98,29 +105,31 @@ function onInvited() {
 
 <style scoped>
 .event-card {
+  --card-accent: var(--color-accent);
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
   overflow: hidden;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition: all var(--transition-base);
   will-change: transform;
   display: flex;
 }
 
 .event-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--card-accent);
+  border-color: transparent;
 }
 
 .event-card__accent {
   width: 4px;
-  background: var(--color-accent);
+  background: var(--card-accent);
   flex-shrink: 0;
 }
 
 .event-card__body {
   flex: 1;
-  padding: var(--space-4) var(--space-6);
+  padding: var(--space-5) var(--space-6);
   min-width: 0;
 }
 
@@ -145,8 +154,8 @@ function onInvited() {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
-  background: var(--color-accent-bg);
-  color: var(--color-accent);
+  background: color-mix(in srgb, var(--card-accent) 10%, transparent);
+  color: var(--card-accent);
   flex-shrink: 0;
 }
 
@@ -155,6 +164,7 @@ function onInvited() {
 }
 
 .event-card__title {
+  font-family: var(--font-family-heading);
   font-size: var(--text-base);
   font-weight: var(--font-weight-semibold);
   margin: 0;
@@ -195,13 +205,13 @@ function onInvited() {
   gap: var(--space-2);
   margin-top: var(--space-3);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .event-card__invite {
   margin-top: var(--space-3);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .slide-down-enter-active,

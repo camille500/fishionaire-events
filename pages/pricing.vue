@@ -3,8 +3,6 @@ const { t, tm, rt } = useI18n()
 const { isSignedIn } = useAuth()
 const { checkout } = useSubscription()
 
-useScrollReveal()
-
 const subscribing = ref(false)
 
 const plans = computed(() =>
@@ -59,7 +57,14 @@ async function onPlanSelect(tier) {
 
     <section class="pricing-page__faq">
       <div class="pricing-page__faq-container">
-        <AppHeading :level="2" align="center" class="pricing-page__faq-title">
+        <AppHeading
+          v-motion
+          :initial="{ opacity: 0, y: 20 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { duration: 500 } }"
+          :level="2"
+          align="center"
+          class="pricing-page__faq-title"
+        >
           {{ t('pricing.faq.title') }}
         </AppHeading>
         <AccordionGroup :items="faqItems" />
@@ -77,7 +82,7 @@ async function onPlanSelect(tier) {
 
 <style scoped>
 .pricing-page__plans {
-  padding: var(--space-20) 0;
+  padding: var(--space-24) 0;
 }
 
 .pricing-page__faq {

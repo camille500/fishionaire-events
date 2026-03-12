@@ -1,3 +1,7 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+@import './theme.css';
 @import './variables.css';
 @import './reset.css';
+@import './glassmorphism.css';
 @import './animations.css';

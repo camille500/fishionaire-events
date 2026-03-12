@@ -1,4 +1,7 @@
-/* Keyframes */
+/* ============================
+   Core Keyframes
+   ============================ */
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -29,7 +32,127 @@
   50% { transform: translateY(-8px); }
 }
 
-/* Scroll-triggered animation utilities */
+/* ============================
+   Gradient & Decorative
+   ============================ */
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float-drift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translate(var(--drift-x, 60px), var(--drift-y, -120px)) rotate(var(--drift-rotate, 45deg));
+    opacity: 0;
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-12px) rotate(2deg); }
+  75% { transform: translateY(8px) rotate(-2deg); }
+}
+
+/* ============================
+   Micro-interactions
+   ============================ */
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes count-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================
+   Confetti
+   ============================ */
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(var(--fall-distance, 400px)) rotate(var(--fall-rotate, 720deg)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-burst {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--burst-x, 100px), var(--burst-y, -200px)) rotate(var(--burst-rotate, 360deg));
+    opacity: 0;
+  }
+}
+
+/* ============================
+   Skeleton / Loading
+   ============================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+
+/* ============================
+   Layout Transitions
+   ============================ */
+
+@keyframes slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fade-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================
+   Scroll-triggered (legacy — being replaced by v-motion)
+   ============================ */
+
 .animate-on-scroll.is-hidden {
   opacity: 0;
 }
@@ -70,26 +193,35 @@
 .stagger-9 { animation-delay: 900ms; }
 .stagger-10 { animation-delay: 1000ms; }
 
-/* Shimmer for skeleton loaders */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+/* ============================
+   Page Transitions
+   ============================ */
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 250ms ease, transform 250ms ease;
 }
 
-/* Soft pulse for notification badges */
-@keyframes pulse-soft {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.15); opacity: 0.85; }
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
 }
 
-/* Sidebar slide in */
-@keyframes slide-in-from-left {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
-/* Fade backdrop */
-@keyframes fade-backdrop {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* ============================
+   Reduced Motion
+   ============================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

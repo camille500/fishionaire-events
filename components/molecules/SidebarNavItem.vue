@@ -37,7 +37,7 @@ const isActive = computed(() => {
     :to="to"
     :class="['sidebar-nav-item', { 'sidebar-nav-item--active': isActive, 'sidebar-nav-item--collapsed': collapsed }]"
   >
-    <AppIcon :name="icon" size="sm" class="sidebar-nav-item__icon" />
+    <Icon :name="'lucide:' + icon" size="16" class="sidebar-nav-item__icon" />
     <Transition name="sidebar-label">
       <span v-show="!collapsed" class="sidebar-nav-item__label">{{ label }}</span>
     </Transition>

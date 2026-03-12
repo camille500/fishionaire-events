@@ -44,7 +44,7 @@ async function onCancel() {
     <div class="billing">
       <div class="billing__top-nav">
         <AppButton variant="ghost" size="sm" :to="localePath('dashboard')">
-          <AppIcon name="arrow-left" size="sm" />
+          <Icon name="lucide:arrow-left" size="16" />
           {{ t('billing.backToDashboard') }}
         </AppButton>
       </div>
@@ -115,7 +115,7 @@ async function onCancel() {
             <div class="billing__option-body">
               <div class="billing__option-header">
                 <div class="billing__option-icon">
-                  <AppIcon :name="option.icon" size="sm" />
+                  <Icon :name="'lucide:' + option.icon" size="16" />
                 </div>
                 <TierBadge v-if="option.isCurrent" :tier="option.key" />
               </div>
@@ -123,7 +123,7 @@ async function onCancel() {
               <span class="billing__option-price">{{ option.price }}</span>
               <span class="billing__option-description">{{ option.description }}</span>
               <span v-if="option.isCurrent" class="billing__option-current">
-                <AppIcon name="check" size="sm" />
+                <Icon name="lucide:check" size="16" />
                 {{ t('billing.currentLabel') }}
               </span>
             </div>

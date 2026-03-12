@@ -61,16 +61,16 @@ function select(tierKey) {
                 {{ t('tierSelector.recommended') }}
               </span>
             </div>
-            <AppIcon
+            <Icon
               v-if="modelValue === tier.key"
-              name="check"
-              size="sm"
+              name="lucide:check"
+              size="16"
               class="tier-option__check"
             />
           </div>
 
           <div v-if="tier.isCovered && tier.key !== 'free'" class="tier-option__included">
-            <AppIcon name="check" size="sm" />
+            <Icon name="lucide:check" size="16" />
             <span>{{ t('tierSelector.includedWithPlan') }}</span>
           </div>
           <div v-else-if="tier.price" class="tier-option__price">
@@ -79,7 +79,7 @@ function select(tierKey) {
 
           <ul class="tier-option__features">
             <li v-for="(feature, i) in tier.features" :key="i">
-              <AppIcon name="check" size="sm" />
+              <Icon name="lucide:check" size="16" />
               <span>{{ feature }}</span>
             </li>
           </ul>
@@ -218,7 +218,7 @@ function select(tierKey) {
   color: var(--color-text-secondary);
 }
 
-.tier-option__features .app-icon {
+.tier-option__features :deep(svg) {
   color: var(--color-success);
   flex-shrink: 0;
 }

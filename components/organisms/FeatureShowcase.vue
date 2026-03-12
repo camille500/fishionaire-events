@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   title: {
     type: String,
     required: true,
@@ -17,21 +17,34 @@ defineProps({
     default: false,
   },
 })
+
+const motionConfig = computed(() => ({
+  initial: { opacity: 0, x: props.reversed ? 60 : -60 },
+  visibleOnce: { opacity: 1, x: 0, transition: { duration: 600, delay: 100 } },
+}))
 </script>
 
 <template>
-  <section class="feature-showcase animate-on-scroll" :class="[reversed ? 'slide-in-right' : 'slide-in-left']">
+  <section
+    v-motion
+    :initial="motionConfig.initial"
+    :visible-once="motionConfig.visibleOnce"
+    class="feature-showcase"
+  >
     <div class="feature-showcase__container" :class="{ 'feature-showcase__container--reversed': reversed }">
       <div class="feature-showcase__content">
         <div class="feature-showcase__icon-wrap">
-          <AppIcon :name="icon" size="lg" />
+          <Icon :name="'lucide:' + icon" size="28" />
         </div>
         <AppHeading :level="3" class="feature-showcase__title">{{ title }}</AppHeading>
         <AppText size="lg" class="feature-showcase__description">{{ description }}</AppText>
       </div>
       <div class="feature-showcase__visual">
         <div class="feature-showcase__placeholder">
-          <AppIcon :name="icon" size="lg" />
+          <div class="feature-showcase__placeholder-icon">
+            <Icon :name="'lucide:' + icon" size="48" />
+          </div>
+          <div class="feature-showcase__placeholder-glow" />
         </div>
       </div>
     </div>
@@ -61,12 +74,13 @@ defineProps({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: var(--radius-lg);
-  background: var(--color-accent);
+  background: var(--gradient-accent);
   color: var(--color-text-inverse);
   margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-accent-sm);
 }
 
 .feature-showcase__title {
@@ -87,19 +101,46 @@ defineProps({
 .feature-showcase__placeholder {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, var(--color-background-alt), var(--color-background));
-  border-radius: var(--radius-xl);
+  background: var(--gradient-surface);
+  border-radius: var(--radius-2xl);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-light);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
 }
 
-.feature-showcase__placeholder .app-icon {
-  width: 64px;
-  height: 64px;
-  opacity: 0.3;
+.feature-showcase__placeholder:hover {
+  border-color: rgba(255, 107, 107, 0.2);
+  box-shadow: var(--shadow-md);
+}
+
+.feature-showcase__placeholder-icon {
+  opacity: 0.2;
+  transition: all var(--transition-base);
+}
+
+.feature-showcase__placeholder:hover .feature-showcase__placeholder-icon {
+  opacity: 0.35;
+  transform: scale(1.1);
+}
+
+.feature-showcase__placeholder-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 107, 0.08), transparent 70%);
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+  opacity: 0;
+}
+
+.feature-showcase__placeholder:hover .feature-showcase__placeholder-glow {
+  opacity: 1;
 }
 
 @media (max-width: 768px) {

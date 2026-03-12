@@ -10,22 +10,31 @@ defineProps({
 <template>
   <section class="social-proof-bar">
     <div class="social-proof-bar__container">
-      <StatBlock
+      <div
         v-for="(stat, index) in stats"
         :key="index"
-        :value="stat.value"
-        :label="stat.label"
-      />
+        v-motion
+        :initial="{ opacity: 0, y: 20 }"
+        :visible-once="{ opacity: 1, y: 0, transition: { delay: index * 150, duration: 500 } }"
+      >
+        <StatBlock
+          :value="stat.value"
+          :label="stat.label"
+        />
+      </div>
     </div>
+    <div class="social-proof-bar__shine" />
   </section>
 </template>
 
 <style scoped>
 .social-proof-bar {
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-8) 0;
+  border-top: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: var(--space-10) 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .social-proof-bar__container {
@@ -35,6 +44,17 @@ defineProps({
   display: flex;
   justify-content: center;
   gap: var(--space-16);
+}
+
+.social-proof-bar__shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shine-sweep 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @media (max-width: 640px) {

@@ -20,6 +20,11 @@ body {
   min-height: 100vh;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
 img,
 picture,
 video,
@@ -49,4 +54,27 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+::selection {
+  background: rgba(255, 107, 107, 0.2);
+  color: var(--color-text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }

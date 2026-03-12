@@ -25,7 +25,7 @@ const emit = defineEmits(['invited'])
 
     <div v-if="events.length === 0" class="event-list__empty">
       <div class="event-list__empty-icon">
-        <AppIcon name="calendar" size="lg" />
+        <Icon name="lucide:calendar" size="32" />
       </div>
       <AppText class="event-list__empty-text">
         {{ isOwnerList ? t('dashboard.noEvents') : t('dashboard.noInvitations') }}

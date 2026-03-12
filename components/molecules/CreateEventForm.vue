@@ -61,7 +61,7 @@ async function onSubmit() {
     <AppText v-if="error" size="sm" class="create-event-form__error">{{ error }}</AppText>
     <div class="create-event-form__actions">
       <AppButton variant="primary" size="sm" :disabled="loading || !title.trim()">
-        <AppIcon name="plus" size="sm" />
+        <Icon name="lucide:plus" size="16" />
         {{ loading ? t('dashboard.creating') : t('dashboard.createEvent') }}
       </AppButton>
       <AppButton variant="ghost" size="sm" type="button" @click="emit('cancel')">

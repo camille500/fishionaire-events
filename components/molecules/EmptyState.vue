@@ -24,7 +24,7 @@ const emit = defineEmits(['cta-click'])
 <template>
   <div class="empty-state">
     <div class="empty-state__icon">
-      <AppIcon :name="icon" size="lg" />
+      <Icon :name="'lucide:' + icon" size="32" />
     </div>
     <h3 class="empty-state__title">{{ title }}</h3>
     <p v-if="description" class="empty-state__description">{{ description }}</p>
