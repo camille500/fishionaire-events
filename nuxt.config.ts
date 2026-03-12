@@ -15,6 +15,7 @@ export default defineNuxtConfig({
   ],
 
   nitro: {
+    preset: 'aws-amplify',
     alias: {
       '#prisma/client': resolve(__dirname, 'prisma/generated/client/client.ts'),
     },
