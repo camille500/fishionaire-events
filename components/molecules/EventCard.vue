@@ -109,11 +109,11 @@ function onArchiveConfirm() {
 
     <!-- Hover-reveal dropdown menu -->
     <div v-if="canEdit && dropdownItems.length" class="event-card__menu" @click.stop.prevent>
-      <UDropdownMenu :items="dropdownItems">
+      <AppDropdownMenu :items="dropdownItems">
         <button class="event-card__menu-btn" :title="t('dashboard.editEvent')">
           <Icon name="lucide:more-horizontal" size="16" />
         </button>
-      </UDropdownMenu>
+      </AppDropdownMenu>
     </div>
 
     <!-- Invite modal -->

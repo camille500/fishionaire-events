@@ -8,13 +8,6 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  // Check subscription - requires Standard or Pro
-  const subscription = await SubscriptionController.getSubscription(userId)
-  const tier = subscription?.tier || 'free'
-  if (tier === 'free') {
-    throw createError({ statusCode: 403, statusMessage: 'AI Event Builder requires a Standard or Pro subscription' })
-  }
-
   const { description, language } = await readBody<{ description: string, language?: string }>(event)
 
   if (!description || !description.trim()) {

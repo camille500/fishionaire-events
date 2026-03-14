@@ -11,10 +11,13 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'blur'])
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const { stringToCalendarDate, calendarDateToString, parseTime, formatDateDisplay, stringToMinDate } = useDateConversion()
+const { parseWithPreview } = useNaturalDateParse()
 
 const open = ref(false)
+const naturalInput = ref('')
+const parsedResult = ref(null)
 
 const calendarValue = computed({
   get() {
@@ -51,6 +54,30 @@ watch([hour, minute], () => {
   }
 })
 
+// Natural language parsing — debounced live preview
+watch(naturalInput, (text) => {
+  if (!text.trim()) {
+    parsedResult.value = null
+    return
+  }
+  parsedResult.value = parseWithPreview(text)
+})
+
+function applyNaturalDate() {
+  if (!parsedResult.value) return
+  emit('update:modelValue', parsedResult.value.localString)
+  naturalInput.value = ''
+  parsedResult.value = null
+  open.value = false
+}
+
+function onNaturalKeydown(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    applyNaturalDate()
+  }
+}
+
 const minCalendarDate = computed(() => stringToMinDate(props.minDate))
 
 const displayText = computed(() => {
@@ -62,6 +89,8 @@ const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
 
 function onPopoverClose() {
   open.value = false
+  naturalInput.value = ''
+  parsedResult.value = null
   emit('blur')
 }
 
@@ -69,6 +98,12 @@ function clearDate() {
   emit('update:modelValue', '')
   open.value = false
 }
+
+const naturalPlaceholder = computed(() => {
+  return locale.value === 'nl'
+    ? 'Typ een datum... (bijv. \'volgende zaterdag 15:00\')'
+    : 'Type a date... (e.g. \'next Saturday 3pm\')'
+})
 </script>
 
 <template>
@@ -83,18 +118,60 @@ function clearDate() {
           'editor-date-picker__trigger--open': open,
         }"
       >
+        <Icon name="lucide:calendar" size="14" class="editor-date-picker__trigger-icon" />
         <span v-if="displayText" class="editor-date-picker__display">{{ displayText }}</span>
         <span v-else class="editor-date-picker__placeholder">{{ placeholder }}</span>
       </button>
 
       <template #content>
         <div class="editor-date-picker__panel">
+          <!-- Natural language input -->
+          <div class="editor-date-picker__natural">
+            <div class="editor-date-picker__natural-input-wrap">
+              <Icon name="lucide:sparkles" size="14" class="editor-date-picker__natural-icon" />
+              <input
+                v-model="naturalInput"
+                type="text"
+                class="editor-date-picker__natural-input"
+                :placeholder="naturalPlaceholder"
+                autofocus
+                @keydown="onNaturalKeydown"
+              />
+            </div>
+
+            <!-- Parsed preview -->
+            <Transition name="fade">
+              <div v-if="parsedResult" class="editor-date-picker__preview">
+                <Icon name="lucide:check-circle" size="14" class="editor-date-picker__preview-icon" />
+                <span class="editor-date-picker__preview-text">{{ parsedResult.preview }}</span>
+                <button
+                  type="button"
+                  class="editor-date-picker__preview-apply"
+                  @click="applyNaturalDate"
+                >
+                  {{ locale === 'nl' ? 'Toepassen' : 'Apply' }}
+                </button>
+              </div>
+            </Transition>
+
+            <div v-if="naturalInput.trim() && !parsedResult" class="editor-date-picker__no-parse">
+              <Icon name="lucide:help-circle" size="12" />
+              <span>{{ locale === 'nl' ? 'Typ bijv. "morgen 14:00" of "volgende vrijdag"' : 'Try "tomorrow 2pm" or "next Friday"' }}</span>
+            </div>
+          </div>
+
+          <div class="editor-date-picker__divider">
+            <span>{{ locale === 'nl' ? 'of kies een datum' : 'or pick a date' }}</span>
+          </div>
+
+          <!-- Calendar -->
           <UCalendar
             v-model="calendarValue"
             class="editor-date-picker__calendar"
             :min-value="minCalendarDate"
           />
 
+          <!-- Time selector -->
           <div class="editor-date-picker__time">
             <Icon name="lucide:clock" size="14" class="editor-date-picker__time-icon" />
             <select
@@ -123,7 +200,7 @@ function clearDate() {
             @click="clearDate"
           >
             <Icon name="lucide:x" size="12" />
-            Wissen
+            {{ locale === 'nl' ? 'Wissen' : 'Clear' }}
           </button>
         </div>
       </template>
@@ -169,6 +246,11 @@ function clearDate() {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-error) 25%, transparent);
 }
 
+.editor-date-picker__trigger-icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
 .editor-date-picker__placeholder {
   color: var(--color-text-muted);
   opacity: 0.6;
@@ -183,7 +265,120 @@ function clearDate() {
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-3);
-  min-width: 280px;
+  min-width: 300px;
+}
+
+/* Natural language input */
+.editor-date-picker__natural {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.editor-date-picker__natural-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.editor-date-picker__natural-input-wrap:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-dim);
+}
+
+.editor-date-picker__natural-icon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.editor-date-picker__natural-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.editor-date-picker__natural-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+/* Parsed preview */
+.editor-date-picker__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--color-success) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 20%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.editor-date-picker__preview-icon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.editor-date-picker__preview-text {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+}
+
+.editor-date-picker__preview-apply {
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-success);
+  color: white;
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.editor-date-picker__preview-apply:hover {
+  opacity: 0.9;
+}
+
+/* No parse hint */
+.editor-date-picker__no-parse {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  padding: 0 var(--space-1);
+}
+
+/* Divider */
+.editor-date-picker__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.editor-date-picker__divider::before,
+.editor-date-picker__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-light);
 }
 
 .editor-date-picker__calendar {
@@ -205,29 +400,13 @@ function clearDate() {
 }
 
 .editor-date-picker__select {
-  appearance: none;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
+  width: auto;
+  padding: var(--space-1) var(--space-6);
+  padding-left: var(--space-2);
   background: var(--color-surface);
-  color: var(--color-text-primary);
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
-  padding: var(--space-1) var(--space-2);
-  cursor: pointer;
-  transition: border-color var(--transition-fast);
   min-width: 52px;
   text-align: center;
-}
-
-.editor-date-picker__select:hover {
-  border-color: var(--color-accent);
-}
-
-.editor-date-picker__select:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px var(--color-accent-dim);
 }
 
 .editor-date-picker__colon {
@@ -257,9 +436,28 @@ function clearDate() {
   background: color-mix(in srgb, var(--color-error) 8%, transparent);
 }
 
+/* Transitions */
+.fade-enter-active {
+  transition: all 200ms ease-out;
+}
+
+.fade-leave-active {
+  transition: all 150ms ease-in;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 @media (max-width: 640px) {
   .editor-date-picker__trigger {
     padding: var(--space-2);
+  }
+
+  .editor-date-picker__panel {
+    min-width: 260px;
   }
 }
 </style>

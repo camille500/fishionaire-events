@@ -27,7 +27,7 @@ const emit = defineEmits(['update:modelValue'])
       <Icon :name="'lucide:' + icon" size="16" />
     </div>
     <div class="feature-toggle__info">
-      <USwitch
+      <AppSwitch
         :model-value="modelValue"
         :label="label"
         :description="description"

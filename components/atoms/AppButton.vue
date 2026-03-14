@@ -28,99 +28,159 @@ const props = defineProps({
   },
 })
 
-const buttonProps = computed(() => {
-  const map = {
-    primary: { color: 'primary', variant: 'solid' },
-    secondary: { color: 'neutral', variant: 'soft' },
-    outline: { color: 'primary', variant: 'outline' },
-    ghost: { color: 'neutral', variant: 'subtle' },
-    gradient: { color: 'primary', variant: 'solid' },
-    danger: { color: 'error', variant: 'soft' },
-  }
-  return map[props.variant] || map.primary
-})
-
 const isSubtle = computed(() => ['ghost', 'secondary'].includes(props.variant))
 </script>
 
 <template>
-  <UButton
-    :color="buttonProps.color"
-    :variant="buttonProps.variant"
-    :size="size"
-    :to="to || undefined"
-    :loading="loading"
-    :disabled="disabled"
-    :leading-icon="icon || undefined"
+  <NuxtLink
+    v-if="to"
+    :to="to"
     :class="[
       'app-button',
       `app-button--${variant}`,
+      `app-button--${size}`,
       { 'app-button--subtle': isSubtle },
     ]"
   >
+    <Icon v-if="icon && !loading" :name="icon" class="app-button__icon" />
+    <span v-if="loading" class="app-button__spinner" />
     <slot />
-  </UButton>
+  </NuxtLink>
+  <button
+    v-else
+    :disabled="disabled || loading"
+    :class="[
+      'app-button',
+      `app-button--${variant}`,
+      `app-button--${size}`,
+      { 'app-button--subtle': isSubtle, 'app-button--loading': loading },
+    ]"
+  >
+    <Icon v-if="icon && !loading" :name="icon" class="app-button__icon" />
+    <span v-if="loading" class="app-button__spinner" />
+    <slot />
+  </button>
 </template>
 
 <style scoped>
 .app-button {
-  border-radius: var(--radius-md) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  text-decoration: none;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  transition: all var(--transition-base);
 }
 
-/* Solid & gradient: lift on hover */
-.app-button--primary,
-.app-button--gradient {
-  transition: all 0.25s ease;
+.app-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-.app-button--primary:hover:not(:disabled),
-.app-button--gradient:hover:not(:disabled) {
+/* Sizes */
+.app-button--sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-md);
+}
+
+.app-button--md {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.app-button--lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+}
+
+/* Primary */
+.app-button--primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.app-button--primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-accent);
+  filter: brightness(1.05);
 }
 
-.app-button--primary:active:not(:disabled),
-.app-button--gradient:active:not(:disabled) {
+.app-button--primary:active:not(:disabled) {
   transform: translateY(0) scale(0.98);
   transition-duration: 100ms;
 }
 
-/* Outline: subtle lift */
+/* Secondary */
+.app-button--secondary {
+  background: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.app-button--secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  color: var(--color-text-primary);
+}
+
+/* Outline */
 .app-button--outline {
-  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
 .app-button--outline:hover:not(:disabled) {
-  box-shadow: var(--shadow-xs);
+  box-shadow: inset 0 0 0 1px var(--color-accent), var(--shadow-xs);
+  background: var(--color-accent-dim);
 }
 
-/* Subtle variants: no lift, just state change */
-.app-button--subtle {
-  transition: all 0.15s ease;
+/* Ghost */
+.app-button--ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
 }
 
-/* Danger variant */
+.app-button--ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+  color: var(--color-text-primary);
+}
+
+/* Danger */
 .app-button--danger {
-  transition: all 0.2s ease;
+  background: color-mix(in srgb, var(--color-error) 10%, transparent);
+  color: var(--color-error);
 }
 
 .app-button--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-error) 16%, transparent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-error) 30%, transparent);
 }
 
-/* Gradient overlay */
+/* Gradient */
 .app-button--gradient {
-  background: var(--gradient-accent) !important;
-  border-color: transparent !important;
+  background: var(--gradient-accent);
   background-size: 200% auto;
-  color: #fff !important;
+  border-color: transparent;
+  color: #fff;
 }
 
 .app-button--gradient:hover:not(:disabled) {
+  transform: translateY(-2px);
   background-position: right center;
   box-shadow: var(--shadow-accent-lg);
+}
+
+.app-button--gradient:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 100ms;
 }
 
 .app-button--gradient::before {
@@ -138,8 +198,49 @@ const isSubtle = computed(() => ['ghost', 'secondary'].includes(props.variant))
   animation: shimmer-btn 1.5s ease infinite;
 }
 
+/* Icon */
+.app-button__icon {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+/* Loading spinner */
+.app-button__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
 @keyframes shimmer-btn {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-button {
+    transition: none;
+  }
+
+  .app-button:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .app-button--gradient::before {
+    animation: none;
+  }
+
+  .app-button__spinner {
+    animation-duration: 1.5s;
+  }
 }
 </style>

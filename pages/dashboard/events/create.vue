@@ -4,6 +4,8 @@ definePageMeta({ layout: 'dashboard' })
 const { t } = useI18n()
 const toast = useToast()
 
+const route = useRoute()
+
 const {
   form,
   currentStep,
@@ -24,6 +26,7 @@ const {
   clearDraft,
   resetWizard,
   getSubmissionData,
+  selectType,
 } = useWizardStateProvider()
 
 const wizardAi = useWizardAi()
@@ -56,6 +59,15 @@ onMounted(() => {
     })
   }
   draftChecked.value = true
+
+  // Handle template query param from DashboardWelcome
+  if (route.query.template && !hasDraft.value) {
+    const templateType = String(route.query.template)
+    selectType(templateType)
+    startMode.value = 'manual'
+    // Skip to type step (index 1), which auto-advances after selection
+    goToStep(1)
+  }
 })
 
 // Event creation
@@ -146,14 +158,7 @@ const transitionName = computed(() => {
               :wizard-ai="wizardAi"
             />
 
-            <!-- Step 3: Activities -->
-            <WizardStepActivities
-              v-else-if="currentStepId === 'activities'"
-              key="activities"
-              :wizard-ai="wizardAi"
-            />
-
-            <!-- Step 4: Tier -->
+            <!-- Step 3: Tier -->
             <WizardStepTier
               v-else-if="currentStepId === 'tier'"
               key="tier"

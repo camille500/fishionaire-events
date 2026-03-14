@@ -16,11 +16,7 @@ onMounted(() => {
       <h3 class="editor-guests__section-label">{{ t('dashboard.eventEditor.guestSettingsSection') }}</h3>
 
       <div class="editor-guests__props">
-        <div class="editor-guests__prop">
-          <span class="editor-guests__prop-label">
-            <Icon name="lucide:users" size="14" />
-            {{ t('dashboard.eventEditor.maxGuestsLabel') }}
-          </span>
+        <EditorPropertyRow :label="t('dashboard.eventEditor.maxGuestsLabel')" icon="lucide:users">
           <input
             v-model="form.maxGuests"
             type="number"
@@ -29,7 +25,7 @@ onMounted(() => {
             :placeholder="t('dashboard.eventEditor.maxGuestsPlaceholder')"
             @blur="markTouched('maxGuests')"
           />
-        </div>
+        </EditorPropertyRow>
         <EditorFieldError
           :message="errors.maxGuests"
           :visible="!!(errors.maxGuests && touched.maxGuests)"
@@ -50,7 +46,7 @@ onMounted(() => {
             <span class="editor-guests__toggle-desc">{{ t('dashboard.eventEditor.isPrivateDescription') }}</span>
           </div>
         </div>
-        <USwitch v-model="form.isPrivate" />
+        <AppSwitch v-model="form.isPrivate" />
       </div>
     </section>
 
@@ -103,30 +99,6 @@ onMounted(() => {
 .editor-guests__props {
   display: flex;
   flex-direction: column;
-}
-
-.editor-guests__prop {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-2) var(--space-3);
-  margin: 0 calc(-1 * var(--space-3));
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
-}
-
-.editor-guests__prop:hover {
-  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
-}
-
-.editor-guests__prop-label {
-  width: 160px;
-  flex-shrink: 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 
 .editor-guests__prop-value {
@@ -219,16 +191,6 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
-  .editor-guests__prop {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1);
-  }
-
-  .editor-guests__prop-label {
-    width: auto;
-  }
-
   .editor-guests__prop-value {
     width: 100%;
   }

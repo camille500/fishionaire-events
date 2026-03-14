@@ -49,7 +49,7 @@ async function onSubmit() {
         <form @submit.prevent="onSubmit">
           <div class="modal__field">
             <label class="modal__label">{{ t('dashboard.eventEditor.templateName') }}</label>
-            <UInput
+            <AppInput
               v-model="name"
               :placeholder="t('dashboard.eventEditor.templateNamePlaceholder')"
               :disabled="loading"

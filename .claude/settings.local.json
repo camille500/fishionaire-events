@@ -4,7 +4,17 @@
       "mcp__context7__query-docs",
       "mcp__context7__resolve-library-id",
       "Bash(find server:*)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__context7__query",
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Bash(find server:*)",
+      "WebSearch",
+      "mcp__context7__query",
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Bash(find server:*)",
+      "WebSearch",
     ]
   }
 }

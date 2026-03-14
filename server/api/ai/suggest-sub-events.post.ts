@@ -7,9 +7,11 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const { eventType, eventTitle, existingSubEvents, language } = await readBody<{
+  const { eventType, eventTitle, description, eventDate, existingSubEvents, language } = await readBody<{
     eventType?: string
     eventTitle?: string
+    description?: string
+    eventDate?: string
     existingSubEvents?: string[]
     language?: string
   }>(event)
@@ -17,6 +19,8 @@ export default defineEventHandler(async (event: H3Event) => {
   return await AiSuggestionsController.suggestSubEvents({
     eventType: eventType || null,
     eventTitle: eventTitle || null,
+    description: description || null,
+    eventDate: eventDate || null,
     existingSubEvents: existingSubEvents || [],
     language: language || 'en',
   })

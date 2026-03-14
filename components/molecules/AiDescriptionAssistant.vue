@@ -360,26 +360,8 @@ function accept() {
 }
 
 .ai-assistant__prompt {
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-family: var(--font-family);
   background: var(--color-surface);
-  color: var(--color-text-primary);
   resize: none;
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.ai-assistant__prompt:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
-}
-
-.ai-assistant__prompt::placeholder {
-  color: var(--color-text-muted);
 }
 
 .ai-assistant__options {
@@ -457,19 +439,12 @@ function accept() {
 }
 
 .ai-assistant__select {
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  width: auto;
+  padding: var(--space-1) var(--space-6);
+  padding-left: var(--space-2);
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
-  font-family: var(--font-family);
-  cursor: pointer;
-  outline: none;
-}
-
-.ai-assistant__select:focus {
-  border-color: var(--color-accent);
 }
 
 .ai-assistant__toggle {
@@ -477,10 +452,6 @@ function accept() {
   align-items: center;
   gap: var(--space-2);
   cursor: pointer;
-}
-
-.ai-assistant__checkbox {
-  accent-color: var(--color-accent);
 }
 
 .ai-assistant__toggle-label {
@@ -661,24 +632,7 @@ function accept() {
 
 .ai-assistant__refine-input {
   flex: 1;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-family: var(--font-family);
   background: var(--color-surface);
-  color: var(--color-text-primary);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.ai-assistant__refine-input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
-}
-
-.ai-assistant__refine-input::placeholder {
-  color: var(--color-text-muted);
 }
 
 .ai-assistant__history {

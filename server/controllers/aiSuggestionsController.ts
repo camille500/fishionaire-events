@@ -11,6 +11,8 @@ interface SuggestTitlesParams {
 interface SuggestSubEventsParams {
   eventType?: string
   eventTitle?: string
+  description?: string
+  eventDate?: string
   existingSubEvents?: Array<{ title: string }>
   language?: Language
 }
@@ -104,7 +106,7 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async suggestSubEvents({ eventType, eventTitle, existingSubEvents = [], language = 'en' }: SuggestSubEventsParams): Promise<{ suggestions: SubEventSuggestion[] }> {
+  static async suggestSubEvents({ eventType, eventTitle, description, eventDate, existingSubEvents = [], language = 'en' }: SuggestSubEventsParams): Promise<{ suggestions: SubEventSuggestion[] }> {
     const client = this.#getClient()
 
     const languageInstruction = language === 'en'
@@ -121,7 +123,10 @@ export default class AiSuggestionsController {
       languageInstruction,
       eventType ? `This is a ${eventType} event.` : '',
       eventTitle ? `The event is called "${eventTitle}".` : '',
+      description ? `The event description is: "${description}"` : '',
+      eventDate ? `The event is scheduled for ${eventDate}.` : '',
       existingContext,
+      'Use the event details above to suggest activities that fit the specific context and tone of this event.',
       'Return a JSON object with a "suggestions" array of objects, each with "title" (string) and "durationMinutes" (number).',
       'Suggest 3-5 activities with realistic durations.',
       'Only return valid JSON, nothing else.',
@@ -219,7 +224,7 @@ export default class AiSuggestionsController {
       `- "eventType": one of [${eventTypes}], pick the best match`,
       '- "title": a catchy, creative event title based on the description',
       '- "description": a 2-3 sentence event description',
-      '- "dateSuggestion": { "dayOfWeek": string, "timeOfDay": "morning"|"afternoon"|"evening"|"night", "suggestedTime": "HH:MM" } or null if no date info given',
+      '- "dateSuggestion": { "dayOfWeek": string, "timeOfDay": "morning"|"afternoon"|"evening"|"night", "suggestedTime": "HH:MM", "isoDate": "YYYY-MM-DDTHH:MM" } or null if no date info given. If the user mentions a specific date like "next Saturday" or "March 25", calculate the actual date relative to today (' + new Date().toISOString().split('T')[0] + ') and include it as "isoDate" in ISO 8601 format.',
       '- "activities": array of { "title": string, "durationMinutes": number }, suggest 3-5 relevant activities',
       '',
       'Be creative with the title and description. Make the activities realistic and well-timed.',

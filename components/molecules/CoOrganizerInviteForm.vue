@@ -49,13 +49,13 @@ async function onSubmit() {
 <template>
   <form class="co-org-form" @submit.prevent="onSubmit">
     <div class="co-org-form__row">
-      <UInput
+      <AppInput
         v-model="email"
         type="email"
         :placeholder="t('dashboard.eventEditor.coOrganizerEmailPlaceholder')"
         :disabled="loading"
         size="sm"
-        icon="i-lucide-user-plus"
+        icon="lucide:user-plus"
         class="co-org-form__input"
       />
       <AppButton variant="primary" size="sm" :disabled="loading || !email.trim()">

@@ -98,10 +98,6 @@ const currentLanguage = computed({
   background: var(--color-background);
 }
 
-.settings-page__radio {
-  accent-color: var(--color-accent);
-}
-
 .settings-page__radio-label {
   font-size: var(--text-sm);
   color: var(--color-text-primary);

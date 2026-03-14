@@ -41,8 +41,6 @@ a {
 button {
   font: inherit;
   cursor: pointer;
-  border: none;
-  background: none;
 }
 
 ul,
@@ -56,7 +54,7 @@ select {
   font: inherit;
 }
 
-:focus-visible {
+:focus-visible:not(input):not(textarea):not(select):not(button) {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }

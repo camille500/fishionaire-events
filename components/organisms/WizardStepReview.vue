@@ -1,6 +1,6 @@
 <script setup>
 const { t } = useI18n()
-const { form, STEPS } = useWizardState()
+const { form, STEPS, ALL_STEPS, aiPrefilled } = useWizardState()
 
 const props = defineProps({
   creating: { type: Boolean, default: false },
@@ -31,11 +31,18 @@ function formatDate(dateStr) {
   }
 }
 
-// Go to specific step for editing
+// Go to specific step for editing (STEPS is now a computed ref)
 function editField(stepId) {
-  const index = STEPS.findIndex((s) => s.id === stepId)
+  const steps = STEPS.value || STEPS
+  const index = (Array.isArray(steps) ? steps : []).findIndex((s) => s.id === stepId)
   if (index >= 0) emit('goToStep', index)
 }
+
+const TIER_OPTIONS = [
+  { id: 'free', label: 'Free', icon: 'lucide:gift' },
+  { id: 'standard', label: 'Standard', icon: 'lucide:star' },
+  { id: 'pro', label: 'Pro', icon: 'lucide:crown' },
+]
 </script>
 
 <template>
@@ -96,24 +103,42 @@ function editField(stepId) {
           </button>
         </div>
 
-        <!-- Activities -->
-        <div class="step-review__row">
+        <!-- Activities (read-only, only shown when AI pre-filled) -->
+        <div v-if="activityCount > 0" class="step-review__row">
           <div class="step-review__row-content">
             <span class="step-review__row-label">
               <Icon name="lucide:layers" size="12" />
               {{ t('wizard.reviewFields.activities') }}
             </span>
             <span class="step-review__row-value">
-              {{ activityCount > 0 ? t('wizard.reviewFields.activityCount', { count: activityCount }) : t('wizard.reviewFields.noActivities') }}
+              {{ t('wizard.reviewFields.activityCount', { count: activityCount }) }}
             </span>
           </div>
-          <button type="button" class="step-review__edit" @click="editField('activities')">
-            <Icon name="lucide:pencil" size="12" />
-          </button>
         </div>
 
-        <!-- Tier -->
-        <div class="step-review__row">
+        <!-- Tier: inline selector when AI skipped the tier step -->
+        <div v-if="aiPrefilled" class="step-review__tier-inline">
+          <span class="step-review__row-label">
+            <Icon name="lucide:crown" size="12" />
+            {{ t('wizard.reviewFields.plan') }}
+          </span>
+          <div class="step-review__tier-options">
+            <button
+              v-for="opt in TIER_OPTIONS"
+              :key="opt.id"
+              type="button"
+              class="step-review__tier-pill"
+              :class="{ 'step-review__tier-pill--active': form.selectedTier === opt.id }"
+              @click="form.selectedTier = opt.id"
+            >
+              <Icon :name="opt.icon" size="12" />
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Tier: regular display when tier step was visited -->
+        <div v-else class="step-review__row">
           <div class="step-review__row-content">
             <span class="step-review__row-label">
               <Icon name="lucide:crown" size="12" />
@@ -270,6 +295,51 @@ function editField(stepId) {
   color: var(--color-error);
   font-size: var(--text-sm);
   width: 100%;
+}
+
+/* Inline tier selector */
+.step-review__tier-inline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.step-review__tier-options {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.step-review__tier-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.step-review__tier-pill:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.step-review__tier-pill--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+
+.step-review__tier-pill--active:hover {
+  color: white;
 }
 
 .step-review__create-btn {

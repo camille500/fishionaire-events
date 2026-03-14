@@ -31,16 +31,16 @@ function onSubmit() {
   <form class="sub-event-form" @submit.prevent="onSubmit">
     <div class="sub-event-form__field">
       <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventTitle') }}</label>
-      <UInput
+      <AppInput
         v-model="form.title"
         :placeholder="t('dashboard.eventEditor.subEventTitlePlaceholder')"
         :disabled="loading"
-        icon="i-lucide-tag"
+        icon="lucide:tag"
       />
     </div>
     <div class="sub-event-form__field">
       <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventDescription') }}</label>
-      <UTextarea
+      <AppTextarea
         v-model="form.description"
         :placeholder="t('dashboard.eventEditor.subEventDescriptionPlaceholder')"
         :disabled="loading"
@@ -50,20 +50,20 @@ function onSubmit() {
     <div class="sub-event-form__row">
       <div class="sub-event-form__field">
         <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventStartTime') }}</label>
-        <UInput v-model="form.startTime" type="datetime-local" :disabled="loading" />
+        <AppInput v-model="form.startTime" type="datetime-local" :disabled="loading" />
       </div>
       <div class="sub-event-form__field">
         <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventEndTime') }}</label>
-        <UInput v-model="form.endTime" type="datetime-local" :disabled="loading" />
+        <AppInput v-model="form.endTime" type="datetime-local" :disabled="loading" />
       </div>
     </div>
     <div class="sub-event-form__field">
       <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventLocation') }}</label>
-      <UInput
+      <AppInput
         v-model="form.location"
         :placeholder="t('dashboard.eventEditor.subEventLocationPlaceholder')"
         :disabled="loading"
-        icon="i-lucide-map-pin"
+        icon="lucide:map-pin"
       />
     </div>
     <div class="sub-event-form__actions">

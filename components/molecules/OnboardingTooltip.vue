@@ -31,25 +31,27 @@ function dismiss() {
 <template>
   <div class="onboarding-wrapper">
     <slot />
-    <Transition name="onboarding">
-      <div
-        v-if="visible"
-        class="onboarding-tip"
-        :class="`onboarding-tip--${position}`"
-      >
-        <div class="onboarding-tip__content">
-          <Icon name="lucide:lightbulb" size="14" class="onboarding-tip__icon" />
-          <div class="onboarding-tip__text">
-            <strong v-if="title" class="onboarding-tip__title">{{ title }}</strong>
-            <span class="onboarding-tip__desc">{{ description }}</span>
+    <ClientOnly>
+      <Transition name="onboarding">
+        <div
+          v-if="visible"
+          class="onboarding-tip"
+          :class="`onboarding-tip--${position}`"
+        >
+          <div class="onboarding-tip__content">
+            <Icon name="lucide:lightbulb" size="14" class="onboarding-tip__icon" />
+            <div class="onboarding-tip__text">
+              <strong v-if="title" class="onboarding-tip__title">{{ title }}</strong>
+              <span class="onboarding-tip__desc">{{ description }}</span>
+            </div>
+            <button type="button" class="onboarding-tip__close" @click="dismiss">
+              <Icon name="lucide:x" size="12" />
+            </button>
           </div>
-          <button type="button" class="onboarding-tip__close" @click="dismiss">
-            <Icon name="lucide:x" size="12" />
-          </button>
+          <div class="onboarding-tip__arrow" />
         </div>
-        <div class="onboarding-tip__arrow" />
-      </div>
-    </Transition>
+      </Transition>
+    </ClientOnly>
   </div>
 </template>
 

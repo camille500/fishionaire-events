@@ -819,6 +819,13 @@
       "noTimelineDesc": "Maak een gedetailleerde tijdlijn zodat gasten weten wat ze kunnen verwachten.",
       "upgradeToPro": "Upgrade naar Pro"
     },
+    "programme": {
+      "emptyTitle": "Plan je programma",
+      "emptySubtitle": "Voeg activiteiten toe zodat je gasten weten wat ze kunnen verwachten — je kunt ze later altijd aanpassen.",
+      "generateAi": "Programma laten genereren",
+      "useTemplate": "Gebruik een standaardsjabloon",
+      "dismiss": "Ik voeg ze zelf toe"
+    },
     "validation": {
       "titleRequired": "Geef je evenement een naam",
       "endDateAfterStart": "Einddatum moet na de startdatum liggen",
@@ -863,7 +870,8 @@
       "subtitle": "Maak je evenement vanaf nul of laat AI je helpen plannen",
       "manual": {
         "title": "Zelf beginnen",
-        "description": "Bouw je evenement stap voor stap, precies zoals je het wilt"
+        "description": "Bouw je evenement stap voor stap, precies zoals je het wilt",
+        "fallback": "of bouw stap voor stap"
       },
       "ai": {
         "title": "Laat AI me helpen plannen",
@@ -872,7 +880,8 @@
         "placeholder": "bijv. Een 30ste verjaardagsdiner voor 20 personen aanstaande zaterdag, casual maar elegant",
         "build": "Bouw mijn evenement",
         "building": "Bezig met opbouwen...",
-        "back": "Terug"
+        "back": "Terug",
+        "upsell": "Wil je onbeperkt AI, slimme suggesties en meer? Upgrade naar Standard"
       }
     },
     "skipType": "Overslaan — ik beslis later",

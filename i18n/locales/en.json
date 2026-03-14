@@ -819,6 +819,13 @@
       "noTimelineDesc": "Create a detailed timeline so guests know what to expect.",
       "upgradeToPro": "Upgrade to Pro"
     },
+    "programme": {
+      "emptyTitle": "Plan your programme",
+      "emptySubtitle": "Add activities so your guests know what to expect — you can always change these later.",
+      "generateAi": "Generate suggested programme",
+      "useTemplate": "Use a starter template",
+      "dismiss": "I'll add them myself"
+    },
     "validation": {
       "titleRequired": "Give your event a name",
       "endDateAfterStart": "End date must be after start date",
@@ -863,7 +870,8 @@
       "subtitle": "Create your event from scratch or let AI help you plan it",
       "manual": {
         "title": "Start from scratch",
-        "description": "Build your event step by step, exactly how you want it"
+        "description": "Build your event step by step, exactly how you want it",
+        "fallback": "or build step-by-step"
       },
       "ai": {
         "title": "Let AI help me plan it",
@@ -872,7 +880,8 @@
         "placeholder": "e.g. A 30th birthday dinner for 20 people next Saturday evening, casual but elegant",
         "build": "Build my event",
         "building": "Building...",
-        "back": "Back"
+        "back": "Back",
+        "upsell": "Want unlimited AI builds, smart suggestions, and more? Upgrade to Standard"
       }
     },
     "skipType": "Skip — I'll decide later",

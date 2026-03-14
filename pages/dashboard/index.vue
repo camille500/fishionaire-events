@@ -28,6 +28,10 @@ const invitedEvents = computed(() => events.value?.invited || [])
 
 const recentEvents = computed(() => ownedEvents.value.slice(0, 6))
 
+const isFirstTimeUser = computed(() => {
+  return ownedEvents.value.length === 0 && coOrgEvents.value.length === 0 && invitedEvents.value.length === 0
+})
+
 const inlineStats = computed(() => {
   const owned = ownedEvents.value
   const invited = invitedEvents.value
@@ -48,115 +52,129 @@ function openCreateWizard() {
   <div class="dashboard-home">
     <ConfettiExplosion :trigger="showConfetti" />
 
-    <!-- Greeting -->
-    <section class="dashboard-home__greeting">
-      <div>
-        <h1 class="dashboard-home__title">{{ getGreeting(displayName) }}</h1>
-        <p class="dashboard-home__date">{{ todayFormatted }}</p>
-      </div>
-      <InlineStats :stats="inlineStats" />
-    </section>
+    <!-- First-time user: Welcome state -->
+    <DashboardWelcome v-if="isFirstTimeUser && !eventsError" />
 
-    <!-- My Events -->
-    <section>
-      <div class="dashboard-home__section-header">
-        <h2 class="dashboard-home__section-title">
-          {{ t('dashboard.myEvents') }}
-        </h2>
-        <div class="dashboard-home__section-actions">
-          <NuxtLink
-            v-if="recentEvents.length > 0"
-            :to="localePath('dashboard') + '/events'"
-            class="dashboard-home__view-all"
-          >
-            {{ t('dashboard.viewAll') }}
-            <Icon name="lucide:arrow-right" size="14" />
-          </NuxtLink>
-          <AppButton
-            variant="primary"
-            size="sm"
-            @click="openCreateWizard"
-          >
-            <Icon name="lucide:plus" size="14" />
-            {{ t('dashboard.newEvent') }}
-          </AppButton>
-        </div>
-      </div>
+    <!-- Returning user: Bento grid -->
+    <template v-else>
+      <!-- Bento grid -->
+      <div class="dashboard-home__bento">
+        <!-- Greeting (spans 2 cols) -->
+        <section class="dashboard-home__greeting bento-greeting">
+          <div>
+            <h1 class="dashboard-home__title">{{ getGreeting(displayName) }}</h1>
+            <p class="dashboard-home__date">{{ todayFormatted }}</p>
+          </div>
+          <InlineStats :stats="inlineStats" />
+        </section>
 
-      <div v-if="eventsError" class="dashboard-home__error">
-        <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
-        <AppButton variant="ghost" size="sm" @click="refreshEvents()">
-          {{ t('dashboard.retry') }}
-        </AppButton>
-      </div>
+        <!-- Quick Create (1 col) -->
+        <section class="bento-quick-create">
+          <QuickCreateCard />
+        </section>
 
-      <div v-else-if="recentEvents.length" class="dashboard-home__events-grid">
-        <EventCard
-          v-for="event in recentEvents"
-          :key="event.id"
-          :event="event"
-          :is-owner="true"
-          @invited="refreshEvents"
-        />
-      </div>
+        <!-- My Events (full width) -->
+        <section class="bento-events">
+          <div class="dashboard-home__section-header">
+            <h2 class="dashboard-home__section-title">
+              {{ t('dashboard.myEvents') }}
+            </h2>
+            <div class="dashboard-home__section-actions">
+              <NuxtLink
+                v-if="recentEvents.length > 0"
+                :to="localePath('dashboard') + '/events'"
+                class="dashboard-home__view-all"
+              >
+                {{ t('dashboard.viewAll') }}
+                <Icon name="lucide:arrow-right" size="14" />
+              </NuxtLink>
+              <AppButton
+                variant="primary"
+                size="sm"
+                @click="openCreateWizard"
+              >
+                <Icon name="lucide:plus" size="14" />
+                {{ t('dashboard.newEvent') }}
+              </AppButton>
+            </div>
+          </div>
 
-      <EmptyState
-        v-else
-        icon="calendar"
-        :title="t('dashboard.emptyState.noEvents.title')"
-        :description="t('dashboard.emptyState.noEvents.description')"
-        :cta-label="t('dashboard.emptyState.noEvents.cta')"
-        @cta-click="showCreateForm = true"
-      />
-    </section>
+          <div v-if="eventsError" class="dashboard-home__error">
+            <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
+            <AppButton variant="ghost" size="sm" @click="refreshEvents()">
+              {{ t('dashboard.retry') }}
+            </AppButton>
+          </div>
 
-    <!-- Co-organizing -->
-    <section v-if="coOrgEvents.length">
-      <div class="dashboard-home__section-header">
-        <h2 class="dashboard-home__section-title">
-          {{ t('dashboard.coOrganizing') }}
-        </h2>
-      </div>
-      <div class="dashboard-home__events-grid">
-        <EventCard
-          v-for="event in coOrgEvents.slice(0, 4)"
-          :key="'co-' + event.id"
-          :event="event"
-          role="co_organizer"
-        />
-      </div>
-    </section>
+          <div v-else-if="recentEvents.length" class="dashboard-home__events-grid">
+            <EventCard
+              v-for="event in recentEvents"
+              :key="event.id"
+              :event="event"
+              :is-owner="true"
+              @invited="refreshEvents"
+            />
+          </div>
 
-    <!-- Invitations -->
-    <section v-if="invitedEvents.length">
-      <div class="dashboard-home__section-header">
-        <h2 class="dashboard-home__section-title">
-          {{ t('dashboard.invitations') }}
-        </h2>
-      </div>
-      <div class="dashboard-home__events-grid">
-        <EventCard
-          v-for="event in invitedEvents.slice(0, 4)"
-          :key="'inv-' + event.id"
-          :event="event"
-          :is-owner="false"
-        />
-      </div>
-    </section>
+          <EmptyState
+            v-else
+            icon="calendar"
+            :title="t('dashboard.emptyState.noEvents.title')"
+            :description="t('dashboard.emptyState.noEvents.description')"
+            :cta-label="t('dashboard.emptyState.noEvents.cta')"
+            @cta-click="openCreateWizard"
+          />
+        </section>
 
-    <!-- Empty invitations -->
-    <section v-if="!invitedEvents.length && ownedEvents.length">
-      <div class="dashboard-home__section-header">
-        <h2 class="dashboard-home__section-title">
-          {{ t('dashboard.invitations') }}
-        </h2>
+        <!-- Co-organizing -->
+        <section v-if="coOrgEvents.length" class="bento-co-org">
+          <div class="dashboard-home__section-header">
+            <h2 class="dashboard-home__section-title">
+              {{ t('dashboard.coOrganizing') }}
+            </h2>
+          </div>
+          <div class="dashboard-home__events-grid dashboard-home__events-grid--compact">
+            <EventCard
+              v-for="event in coOrgEvents.slice(0, 4)"
+              :key="'co-' + event.id"
+              :event="event"
+              role="co_organizer"
+            />
+          </div>
+        </section>
+
+        <!-- Invitations -->
+        <section v-if="invitedEvents.length" class="bento-invitations">
+          <div class="dashboard-home__section-header">
+            <h2 class="dashboard-home__section-title">
+              {{ t('dashboard.invitations') }}
+            </h2>
+          </div>
+          <div class="dashboard-home__events-grid dashboard-home__events-grid--compact">
+            <EventCard
+              v-for="event in invitedEvents.slice(0, 4)"
+              :key="'inv-' + event.id"
+              :event="event"
+              :is-owner="false"
+            />
+          </div>
+        </section>
+
+        <!-- Empty invitations -->
+        <section v-if="!invitedEvents.length && ownedEvents.length" class="bento-invitations">
+          <div class="dashboard-home__section-header">
+            <h2 class="dashboard-home__section-title">
+              {{ t('dashboard.invitations') }}
+            </h2>
+          </div>
+          <EmptyState
+            icon="inbox"
+            :title="t('dashboard.emptyState.noInvitations.title')"
+            :description="t('dashboard.emptyState.noInvitations.description')"
+          />
+        </section>
       </div>
-      <EmptyState
-        icon="inbox"
-        :title="t('dashboard.emptyState.noInvitations.title')"
-        :description="t('dashboard.emptyState.noInvitations.description')"
-      />
-    </section>
+    </template>
   </div>
 </template>
 
@@ -165,14 +183,50 @@ function openCreateWizard() {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  max-width: 960px;
+  max-width: var(--max-width-dashboard, 1400px);
 }
 
+/* Bento grid */
+.dashboard-home__bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas:
+    "greeting greeting quick-create"
+    "events events events"
+    "co-org co-org invitations";
+  gap: var(--space-4);
+}
+
+.bento-greeting {
+  grid-area: greeting;
+}
+
+.bento-quick-create {
+  grid-area: quick-create;
+}
+
+.bento-events {
+  grid-area: events;
+}
+
+.bento-co-org {
+  grid-area: co-org;
+}
+
+.bento-invitations {
+  grid-area: invitations;
+}
+
+/* Greeting */
 .dashboard-home__greeting {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
 }
 
 .dashboard-home__title {
@@ -192,6 +246,7 @@ function openCreateWizard() {
   text-transform: capitalize;
 }
 
+/* Section headers */
 .dashboard-home__section-header {
   display: flex;
   align-items: center;
@@ -230,10 +285,15 @@ function openCreateWizard() {
   color: var(--color-accent);
 }
 
+/* Event grids */
 .dashboard-home__events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-4);
+}
+
+.dashboard-home__events-grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 .dashboard-home__error {
@@ -246,19 +306,18 @@ function openCreateWizard() {
   border-radius: var(--radius-lg);
 }
 
-/* Transitions */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all var(--transition-base);
-}
+/* Mobile: stack to single column */
+@media (max-width: 768px) {
+  .dashboard-home__bento {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "quick-create"
+      "greeting"
+      "events"
+      "co-org"
+      "invitations";
+  }
 
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-@media (max-width: 640px) {
   .dashboard-home__title {
     font-size: var(--text-xl);
   }
@@ -275,6 +334,10 @@ function openCreateWizard() {
   }
 
   .dashboard-home__events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-home__events-grid--compact {
     grid-template-columns: 1fr;
   }
 }

@@ -74,10 +74,12 @@ function onTabChange(index) {
 
     <template v-else-if="eventData">
       <!-- Completion bar -->
-      <EventCompletionBar
-        :percent="completionPercent"
-        :items="completionItems"
-      />
+      <ClientOnly>
+        <EventCompletionBar
+          :percent="completionPercent"
+          :items="completionItems"
+        />
+      </ClientOnly>
 
       <!-- Cover image -->
       <CoverImageUploader
@@ -102,7 +104,7 @@ function onTabChange(index) {
       />
 
       <!-- Tabbed content -->
-      <UTabs :items="tabs" class="event-editor__tabs" @update:model-value="onTabChange">
+      <AppTabs :items="tabs" :model-value="previousTab" class="event-editor__tabs" @update:model-value="onTabChange">
         <template #details>
           <div class="event-editor__tab-content">
             <EditorDetailsTab />
@@ -126,7 +128,7 @@ function onTabChange(index) {
             <EditorSettingsTab />
           </div>
         </template>
-      </UTabs>
+      </AppTabs>
 
       <!-- AI Assistant FAB (paid users only) -->
       <AiAssistantFab
@@ -134,26 +136,18 @@ function onTabChange(index) {
       />
 
       <!-- Sticky save bar -->
-      <div class="event-editor__save-bar">
-        <div class="event-editor__save-bar-inner">
-          <div class="event-editor__save-left">
-            <AppButton
-              :variant="isDirty ? 'gradient' : 'primary'"
-              size="sm"
-              :disabled="saving || !form.title.trim()"
-              @click="save"
-            >
-              {{ saving ? t('dashboard.eventEditor.saving') : t('dashboard.eventEditor.save') }}
-            </AppButton>
-            <AutoSaveIndicator
-              :saving="saving"
-              :saved="saved"
-              :is-dirty="isDirty"
-              :error="saveError"
-            />
-          </div>
-        </div>
-      </div>
+      <ClientOnly>
+        <EditorSaveBar
+          :saving="saving"
+          :saved="saved"
+          :is-dirty="isDirty"
+          :error="saveError"
+          :disabled="!form.title.trim()"
+          :save-label="t('dashboard.eventEditor.save')"
+          :saving-label="t('dashboard.eventEditor.saving')"
+          @save="save"
+        />
+      </ClientOnly>
     </template>
   </div>
 </template>
@@ -218,40 +212,4 @@ function onTabChange(index) {
   padding: var(--space-6) 0;
 }
 
-/* Sticky save bar */
-.event-editor__save-bar {
-  position: sticky;
-  bottom: 0;
-  margin-top: var(--space-8);
-  margin-left: calc(-1 * var(--space-6));
-  margin-right: calc(-1 * var(--space-6));
-  padding: 0 var(--space-6);
-}
-
-.event-editor__save-bar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--color-border);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
-}
-
-.event-editor__save-left {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-@media (max-width: 640px) {
-  .event-editor__save-bar-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
 </style>

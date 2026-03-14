@@ -49,13 +49,13 @@ async function onSubmit() {
 <template>
   <form class="invite-form" @submit.prevent="onSubmit">
     <div class="invite-form__row">
-      <UInput
+      <AppInput
         v-model="email"
         type="email"
         :placeholder="t('dashboard.emailPlaceholder')"
         :disabled="loading"
         size="sm"
-        icon="i-lucide-mail"
+        icon="lucide:mail"
         class="invite-form__input"
       />
       <AppButton variant="primary" size="sm" :disabled="loading || !email.trim()">

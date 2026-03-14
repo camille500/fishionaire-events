@@ -124,11 +124,7 @@ onMounted(() => {
     <section class="editor-details__section">
       <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.detailsSection') }}</h3>
       <div class="editor-details__props">
-        <div class="editor-details__prop">
-          <span class="editor-details__prop-label">
-            <Icon name="lucide:calendar" size="14" />
-            {{ t('dashboard.eventEditor.eventDateLabel') }}
-          </span>
+        <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
           <EditorDatePicker
             v-model="form.eventDate"
             :placeholder="t('editor.datePicker.selectDate')"
@@ -136,13 +132,9 @@ onMounted(() => {
             :touched="touched.eventDate"
             @blur="markTouched('eventDate')"
           />
-        </div>
+        </EditorPropertyRow>
 
-        <div class="editor-details__prop">
-          <span class="editor-details__prop-label">
-            <Icon name="lucide:calendar-check" size="14" />
-            {{ t('dashboard.eventEditor.eventEndDateLabel') }}
-          </span>
+        <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
           <EditorDatePicker
             v-model="form.eventEndDate"
             :placeholder="t('editor.datePicker.selectEndDate')"
@@ -151,13 +143,9 @@ onMounted(() => {
             :touched="touched.eventEndDate"
             @blur="markTouched('eventEndDate')"
           />
-        </div>
+        </EditorPropertyRow>
 
-        <div class="editor-details__prop">
-          <span class="editor-details__prop-label">
-            <Icon name="lucide:map-pin" size="14" />
-            {{ t('dashboard.eventEditor.locationLabel') }}
-          </span>
+        <EditorPropertyRow :label="t('dashboard.eventEditor.locationLabel')" icon="lucide:map-pin">
           <input
             v-model="form.location"
             type="text"
@@ -165,7 +153,7 @@ onMounted(() => {
             :placeholder="t('dashboard.eventEditor.locationPlaceholder')"
             @blur="markTouched('location')"
           />
-        </div>
+        </EditorPropertyRow>
       </div>
     </section>
   </div>
@@ -327,34 +315,6 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.editor-details__prop {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-2) var(--space-3);
-  margin: 0 calc(-1 * var(--space-3));
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
-}
-
-.editor-details__prop:hover {
-  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
-}
-
-.editor-details__prop + .editor-details__prop {
-  border-top: 1px solid color-mix(in srgb, var(--color-border-light) 40%, transparent);
-}
-
-.editor-details__prop-label {
-  width: 160px;
-  flex-shrink: 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
 .editor-details__prop-value {
   flex: 1;
   border: none;
@@ -407,16 +367,6 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
-  .editor-details__prop {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1);
-  }
-
-  .editor-details__prop-label {
-    width: auto;
-  }
-
   .editor-details__prop-value {
     width: 100%;
   }

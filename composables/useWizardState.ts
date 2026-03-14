@@ -34,7 +34,7 @@ interface AiBuildResult {
   eventType?: string
   title?: string
   description?: string
-  dateSuggestion?: { suggestedTime?: string }
+  dateSuggestion?: { suggestedTime?: string, isoDate?: string }
   activities?: Array<{ title: string, durationMinutes?: number, description?: string }>
 }
 
@@ -53,14 +53,16 @@ interface WizardSubmissionData {
 const WIZARD_KEY: symbol = Symbol('wizardState')
 const DRAFT_STORAGE_KEY = 'fishionaire-wizard-draft'
 
-const STEPS: WizardStep[] = [
+const ALL_STEPS: WizardStep[] = [
   { id: 'start', icon: 'i-lucide-rocket', slot: 'start' },
   { id: 'type', icon: 'i-lucide-sparkles', slot: 'type' },
   { id: 'info', icon: 'i-lucide-file-text', slot: 'info' },
-  { id: 'activities', icon: 'i-lucide-layers', slot: 'activities' },
   { id: 'tier', icon: 'i-lucide-crown', slot: 'tier' },
   { id: 'review', icon: 'i-lucide-check-circle', slot: 'review' },
 ]
+
+// Steps to skip when AI has prefilled the form
+const AI_SKIP_STEPS = new Set(['type', 'tier'])
 
 const EVENT_TYPES: string[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
@@ -118,20 +120,27 @@ export function useWizardStateProvider() {
     title: false,
   })
 
+  // Active steps: skip type & tier when AI prefilled
+  const activeSteps = computed<WizardStep[]>(() => {
+    if (aiPrefilled.value) {
+      return ALL_STEPS.filter((s) => !AI_SKIP_STEPS.has(s.id))
+    }
+    return ALL_STEPS
+  })
+
   // Per-step validation
   const stepValidation = computed(() => {
     return {
       start: startMode.value !== '',
       type: form.selectedType !== '',
       info: form.title.trim().length > 0,
-      activities: true, // always passable
       tier: true, // always passable (defaults to free)
       review: form.title.trim().length > 0,
     }
   })
 
   const canProceed = computed(() => {
-    const step = STEPS[currentStep.value]
+    const step = activeSteps.value[currentStep.value]
     if (!step) return false
     return stepValidation.value[step.id] ?? false
   })
@@ -147,10 +156,10 @@ export function useWizardStateProvider() {
     return errs
   })
 
-  // Step navigation
+  // Step navigation (uses activeSteps for dynamic step count)
   function next(): boolean {
     if (!canProceed.value) return false
-    if (currentStep.value < STEPS.length - 1) {
+    if (currentStep.value < activeSteps.value.length - 1) {
       direction.value = 1
       currentStep.value++
       return true
@@ -168,26 +177,26 @@ export function useWizardStateProvider() {
   }
 
   function goToStep(index: number): void {
-    if (index >= 0 && index < STEPS.length) {
+    if (index >= 0 && index < activeSteps.value.length) {
       direction.value = index > currentStep.value ? 1 : -1
       currentStep.value = index
     }
   }
 
   const hasPrev = computed(() => currentStep.value > 0)
-  const hasNext = computed(() => currentStep.value < STEPS.length - 1)
+  const hasNext = computed(() => currentStep.value < activeSteps.value.length - 1)
   const isFirstStep = computed(() => currentStep.value === 0)
-  const isLastStep = computed(() => currentStep.value === STEPS.length - 1)
-  const currentStepId = computed(() => STEPS[currentStep.value]?.id || '')
+  const isLastStep = computed(() => currentStep.value === activeSteps.value.length - 1)
+  const currentStepId = computed(() => activeSteps.value[currentStep.value]?.id || '')
 
   // Completion percentage (for progress UI)
   const completionPercentage = computed(() => {
-    return Math.round((currentStep.value / (STEPS.length - 1)) * 100)
+    return Math.round((currentStep.value / (activeSteps.value.length - 1)) * 100)
   })
 
   // Step items for progress UI
   const stepItems = computed(() => {
-    return STEPS.map((step, index) => ({
+    return activeSteps.value.map((step, index) => ({
       ...step,
       title: t(`wizard.steps.${step.id}`),
       description: t(`wizard.steps.${step.id}Description`),
@@ -283,10 +292,24 @@ export function useWizardStateProvider() {
     if (data.eventType) form.selectedType = data.eventType
     if (data.title) form.title = data.title
     if (data.description) form.description = data.description
-    if (data.dateSuggestion?.suggestedTime) {
-      // Convert suggested time to datetime-local format for next Saturday or suggested day
-      // For now, leave eventDate empty and let user fill in
+
+    // Try to extract date from AI response
+    if (data.dateSuggestion) {
+      const suggestion = data.dateSuggestion as Record<string, unknown>
+      if (suggestion.isoDate && typeof suggestion.isoDate === 'string') {
+        // AI returned an ISO date — use directly
+        const d = new Date(suggestion.isoDate)
+        if (!isNaN(d.getTime())) {
+          const y = String(d.getFullYear()).padStart(4, '0')
+          const m = String(d.getMonth() + 1).padStart(2, '0')
+          const day = String(d.getDate()).padStart(2, '0')
+          const h = String(d.getHours()).padStart(2, '0')
+          const min = String(d.getMinutes()).padStart(2, '0')
+          form.eventDate = `${y}-${m}-${day}T${h}:${min}`
+        }
+      }
     }
+
     if (data.activities?.length) {
       form.subEvents = data.activities.map((a, i) => ({
         id: `ai-${Date.now()}-${i}`,
@@ -320,7 +343,8 @@ export function useWizardStateProvider() {
 
   const state = {
     // Constants
-    STEPS,
+    STEPS: activeSteps,
+    ALL_STEPS,
     EVENT_TYPES,
 
     // Form data

@@ -6,6 +6,8 @@ interface TitleSuggestParams {
 interface SubEventSuggestParams {
   eventType?: string
   eventTitle?: string
+  description?: string
+  eventDate?: string
   existingSubEvents?: unknown[]
 }
 
@@ -50,7 +52,7 @@ export function useAiSuggestions() {
     }
   }
 
-  async function suggestSubEvents({ eventType, eventTitle, existingSubEvents }: SubEventSuggestParams = {}): Promise<void> {
+  async function suggestSubEvents({ eventType, eventTitle, description, eventDate, existingSubEvents }: SubEventSuggestParams = {}): Promise<void> {
     loadingSubEvents.value = true
     error.value = ''
     subEventSuggestions.value = []
@@ -61,6 +63,8 @@ export function useAiSuggestions() {
         body: {
           eventType,
           eventTitle,
+          description,
+          eventDate,
           existingSubEvents,
           language: locale.value,
         },

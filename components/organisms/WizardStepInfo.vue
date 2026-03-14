@@ -116,10 +116,10 @@ const showCharCount = computed(() => descriptionCharCount.value > 1500)
           <Icon name="lucide:calendar" size="14" />
           {{ t('dashboard.eventEditor.eventDateLabel') }}
         </label>
-        <input
-          v-model="form.eventDate"
-          type="datetime-local"
-          class="step-info__input"
+        <EditorDatePicker
+          :model-value="form.eventDate"
+          :placeholder="t('wizard.datePlaceholder')"
+          @update:model-value="form.eventDate = $event"
         />
       </div>
 
@@ -268,40 +268,12 @@ const showCharCount = computed(() => descriptionCharCount.value > 1500)
 }
 
 .step-info__input {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
   background: var(--color-surface);
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.step-info__input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-dim);
 }
 
 .step-info__textarea {
-  width: 100%;
   padding: var(--space-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
   background: var(--color-surface);
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  resize: vertical;
-  outline: none;
-  transition: border-color var(--transition-fast);
-  line-height: var(--line-height-normal);
-}
-
-.step-info__textarea:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-dim);
 }
 
 .step-info__char-count {

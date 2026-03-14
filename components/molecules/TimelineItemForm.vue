@@ -31,16 +31,16 @@ function onSubmit() {
   <form class="timeline-form" @submit.prevent="onSubmit">
     <div class="timeline-form__field">
       <label class="timeline-form__label">{{ t('dashboard.eventEditor.timelineItemTitle') }}</label>
-      <UInput
+      <AppInput
         v-model="form.title"
         :placeholder="t('dashboard.eventEditor.timelineItemTitlePlaceholder')"
         :disabled="loading"
-        icon="i-lucide-clock"
+        icon="lucide:clock"
       />
     </div>
     <div class="timeline-form__field">
       <label class="timeline-form__label">{{ t('dashboard.eventEditor.timelineItemDescription') }}</label>
-      <UTextarea
+      <AppTextarea
         v-model="form.description"
         :placeholder="t('dashboard.eventEditor.timelineItemDescriptionPlaceholder')"
         :disabled="loading"
@@ -50,20 +50,20 @@ function onSubmit() {
     <div class="timeline-form__row">
       <div class="timeline-form__field">
         <label class="timeline-form__label">{{ t('dashboard.eventEditor.timelineItemStartTime') }}</label>
-        <UInput v-model="form.startTime" type="datetime-local" :disabled="loading" />
+        <AppInput v-model="form.startTime" type="datetime-local" :disabled="loading" />
       </div>
       <div class="timeline-form__field">
         <label class="timeline-form__label">{{ t('dashboard.eventEditor.timelineItemEndTime') }}</label>
-        <UInput v-model="form.endTime" type="datetime-local" :disabled="loading" />
+        <AppInput v-model="form.endTime" type="datetime-local" :disabled="loading" />
       </div>
     </div>
     <div class="timeline-form__field">
       <label class="timeline-form__label">{{ t('dashboard.eventEditor.timelineItemLocation') }}</label>
-      <UInput
+      <AppInput
         v-model="form.location"
         :placeholder="t('dashboard.eventEditor.timelineItemLocationPlaceholder')"
         :disabled="loading"
-        icon="i-lucide-map-pin"
+        icon="lucide:map-pin"
       />
     </div>
     <div class="timeline-form__actions">

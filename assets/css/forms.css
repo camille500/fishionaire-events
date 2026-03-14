@@ -1,0 +1,115 @@
+@layer base {
+  /* =============================================
+     Global Form Element Base Styles
+     =============================================
+     Provides consistent styling for native HTML form
+     elements using the design system CSS variables.
+     Wrapped in @layer base so Tailwind utilities
+     (used by Nuxt UI components) can override. */
+
+  /* --- Text-like inputs, textarea, select --- */
+  input[type='text'],
+  input[type='email'],
+  input[type='number'],
+  input[type='password'],
+  input[type='url'],
+  input[type='tel'],
+  input[type='search'],
+  input[type='date'],
+  input[type='datetime-local'],
+  textarea,
+  select {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    background: var(--input-bg);
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+    outline: none;
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      background var(--transition-fast);
+  }
+
+  /* Hover */
+  input[type='text']:hover,
+  input[type='email']:hover,
+  input[type='number']:hover,
+  input[type='password']:hover,
+  input[type='url']:hover,
+  input[type='tel']:hover,
+  input[type='search']:hover,
+  input[type='date']:hover,
+  input[type='datetime-local']:hover,
+  textarea:hover,
+  select:hover {
+    border-color: var(--color-border);
+  }
+
+  /* Focus */
+  input[type='text']:focus,
+  input[type='email']:focus,
+  input[type='number']:focus,
+  input[type='password']:focus,
+  input[type='url']:focus,
+  input[type='tel']:focus,
+  input[type='search']:focus,
+  input[type='date']:focus,
+  input[type='datetime-local']:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-dim);
+    background: var(--color-surface);
+  }
+
+  /* Placeholder */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+
+  /* Disabled */
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* --- Textarea specifics --- */
+  textarea {
+    resize: vertical;
+    line-height: var(--line-height-normal);
+  }
+
+  /* --- Select specifics --- */
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23787890' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+    padding-right: var(--space-8);
+  }
+
+  /* --- Checkbox & Radio --- */
+  input[type='checkbox'],
+  input[type='radio'] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+  }
+
+  /* --- Labels --- */
+  label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+  }
+}

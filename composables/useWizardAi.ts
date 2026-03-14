@@ -48,9 +48,13 @@ export function useWizardAi() {
     await ai.suggestTimeline({ eventType, eventDate, subEvents })
   }
 
-  // AI Quick Start: build entire event from description (Standard+)
+  // AI Quick Start: build entire event from description (all tiers)
+  // Free tier gets limited AI build for event creation only
+  const freeBuildUsed = useLocalStorage('fishionaire-ai-build-used', false)
+
   async function buildEvent(description: string): Promise<Record<string, unknown> | null> {
-    if (isFree.value) return null
+    // Free tier: allow 1 AI build per session
+    if (isFree.value && freeBuildUsed.value) return null
 
     buildLoading.value = true
     buildError.value = ''
@@ -68,6 +72,7 @@ export function useWizardAi() {
       buildResult.value = result
       aiFeatureUsed.value = true
       aiUsageCount.value++
+      if (isFree.value) freeBuildUsed.value = true
       return result
     } catch (e) {
       buildError.value = e.data?.statusMessage || 'AI build failed'
@@ -103,7 +108,12 @@ export function useWizardAi() {
   const canUseTitleSuggestions = computed(() => true) // all tiers
   const canUseSubEventSuggestions = computed(() => isStandard.value || isPro.value)
   const canUseTimeline = computed(() => isPro.value)
-  const canUseBuildEvent = computed(() => isStandard.value || isPro.value)
+  const canUseBuildEvent = computed(() => {
+    // All tiers can use AI build, but free tier is limited to 1 use
+    if (isFree.value) return !freeBuildUsed.value
+    return true
+  })
+  const freeBuildExhausted = computed(() => isFree.value && freeBuildUsed.value)
   const canUseDescriptionGen = computed(() => isStandard.value || isPro.value)
   const canUseAutoDescription = computed(() => isPro.value) // auto-gen on type for Pro
 
@@ -167,6 +177,7 @@ export function useWizardAi() {
     canUseBuildEvent,
     canUseDescriptionGen,
     canUseAutoDescription,
+    freeBuildExhausted,
 
     // Upsell
     aiFeatureUsed,

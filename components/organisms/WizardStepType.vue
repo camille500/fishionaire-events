@@ -4,34 +4,11 @@ const { form, selectType, EVENT_TYPES } = useWizardState()
 
 const emit = defineEmits(['selected'])
 
-// Fetch system templates for pre-populating sub-events
-const systemTemplates = ref([])
-onMounted(async () => {
-  try {
-    systemTemplates.value = await $fetch('/api/templates/system')
-  } catch {
-    // Non-critical
-  }
-})
-
 const selectedAnimating = ref('')
 
 function onSelectType(type) {
   selectType(type)
   selectedAnimating.value = type
-
-  // Pre-populate sub-events from system template
-  const template = systemTemplates.value.find((t) => t.eventType === type)
-  if (template?.subEventTemplates) {
-    form.subEvents = template.subEventTemplates.map((se, i) => ({
-      id: `template-${i}`,
-      title: se.title,
-      durationMinutes: se.durationMinutes || null,
-      description: '',
-    }))
-  } else {
-    form.subEvents = []
-  }
 
   // Auto-advance after animation
   setTimeout(() => {

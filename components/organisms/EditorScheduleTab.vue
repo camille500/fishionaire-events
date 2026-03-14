@@ -13,12 +13,45 @@ const {
 } = useAiSuggestions()
 
 const subEventListRef = ref(null)
+const programmeBannerDismissed = ref(false)
+const loadingTemplate = ref(false)
+
+const showProgrammeBanner = computed(() => {
+  if (programmeBannerDismissed.value) return false
+  if (!canEdit) return false
+  const subEvents = subEventListRef.value?.subEvents
+  return !subEvents || subEvents.length === 0
+})
 
 function onSuggestActivities() {
   suggestSubEvents({
     eventType: form.eventType,
     eventTitle: form.title,
+    description: form.description,
+    eventDate: form.eventDate,
   })
+}
+
+async function onUseTemplate() {
+  loadingTemplate.value = true
+  try {
+    const templates = await $fetch('/api/templates/system')
+    const template = templates.find((t) => t.eventType === form.eventType)
+    if (template?.subEventTemplates) {
+      for (const se of template.subEventTemplates) {
+        await $fetch(`/api/events/${eventData.value.id}/sub-events`, {
+          method: 'POST',
+          body: {
+            title: se.title,
+            durationMinutes: se.durationMinutes || null,
+          },
+        })
+      }
+      subEventListRef.value?.fetchSubEvents?.()
+    }
+  } finally {
+    loadingTemplate.value = false
+  }
 }
 
 async function acceptSubEvent(suggestion) {
@@ -51,6 +84,65 @@ async function acceptAllSubEvents() {
 
 <template>
   <div class="editor-schedule">
+    <!-- Programme suggestion banner (empty state) -->
+    <div v-if="showProgrammeBanner" class="programme-banner">
+      <div class="programme-banner__icon-wrapper">
+        <Icon name="lucide:calendar-plus" size="28" class="programme-banner__icon" />
+      </div>
+      <div class="programme-banner__text">
+        <span class="programme-banner__title">{{ t('editor.programme.emptyTitle') }}</span>
+        <span class="programme-banner__description">{{ t('editor.programme.emptySubtitle') }}</span>
+      </div>
+      <div class="programme-banner__actions">
+        <AppButton
+          v-if="hasAi"
+          variant="primary"
+          size="sm"
+          :disabled="loadingSubEvents"
+          @click="onSuggestActivities"
+        >
+          <Icon name="lucide:sparkles" size="14" :class="{ 'programme-banner__spinner': loadingSubEvents }" />
+          {{ loadingSubEvents ? t('editor.ai.loading') : t('editor.programme.generateAi') }}
+        </AppButton>
+        <AppButton
+          v-if="form.eventType"
+          variant="outline"
+          size="sm"
+          :disabled="loadingTemplate"
+          @click="onUseTemplate"
+        >
+          <Icon name="lucide:layout-template" size="14" />
+          {{ t('editor.programme.useTemplate') }}
+        </AppButton>
+      </div>
+      <button type="button" class="programme-banner__dismiss" @click="programmeBannerDismissed = true">
+        {{ t('editor.programme.dismiss') }}
+      </button>
+
+      <!-- AI suggestions from banner -->
+      <div v-if="subEventSuggestions.length > 0" class="editor-schedule__suggestions">
+        <TransitionGroup name="chip-list" tag="div" class="editor-schedule__chips">
+          <AiSuggestionChip
+            v-for="(suggestion, index) in subEventSuggestions"
+            :key="suggestion.title"
+            :label="suggestion.title"
+            :subtitle="suggestion.durationMinutes ? `${suggestion.durationMinutes} min` : ''"
+            @accept="acceptSubEvent(suggestion)"
+            @dismiss="dismissSubEventSuggestion(index)"
+          />
+        </TransitionGroup>
+        <button
+          v-if="subEventSuggestions.length > 1"
+          type="button"
+          class="editor-schedule__accept-all"
+          @click="acceptAllSubEvents"
+        >
+          <Icon name="lucide:check-check" size="12" />
+          {{ t('editor.ai.acceptAll') }}
+        </button>
+      </div>
+    </div>
+
     <!-- Sub-events -->
     <section class="editor-schedule__section">
       <SubEventList
@@ -114,6 +206,79 @@ async function acceptAllSubEvents() {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+}
+
+/* Programme suggestion banner */
+.programme-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px dashed color-mix(in srgb, var(--color-accent) 30%, var(--color-border-light));
+  border-radius: var(--radius-xl);
+}
+
+.programme-banner__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-dim);
+}
+
+.programme-banner__icon {
+  color: var(--color-accent);
+  opacity: 0.7;
+}
+
+.programme-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.programme-banner__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.programme-banner__description {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  max-width: 320px;
+  line-height: var(--line-height-normal);
+}
+
+.programme-banner__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.programme-banner__dismiss {
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.programme-banner__dismiss:hover {
+  opacity: 1;
+}
+
+.programme-banner__spinner {
+  animation: spin 1s linear infinite;
 }
 
 .editor-schedule__section {

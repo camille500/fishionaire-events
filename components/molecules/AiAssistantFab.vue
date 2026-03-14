@@ -11,6 +11,7 @@ defineProps({
 const emit = defineEmits(['suggest-title', 'suggest-activities', 'suggest-timeline', 'write-description'])
 
 const open = ref(false)
+const wrapperRef = ref(null)
 
 const actions = computed(() => [
   { key: 'title', icon: 'lucide:type', label: t('editor.ai.suggestTitle'), event: 'suggest-title' },
@@ -24,13 +25,18 @@ function onAction(action) {
   emit(action.event)
 }
 
-function onClickOutside() {
-  open.value = false
+function onClickOutside(e) {
+  if (wrapperRef.value && !wrapperRef.value.contains(e.target)) {
+    open.value = false
+  }
 }
+
+onMounted(() => document.addEventListener('click', onClickOutside))
+onUnmounted(() => document.removeEventListener('click', onClickOutside))
 </script>
 
 <template>
-  <div v-if="!locked" class="ai-fab-wrapper" v-on-click-outside="onClickOutside">
+  <div v-if="!locked" ref="wrapperRef" class="ai-fab-wrapper">
     <Transition name="ai-fab-menu">
       <div v-if="open" class="ai-fab__menu">
         <button
