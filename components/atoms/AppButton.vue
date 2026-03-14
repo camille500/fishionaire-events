@@ -28,77 +28,47 @@ const props = defineProps({
   },
 })
 
-const iconSize = computed(() => {
-  const sizes = { sm: '14', md: '16', lg: '18' }
-  return sizes[props.size]
+const buttonProps = computed(() => {
+  const map = {
+    primary: { color: 'primary', variant: 'solid' },
+    secondary: { color: 'secondary', variant: 'solid' },
+    outline: { color: 'neutral', variant: 'outline' },
+    ghost: { color: 'neutral', variant: 'ghost' },
+    gradient: { color: 'primary', variant: 'solid' },
+  }
+  return map[props.variant] || map.primary
 })
-
-const rippleActive = ref(false)
-let rippleTimeout = null
-
-function triggerRipple() {
-  if (props.disabled || props.loading) return
-  rippleActive.value = true
-  clearTimeout(rippleTimeout)
-  rippleTimeout = setTimeout(() => {
-    rippleActive.value = false
-  }, 500)
-}
 </script>
 
 <template>
-  <NuxtLink
-    v-if="to && !disabled"
-    :to="to"
-    class="app-button"
+  <UButton
+    :color="buttonProps.color"
+    :variant="buttonProps.variant"
+    :size="size"
+    :to="to || undefined"
+    :loading="loading"
+    :disabled="disabled"
+    :leading-icon="icon || undefined"
     :class="[
-      `app-button--${variant}`,
-      `app-button--${size}`,
-      { 'app-button--loading': loading, 'app-button--ripple': rippleActive }
+      'app-button',
+      { 'app-button--gradient': variant === 'gradient' },
     ]"
-    @click="triggerRipple"
   >
-    <span v-if="loading" class="app-button__spinner" />
-    <Icon v-if="icon && !loading" :name="icon" :size="iconSize" />
     <slot />
-  </NuxtLink>
-  <button
-    v-else
-    class="app-button"
-    :class="[
-      `app-button--${variant}`,
-      `app-button--${size}`,
-      { 'app-button--loading': loading, 'app-button--disabled': disabled, 'app-button--ripple': rippleActive }
-    ]"
-    :disabled="disabled || loading"
-    @click="triggerRipple"
-  >
-    <span v-if="loading" class="app-button__spinner" />
-    <Icon v-if="icon && !loading" :name="icon" :size="iconSize" />
-    <slot />
-  </button>
+  </UButton>
 </template>
 
 <style scoped>
 .app-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  border-radius: var(--radius-lg);
-  font-weight: var(--font-weight-semibold);
-  text-decoration: none;
-  transition: all var(--transition-base);
-  cursor: pointer;
-  border: 2px solid transparent;
-  line-height: 1;
+  transition: all 0.3s ease;
+  border-radius: var(--radius-md) !important;
   position: relative;
   overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .app-button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-accent);
 }
 
 .app-button:active {
@@ -106,111 +76,30 @@ function triggerRipple() {
   transition-duration: 100ms;
 }
 
-/* Ripple effect */
-.app-button--ripple::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 70%);
-  animation: ripple 500ms ease-out forwards;
-  pointer-events: none;
-}
-
-/* Sizes */
-.app-button--sm {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  border-radius: var(--radius-md);
-}
-
-.app-button--md {
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--text-base);
-}
-
-.app-button--lg {
-  padding: calc(var(--space-3) + 2px) var(--space-8);
-  font-size: var(--text-lg);
-  border-radius: var(--radius-xl);
-}
-
-/* Variants */
-.app-button--primary {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
-  border-color: var(--color-accent);
-}
-
-.app-button--primary:hover {
-  background: var(--color-accent-dark);
-  border-color: var(--color-accent-dark);
-  box-shadow: var(--shadow-accent);
-}
-
 .app-button--gradient {
-  background: var(--gradient-accent);
-  color: var(--color-text-inverse);
-  border-color: transparent;
-  background-size: 150% 150%;
+  background: var(--gradient-accent) !important;
+  border-color: transparent !important;
+  background-size: 200% auto;
+  color: #fff !important;
 }
 
 .app-button--gradient:hover {
-  background-position: 100% 50%;
+  background-position: right center;
   box-shadow: var(--shadow-accent-lg);
 }
 
-.app-button--secondary {
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-  border-color: var(--color-primary);
+.app-button--gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.app-button--secondary:hover {
-  background: var(--color-primary-light);
-  border-color: var(--color-primary-light);
-  box-shadow: var(--shadow-lg);
-}
-
-.app-button--outline {
-  background: transparent;
-  color: var(--color-text-primary);
-  border-color: var(--color-border);
-}
-
-.app-button--outline:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  box-shadow: var(--shadow-sm);
-}
-
-.app-button--ghost {
-  background: transparent;
-  color: var(--color-text-primary);
-  border-color: transparent;
-}
-
-.app-button--ghost:hover {
-  background: var(--color-background-alt);
-}
-
-/* States */
-.app-button--loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-.app-button--disabled {
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-/* Spinner */
-.app-button__spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: spin 600ms linear infinite;
+.app-button--gradient:hover::before {
+  opacity: 1;
+  animation: shimmer-btn 1.5s ease infinite;
 }
 </style>

@@ -1,10 +1,16 @@
 <script setup>
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
-const { subscription, tier, isFree, checkout, cancel, refresh } = useSubscription()
+const route = useRoute()
+const { subscription, tier, isFree, cancelAtPeriodEnd, currentPeriodEnd, checkout, cancel, refresh } = useSubscription()
 
 const loading = ref(false)
-const showConfirmCancel = ref(false)
+const showSuccess = ref(false)
+
+const formattedPeriodEnd = computed(() => {
+  if (!currentPeriodEnd.value) return ''
+  return new Date(currentPeriodEnd.value).toLocaleDateString()
+})
 
 const planOptions = computed(() => {
   return ['free', 'standard', 'pro'].map((key) => ({
@@ -17,23 +23,33 @@ const planOptions = computed(() => {
   }))
 })
 
+onMounted(async () => {
+  if (route.query.session_id) {
+    await $fetch('/api/subscriptions/verify-session', {
+      method: 'POST',
+      body: { sessionId: route.query.session_id },
+    })
+    await refresh()
+    showSuccess.value = true
+  }
+})
+
 async function onChangePlan(newTier) {
   loading.value = true
   try {
     await checkout(newTier)
-    await refresh()
-  } finally {
+    // User is redirected to Stripe Checkout
+  } catch {
     loading.value = false
   }
 }
 
-async function onCancel() {
+async function onManageSubscription() {
   loading.value = true
   try {
     await cancel()
-    await refresh()
-    showConfirmCancel.value = false
-  } finally {
+    // User is redirected to Stripe Customer Portal
+  } catch {
     loading.value = false
   }
 }
@@ -54,6 +70,11 @@ async function onCancel() {
         <AppText class="billing__subtitle">{{ t('billing.subtitle') }}</AppText>
       </div>
 
+      <div v-if="showSuccess" class="billing__success">
+        <Icon name="lucide:check-circle" size="18" />
+        <AppText size="sm">{{ t('billing.subscriptionUpdated') }}</AppText>
+      </div>
+
       <section class="billing__current-plan">
         <AppHeading :level="2" class="billing__section-title">{{ t('billing.currentPlan') }}</AppHeading>
         <div class="billing__plan-card" :class="`billing__plan-card--${tier}`">
@@ -70,29 +91,20 @@ async function onCancel() {
               <AppText v-if="!isFree" size="sm" class="billing__plan-price">
                 {{ t(`billing.prices.${tier}`) }}
               </AppText>
+              <AppText v-if="cancelAtPeriodEnd && formattedPeriodEnd" size="sm" class="billing__plan-cancel-notice">
+                {{ t('billing.cancelsOn', { date: formattedPeriodEnd }) }}
+              </AppText>
             </div>
             <div v-if="!isFree" class="billing__plan-actions">
               <AppButton
                 variant="outline"
                 size="sm"
                 :disabled="loading"
-                @click="showConfirmCancel = !showConfirmCancel"
+                @click="onManageSubscription"
               >
-                {{ t('billing.cancelPlan') }}
+                {{ t('billing.manageSubscription') }}
               </AppButton>
             </div>
-          </div>
-        </div>
-
-        <div v-if="showConfirmCancel" class="billing__confirm-cancel">
-          <AppText size="sm">{{ t('billing.confirmCancel') }}</AppText>
-          <div class="billing__confirm-actions">
-            <AppButton variant="primary" size="sm" :disabled="loading" @click="onCancel">
-              {{ t('billing.yesCancel') }}
-            </AppButton>
-            <AppButton variant="ghost" size="sm" @click="showConfirmCancel = false">
-              {{ t('billing.keepPlan') }}
-            </AppButton>
           </div>
         </div>
       </section>
@@ -109,7 +121,7 @@ async function onCancel() {
               [`billing__option--${option.key}`]: true,
             }"
             :disabled="option.isCurrent || loading"
-            @click="option.key === 'free' ? onCancel() : onChangePlan(option.key)"
+            @click="option.key === 'free' ? onManageSubscription() : onChangePlan(option.key)"
           >
             <div class="billing__option-top-bar" />
             <div class="billing__option-body">
@@ -145,6 +157,24 @@ async function onCancel() {
 
 .billing__subtitle {
   color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.billing__success {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-success-light, #eafaf1);
+  border: 1px solid var(--color-success, #27ae60);
+  border-radius: var(--radius-md);
+  color: var(--color-success, #27ae60);
+  margin-bottom: var(--space-6);
+}
+
+.billing__plan-cancel-notice {
+  color: var(--color-warning, #e67e22);
+  font-style: italic;
   margin-top: var(--space-1);
 }
 

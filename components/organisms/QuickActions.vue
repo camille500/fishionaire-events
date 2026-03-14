@@ -10,7 +10,7 @@ const emit = defineEmits(['create-event'])
     <QuickActionCard
       v-motion
       :initial="{ opacity: 0, y: 16 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: 100 } }"
+      :animate="{ opacity: 1, y: 0, transition: { delay: 0.1 } }"
       icon="plus"
       :label="t('dashboard.quickActions.createEvent')"
       :description="t('dashboard.quickActions.createEventDesc')"
@@ -20,7 +20,7 @@ const emit = defineEmits(['create-event'])
     <QuickActionCard
       v-motion
       :initial="{ opacity: 0, y: 16 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: 180 } }"
+      :animate="{ opacity: 1, y: 0, transition: { delay: 0.18 } }"
       icon="inbox"
       :label="t('dashboard.quickActions.invitations')"
       :description="t('dashboard.quickActions.invitationsDesc')"
@@ -30,7 +30,7 @@ const emit = defineEmits(['create-event'])
     <QuickActionCard
       v-motion
       :initial="{ opacity: 0, y: 16 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: 260 } }"
+      :animate="{ opacity: 1, y: 0, transition: { delay: 0.26 } }"
       icon="calendar"
       :label="t('dashboard.quickActions.myEvents')"
       :description="t('dashboard.quickActions.myEventsDesc')"

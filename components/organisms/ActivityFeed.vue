@@ -1,4 +1,6 @@
 <script setup>
+import { vAutoAnimate } from '@formkit/auto-animate'
+
 const { t } = useI18n()
 
 defineProps({
@@ -13,7 +15,7 @@ defineProps({
   <div
     v-motion
     :initial="{ opacity: 0, y: 16 }"
-    :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
+    :animate="{ opacity: 1, y: 0, transition: { delay: 0.3 } }"
     class="activity-feed"
   >
     <div class="activity-feed__header">
@@ -22,7 +24,7 @@ defineProps({
         {{ t('dashboard.activity.title') }}
       </h3>
     </div>
-    <div v-if="activities.length" class="activity-feed__list">
+    <div v-if="activities.length" v-auto-animate class="activity-feed__list">
       <ActivityItem
         v-for="(activity, index) in activities.slice(0, 5)"
         :key="index"
@@ -42,9 +44,10 @@ defineProps({
 <style scoped>
 .activity-feed {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
   padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
 }
 
 .activity-feed__header {

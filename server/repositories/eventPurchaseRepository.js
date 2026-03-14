@@ -43,6 +43,15 @@ export default class EventPurchaseRepository {
     return EventPurchase.fromJSON(row)
   }
 
+  static async updateCheckoutSessionId(id, sessionId) {
+    const prisma = usePrisma()
+    const row = await prisma.eventPurchase.update({
+      where: { id },
+      data: { stripeCheckoutSessionId: sessionId },
+    })
+    return EventPurchase.fromJSON(row)
+  }
+
   static async findByBuyer(clerkId) {
     const prisma = usePrisma()
     const rows = await prisma.eventPurchase.findMany({

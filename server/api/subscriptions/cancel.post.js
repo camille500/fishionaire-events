@@ -7,8 +7,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  // Phase 1: directly cancel (Phase 2: Stripe Customer Portal)
-  const subscription = await SubscriptionController.cancelSubscription(userId)
+  const result = await SubscriptionController.createPortalSession(userId)
 
-  return { subscription }
+  return result
 })

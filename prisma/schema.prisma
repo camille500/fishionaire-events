@@ -39,6 +39,17 @@ enum EventTier {
   @@map("event_tier")
 }
 
+enum EventType {
+  birthday
+  wedding
+  baby_shower
+  dinner
+  corporate
+  other
+
+  @@map("event_type")
+}
+
 enum PurchaseStatus {
   pending
   completed
@@ -56,6 +67,22 @@ enum InvitationStatus {
   @@map("invitation_status")
 }
 
+enum EventRole {
+  owner
+  co_organizer
+  guest
+
+  @@map("event_role")
+}
+
+enum SubEventRsvpStatus {
+  pending
+  accepted
+  declined
+
+  @@map("sub_event_rsvp_status")
+}
+
 model User {
   clerkId   String   @id @map("clerk_id")
   email     String
@@ -69,6 +96,8 @@ model User {
   events           Event[]
   eventPurchases   EventPurchase[]
   eventInvitations EventInvitation[]
+  eventMembers     EventMember[]
+  templates        EventTemplate[]
 
   @@map("users")
 }
@@ -91,18 +120,31 @@ model Subscription {
 }
 
 model Event {
-  id           Int       @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   title        String
   description  String?
-  tier         EventTier @default(free)
-  features     Json      @default("{}")
-  ownerClerkId String    @map("owner_clerk_id")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @default(now()) @map("updated_at")
+  eventType    EventType? @map("event_type")
+  eventDate    DateTime?  @map("event_date")
+  eventEndDate DateTime?  @map("event_end_date")
+  location     String?
+  maxGuests    Int?       @map("max_guests")
+  isPrivate      Boolean    @default(true) @map("is_private")
+  tier           EventTier  @default(free)
+  features       Json       @default("{}")
+  coverImageUrl  String?    @map("cover_image_url")
+  coverImageKey  String?    @map("cover_image_key")
+  ownerClerkId   String     @map("owner_clerk_id")
+  archivedAt     DateTime?  @map("archived_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @default(now()) @map("updated_at")
 
-  owner       User              @relation(fields: [ownerClerkId], references: [clerkId])
-  purchases   EventPurchase[]
-  invitations EventInvitation[]
+  owner         User              @relation(fields: [ownerClerkId], references: [clerkId])
+  purchases     EventPurchase[]
+  invitations   EventInvitation[]
+  subEvents     SubEvent[]
+  members       EventMember[]
+  timelineItems TimelineItem[]
+  views         EventView[]
 
   @@map("events")
 }
@@ -135,4 +177,98 @@ model EventInvitation {
   inviter User  @relation(fields: [inviterClerkId], references: [clerkId])
 
   @@map("event_invitations")
+}
+
+model SubEvent {
+  id          Int       @id @default(autoincrement())
+  eventId     Int       @map("event_id")
+  title       String
+  description String?
+  startTime   DateTime? @map("start_time")
+  endTime     DateTime? @map("end_time")
+  location    String?
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+
+  event Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rsvps SubEventRsvp[]
+
+  @@map("sub_events")
+}
+
+model SubEventRsvp {
+  id         Int               @id @default(autoincrement())
+  subEventId Int               @map("sub_event_id")
+  guestEmail String            @map("guest_email")
+  status     SubEventRsvpStatus @default(pending)
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @default(now()) @map("updated_at")
+
+  subEvent SubEvent @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+
+  @@unique([subEventId, guestEmail])
+  @@map("sub_event_rsvps")
+}
+
+model EventMember {
+  id          Int       @id @default(autoincrement())
+  eventId     Int       @map("event_id")
+  userClerkId String    @map("user_clerk_id")
+  role        EventRole @default(guest)
+  invitedEmail String?  @map("invited_email")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userClerkId], references: [clerkId])
+
+  @@unique([eventId, userClerkId])
+  @@map("event_members")
+}
+
+model EventTemplate {
+  id               Int        @id @default(autoincrement())
+  name             String
+  description      String?
+  eventType        EventType? @map("event_type")
+  settings         Json       @default("{}")
+  subEventTemplates Json      @default("[]") @map("sub_event_templates")
+  isSystem         Boolean    @default(false) @map("is_system")
+  ownerClerkId     String?    @map("owner_clerk_id")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @default(now()) @map("updated_at")
+
+  owner User? @relation(fields: [ownerClerkId], references: [clerkId])
+
+  @@map("event_templates")
+}
+
+model TimelineItem {
+  id          Int       @id @default(autoincrement())
+  eventId     Int       @map("event_id")
+  title       String
+  description String?
+  location    String?
+  startTime   DateTime  @map("start_time")
+  endTime     DateTime? @map("end_time")
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("timeline_items")
+}
+
+model EventView {
+  id        Int      @id @default(autoincrement())
+  eventId   Int      @map("event_id")
+  viewerIp  String?  @map("viewer_ip")
+  userAgent String?  @map("user_agent")
+  clerkId   String?  @map("clerk_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_views")
 }

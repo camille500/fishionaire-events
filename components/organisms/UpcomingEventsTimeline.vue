@@ -22,7 +22,7 @@ function formatDate(dateStr) {
   <div
     v-motion
     :initial="{ opacity: 0, y: 16 }"
-    :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
+    :animate="{ opacity: 1, y: 0, transition: { delay: 0.4 } }"
     class="timeline"
   >
     <div class="timeline__header">
@@ -63,9 +63,10 @@ function formatDate(dateStr) {
 <style scoped>
 .timeline {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
   padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
 }
 
 .timeline__header {

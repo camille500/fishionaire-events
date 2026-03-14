@@ -1,175 +1,144 @@
 <script setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
+const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="marketing-footer">
-    <!-- Wave divider -->
-    <div class="marketing-footer__wave" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-        <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z" fill="currentColor" />
-      </svg>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span class="logo-icon">🎉</span>
+          <span class="logo-text">Fishion</span><span class="logo-accent">aire</span>
+        </div>
+        <p class="footer-tagline">{{ t('footer.tagline') }}</p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">{{ t('footer.product') }}</h4>
+        <NuxtLink :to="localePath('features')">{{ t('footer.features') }}</NuxtLink>
+        <NuxtLink :to="localePath('pricing')">{{ t('footer.pricing') }}</NuxtLink>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">{{ t('footer.support') }}</h4>
+        <NuxtLink :to="localePath('help')">{{ t('footer.helpCenter') }}</NuxtLink>
+        <a href="mailto:hello@fishionaire.events">{{ t('footer.contact') }}</a>
+      </div>
+
+      <div class="footer-col footer-trust">
+        <h4 class="footer-heading">{{ t('footer.legal') }}</h4>
+        <div class="trust-badges">
+          <span class="badge">{{ t('footer.privacy') }}</span>
+          <span class="badge">{{ t('footer.terms') }}</span>
+          <span class="badge">SSL</span>
+          <span class="badge">GDPR</span>
+        </div>
+      </div>
     </div>
-    <div class="marketing-footer__container">
-      <div class="marketing-footer__top">
-        <div class="marketing-footer__brand">
-          <span class="marketing-footer__logo">🎉 Fishionaire</span>
-          <p class="marketing-footer__tagline">{{ t('footer.tagline') }}</p>
-        </div>
-        <div class="marketing-footer__grid">
-          <div class="marketing-footer__section">
-            <h4 class="marketing-footer__heading">{{ t('footer.product') }}</h4>
-            <nav class="marketing-footer__links">
-              <NuxtLink :to="localePath('features')">{{ t('footer.features') }}</NuxtLink>
-              <NuxtLink :to="localePath('pricing')">{{ t('footer.pricing') }}</NuxtLink>
-            </nav>
-          </div>
-          <div class="marketing-footer__section">
-            <h4 class="marketing-footer__heading">{{ t('footer.support') }}</h4>
-            <nav class="marketing-footer__links">
-              <NuxtLink :to="localePath('help')">{{ t('footer.helpCenter') }}</NuxtLink>
-              <a href="mailto:hello@fishionaire.events">{{ t('footer.contact') }}</a>
-            </nav>
-          </div>
-          <div class="marketing-footer__section">
-            <h4 class="marketing-footer__heading">{{ t('footer.legal') }}</h4>
-            <nav class="marketing-footer__links">
-              <a href="#">{{ t('footer.privacy') }}</a>
-              <a href="#">{{ t('footer.terms') }}</a>
-            </nav>
-          </div>
-        </div>
-      </div>
-      <div class="marketing-footer__bottom">
-        <span>{{ t('footer.copyright') }}</span>
-      </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {{ year }} Fishionaire. {{ t('footer.copyright') }}</p>
     </div>
   </footer>
 </template>
 
 <style scoped>
-.marketing-footer {
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-  padding: 0 0 var(--space-8);
+.footer {
+  border-top: 1px solid var(--border-glass);
+  padding: 64px 24px 32px;
   position: relative;
+  z-index: 1;
 }
 
-.marketing-footer__wave {
-  color: var(--color-primary);
-  margin-top: -1px;
-  line-height: 0;
-  position: relative;
-  top: -79px;
-  margin-bottom: -79px;
-}
-
-.marketing-footer__wave svg {
-  width: 100%;
-  height: 80px;
-}
-
-.marketing-footer__container {
-  max-width: var(--max-width-wide);
+.footer-inner {
+  max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-12) var(--space-6) 0;
-}
-
-.marketing-footer__top {
-  display: flex;
-  gap: var(--space-16);
-  margin-bottom: var(--space-12);
-}
-
-.marketing-footer__brand {
-  min-width: 200px;
-}
-
-.marketing-footer__logo {
-  font-family: var(--font-family-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--font-weight-bold);
-  display: block;
-  margin-bottom: var(--space-2);
-}
-
-.marketing-footer__tagline {
-  font-size: var(--text-sm);
-  opacity: 0.5;
-  max-width: 200px;
-  line-height: var(--line-height-normal);
-}
-
-.marketing-footer__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-8);
-  flex: 1;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 48px;
 }
 
-.marketing-footer__heading {
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-semibold);
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+
+.logo-icon { font-size: 1.3rem; }
+.logo-text { color: var(--text-primary); }
+.logo-accent { color: var(--color-accent); }
+
+.footer-tagline {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.footer-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-4);
-  opacity: 0.5;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
 }
 
-.marketing-footer__links {
+.footer-col {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 10px;
 }
 
-.marketing-footer__links a {
-  color: var(--color-text-inverse);
+.footer-col a {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
   text-decoration: none;
-  font-size: var(--text-sm);
-  opacity: 0.75;
-  transition: all var(--transition-fast);
-  position: relative;
-  display: inline-block;
 }
 
-.marketing-footer__links a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--color-accent);
-  transition: width var(--transition-base);
+.footer-col a:hover { color: var(--color-accent); }
+
+.trust-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.marketing-footer__links a:hover {
-  opacity: 1;
-  color: var(--color-accent-light);
+.badge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  width: fit-content;
+  font-weight: 500;
 }
 
-.marketing-footer__links a:hover::after {
-  width: 100%;
-}
-
-.marketing-footer__bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: var(--space-8);
-  font-size: var(--text-sm);
-  opacity: 0.4;
+.footer-bottom {
+  max-width: 1280px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .marketing-footer__top {
-    flex-direction: column;
-    gap: var(--space-8);
-  }
+.footer-bottom p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
 
-  .marketing-footer__grid {
+@media (max-width: 768px) {
+  .footer-inner {
     grid-template-columns: 1fr;
-    gap: var(--space-8);
+    gap: 32px;
   }
 }
 </style>

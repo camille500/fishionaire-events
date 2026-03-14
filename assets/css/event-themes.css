@@ -1,0 +1,132 @@
+/* Event Type Theming
+   Apply via data-event-type attribute on a container element.
+   Overrides accent colors so all child components inherit the event's visual identity. */
+
+/* Wedding — rose pink, elegant */
+[data-event-type="wedding"] {
+  --color-accent: #e91e63;
+  --color-accent-light: #f06292;
+  --color-accent-dark: #c2185b;
+  --color-accent-bg: rgba(233, 30, 99, 0.08);
+  --color-accent-dim: rgba(233, 30, 99, 0.04);
+  --gradient-accent: linear-gradient(135deg, #e91e63, #f48fb1);
+  --shadow-accent: 0 0 20px rgba(233, 30, 99, 0.15);
+  --shadow-accent-sm: 0 4px 12px rgba(233, 30, 99, 0.1);
+  --shadow-accent-lg: 0 12px 40px rgba(233, 30, 99, 0.3);
+  --glow-subtle: rgba(233, 30, 99, 0.06);
+}
+
+/* Birthday — vibrant purple */
+[data-event-type="birthday"] {
+  --color-accent: #9b59b6;
+  --color-accent-light: #b07cc6;
+  --color-accent-dark: #7d3c98;
+  --color-accent-bg: rgba(155, 89, 182, 0.08);
+  --color-accent-dim: rgba(155, 89, 182, 0.04);
+  --gradient-accent: linear-gradient(135deg, #9b59b6, #d2b4de);
+  --shadow-accent: 0 0 20px rgba(155, 89, 182, 0.15);
+  --shadow-accent-sm: 0 4px 12px rgba(155, 89, 182, 0.1);
+  --shadow-accent-lg: 0 12px 40px rgba(155, 89, 182, 0.3);
+  --glow-subtle: rgba(155, 89, 182, 0.06);
+}
+
+/* Baby Shower — soft green, playful */
+[data-event-type="baby_shower"] {
+  --color-accent: #4caf50;
+  --color-accent-light: #81c784;
+  --color-accent-dark: #388e3c;
+  --color-accent-bg: rgba(76, 175, 80, 0.08);
+  --color-accent-dim: rgba(76, 175, 80, 0.04);
+  --gradient-accent: linear-gradient(135deg, #4caf50, #a5d6a7);
+  --shadow-accent: 0 0 20px rgba(76, 175, 80, 0.15);
+  --shadow-accent-sm: 0 4px 12px rgba(76, 175, 80, 0.1);
+  --shadow-accent-lg: 0 12px 40px rgba(76, 175, 80, 0.3);
+  --glow-subtle: rgba(76, 175, 80, 0.06);
+}
+
+/* Dinner — warm amber */
+[data-event-type="dinner"] {
+  --color-accent: #ff9800;
+  --color-accent-light: #ffb74d;
+  --color-accent-dark: #e65100;
+  --color-accent-bg: rgba(255, 152, 0, 0.08);
+  --color-accent-dim: rgba(255, 152, 0, 0.04);
+  --gradient-accent: linear-gradient(135deg, #ff9800, #ffe0b2);
+  --shadow-accent: 0 0 20px rgba(255, 152, 0, 0.15);
+  --shadow-accent-sm: 0 4px 12px rgba(255, 152, 0, 0.1);
+  --shadow-accent-lg: 0 12px 40px rgba(255, 152, 0, 0.3);
+  --glow-subtle: rgba(255, 152, 0, 0.06);
+}
+
+/* Corporate — professional blue */
+[data-event-type="corporate"] {
+  --color-accent: #2196f3;
+  --color-accent-light: #64b5f6;
+  --color-accent-dark: #1565c0;
+  --color-accent-bg: rgba(33, 150, 243, 0.08);
+  --color-accent-dim: rgba(33, 150, 243, 0.04);
+  --gradient-accent: linear-gradient(135deg, #2196f3, #90caf9);
+  --shadow-accent: 0 0 20px rgba(33, 150, 243, 0.15);
+  --shadow-accent-sm: 0 4px 12px rgba(33, 150, 243, 0.1);
+  --shadow-accent-lg: 0 12px 40px rgba(33, 150, 243, 0.3);
+  --glow-subtle: rgba(33, 150, 243, 0.06);
+}
+
+/* Other / default — uses existing accent, no override needed */
+
+/* ── Dark mode overrides ── */
+
+.dark [data-event-type="wedding"],
+[data-event-type="wedding"].dark {
+  --color-accent: #f06292;
+  --color-accent-light: #f8bbd0;
+  --color-accent-dark: #e91e63;
+  --color-accent-bg: rgba(240, 98, 146, 0.12);
+  --color-accent-dim: rgba(240, 98, 146, 0.06);
+  --gradient-accent: linear-gradient(135deg, #f06292, #e91e63);
+  --glow-subtle: rgba(240, 98, 146, 0.08);
+}
+
+.dark [data-event-type="birthday"],
+[data-event-type="birthday"].dark {
+  --color-accent: #b07cc6;
+  --color-accent-light: #d2b4de;
+  --color-accent-dark: #9b59b6;
+  --color-accent-bg: rgba(176, 124, 198, 0.12);
+  --color-accent-dim: rgba(176, 124, 198, 0.06);
+  --gradient-accent: linear-gradient(135deg, #b07cc6, #9b59b6);
+  --glow-subtle: rgba(176, 124, 198, 0.08);
+}
+
+.dark [data-event-type="baby_shower"],
+[data-event-type="baby_shower"].dark {
+  --color-accent: #81c784;
+  --color-accent-light: #a5d6a7;
+  --color-accent-dark: #4caf50;
+  --color-accent-bg: rgba(129, 199, 132, 0.12);
+  --color-accent-dim: rgba(129, 199, 132, 0.06);
+  --gradient-accent: linear-gradient(135deg, #81c784, #4caf50);
+  --glow-subtle: rgba(129, 199, 132, 0.08);
+}
+
+.dark [data-event-type="dinner"],
+[data-event-type="dinner"].dark {
+  --color-accent: #ffb74d;
+  --color-accent-light: #ffe0b2;
+  --color-accent-dark: #ff9800;
+  --color-accent-bg: rgba(255, 183, 77, 0.12);
+  --color-accent-dim: rgba(255, 183, 77, 0.06);
+  --gradient-accent: linear-gradient(135deg, #ffb74d, #ff9800);
+  --glow-subtle: rgba(255, 183, 77, 0.08);
+}
+
+.dark [data-event-type="corporate"],
+[data-event-type="corporate"].dark {
+  --color-accent: #64b5f6;
+  --color-accent-light: #90caf9;
+  --color-accent-dark: #2196f3;
+  --color-accent-bg: rgba(100, 181, 246, 0.12);
+  --color-accent-dim: rgba(100, 181, 246, 0.06);
+  --gradient-accent: linear-gradient(135deg, #64b5f6, #2196f3);
+  --glow-subtle: rgba(100, 181, 246, 0.08);
+}

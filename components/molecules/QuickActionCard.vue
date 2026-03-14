@@ -63,22 +63,23 @@ const emit = defineEmits(['click'])
   gap: var(--space-4);
   padding: var(--space-4) var(--space-6);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-xl);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   width: 100%;
   text-align: left;
   font: inherit;
-  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+  transition: all 0.3s ease;
   will-change: transform;
 }
 
 .quick-action:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  border-color: var(--color-accent);
+  border-color: rgba(0, 184, 148, 0.2);
 }
 
 .quick-action:active {
@@ -94,7 +95,7 @@ const emit = defineEmits(['click'])
   justify-content: center;
   flex-shrink: 0;
   color: var(--icon-color);
-  background: var(--color-background);
+  background: color-mix(in srgb, var(--icon-color) 8%, var(--color-background));
 }
 
 .quick-action__text {

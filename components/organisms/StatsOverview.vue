@@ -12,9 +12,8 @@ defineProps({
     <StatCard
       v-for="(stat, index) in stats"
       :key="stat.label"
-      v-motion
-      :initial="{ opacity: 0, y: 20 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: index * 80 } }"
+      class="stats-overview__fade-in"
+      :style="{ animationDelay: `${index * 0.08}s` }"
       :icon="stat.icon"
       :label="stat.label"
       :value="stat.value"
@@ -28,6 +27,21 @@ defineProps({
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-overview__fade-in {
+  animation: fadeInUp 0.4s ease both;
 }
 
 @media (max-width: 1024px) {

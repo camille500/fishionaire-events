@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }
 
-  const { title, description, features } = await readBody(event)
-  return await EventController.updateEvent(eventId, userId, { title, description, features })
+  const { title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, features } = await readBody(event)
+  return await EventController.updateEvent(eventId, userId, { title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, features })
 })

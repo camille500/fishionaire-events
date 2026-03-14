@@ -1,16 +1,77 @@
-/* Glassmorphism Utilities */
+/* ============================
+   Glass Card System (matches reference)
+   ============================ */
+
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  position: relative;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
+
+.dark .glass {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Gradient border glow on hover (dark mode) */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0), rgba(0, 212, 170, 0), transparent, rgba(124, 107, 218, 0));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.dark .glass:hover::after {
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.3), rgba(0, 212, 170, 0.1), transparent, rgba(124, 107, 218, 0.3));
+  opacity: 1;
+}
+
+.glass:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Cursor-following radial glow (dark mode) */
+.dark .glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(0, 212, 170, 0.06),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .glass:hover::before {
+  opacity: 1;
+}
+
+/* ============================
+   Legacy Glass Utilities
+   ============================ */
 
 .glass-strong {
   background: var(--glass-bg-strong);
   backdrop-filter: blur(calc(var(--glass-blur) * 1.5));
   -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5));
   border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
 }
 
 .glass-dark {
@@ -18,21 +79,159 @@
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-dark-border);
+  border-radius: var(--radius-xl);
 }
 
-/* Gradient Text */
+/* ============================
+   Gradient Text
+   ============================ */
+
 .gradient-text {
-  background: var(--gradient-accent);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-violet) 50%, var(--color-accent) 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradient-x 6s ease infinite;
 }
 
-/* Accent glow */
+/* ============================
+   Accent Glows
+   ============================ */
+
 .glow-accent {
   box-shadow: var(--shadow-accent);
 }
 
 .glow-accent-lg {
   box-shadow: var(--shadow-accent-lg);
+}
+
+/* ============================
+   Section Label Pattern
+   ============================ */
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+  margin-bottom: 12px;
+}
+
+/* ============================
+   Section Defaults (reference)
+   ============================ */
+
+.section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 120px 24px;
+  scroll-margin-top: 100px;
+}
+
+.section-title {
+  font-size: clamp(1.9rem, 3.8vw, 2.6rem);
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.section-desc {
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto 64px;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+/* ============================
+   Glow Separator
+   ============================ */
+
+.glow-separator {
+  width: 100%;
+  height: 1px;
+  background: var(--border-glass);
+  position: relative;
+  margin: 0;
+}
+
+.dark .glow-separator {
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.3), rgba(124, 107, 218, 0.3), transparent);
+}
+
+.dark .glow-separator::after {
+  content: '';
+  position: absolute;
+  inset: -4px 20%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.1), rgba(124, 107, 218, 0.1), transparent);
+  filter: blur(8px);
+  animation: glow-line 4s ease-in-out infinite;
+}
+
+/* ============================
+   Sparkle Cross
+   ============================ */
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  pointer-events: none;
+  animation: sparkle 3s ease-in-out infinite;
+  opacity: var(--sparkle-opacity, 1);
+}
+
+.sparkle::before,
+.sparkle::after {
+  content: '';
+  position: absolute;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+.sparkle::before {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  box-shadow: 0 0 6px var(--color-accent), 0 0 12px rgba(0, 184, 148, 0.3);
+}
+
+.sparkle::after {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px var(--color-accent), 0 0 12px rgba(0, 184, 148, 0.3);
+}
+
+.sparkle.violet::before,
+.sparkle.violet::after {
+  background: var(--color-accent-violet);
+  box-shadow: 0 0 6px var(--color-accent-violet), 0 0 12px rgba(108, 92, 231, 0.3);
+}
+
+/* 3D tilt support for cards */
+.tilt-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ============================
+   Reduced Motion
+   ============================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .glass::after,
+  .glass::before {
+    display: none;
+  }
 }

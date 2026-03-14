@@ -8,7 +8,6 @@ const { getGreeting } = useGreeting()
 const { data: user } = await useFetch('/api/users/me')
 const { data: events, error: eventsError, refresh: refreshEvents } = await useFetch('/api/events')
 const { subscription } = useSubscription()
-const { stats } = useDashboardStats(computed(() => events.value))
 
 const showCreateForm = ref(false)
 const showConfetti = ref(false)
@@ -24,27 +23,26 @@ const todayFormatted = computed(() => {
   })
 })
 
-const recentEvents = computed(() => {
-  const owned = events.value?.owned || []
-  return owned.slice(0, 4)
+const ownedEvents = computed(() => events.value?.owned || [])
+const coOrgEvents = computed(() => events.value?.coOrganizing || [])
+const invitedEvents = computed(() => events.value?.invited || [])
+
+const recentEvents = computed(() => ownedEvents.value.slice(0, 6))
+
+const inlineStats = computed(() => {
+  const owned = ownedEvents.value
+  const invited = invitedEvents.value
+  const totalGuests = owned.reduce((sum, e) => sum + (e.invitationCount || 0), 0)
+  return [
+    { value: owned.length, label: t('dashboard.stats.totalEvents') },
+    { value: invited.length, label: t('dashboard.stats.invitations') },
+    { value: totalGuests, label: t('dashboard.stats.totalGuests') },
+  ]
 })
 
-const mockActivities = computed(() => {
-  const owned = events.value?.owned || []
-  if (!owned.length) return []
-  return owned.slice(0, 3).map((e) => ({
-    icon: 'calendar',
-    message: t('dashboard.activity.eventCreated', { name: e.title }),
-    timestamp: new Date(e.createdAt).toLocaleDateString(locale.value),
-    color: 'var(--color-accent)',
-  }))
-})
-
-function onEventCreated() {
+function onEventCreated(event) {
   showCreateForm.value = false
-  showConfetti.value = true
-  setTimeout(() => { showConfetti.value = false }, 2000)
-  refreshEvents()
+  navigateTo(`/dashboard/events/${event.id}?new=1`)
 }
 </script>
 
@@ -53,135 +51,124 @@ function onEventCreated() {
     <ConfettiExplosion :trigger="showConfetti" />
 
     <!-- Greeting -->
-    <section
-      v-motion
-      :initial="{ opacity: 0, y: 20 }"
-      :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
-      class="dashboard-home__greeting"
-    >
+    <section class="dashboard-home__greeting">
       <div>
         <h1 class="dashboard-home__title">{{ getGreeting(displayName) }}</h1>
         <p class="dashboard-home__date">{{ todayFormatted }}</p>
       </div>
-      <TierBadge v-if="subscription" :tier="subscription.tier" />
+      <InlineStats :stats="inlineStats" />
     </section>
 
-    <!-- Stats -->
-    <section
-      v-motion
-      :initial="{ opacity: 0, y: 20 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: 100, duration: 400 } }"
-    >
-      <StatsOverview :stats="stats" />
-    </section>
-
-    <!-- Quick Actions -->
-    <section
-      v-motion
-      :initial="{ opacity: 0, y: 20 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: 200, duration: 400 } }"
-    >
-      <QuickActions @create-event="showCreateForm = true" />
-    </section>
-
-    <!-- Create Event Form (slide) -->
-    <Transition name="slide-down">
-      <section v-if="showCreateForm" class="dashboard-home__create-form">
-        <CreateEventForm
-          @created="onEventCreated"
-          @cancel="showCreateForm = false"
-        />
-      </section>
-    </Transition>
-
-    <!-- Content Grid -->
-    <div class="dashboard-home__grid">
-      <!-- Left column: Events -->
-      <div class="dashboard-home__main-col">
-        <div class="dashboard-home__section-header">
-          <h2 class="dashboard-home__section-title">
-            <Icon name="lucide:calendar" size="18" />
-            {{ t('dashboard.myEvents') }}
-          </h2>
+    <!-- My Events -->
+    <section>
+      <div class="dashboard-home__section-header">
+        <h2 class="dashboard-home__section-title">
+          {{ t('dashboard.myEvents') }}
+        </h2>
+        <div class="dashboard-home__section-actions">
           <NuxtLink
             v-if="recentEvents.length > 0"
             :to="localePath('dashboard') + '/events'"
             class="dashboard-home__view-all"
           >
             {{ t('dashboard.viewAll') }}
-            <Icon name="lucide:arrow-right" size="16" />
+            <Icon name="lucide:arrow-right" size="14" />
           </NuxtLink>
-        </div>
-
-        <div v-if="eventsError" class="dashboard-home__error">
-          <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
-          <AppButton variant="ghost" size="sm" @click="refreshEvents()">
-            {{ t('dashboard.retry') }}
+          <AppButton
+            variant="primary"
+            size="sm"
+            @click="showCreateForm = !showCreateForm"
+          >
+            <Icon name="lucide:plus" size="14" />
+            {{ t('dashboard.newEvent') }}
           </AppButton>
         </div>
+      </div>
 
-        <div v-else-if="recentEvents.length" class="dashboard-home__events-grid">
-          <div
-            v-for="(event, index) in recentEvents"
-            :key="event.id"
-            v-motion
-            :initial="{ opacity: 0, y: 20 }"
-            :enter="{ opacity: 1, y: 0, transition: { delay: 300 + index * 80, duration: 400 } }"
-          >
-            <EventCard
-              :event="event"
-              :is-owner="true"
-              @invited="refreshEvents"
-            />
-          </div>
+      <!-- Create Event Form -->
+      <Transition name="slide-down">
+        <div v-if="showCreateForm" class="dashboard-home__create-form">
+          <CreateEventForm
+            @created="onEventCreated"
+            @cancel="showCreateForm = false"
+          />
         </div>
+      </Transition>
 
-        <EmptyState
-          v-else
-          icon="calendar"
-          :title="t('dashboard.emptyState.noEvents.title')"
-          :description="t('dashboard.emptyState.noEvents.description')"
-          :cta-label="t('dashboard.emptyState.noEvents.cta')"
-          @cta-click="showCreateForm = true"
-        />
+      <div v-if="eventsError" class="dashboard-home__error">
+        <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
+        <AppButton variant="ghost" size="sm" @click="refreshEvents()">
+          {{ t('dashboard.retry') }}
+        </AppButton>
+      </div>
 
-        <!-- Invitations section -->
-        <div class="dashboard-home__section-header dashboard-home__section-header--mt">
-          <h2 class="dashboard-home__section-title">
-            <Icon name="lucide:inbox" size="18" />
-            {{ t('dashboard.invitations') }}
-          </h2>
-        </div>
-
-        <div v-if="(events?.invited || []).length" class="dashboard-home__events-grid">
-          <div
-            v-for="(event, index) in (events?.invited || []).slice(0, 4)"
-            :key="event.id"
-            v-motion
-            :initial="{ opacity: 0, y: 20 }"
-            :enter="{ opacity: 1, y: 0, transition: { delay: 400 + index * 80, duration: 400 } }"
-          >
-            <EventCard
-              :event="event"
-              :is-owner="false"
-            />
-          </div>
-        </div>
-
-        <EmptyState
-          v-else
-          icon="inbox"
-          :title="t('dashboard.emptyState.noInvitations.title')"
-          :description="t('dashboard.emptyState.noInvitations.description')"
+      <div v-else-if="recentEvents.length" class="dashboard-home__events-grid">
+        <EventCard
+          v-for="event in recentEvents"
+          :key="event.id"
+          :event="event"
+          :is-owner="true"
+          @invited="refreshEvents"
         />
       </div>
 
-      <!-- Right column: Activity + Timeline -->
-      <div class="dashboard-home__side-col">
-        <ActivityFeed :activities="mockActivities" />
-        <UpcomingEventsTimeline :events="recentEvents" />
+      <EmptyState
+        v-else
+        icon="calendar"
+        :title="t('dashboard.emptyState.noEvents.title')"
+        :description="t('dashboard.emptyState.noEvents.description')"
+        :cta-label="t('dashboard.emptyState.noEvents.cta')"
+        @cta-click="showCreateForm = true"
+      />
+    </section>
+
+    <!-- Co-organizing -->
+    <section v-if="coOrgEvents.length">
+      <div class="dashboard-home__section-header">
+        <h2 class="dashboard-home__section-title">
+          {{ t('dashboard.coOrganizing') }}
+        </h2>
       </div>
-    </div>
+      <div class="dashboard-home__events-grid">
+        <EventCard
+          v-for="event in coOrgEvents.slice(0, 4)"
+          :key="'co-' + event.id"
+          :event="event"
+          role="co_organizer"
+        />
+      </div>
+    </section>
+
+    <!-- Invitations -->
+    <section v-if="invitedEvents.length">
+      <div class="dashboard-home__section-header">
+        <h2 class="dashboard-home__section-title">
+          {{ t('dashboard.invitations') }}
+        </h2>
+      </div>
+      <div class="dashboard-home__events-grid">
+        <EventCard
+          v-for="event in invitedEvents.slice(0, 4)"
+          :key="'inv-' + event.id"
+          :event="event"
+          :is-owner="false"
+        />
+      </div>
+    </section>
+
+    <!-- Empty invitations -->
+    <section v-if="!invitedEvents.length && ownedEvents.length">
+      <div class="dashboard-home__section-header">
+        <h2 class="dashboard-home__section-title">
+          {{ t('dashboard.invitations') }}
+        </h2>
+      </div>
+      <EmptyState
+        icon="inbox"
+        :title="t('dashboard.emptyState.noInvitations.title')"
+        :description="t('dashboard.emptyState.noInvitations.description')"
+      />
+    </section>
   </div>
 </template>
 
@@ -190,18 +177,19 @@ function onEventCreated() {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+  max-width: 960px;
 }
 
 .dashboard-home__greeting {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
 }
 
 .dashboard-home__title {
   font-family: var(--font-family-heading);
-  font-size: var(--text-3xl);
+  font-size: var(--text-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0;
@@ -212,47 +200,29 @@ function onEventCreated() {
 .dashboard-home__date {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-  margin: var(--space-2) 0 0;
+  margin: var(--space-1) 0 0;
   text-transform: capitalize;
-}
-
-.dashboard-home__grid {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: var(--space-8);
-}
-
-.dashboard-home__main-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.dashboard-home__side-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
 }
 
 .dashboard-home__section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.dashboard-home__section-header--mt {
-  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .dashboard-home__section-title {
   font-family: var(--font-family-heading);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   margin: 0;
+}
+
+.dashboard-home__section-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .dashboard-home__view-all {
@@ -261,27 +231,27 @@ function onEventCreated() {
   gap: var(--space-1);
   font-size: var(--text-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--color-accent);
+  color: var(--color-text-muted);
   text-decoration: none;
-  transition: gap var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .dashboard-home__view-all:hover {
-  gap: var(--space-2);
+  color: var(--color-accent);
 }
 
 .dashboard-home__events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-4);
 }
 
 .dashboard-home__create-form {
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
 }
 
 .dashboard-home__error {
@@ -306,31 +276,20 @@ function onEventCreated() {
   transform: translateY(-8px);
 }
 
-@media (max-width: 1024px) {
-  .dashboard-home__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-home__side-col {
-    flex-direction: row;
-  }
-
-  .dashboard-home__side-col > * {
-    flex: 1;
-  }
-}
-
 @media (max-width: 640px) {
   .dashboard-home__title {
-    font-size: var(--text-2xl);
+    font-size: var(--text-xl);
   }
 
   .dashboard-home__greeting {
     flex-direction: column;
+    align-items: flex-start;
   }
 
-  .dashboard-home__side-col {
+  .dashboard-home__section-header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
   }
 
   .dashboard-home__events-grid {

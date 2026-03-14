@@ -33,7 +33,8 @@ defineProps({
 <style scoped>
 .glass-card {
   border-radius: var(--radius-xl);
-  transition: all var(--transition-base);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  position: relative;
 }
 
 .glass-card--light {
@@ -57,11 +58,28 @@ defineProps({
 .glass-card--pad-lg { padding: var(--space-8); }
 
 .glass-card--hover:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0, 184, 148, 0.15);
 }
 
-.glass-card--hover.glass-card--light:hover {
-  border-color: rgba(255, 107, 107, 0.2);
+/* Gradient border glow on hover */
+.glass-card--hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent, rgba(0, 184, 148, 0.3), rgba(108, 92, 231, 0.3), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glass-card--hover:hover::after {
+  opacity: 1;
 }
 </style>

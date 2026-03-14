@@ -48,8 +48,8 @@ const emit = defineEmits(['cta-click'])
   justify-content: center;
   text-align: center;
   padding: var(--space-12) var(--space-6);
-  border: 2px dashed var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-border-light);
+  border-radius: var(--radius-xl);
   background: var(--color-surface);
 }
 

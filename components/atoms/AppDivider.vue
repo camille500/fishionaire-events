@@ -9,16 +9,10 @@ defineProps({
 </script>
 
 <template>
-  <hr class="app-divider" :class="`app-divider--${spacing}`" />
+  <USeparator class="app-divider" :class="`app-divider--${spacing}`" />
 </template>
 
 <style scoped>
-.app-divider {
-  border: none;
-  border-top: 1px solid var(--color-border);
-  width: 100%;
-}
-
 .app-divider--sm { margin: var(--space-4) 0; }
 .app-divider--md { margin: var(--space-8) 0; }
 .app-divider--lg { margin: var(--space-12) 0; }

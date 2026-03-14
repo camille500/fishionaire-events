@@ -9,8 +9,16 @@ export default class EventRepository {
       data: {
         title: data.title,
         description: data.description,
+        eventType: data.eventType,
+        eventDate: data.eventDate,
+        eventEndDate: data.eventEndDate,
+        location: data.location,
+        maxGuests: data.maxGuests,
+        isPrivate: data.isPrivate,
         tier: data.tier,
         features: data.features,
+        coverImageUrl: data.coverImageUrl,
+        coverImageKey: data.coverImageKey,
         ownerClerkId: data.ownerClerkId,
       },
     })
@@ -27,8 +35,17 @@ export default class EventRepository {
   static async findByOwner(clerkId) {
     const prisma = usePrisma()
     const rows = await prisma.event.findMany({
-      where: { ownerClerkId: clerkId },
+      where: { ownerClerkId: clerkId, archivedAt: null },
       orderBy: { createdAt: 'desc' },
+    })
+    return rows.map((row) => Event.fromJSON(row))
+  }
+
+  static async findArchivedByOwner(clerkId) {
+    const prisma = usePrisma()
+    const rows = await prisma.event.findMany({
+      where: { ownerClerkId: clerkId, archivedAt: { not: null } },
+      orderBy: { archivedAt: 'desc' },
     })
     return rows.map((row) => Event.fromJSON(row))
   }
@@ -63,12 +80,36 @@ export default class EventRepository {
       data: {
         title: data.title,
         description: data.description,
+        eventType: data.eventType,
+        eventDate: data.eventDate,
+        eventEndDate: data.eventEndDate,
+        location: data.location,
+        maxGuests: data.maxGuests,
+        isPrivate: data.isPrivate,
         tier: data.tier,
         features: data.features,
+        coverImageUrl: data.coverImageUrl,
+        coverImageKey: data.coverImageKey,
         updatedAt: new Date(),
       },
     })
     return Event.fromJSON(row)
+  }
+
+  static async archive(id) {
+    const prisma = usePrisma()
+    await prisma.event.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+    })
+  }
+
+  static async restore(id) {
+    const prisma = usePrisma()
+    await prisma.event.update({
+      where: { id },
+      data: { archivedAt: null },
+    })
   }
 
   static async getInvitationCount(eventId) {

@@ -1,28 +1,23 @@
 <script setup>
-defineProps({
+const props = defineProps({
   items: {
     type: Array,
     required: true,
   },
 })
 
-const activeIndex = ref(-1)
-
-const toggle = (index) => {
-  activeIndex.value = activeIndex.value === index ? -1 : index
-}
+const accordionItems = computed(() =>
+  props.items.map((item, index) => ({
+    label: item.question,
+    content: item.answer,
+    value: String(index),
+  }))
+)
 </script>
 
 <template>
   <div class="accordion-group">
-    <AccordionItem
-      v-for="(item, index) in items"
-      :key="index"
-      :question="item.question"
-      :answer="item.answer"
-      :open="activeIndex === index"
-      @toggle="toggle(index)"
-    />
+    <UAccordion :items="accordionItems" type="single" />
   </div>
 </template>
 

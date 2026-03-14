@@ -20,7 +20,7 @@ const props = defineProps({
 
 const motionConfig = computed(() => ({
   initial: { opacity: 0, x: props.reversed ? 60 : -60 },
-  visibleOnce: { opacity: 1, x: 0, transition: { duration: 600, delay: 100 } },
+  whileInView: { opacity: 1, x: 0, transition: { duration: 0.6, delay: 0.1 } },
 }))
 </script>
 
@@ -28,7 +28,8 @@ const motionConfig = computed(() => ({
   <section
     v-motion
     :initial="motionConfig.initial"
-    :visible-once="motionConfig.visibleOnce"
+    :whileInView="motionConfig.whileInView"
+    :inViewOptions="{ once: true }"
     class="feature-showcase"
   >
     <div class="feature-showcase__container" :class="{ 'feature-showcase__container--reversed': reversed }">
@@ -53,9 +54,6 @@ const motionConfig = computed(() => ({
 
 <style scoped>
 .feature-showcase__container {
-  max-width: var(--max-width-wide);
-  margin: 0 auto;
-  padding: 0 var(--space-6);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-16);
@@ -74,22 +72,23 @@ const motionConfig = computed(() => ({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-lg);
-  background: var(--gradient-accent);
-  color: var(--color-text-inverse);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   margin-bottom: var(--space-4);
-  box-shadow: var(--shadow-accent-sm);
 }
 
 .feature-showcase__title {
-  font-size: var(--text-2xl);
+  font-size: clamp(1.4rem, 2.5vw, 1.75rem);
   margin-bottom: var(--space-4);
+  letter-spacing: -0.02em;
 }
 
 .feature-showcase__description {
   line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
 }
 
 .feature-showcase__visual {
@@ -101,30 +100,43 @@ const motionConfig = computed(() => ({
 .feature-showcase__placeholder {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: var(--gradient-surface);
+  background: var(--color-surface);
   border-radius: var(--radius-2xl);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
-  transition: all var(--transition-base);
+  transition: all 0.3s ease;
+}
+
+.feature-showcase__placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(0, 184, 148, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(108, 92, 231, 0.04) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .feature-showcase__placeholder:hover {
-  border-color: rgba(255, 107, 107, 0.2);
+  border-color: transparent;
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .feature-showcase__placeholder-icon {
-  opacity: 0.2;
-  transition: all var(--transition-base);
+  opacity: 0.15;
+  transition: all 0.3s ease;
+  z-index: 1;
 }
 
 .feature-showcase__placeholder:hover .feature-showcase__placeholder-icon {
-  opacity: 0.35;
+  opacity: 0.3;
   transform: scale(1.1);
 }
 
@@ -133,9 +145,9 @@ const motionConfig = computed(() => ({
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 107, 107, 0.08), transparent 70%);
+  background: radial-gradient(circle, rgba(0, 184, 148, 0.08), transparent 70%);
   pointer-events: none;
-  transition: opacity var(--transition-base);
+  transition: opacity 0.3s ease;
   opacity: 0;
 }
 

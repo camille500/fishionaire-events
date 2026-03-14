@@ -9,6 +9,8 @@ export const TIER_FEATURES = {
     seatingArrangements: false,
     timeline: false,
     customTheme: false,
+    aiAssistant: false,
+    analytics: false,
   },
   standard: {
     rsvp: true,
@@ -20,6 +22,8 @@ export const TIER_FEATURES = {
     seatingArrangements: false,
     timeline: false,
     customTheme: false,
+    aiAssistant: true,
+    analytics: true,
   },
   pro: {
     rsvp: true,
@@ -31,14 +35,16 @@ export const TIER_FEATURES = {
     seatingArrangements: true,
     timeline: true,
     customTheme: true,
+    aiAssistant: true,
+    analytics: true,
   },
 }
 
 export const TIER_ORDER = { free: 0, standard: 1, pro: 2 }
 
 export const EVENT_PRICES_CENTS = {
-  standard: 1200,
-  pro: 2500,
+  standard: 1499,
+  pro: 2999,
 }
 
 export function getFeaturesForTier(tier) {

@@ -23,20 +23,21 @@ defineProps({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-4) var(--space-6);
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8);
   position: relative;
 }
 
 .stat-block__value {
   font-family: var(--font-family-heading);
-  font-size: var(--text-4xl);
+  font-size: clamp(2rem, 4vw, 2.8rem);
   font-weight: var(--font-weight-extrabold);
   background: var(--gradient-accent);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: var(--line-height-tight);
+  letter-spacing: -0.02em;
 }
 
 .stat-block__label {

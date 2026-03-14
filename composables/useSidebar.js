@@ -1,5 +1,5 @@
 export function useSidebar() {
-  const collapsed = useLocalStorage('sidebar-collapsed', false)
+  const collapsed = useCookie('sidebar-collapsed', { default: () => false })
   const mobileOpen = ref(false)
   const isMobile = useMediaQuery('(max-width: 768px)')
 

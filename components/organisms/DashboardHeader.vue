@@ -13,11 +13,12 @@ const emit = defineEmits(['toggle-sidebar'])
   <header class="dashboard-header">
     <div class="dashboard-header__left">
       <button class="dashboard-header__hamburger" @click="emit('toggle-sidebar')">
-        <Icon name="lucide:menu" size="24" />
+        <Icon name="lucide:menu" size="20" />
       </button>
       <h2 v-if="title" class="dashboard-header__title">{{ title }}</h2>
     </div>
     <div class="dashboard-header__right">
+      <UColorModeButton />
       <slot />
     </div>
   </header>
@@ -25,13 +26,13 @@ const emit = defineEmits(['toggle-sidebar'])
 
 <style scoped>
 .dashboard-header {
-  height: var(--header-height);
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-8);
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-6);
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border-light);
   position: sticky;
   top: 0;
   z-index: 30;
@@ -40,7 +41,7 @@ const emit = defineEmits(['toggle-sidebar'])
 .dashboard-header__left {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .dashboard-header__hamburger {
@@ -48,28 +49,27 @@ const emit = defineEmits(['toggle-sidebar'])
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-text-secondary);
-  padding: var(--space-2);
+  color: var(--color-text-muted);
+  padding: var(--space-1);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
 }
 
 .dashboard-header__hamburger:hover {
-  background: var(--color-background);
   color: var(--color-text-primary);
 }
 
 .dashboard-header__title {
-  font-size: var(--text-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .dashboard-header__right {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 @media (max-width: 768px) {

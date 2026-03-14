@@ -23,7 +23,7 @@ defineProps({
   <div
     v-motion
     :initial="{ opacity: 0, y: 20 }"
-    :enter="{ opacity: 1, y: 0, transition: { delay: 100 } }"
+    :animate="{ opacity: 1, y: 0, transition: { delay: 0.1 } }"
     class="stat-card"
   >
     <div class="stat-card__icon" :style="{ '--icon-color': color }">
@@ -37,16 +37,18 @@ defineProps({
 <style scoped>
 .stat-card {
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--space-6);
-  border: 1px solid var(--color-border);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
   will-change: transform;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  border-color: rgba(0, 184, 148, 0.12);
 }
 
 .stat-card__icon {
@@ -58,7 +60,7 @@ defineProps({
   justify-content: center;
   margin-bottom: var(--space-3);
   color: var(--icon-color);
-  background: var(--color-background);
+  background: color-mix(in srgb, var(--icon-color) 8%, var(--color-background));
 }
 
 .stat-card__value {

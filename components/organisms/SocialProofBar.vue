@@ -13,9 +13,7 @@ defineProps({
       <div
         v-for="(stat, index) in stats"
         :key="index"
-        v-motion
-        :initial="{ opacity: 0, y: 20 }"
-        :visible-once="{ opacity: 1, y: 0, transition: { delay: index * 150, duration: 500 } }"
+        class="social-proof-bar__item reveal"
       >
         <StatBlock
           :value="stat.value"
@@ -23,7 +21,6 @@ defineProps({
         />
       </div>
     </div>
-    <div class="social-proof-bar__shine" />
   </section>
 </template>
 
@@ -32,7 +29,7 @@ defineProps({
   background: var(--color-surface);
   border-top: 1px solid var(--color-border-light);
   border-bottom: 1px solid var(--color-border-light);
-  padding: var(--space-10) 0;
+  padding: var(--space-12) 0;
   position: relative;
   overflow: hidden;
 }
@@ -46,21 +43,30 @@ defineProps({
   gap: var(--space-16);
 }
 
-.social-proof-bar__shine {
+.social-proof-bar__item {
+  position: relative;
+}
+
+.social-proof-bar__item + .social-proof-bar__item::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-  animation: shine-sweep 4s ease-in-out infinite;
-  pointer-events: none;
+  left: calc(-1 * var(--space-8));
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 40px;
+  background: var(--color-border);
 }
 
 @media (max-width: 640px) {
   .social-proof-bar__container {
     gap: var(--space-6);
     flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .social-proof-bar__item + .social-proof-bar__item::before {
+    display: none;
   }
 }
 </style>

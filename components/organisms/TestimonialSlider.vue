@@ -33,10 +33,7 @@ onUnmounted(() => {
         <div
           v-for="(testimonial, index) in testimonials"
           :key="index"
-          v-motion
-          :initial="{ opacity: 0, scale: 0.95 }"
-          :visible-once="{ opacity: 1, scale: 1, transition: { delay: index * 150, duration: 400 } }"
-          class="testimonial-slider__card-wrap"
+          class="testimonial-slider__card-wrap reveal"
         >
           <TestimonialCard
             :quote="testimonial.quote"

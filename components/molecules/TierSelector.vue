@@ -129,7 +129,7 @@ function select(tierKey) {
 .tier-option--selected {
   border-color: var(--color-accent);
   background: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
 }
 
 .tier-option__top-bar {

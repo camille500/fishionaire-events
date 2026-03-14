@@ -32,10 +32,18 @@ const isActive = computed(() => {
 </script>
 
 <template>
+  <UTooltip v-if="collapsed" :text="label" :delay-duration="200">
+    <NuxtLink
+      :to="to"
+      :class="['sidebar-nav-item', { 'sidebar-nav-item--active': isActive, 'sidebar-nav-item--collapsed': collapsed }]"
+    >
+      <Icon :name="'lucide:' + icon" size="16" class="sidebar-nav-item__icon" />
+    </NuxtLink>
+  </UTooltip>
   <NuxtLink
-    v-tooltip="collapsed ? label : undefined"
+    v-else
     :to="to"
-    :class="['sidebar-nav-item', { 'sidebar-nav-item--active': isActive, 'sidebar-nav-item--collapsed': collapsed }]"
+    :class="['sidebar-nav-item', { 'sidebar-nav-item--active': isActive }]"
   >
     <Icon :name="'lucide:' + icon" size="16" class="sidebar-nav-item__icon" />
     <Transition name="sidebar-label">
@@ -55,7 +63,7 @@ const isActive = computed(() => {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -68,29 +76,19 @@ const isActive = computed(() => {
 }
 
 .sidebar-nav-item:hover {
-  background: var(--color-background);
+  background: var(--color-surface);
   color: var(--color-text-primary);
 }
 
 .sidebar-nav-item--active {
   background: var(--color-accent-bg);
-  color: var(--color-accent);
-}
-
-.sidebar-nav-item--active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 4px;
-  bottom: 4px;
-  width: 3px;
-  background: var(--color-accent);
-  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .sidebar-nav-item--collapsed {
   justify-content: center;
-  padding: var(--space-3);
+  padding: var(--space-2);
 }
 
 .sidebar-nav-item__icon {

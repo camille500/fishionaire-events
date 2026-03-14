@@ -13,57 +13,43 @@ defineProps({
 </script>
 
 <template>
-  <section class="feature-grid">
-    <div class="feature-grid__container">
-      <div class="feature-grid__items" :class="`feature-grid__items--cols-${columns}`">
-        <div
-          v-for="(feature, index) in features"
-          :key="index"
-          v-motion
-          :initial="{ opacity: 0, y: 40 }"
-          :visible-once="{ opacity: 1, y: 0, transition: { delay: 100 + index * 100, duration: 500 } }"
-        >
-          <FeatureCard
-            :icon="feature.icon"
-            :title="feature.title"
-            :description="feature.description"
-          />
-        </div>
-      </div>
-    </div>
-  </section>
+  <div class="feature-grid reveal-grid" :class="`feature-grid--cols-${columns}`">
+    <FeatureCard
+      v-for="(feature, index) in features"
+      :key="index"
+      :icon="feature.icon"
+      :title="feature.title"
+      :description="feature.description"
+    />
+  </div>
 </template>
 
 <style scoped>
-.feature-grid__container {
-  max-width: var(--max-width-wide);
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-}
-
-.feature-grid__items {
+.feature-grid {
   display: grid;
-  gap: var(--space-6);
+  gap: 20px;
 }
 
-.feature-grid__items--cols-2 {
+.feature-grid--cols-2 {
   grid-template-columns: repeat(2, 1fr);
 }
 
-.feature-grid__items--cols-3 {
+.feature-grid--cols-3 {
   grid-template-columns: repeat(3, 1fr);
 }
 
-@media (max-width: 1024px) {
-  .feature-grid__items--cols-3 {
+@media (max-width: 900px) {
+  .feature-grid--cols-3 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 640px) {
-  .feature-grid__items--cols-2,
-  .feature-grid__items--cols-3 {
+@media (max-width: 600px) {
+  .feature-grid--cols-2,
+  .feature-grid--cols-3 {
     grid-template-columns: 1fr;
+    max-width: 520px;
+    margin: 0 auto;
   }
 }
 </style>

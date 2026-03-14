@@ -16,77 +16,63 @@ defineProps({
 </script>
 
 <template>
-  <div class="feature-card">
+  <div class="feature-card glass tilt-card">
     <div class="feature-card__icon">
-      <Icon :name="'lucide:' + icon" size="28" />
+      <Icon :name="'lucide:' + icon" size="24" />
     </div>
-    <AppHeading :level="3" class="feature-card__title">{{ title }}</AppHeading>
-    <AppText size="sm" class="feature-card__desc">{{ description }}</AppText>
+    <h3 class="feature-card__title">{{ title }}</h3>
+    <p class="feature-card__desc">{{ description }}</p>
   </div>
 </template>
 
 <style scoped>
 .feature-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: var(--radius-xl);
-  padding: var(--space-8);
-  transition: all var(--transition-base);
-  border: 1px solid var(--color-border-light);
+  padding: 32px;
+  transition: border-color 0.3s ease, background 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  cursor: default;
   position: relative;
   overflow: hidden;
 }
 
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--gradient-accent);
-  opacity: 0;
-  transition: opacity var(--transition-base);
-}
-
 .feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-  border-color: transparent;
-}
-
-.feature-card:hover::before {
-  opacity: 1;
-}
-
-.feature-card__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-lg);
-  background: var(--color-accent-bg);
-  color: var(--color-accent);
-  margin-bottom: var(--space-5);
-  transition: all var(--transition-base);
-}
-
-.feature-card:hover .feature-card__icon {
-  background: var(--gradient-accent);
-  color: var(--color-text-inverse);
-  box-shadow: var(--shadow-accent-sm);
+  border-color: var(--card-border);
+  background: var(--card-bg-hover);
+  box-shadow: var(--card-shadow-hover);
   transform: translateY(-2px);
 }
 
+.feature-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: var(--color-accent);
+  background: var(--color-accent-bg);
+  border: 1px solid rgba(0, 184, 148, 0.15);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover .feature-card__icon {
+  transform: scale(1.05);
+}
+
 .feature-card__title {
-  font-size: var(--text-lg);
-  margin-bottom: var(--space-2);
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+  position: relative;
+  color: var(--text-primary);
+  font-family: var(--font-family-heading);
 }
 
 .feature-card__desc {
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  position: relative;
 }
 </style>

@@ -16,7 +16,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="testimonial-card">
+  <div class="testimonial-card glass">
     <div class="testimonial-card__quote-mark" aria-hidden="true">"</div>
     <div class="testimonial-card__stars">
       <Icon v-for="i in 5" :key="i" name="lucide:star" size="16" />
@@ -36,20 +36,16 @@ defineProps({
 
 <style scoped>
 .testimonial-card {
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
   padding: var(--space-8);
-  border: 1px solid var(--color-border-light);
   min-width: 320px;
   max-width: 400px;
   flex-shrink: 0;
-  position: relative;
-  transition: all var(--transition-base);
+  transition: border-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 }
 
 .testimonial-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: rgba(255, 107, 107, 0.15);
+  transform: translateY(-2px);
+  border-color: rgba(0, 184, 148, 0.15);
 }
 
 .testimonial-card__quote-mark {

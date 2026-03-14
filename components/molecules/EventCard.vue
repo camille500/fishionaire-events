@@ -10,218 +10,328 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  role: {
+    type: String,
+    default: null,
+  },
 })
 
-const emit = defineEmits(['invited'])
+const emit = defineEmits(['invited', 'duplicate', 'archive'])
 
-const showInviteForm = ref(false)
+const effectiveRole = computed(() => props.role || (props.isOwner ? 'owner' : 'guest'))
+const canEdit = computed(() => effectiveRole.value === 'owner' || effectiveRole.value === 'co_organizer')
+
+const showInviteModal = ref(false)
+const showArchiveModal = ref(false)
 
 const formattedDate = computed(() => {
-  return new Date(props.event.createdAt).toLocaleDateString(locale.value, {
+  const date = props.event.eventDate || props.event.createdAt
+  return new Date(date).toLocaleDateString(locale.value, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   })
 })
 
-const badgeVariant = computed(() => {
-  if (props.isOwner) return 'accent'
-  if (props.event.status === 'accepted') return 'success'
-  return 'default'
-})
+const isPaidEvent = computed(() => props.event.tier && props.event.tier !== 'free')
 
-const badgeLabel = computed(() => {
-  if (props.isOwner) return t('dashboard.owner')
-  return t(`dashboard.${props.event.status}`)
-})
+const dropdownItems = computed(() => {
+  const group1 = []
+  const group2 = []
 
-const accentColor = computed(() => {
-  const tier = props.event.tier
-  if (tier === 'pro') return 'var(--color-event-corporate)'
-  if (tier === 'standard') return 'var(--color-accent)'
-  return 'var(--color-event-default)'
+  if (canEdit.value) {
+    group1.push({
+      label: t('dashboard.editEvent'),
+      icon: 'i-lucide-pencil',
+      to: `/dashboard/events/${props.event.id}`,
+    })
+    group1.push({
+      label: t('dashboard.inviteByEmail'),
+      icon: 'i-lucide-mail',
+      onSelect() { showInviteModal.value = true },
+    })
+  }
+
+  if (effectiveRole.value === 'owner') {
+    group1.push({
+      label: t('dashboard.eventEditor.duplicateEvent'),
+      icon: 'i-lucide-copy',
+      onSelect() { emit('duplicate', props.event) },
+    })
+    group2.push({
+      label: t('dashboard.eventEditor.archiveEvent'),
+      icon: 'i-lucide-archive',
+      color: 'error',
+      onSelect() { showArchiveModal.value = true },
+    })
+  }
+
+  const items = [group1]
+  if (group2.length) items.push(group2)
+  return items
 })
 
 function onInvited() {
-  showInviteForm.value = false
+  showInviteModal.value = false
   emit('invited')
+}
+
+function onArchiveConfirm() {
+  showArchiveModal.value = false
+  emit('archive', props.event)
 }
 </script>
 
 <template>
-  <div class="event-card" :style="{ '--card-accent': accentColor }">
-    <div class="event-card__accent" />
-    <div class="event-card__body">
-      <div class="event-card__header">
+  <div class="event-card">
+    <NuxtLink :to="`/dashboard/events/${event.id}`" class="event-card__link">
+      <img
+        v-if="event.coverImageUrl"
+        :src="event.coverImageUrl"
+        alt=""
+        class="event-card__cover"
+      />
+
+      <div class="event-card__body">
         <div class="event-card__title-row">
-          <div class="event-card__icon">
-            <Icon name="lucide:calendar" size="16" />
+          <h3 class="event-card__title">{{ event.title }}</h3>
+          <TierBadge v-if="isPaidEvent" :tier="event.tier" />
+        </div>
+        <div class="event-card__meta">
+          <span class="event-card__date">{{ formattedDate }}</span>
+          <span v-if="canEdit && event.invitationCount" class="event-card__guests">
+            <Icon name="lucide:users" size="12" />
+            {{ event.invitationCount }} {{ t('dashboard.invited') }}
+          </span>
+        </div>
+      </div>
+    </NuxtLink>
+
+    <!-- Hover-reveal dropdown menu -->
+    <div v-if="canEdit && dropdownItems.length" class="event-card__menu" @click.stop.prevent>
+      <UDropdownMenu :items="dropdownItems">
+        <button class="event-card__menu-btn" :title="t('dashboard.editEvent')">
+          <Icon name="lucide:more-horizontal" size="16" />
+        </button>
+      </UDropdownMenu>
+    </div>
+
+    <!-- Invite modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showInviteModal" class="invite-overlay" @click.self="showInviteModal = false">
+          <div class="invite-modal">
+            <div class="invite-modal__header">
+              <h3 class="invite-modal__title">{{ t('dashboard.inviteByEmail') }}</h3>
+              <button class="invite-modal__close" @click="showInviteModal = false">
+                <Icon name="lucide:x" size="16" />
+              </button>
+            </div>
+            <InviteForm :event-id="event.id" @invited="onInvited" />
           </div>
-          <div class="event-card__title-group">
-            <h3 class="event-card__title">{{ event.title }}</h3>
-            <span class="event-card__date">{{ formattedDate }}</span>
-          </div>
-        </div>
-        <div class="event-card__badges">
-          <TierBadge v-if="event.tier && event.tier !== 'free'" :tier="event.tier" />
-          <AppBadge :label="badgeLabel" :variant="badgeVariant" />
-        </div>
-      </div>
-
-      <div v-if="isOwner" class="event-card__stats">
-        <div class="event-card__stat">
-          <Icon name="lucide:users" size="14" />
-          <span>{{ event.invitationCount || 0 }} {{ t('dashboard.invited') }}</span>
-        </div>
-      </div>
-
-      <div v-if="isOwner" class="event-card__actions">
-        <AppButton
-          variant="ghost"
-          size="sm"
-          :to="`/dashboard/events/${event.id}`"
-        >
-          <Icon name="lucide:settings" size="14" />
-          {{ t('dashboard.editEvent') }}
-        </AppButton>
-        <AppButton
-          variant="ghost"
-          size="sm"
-          @click="showInviteForm = !showInviteForm"
-        >
-          <Icon name="lucide:mail" size="14" />
-          {{ t('dashboard.inviteByEmail') }}
-        </AppButton>
-      </div>
-
-      <Transition name="slide-down">
-        <div v-if="showInviteForm" class="event-card__invite">
-          <InviteForm :event-id="event.id" @invited="onInvited" />
         </div>
       </Transition>
-    </div>
+    </Teleport>
+
+    <!-- Archive confirm modal -->
+    <ConfirmModal
+      :visible="showArchiveModal"
+      :title="t('dashboard.eventEditor.confirmArchiveTitle')"
+      :message="t('dashboard.eventEditor.confirmArchiveMessage')"
+      :warning="isPaidEvent ? t('dashboard.eventEditor.paidEventWarning') : ''"
+      :confirm-label="t('dashboard.eventEditor.archiveEvent')"
+      variant="danger"
+      @confirm="onArchiveConfirm"
+      @close="showArchiveModal = false"
+    />
   </div>
 </template>
 
 <style scoped>
 .event-card {
-  --card-accent: var(--color-accent);
+  position: relative;
   background: var(--color-surface);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-light);
   overflow: hidden;
-  transition: all var(--transition-base);
-  will-change: transform;
-  display: flex;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .event-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--card-accent);
-  border-color: transparent;
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
-.event-card__accent {
-  width: 4px;
-  background: var(--card-accent);
-  flex-shrink: 0;
+.event-card__link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+.event-card__cover {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
 }
 
 .event-card__body {
-  flex: 1;
-  padding: var(--space-5) var(--space-6);
-  min-width: 0;
-}
-
-.event-card__header {
+  padding: var(--space-4);
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .event-card__title-row {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.event-card__icon {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--card-accent) 10%, transparent);
-  color: var(--card-accent);
-  flex-shrink: 0;
-}
-
-.event-card__title-group {
+  justify-content: space-between;
+  gap: var(--space-2);
   min-width: 0;
 }
 
 .event-card__title {
   font-family: var(--font-family-heading);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--color-text-primary);
+  flex: 1;
+  min-width: 0;
 }
 
-.event-card__date {
+.event-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
 
-.event-card__badges {
-  display: flex;
+.event-card__guests {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  flex-shrink: 0;
+  gap: 3px;
 }
 
-.event-card__stats {
-  display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-3);
-}
-
-.event-card__stat {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-.event-card__actions {
-  display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-light);
-}
-
-.event-card__invite {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-light);
-}
-
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all var(--transition-base);
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
+/* Hover-reveal 3-dot menu */
+.event-card__menu {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 2;
   opacity: 0;
-  transform: translateY(-8px);
+  transition: opacity var(--transition-fast);
+}
+
+.event-card:hover .event-card__menu {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .event-card__menu {
+    opacity: 1;
+  }
+}
+
+.event-card__menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.event-card__menu-btn:hover {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Invite modal */
+.invite-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.invite-modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-xl);
+}
+
+.invite-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.invite-modal__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.invite-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.invite-modal__close:hover {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-active .invite-modal,
+.modal-leave-active .invite-modal {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .invite-modal,
+.modal-leave-to .invite-modal {
+  transform: scale(0.96);
 }
 </style>

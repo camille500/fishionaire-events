@@ -98,10 +98,12 @@ function onMouseLeave() {
 
 <style scoped>
 .pricing-card {
-  background: var(--color-surface);
-  border-radius: var(--radius-2xl);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--radius-xl);
   padding: var(--space-8);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -110,7 +112,8 @@ function onMouseLeave() {
 }
 
 .pricing-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
 }
 
 .pricing-card--highlighted {
@@ -198,7 +201,7 @@ function onMouseLeave() {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(46, 204, 113, 0.1);
+  background: var(--color-accent-bg);
   color: var(--color-success);
   flex-shrink: 0;
 }

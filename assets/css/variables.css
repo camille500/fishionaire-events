@@ -1,34 +1,70 @@
 :root {
-  /* Colors */
+  /* Core Colors */
   --color-primary: #1a1a2e;
   --color-primary-light: #2d2d4a;
   --color-primary-lighter: #3a3a5c;
   --color-secondary: #4a4a68;
-  --color-accent: #ff6b6b;
-  --color-accent-light: #ff8a8a;
-  --color-accent-dark: #e55a5a;
-  --color-accent-warm: #ff9a56;
+  --color-accent: #00b894;
+  --color-accent-light: #00d4aa;
+  --color-accent-dark: #00a07e;
+  --color-accent-violet: #6c5ce7;
+  --color-accent-gold: #b8860b;
   --color-surface: #ffffff;
-  --color-background: #f8f9fc;
-  --color-background-alt: #eef0f5;
+  --color-background: #f8fafc;
+  --color-background-alt: #f0f2f5;
+  --color-background-accent: #faf8fe;
   --color-text-primary: #1a1a2e;
-  --color-text-secondary: #4a4a68;
-  --color-text-muted: #8a8aa0;
+  --color-text-secondary: #4a4a5a;
+  --color-text-muted: #787890;
   --color-text-inverse: #ffffff;
-  --color-border: #e2e5ed;
-  --color-border-light: #f0f1f5;
-  --color-success: #2ecc71;
-  --color-warning: #f39c12;
-  --color-error: #e74c3c;
-  --color-accent-bg: rgba(255, 107, 107, 0.08);
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-light: rgba(0, 0, 0, 0.06);
+  --color-success: #00b894;
+  --color-warning: #ff9f43;
+  --color-error: #ff6b6b;
+  --color-info: #61aeee;
+  --color-accent-bg: rgba(0, 184, 148, 0.1);
+  --color-accent-dim: rgba(0, 184, 148, 0.06);
+
+  /* Card System (matches reference) */
+  --card-bg: #ffffff;
+  --card-bg-hover: #fafafa;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06), 0 12px 40px rgba(0, 0, 0, 0.08);
+
+  /* Background Effects */
+  --aurora-opacity: 0.5;
+  --grid-opacity: 0.4;
+  --cursor-glow-opacity: 0.4;
+  --sparkle-opacity: 0.5;
+  --glow-subtle: rgba(0, 184, 148, 0.06);
+
+  /* Header */
+  --header-bg-scrolled: rgba(255, 255, 255, 0.85);
+  --mobile-nav-bg: rgba(255, 255, 255, 0.97);
+
+  /* Inputs */
+  --input-bg: rgba(0, 0, 0, 0.02);
+  --input-border: rgba(0, 0, 0, 0.1);
+  --border-glass: rgba(0, 0, 0, 0.06);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+
+  /* Text (reference aliases) */
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a5a;
+  --text-muted: #787890;
+  --bg-deep: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-surface: #fbf6fe;
 
   /* Gradients */
-  --gradient-accent: linear-gradient(135deg, #ff6b6b, #ff9a56);
-  --gradient-accent-reverse: linear-gradient(135deg, #ff9a56, #ff6b6b);
-  --gradient-hero: linear-gradient(135deg, #1a1a2e 0%, #2d2d4a 40%, #3a2d4a 70%, #2d2d4a 100%);
-  --gradient-cta: linear-gradient(135deg, #1a1a2e, #3a2d4a, #2d2d4a);
-  --gradient-surface: linear-gradient(180deg, #ffffff, #f8f9fc);
-  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+  --gradient-accent: linear-gradient(135deg, #00b894, #6c5ce7);
+  --gradient-accent-reverse: linear-gradient(135deg, #6c5ce7, #00b894);
+  --gradient-hero: linear-gradient(135deg, #030306 0%, #0a0a0f 40%, #0d0a1a 70%, #0a0a0f 100%);
+  --gradient-cta: linear-gradient(135deg, #030306, #0d0a1a, #0a0a0f);
+  --gradient-surface: linear-gradient(180deg, #ffffff, #f8fafc);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -75,29 +111,29 @@
   --max-width-narrow: 720px;
 
   /* Borders & Shadows */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
   --radius-full: 9999px;
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 12px 40px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.14);
   --shadow-2xl: 0 24px 64px rgba(0, 0, 0, 0.18);
-  --shadow-accent: 0 8px 24px rgba(255, 107, 107, 0.2);
-  --shadow-accent-lg: 0 16px 48px rgba(255, 107, 107, 0.25);
-  --shadow-accent-sm: 0 4px 12px rgba(255, 107, 107, 0.15);
+  --shadow-accent: 0 0 20px rgba(0, 184, 148, 0.15);
+  --shadow-accent-lg: 0 12px 40px rgba(0, 184, 148, 0.4);
+  --shadow-accent-sm: 0 4px 12px rgba(0, 184, 148, 0.1);
 
   /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-bg-strong: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-blur: 16px;
-  --glass-dark-bg: rgba(26, 26, 46, 0.6);
-  --glass-dark-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg-strong: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-blur: 24px;
+  --glass-dark-bg: rgba(14, 14, 22, 0.8);
+  --glass-dark-border: rgba(255, 255, 255, 0.06);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -108,7 +144,7 @@
   /* Dashboard Layout */
   --sidebar-width: 260px;
   --sidebar-width-collapsed: 72px;
-  --header-height: 64px;
+  --header-height: 52px;
   --max-width-dashboard: 1400px;
 
   /* Event Type Colors */
@@ -122,4 +158,86 @@
   /* Skeleton */
   --color-skeleton: #e8eaef;
   --color-skeleton-highlight: #f5f6f8;
+}
+
+/* Dark Mode */
+.dark {
+  --color-primary: #f4f4f6;
+  --color-primary-light: #b4b4c0;
+  --color-primary-lighter: #787890;
+  --color-secondary: #b4b4c0;
+  --color-accent: #00d4aa;
+  --color-accent-light: #00e6b8;
+  --color-accent-dark: #00b894;
+  --color-accent-violet: #7c6bda;
+  --color-accent-gold: #c9a227;
+  --color-surface: #0a0a0f;
+  --color-background: #030306;
+  --color-background-alt: #0e0e18;
+  --color-background-accent: #0d0a1a;
+  --color-text-primary: #f4f4f6;
+  --color-text-secondary: #b4b4c0;
+  --color-text-muted: #787890;
+  --color-text-inverse: #030306;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-light: rgba(255, 255, 255, 0.04);
+  --color-accent-bg: rgba(0, 212, 170, 0.1);
+  --color-accent-dim: rgba(0, 212, 170, 0.06);
+  --color-skeleton: #1a1a28;
+  --color-skeleton-highlight: #22223a;
+
+  /* Card System */
+  --card-bg: rgba(14, 14, 22, 0.8);
+  --card-bg-hover: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-shadow: none;
+  --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.2);
+
+  /* Background Effects */
+  --aurora-opacity: 1;
+  --grid-opacity: 1;
+  --cursor-glow-opacity: 1;
+  --sparkle-opacity: 1;
+  --glow-subtle: rgba(0, 212, 170, 0.08);
+
+  /* Header */
+  --header-bg-scrolled: rgba(3, 3, 6, 0.85);
+  --mobile-nav-bg: rgba(3, 3, 6, 0.97);
+
+  /* Inputs */
+  --input-bg: rgba(0, 0, 0, 0.35);
+  --input-border: rgba(255, 255, 255, 0.06);
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+
+  /* Text (reference aliases) */
+  --text-primary: #f4f4f6;
+  --text-secondary: #b4b4c0;
+  --text-muted: #787890;
+  --bg-deep: #030306;
+  --bg-elevated: #0a0a0f;
+  --bg-surface: rgba(0, 212, 170, 0.018);
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #00d4aa, #7c6bda);
+  --gradient-surface: linear-gradient(180deg, #0a0a0f, #030306);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+
+  /* Glassmorphism */
+  --glass-bg: rgba(14, 14, 22, 0.8);
+  --glass-bg-strong: rgba(14, 14, 22, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-dark-bg: rgba(10, 10, 15, 0.9);
+  --glass-dark-border: rgba(255, 255, 255, 0.04);
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 16px 48px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-2xl: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --shadow-accent: 0 0 20px rgba(0, 212, 170, 0.2);
+  --shadow-accent-lg: 0 12px 40px rgba(0, 212, 170, 0.3);
+  --shadow-accent-sm: 0 4px 12px rgba(0, 212, 170, 0.15);
 }

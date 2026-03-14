@@ -23,29 +23,28 @@ const isActive = computed(() => route.path === props.to || route.path.startsWith
 <style scoped>
 .nav-link {
   position: relative;
-  color: var(--color-text-secondary);
+  color: rgba(244, 244, 246, 0.65);
   text-decoration: none;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-medium);
   padding: var(--space-2) 0;
-  transition: color var(--transition-fast);
+  transition: color 0.2s ease;
 }
 
 .nav-link::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 0;
-  height: 2px;
+  height: 1px;
   background: var(--color-accent);
-  transition: width var(--transition-base);
+  transition: width 0.3s ease;
   border-radius: var(--radius-full);
 }
 
 .nav-link:hover {
-  color: var(--color-text-primary);
+  color: #f4f4f6;
 }
 
 .nav-link:hover::after,
@@ -54,6 +53,6 @@ const isActive = computed(() => route.path === props.to || route.path.startsWith
 }
 
 .nav-link--active {
-  color: var(--color-text-primary);
+  color: #f4f4f6;
 }
 </style>

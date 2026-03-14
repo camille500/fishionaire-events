@@ -1,0 +1,54 @@
+import { usePrisma } from '../database'
+import EventView from '../entities/EventView'
+
+export default class EventViewRepository {
+  static async create(view) {
+    const prisma = usePrisma()
+    const data = view.toJSON()
+    const row = await prisma.eventView.create({
+      data: {
+        eventId: data.eventId,
+        viewerIp: data.viewerIp,
+        userAgent: data.userAgent,
+        clerkId: data.clerkId,
+      },
+    })
+    return EventView.fromJSON(row)
+  }
+
+  static async countByEventId(eventId) {
+    const prisma = usePrisma()
+    return prisma.eventView.count({ where: { eventId } })
+  }
+
+  static async countGroupedByDate(eventId, days = 30) {
+    const prisma = usePrisma()
+    const since = new Date()
+    since.setDate(since.getDate() - days)
+
+    const rows = await prisma.$queryRaw`
+      SELECT DATE(created_at) as date, COUNT(*)::int as count
+      FROM event_views
+      WHERE event_id = ${eventId} AND created_at >= ${since}
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `
+    return rows.map((r) => ({ date: r.date, count: r.count }))
+  }
+
+  static async hasRecentView(eventId, ip, minutes = 5) {
+    if (!ip) return false
+    const prisma = usePrisma()
+    const since = new Date()
+    since.setMinutes(since.getMinutes() - minutes)
+
+    const count = await prisma.eventView.count({
+      where: {
+        eventId,
+        viewerIp: ip,
+        createdAt: { gte: since },
+      },
+    })
+    return count > 0
+  }
+}

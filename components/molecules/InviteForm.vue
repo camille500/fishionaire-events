@@ -49,15 +49,16 @@ async function onSubmit() {
 <template>
   <form class="invite-form" @submit.prevent="onSubmit">
     <div class="invite-form__row">
-      <input
+      <UInput
         v-model="email"
         type="email"
-        class="invite-form__input"
         :placeholder="t('dashboard.emailPlaceholder')"
         :disabled="loading"
+        size="sm"
+        icon="i-lucide-mail"
+        class="invite-form__input"
       />
       <AppButton variant="primary" size="sm" :disabled="loading || !email.trim()">
-        <Icon name="lucide:mail" size="16" />
         {{ t('dashboard.send') }}
       </AppButton>
     </div>
@@ -78,28 +79,6 @@ async function onSubmit() {
 
 .invite-form__input {
   flex: 1;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  font-family: var(--font-family);
-  background: var(--color-background);
-  color: var(--color-text-primary);
-  transition: border-color var(--transition-fast);
-  outline: none;
-}
-
-.invite-form__input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
-}
-
-.invite-form__input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.invite-form__input:disabled {
-  opacity: 0.6;
 }
 
 .invite-form__success {

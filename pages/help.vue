@@ -40,7 +40,8 @@ const faqSections = computed(() => {
           :key="index"
           v-motion
           :initial="{ opacity: 0, y: 30 }"
-          :visible-once="{ opacity: 1, y: 0, transition: { delay: index * 100, duration: 500 } }"
+          :whileInView="{ opacity: 1, y: 0, transition: { delay: index * 0.1, duration: 0.5 } }"
+          :inViewOptions="{ once: true }"
           class="help-page__faq-section"
         >
           <AppHeading :level="2" class="help-page__faq-section-title">

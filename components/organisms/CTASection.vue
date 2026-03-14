@@ -23,7 +23,11 @@ defineProps({
 
 <template>
   <section class="cta-section">
-    <div class="cta-section__bg" />
+    <!-- Aurora background -->
+    <div class="cta-section__aurora" aria-hidden="true">
+      <div class="cta-section__aurora-layer cta-section__aurora-layer--cyan" />
+      <div class="cta-section__aurora-layer cta-section__aurora-layer--violet" />
+    </div>
     <div class="cta-section__particles" aria-hidden="true">
       <span v-for="n in 8" :key="n" class="cta-section__particle" :style="{
         left: (n * 12 + 2) % 96 + '%',
@@ -32,12 +36,7 @@ defineProps({
         animationDuration: (4 + (n % 3)) + 's',
       }" />
     </div>
-    <div
-      v-motion
-      :initial="{ opacity: 0, scale: 0.95 }"
-      :visible-once="{ opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 200, damping: 25 } }"
-      class="cta-section__container"
-    >
+    <div class="cta-section__container reveal">
       <AppHeading :level="2" align="center" class="cta-section__title">
         {{ title }}
       </AppHeading>
@@ -56,18 +55,50 @@ defineProps({
   position: relative;
   padding: var(--space-20) var(--space-6);
   overflow: hidden;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8edf5 50%, #f5f0fa 100%);
 }
 
-.cta-section__bg {
+:global(.dark) .cta-section {
+  background: #030306;
+}
+
+.cta-section__aurora {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse at 30% 50%, rgba(255, 107, 107, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 50%, rgba(255, 154, 86, 0.08) 0%, transparent 50%),
-    var(--gradient-hero);
-  background-size: 200% 200%;
-  animation: gradient-shift 15s ease infinite;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cta-section__aurora-layer {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: aurora-shift 20s ease-in-out infinite, aurora-drift 25s ease-in-out infinite;
+}
+
+.cta-section__aurora-layer--cyan {
+  width: 400px;
+  height: 400px;
+  top: 10%;
+  left: 20%;
+  background: radial-gradient(circle, rgba(0, 184, 148, 0.1) 0%, transparent 70%);
+}
+
+:global(.dark) .cta-section__aurora-layer--cyan {
+  background: radial-gradient(circle, rgba(0, 184, 148, 0.2) 0%, transparent 70%);
+}
+
+.cta-section__aurora-layer--violet {
+  width: 350px;
+  height: 350px;
+  bottom: 5%;
+  right: 15%;
+  background: radial-gradient(circle, rgba(108, 92, 231, 0.08) 0%, transparent 70%);
+  animation-delay: -8s;
+}
+
+:global(.dark) .cta-section__aurora-layer--violet {
+  background: radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%);
 }
 
 .cta-section__particles {
@@ -75,13 +106,14 @@ defineProps({
   inset: 0;
   pointer-events: none;
   overflow: hidden;
+  z-index: 0;
 }
 
 .cta-section__particle {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  background: rgba(255, 107, 107, 0.25);
+  width: 3px;
+  height: 3px;
+  background: rgba(0, 184, 148, 0.2);
   border-radius: 50%;
   animation: float ease-in-out infinite;
 }
@@ -95,14 +127,15 @@ defineProps({
   text-align: center;
   gap: var(--space-4);
   position: relative;
+  z-index: 1;
 }
 
 .cta-section__title {
-  color: var(--color-text-inverse);
+  color: var(--text-primary);
 }
 
 .cta-section__subtitle {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-secondary);
 }
 
 .cta-section__button {

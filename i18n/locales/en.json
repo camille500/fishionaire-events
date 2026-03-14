@@ -10,7 +10,23 @@
   "home": {
     "hero": {
       "title": "Plan unforgettable events, together",
-      "subtitle": "From weddings to baby showers, from birthdays to dinners — plan, invite and celebrate together with the people who matter."
+      "subtitle": "From weddings to baby showers, from birthdays to dinners — plan, invite and celebrate together with the people who matter.",
+      "badge": "Now available — Smart RSVP",
+      "titleLine1": "Plan unforgettable events,",
+      "titleLine2": "together.",
+      "typewriter": {
+        "1": "Organise the perfect birthday party",
+        "2": "Send beautiful wedding invitations",
+        "3": "Track RSVPs in real-time",
+        "4": "Create shared wishlists effortlessly"
+      },
+      "card": {
+        "guests": "Guest tracking",
+        "guestsUnit": "invited",
+        "rsvp": "RSVP Status",
+        "rsvpRate": "response rate",
+        "rating": "User rating"
+      }
     },
     "stats": {
       "events": "10,000+",
@@ -21,6 +37,7 @@
       "ratingLabel": "Average rating"
     },
     "features": {
+      "label": "Features",
       "title": "Everything you need",
       "items": [
         {
@@ -39,7 +56,7 @@
           "description": "Guests can respond per sub-event, bring a +1 and share dietary preferences."
         },
         {
-          "icon": "chart",
+          "icon": "bar-chart-3",
           "title": "Date polling",
           "description": "Let guests vote on available dates so everyone can make it."
         },
@@ -49,12 +66,14 @@
           "description": "Share a wishlist where guests can claim items or chip in together for a bigger gift."
         },
         {
-          "icon": "message",
+          "icon": "message-circle",
           "title": "Secret chat",
           "description": "A hidden space where guests can plan surprises without the host seeing."
         }
       ]
     },
+    "showcasesLabel": "How it works",
+    "showcasesTitle": "Built for real event planning",
     "showcases": [
       {
         "icon": "users",
@@ -67,11 +86,20 @@
         "description": "Add gifts to your wishlist and share it with your guests. They can claim items or even chip in together for a bigger present. No more duplicate gifts."
       },
       {
-        "icon": "chart",
+        "icon": "bar-chart-3",
         "title": "Find the perfect date together",
         "description": "No date set yet? Suggest multiple options and let your guests indicate when they're available. Pick the date that works for the most people."
       }
     ],
+    "strip": {
+      "1": { "stat": "Fast", "label": "Setup in minutes" },
+      "2": { "stat": "98%", "label": "RSVP rate" },
+      "3": { "stat": "4.9", "label": "User rating" },
+      "4": { "stat": "24/7", "label": "Always available" },
+      "5": { "stat": "10,000+", "label": "Events planned" }
+    },
+    "testimonialsLabel": "Testimonials",
+    "testimonialsTitle": "Loved by event planners",
     "testimonials": [
       {
         "quote": "We organised our entire wedding through Fishionaire Events. The RSVP feature saved us hours of work!",
@@ -112,7 +140,7 @@
         "description": "Guests respond per part of your event. Set whether they can bring a +1, collect dietary preferences and keep everything organised in one dashboard."
       },
       {
-        "icon": "chart",
+        "icon": "bar-chart-3",
         "title": "Date polling",
         "description": "No date yet? Suggest multiple options and let invitees vote. The system automatically shows which date works for the most people."
       },
@@ -122,7 +150,7 @@
         "description": "Create a wishlist for your event. Guests can claim items so you don't get duplicates. Bigger gifts? Those can be purchased together."
       },
       {
-        "icon": "message",
+        "icon": "message-circle",
         "title": "Secret chat",
         "description": "A hidden chat room where invitees can discuss surprises, share gift ideas and plan something special together — without the host seeing."
       },
@@ -174,7 +202,7 @@
       },
       {
         "name": "Standard",
-        "price": "€9",
+        "price": "€9.99",
         "period": "/month",
         "features": [
           "Unlimited events",
@@ -188,11 +216,11 @@
         "ctaLabel": "Choose Standard",
         "highlighted": true,
         "tier": "standard",
-        "perEventPrice": "or €12 per event"
+        "perEventPrice": "or €14.99 per event"
       },
       {
         "name": "Pro",
-        "price": "€19",
+        "price": "€19.99",
         "period": "/month",
         "features": [
           "Everything in Standard",
@@ -204,7 +232,7 @@
         ],
         "ctaLabel": "Choose Pro",
         "tier": "pro",
-        "perEventPrice": "or €25 per event"
+        "perEventPrice": "or €29.99 per event"
       }
     ],
     "faq": {
@@ -264,7 +292,7 @@
         "description": "Adding items, claiming and purchasing together."
       },
       {
-        "icon": "chart",
+        "icon": "bar-chart-3",
         "title": "Planning together",
         "description": "Date polling, co-organisers and secret chat."
       },
@@ -386,6 +414,7 @@
     "accepted": "Accepted",
     "declined": "Declined",
     "invited": "invited",
+    "inviteGuests": "Invite guests",
     "inviteByEmail": "Invite",
     "send": "Send",
     "emailPlaceholder": "Enter email address",
@@ -471,6 +500,7 @@
       "save": "Save changes",
       "saving": "Saving...",
       "saved": "Changes saved",
+      "unsavedChanges": "Unsaved changes",
       "errorSaving": "Something went wrong while saving",
       "notFound": "Event not found",
       "noAccess": "You don't have access to this event",
@@ -484,7 +514,132 @@
         "seatingArrangements": { "label": "Seating arrangements", "description": "Plan your seating layout visually" },
         "timeline": { "label": "Event timeline", "description": "Create a detailed schedule for the day" },
         "customTheme": { "label": "Custom invitations & themes", "description": "Personalise with custom colours and designs" }
-      }
+      },
+      "detailsSection": "Event Details",
+      "eventTypeLabel": "Event type",
+      "eventTypePlaceholder": "Select a type...",
+      "eventTypes": {
+        "birthday": "Birthday",
+        "wedding": "Wedding",
+        "baby_shower": "Baby shower",
+        "dinner": "Dinner party",
+        "corporate": "Corporate event",
+        "other": "Other"
+      },
+      "eventDateLabel": "Date & time",
+      "eventEndDateLabel": "End date & time (optional)",
+      "locationLabel": "Location",
+      "locationPlaceholder": "Address, venue name, or 'Online'",
+      "guestSettingsSection": "Guest Settings",
+      "maxGuestsLabel": "Maximum guests",
+      "maxGuestsPlaceholder": "Leave empty for unlimited",
+      "isPrivateLabel": "Private event",
+      "isPrivateDescription": "Only invited guests can see this event",
+      "autoSaved": "Auto-saved",
+      "subEventsSection": "Sub-events",
+      "subEventsSubtitle": "Break your event into parts like ceremony, dinner, and party",
+      "addSubEvent": "Add sub-event",
+      "subEventTitle": "Sub-event title",
+      "subEventTitlePlaceholder": "E.g. Ceremony, Dinner, Party",
+      "subEventDescription": "Description",
+      "subEventDescriptionPlaceholder": "Describe this part of the event...",
+      "subEventStartTime": "Start time",
+      "subEventEndTime": "End time",
+      "subEventLocation": "Location",
+      "subEventLocationPlaceholder": "Location for this part",
+      "noSubEvents": "No sub-events yet. Add parts to your event.",
+      "subEventCreated": "Sub-event added",
+      "subEventUpdated": "Sub-event updated",
+      "subEventDeleted": "Sub-event deleted",
+      "subEventReordered": "Order updated",
+      "confirmDeleteSubEvent": "Delete this sub-event?",
+      "coOrganizersSection": "Co-organizers",
+      "coOrganizersSubtitle": "Invite people to help manage this event",
+      "addCoOrganizer": "Add co-organizer",
+      "coOrganizerEmailPlaceholder": "Co-organizer's email address",
+      "coOrganizerInvited": "Co-organizer added!",
+      "coOrganizerRemoved": "Co-organizer removed",
+      "confirmRemoveCoOrganizer": "Remove this co-organizer?",
+      "noCoOrganizers": "No co-organizers yet.",
+      "errorCoOrganizer": "Could not add co-organizer",
+      "timelineSection": "Day-of Timeline",
+      "timelineSubtitle": "Create a detailed schedule for the day",
+      "addTimelineItem": "Add to timeline",
+      "timelineItemTitle": "What's happening",
+      "timelineItemTitlePlaceholder": "E.g. Ceremony, Cocktail Hour",
+      "timelineItemDescription": "Description",
+      "timelineItemDescriptionPlaceholder": "Optional details...",
+      "timelineItemStartTime": "Start time",
+      "timelineItemEndTime": "End time",
+      "timelineItemLocation": "Location",
+      "timelineItemLocationPlaceholder": "Where does this happen",
+      "noTimelineItems": "No timeline items yet.",
+      "timelineItemCreated": "Added to timeline",
+      "timelineItemUpdated": "Timeline updated",
+      "timelineItemDeleted": "Removed from timeline",
+      "timelineLocked": "Timeline is a Pro feature",
+      "timelineLockedDescription": "Upgrade to Pro to create a detailed day-of schedule.",
+      "analyticsSection": "Analytics",
+      "analyticsSubtitle": "See how your event is performing",
+      "totalViews": "Total views",
+      "viewsOverTime": "Views over time",
+      "rsvpBreakdown": "RSVP breakdown",
+      "acceptanceRate": "Acceptance rate",
+      "analyticsLocked": "Analytics is a Standard+ feature",
+      "analyticsLockedDescription": "Upgrade to see event performance data.",
+      "noAnalyticsData": "No data yet",
+      "coverImage": {
+        "dropzone": "Click or drag an image to upload",
+        "hint": "JPEG, PNG, WebP or GIF — max 5 MB",
+        "uploading": "Uploading...",
+        "change": "Change",
+        "remove": "Remove",
+        "alt": "Event cover image",
+        "invalidType": "Invalid file type. Use JPEG, PNG, WebP or GIF.",
+        "tooLarge": "File is too large. Maximum 5 MB.",
+        "uploadError": "Could not upload image",
+        "deleteError": "Could not remove image"
+      },
+      "duplicateEvent": "Duplicate",
+      "duplicating": "Duplicating...",
+      "duplicated": "Event duplicated",
+      "archiveEvent": "Archive",
+      "confirmArchiveTitle": "Archive event",
+      "confirmArchiveMessage": "This event will be archived and hidden from your dashboard. You can restore it later.",
+      "paidEventWarning": "This is a paid event. Archiving will hide it but your purchase is preserved.",
+      "restoreEvent": "Restore",
+      "saveAsTemplate": "Save as template",
+      "templateName": "Template name",
+      "templateNamePlaceholder": "Give your template a name",
+      "templateSaved": "Template saved!",
+      "errorSavingTemplate": "Could not save template"
+    },
+    "confirm": "Confirm",
+    "archivedEvents": "Archived events",
+    "coOrganizing": "Co-organizing",
+    "noCoOrganizing": "You're not co-organizing any events yet.",
+    "roles": {
+      "owner": "Owner",
+      "co_organizer": "Co-organizer",
+      "guest": "Guest"
+    },
+    "templates": {
+      "title": "Choose a template",
+      "subtitle": "Start with a template or create from scratch",
+      "systemTemplates": "Templates",
+      "myTemplates": "My templates",
+      "useTemplate": "Use this",
+      "startFromScratch": "Start from scratch",
+      "noUserTemplates": "You haven't saved any templates yet.",
+      "deleteTemplate": "Delete template",
+      "confirmDeleteTemplate": "Delete this template?"
+    },
+    "rsvp": {
+      "perSubEvent": "RSVP per sub-event",
+      "attending": "Attending",
+      "notAttending": "Not attending",
+      "noResponse": "No response",
+      "responses": "Responses"
     }
   },
   "cta": {
@@ -520,11 +675,11 @@
       },
       "standard": {
         "features": ["RSVP", "Date polling", "Wishlist", "Secret chat", "Photo gallery"],
-        "eventPrice": "€12 one-time"
+        "eventPrice": "€14.99 one-time"
       },
       "pro": {
         "features": ["All Standard features", "Budget tracker", "Seating", "Timeline", "Custom theme"],
-        "eventPrice": "€25 one-time"
+        "eventPrice": "€29.99 one-time"
       }
     }
   },
@@ -542,6 +697,9 @@
     "keepPlan": "Keep plan",
     "currentLabel": "Current",
     "backToDashboard": "Back to dashboard",
+    "manageSubscription": "Manage subscription",
+    "subscriptionUpdated": "Your subscription has been updated successfully!",
+    "cancelsOn": "Your plan will cancel on {date}",
     "planDescription": {
       "free": "Basic features for simple events",
       "standard": "Extended features for all your events",
@@ -549,8 +707,8 @@
     },
     "prices": {
       "free": "€0/month",
-      "standard": "€9/month",
-      "pro": "€19/month"
+      "standard": "€9.99/month",
+      "pro": "€19.99/month"
     }
   },
   "aiAssistant": {
@@ -595,7 +753,107 @@
     "refinePlaceholder": "Adjust, e.g. 'make it more formal' or 'add parking info'",
     "refine": "Refine",
     "historyLabel": "Previous versions",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "premiumTitle": "AI Assistant — Premium",
+    "premiumDescription": "Let AI write the perfect event description. Choose tone, length and style — then refine until it's just right.",
+    "premiumUpgrade": "Upgrade to unlock"
+  },
+  "editor": {
+    "tabs": {
+      "details": "Details",
+      "schedule": "Schedule",
+      "guests": "Guests",
+      "settings": "Settings"
+    },
+    "autoSave": {
+      "saving": "Saving...",
+      "saved": "Saved",
+      "unsaved": "Unsaved changes",
+      "allSaved": "All changes saved"
+    },
+    "completion": {
+      "complete": "complete",
+      "missing": "Still missing:",
+      "fields": {
+        "title": "Event title",
+        "date": "Date & time",
+        "location": "Location",
+        "description": "Description",
+        "coverImage": "Cover image",
+        "eventType": "Event type"
+      }
+    },
+    "settings": {
+      "tierDescription": "Your event tier determines which features are available.",
+      "upgradePlan": "View plans & upgrade",
+      "actionsLabel": "Actions",
+      "duplicateDesc": "Create a copy of this event with all settings",
+      "templateDesc": "Save this setup as a reusable template",
+      "archiveEvent": "Archive event",
+      "archiveDesc": "Hide this event from your dashboard. You can restore it later.",
+      "archiveConfirm": "Are you sure you want to archive this event? You can restore it later from the archived events section."
+    },
+    "ai": {
+      "suggestTitle": "Suggest titles",
+      "suggestActivities": "Suggest activities",
+      "suggestTimeline": "Generate timeline",
+      "writeDescription": "Write description",
+      "loading": "Thinking...",
+      "unlockAi": "Upgrade to unlock AI suggestions",
+      "acceptAll": "Add all suggestions"
+    },
+    "onboarding": {
+      "addActivities": "Add activities to break your event into parts — like dinner, dancing, or games.",
+      "inviteGuests": "Share your event link or invite people directly by email.",
+      "setEventType": "Pick an event type to give your page a unique look and feel.",
+      "tryAi": "Use AI to generate titles, activities, and descriptions instantly."
+    },
+    "emptyStates": {
+      "noActivities": "No activities yet",
+      "noActivitiesDesc": "Add sub-events to structure your event — each one gets its own RSVP.",
+      "addFirst": "Add your first activity",
+      "noGuests": "No guests yet",
+      "noGuestsDesc": "Invite friends and family to join your event.",
+      "inviteFirst": "Send your first invite",
+      "noTimeline": "No timeline yet",
+      "noTimelineDesc": "Create a detailed timeline so guests know what to expect.",
+      "upgradeToPro": "Upgrade to Pro"
+    }
+  },
+  "wizard": {
+    "title": "Create a new event",
+    "steps": {
+      "type": "Event type",
+      "typeDescription": "What are you planning?",
+      "info": "Basic info",
+      "infoDescription": "Add the essentials",
+      "activities": "Activities",
+      "activitiesDescription": "Plan the sub-events",
+      "tier": "Choose plan",
+      "tierDescription": "Select features"
+    },
+    "skipType": "Skip — I'll decide later",
+    "titlePlaceholder": "Give your event a name",
+    "datePlaceholder": "When is it?",
+    "locationPlaceholder": "Where is it?",
+    "addActivity": "Add activity",
+    "activityPlaceholder": "Activity name",
+    "durationLabel": "min",
+    "removeActivity": "Remove",
+    "aiSuggestTitle": "AI suggest",
+    "aiSuggestActivities": "AI suggest activities",
+    "createEvent": "Create event",
+    "creating": "Creating...",
+    "prev": "Back",
+    "next": "Next",
+    "eventTypes": {
+      "birthday": { "name": "Birthday", "description": "Celebrate with friends and family" },
+      "wedding": { "name": "Wedding", "description": "Your special day, perfectly planned" },
+      "baby_shower": { "name": "Baby shower", "description": "Welcome the new arrival" },
+      "dinner": { "name": "Dinner party", "description": "An elegant evening together" },
+      "corporate": { "name": "Corporate", "description": "Professional events and meetings" },
+      "other": { "name": "Other", "description": "Any custom event" }
+    }
   },
   "footer": {
     "product": "Product",

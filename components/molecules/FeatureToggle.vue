@@ -27,18 +27,13 @@ const emit = defineEmits(['update:modelValue'])
       <Icon :name="'lucide:' + icon" size="16" />
     </div>
     <div class="feature-toggle__info">
-      <span class="feature-toggle__label">{{ label }}</span>
-      <span class="feature-toggle__description">{{ description }}</span>
+      <USwitch
+        :model-value="modelValue"
+        :label="label"
+        :description="description"
+        @update:model-value="emit('update:modelValue', $event)"
+      />
     </div>
-    <button
-      class="feature-toggle__switch"
-      :class="{ 'feature-toggle__switch--active': modelValue }"
-      role="switch"
-      :aria-checked="modelValue"
-      @click="emit('update:modelValue', !modelValue)"
-    >
-      <span class="feature-toggle__switch-thumb" />
-    </button>
   </div>
 </template>
 
@@ -56,7 +51,7 @@ const emit = defineEmits(['update:modelValue'])
 
 .feature-toggle--active {
   border-color: var(--color-accent-light);
-  box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.1);
+  box-shadow: 0 0 0 1px rgba(0, 184, 148, 0.1);
 }
 
 .feature-toggle__icon {
@@ -79,51 +74,5 @@ const emit = defineEmits(['update:modelValue'])
 .feature-toggle__info {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.feature-toggle__label {
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.feature-toggle__description {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  line-height: var(--line-height-normal);
-}
-
-.feature-toggle__switch {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  border-radius: var(--radius-full);
-  border: none;
-  background: var(--color-border);
-  cursor: pointer;
-  padding: 2px;
-  flex-shrink: 0;
-  transition: background var(--transition-fast);
-}
-
-.feature-toggle__switch--active {
-  background: var(--color-accent);
-}
-
-.feature-toggle__switch-thumb {
-  display: block;
-  width: 20px;
-  height: 20px;
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
-}
-
-.feature-toggle__switch--active .feature-toggle__switch-thumb {
-  transform: translateX(20px);
 }
 </style>

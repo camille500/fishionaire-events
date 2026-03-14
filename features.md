@@ -6,20 +6,20 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 
 ## Core Event Management
 
-- [ ] Create events with title, description, date, and location
-- [ ] Event types: birthday, wedding, dinner, baby shower, corporate, custom
-- [ ] Sub-events (e.g., ceremony + dinner + party) with independent settings
-- [ ] Event cover image and custom theme/colors
-- [ ] Co-organizer roles with shared editing permissions
-- [ ] Event templates/presets (pre-filled settings per event type)
-- [ ] Event duplication (clone an existing event as a starting point)
-- [ ] Event timeline — detailed day-of schedule
-- [ ] Event analytics — views, RSVPs over time, engagement
+- [x] Create events with title, description, date, and location
+- [x] Event types: birthday, wedding, dinner, baby shower, corporate, custom
+- [x] Sub-events (e.g., ceremony + dinner + party) with independent settings
+- [x] Event cover image and custom theme/colors
+- [x] Co-organizer roles with shared editing permissions
+- [x] Event templates/presets (pre-filled settings per event type)
+- [x] Event duplication (clone an existing event as a starting point)
+- [x] Event timeline — detailed day-of schedule
+- [x] Event analytics — views, RSVPs over time, engagement
 
 ## RSVP System
 
 - [ ] Enable/disable RSVP per event
-- [ ] Per-sub-event RSVP (guests choose which parts they attend)
+- [x] Per-sub-event RSVP (guests choose which parts they attend)
 - [ ] Plus-one management — configurable max additional guests
 - [ ] Dietary preferences collection for dinner sub-events
 - [ ] RSVP deadlines with automatic reminders
@@ -83,7 +83,7 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 - [ ] Custom colors, fonts, and backgrounds per event
 - [ ] Invitation design templates
 - [ ] Personalized invitation messages
-- [ ] Send invitations via email or shareable link
+- [x] Send invitations via email or shareable link
 
 ## Additional Features
 
@@ -92,16 +92,16 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 - [ ] Weather forecast integration for outdoor events
 - [ ] Vendor/service provider directory
 - [ ] Notification system (in-app + email)
-- [ ] Mobile-responsive dashboard
-- [ ] Multi-language support (NL/EN)
+- [x] Mobile-responsive dashboard
+- [x] Multi-language support (NL/EN)
 
 ---
 
 ## Infrastructure & Platform
 
-- [ ] Subscription tiers: Free, Standard, Pro
+- [x] Subscription tiers: Free, Standard, Pro
 - [ ] Payment integration
-- [ ] User authentication (Clerk)
-- [ ] Internationalization (i18n)
-- [ ] Dashboard with sidebar navigation
+- [x] User authentication (Clerk)
+- [x] Internationalization (i18n)
+- [x] Dashboard with sidebar navigation
 - [ ] Settings page (profile, notifications, language)

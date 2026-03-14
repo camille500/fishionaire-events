@@ -1,14 +1,20 @@
 import Event from '../entities/Event'
 import EventInvitation from '../entities/EventInvitation'
+import EventMember from '../entities/EventMember'
 import EventRepository from '../repositories/eventRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
+import EventMemberRepository from '../repositories/eventMemberRepository'
+import SubEventRepository from '../repositories/subEventRepository'
+import TimelineItemRepository from '../repositories/timelineItemRepository'
 import SubscriptionController from './subscriptionController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
+import { uploadImage, deleteImage } from '../utils/s3'
 
 export default class EventController {
   static async listUserEvents(clerkId, email) {
     const ownedEvents = await EventRepository.findByOwner(clerkId)
     const invitedResults = await EventRepository.findByInviteeEmail(email.toLowerCase())
+    const coOrgResults = await EventMemberRepository.findCoOrganizedEvents(clerkId)
 
     const owned = await Promise.all(
       ownedEvents.map(async (event) => {
@@ -22,24 +28,90 @@ export default class EventController {
       status,
     }))
 
-    return { owned, invited }
+    const coOrganizing = await Promise.all(
+      coOrgResults.map(async ({ event }) => {
+        const e = Event.fromJSON(event)
+        const invitationCount = await EventRepository.getInvitationCount(e.id)
+        return { ...e.toJSON(), invitationCount }
+      })
+    )
+
+    const archivedEvents = await EventRepository.findArchivedByOwner(clerkId)
+    const archived = archivedEvents.map((event) => event.toJSON())
+
+    return { owned, coOrganizing, invited, archived }
   }
 
-  static async createEvent(clerkId, title, requestedTier = 'free') {
+  static async createEvent(clerkId, title, requestedTier = 'free', templateId = null, wizardData = {}) {
     if (!title || !title.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'Title is required' })
     }
 
     const { tier, requiresPayment, priceCents } = await SubscriptionController.resolveEventTier(clerkId, requestedTier)
 
+    let templateData = {}
+    if (templateId) {
+      const { default: EventTemplateRepository } = await import('../repositories/eventTemplateRepository')
+      const template = await EventTemplateRepository.findById(templateId)
+      if (template) {
+        templateData = {
+          description: template.description,
+          eventType: template.eventType,
+          ...(template.settings || {}),
+        }
+      }
+    }
+
     const event = new Event({
       title: title.trim(),
       tier,
       features: getFeaturesForTier(tier),
       ownerClerkId: clerkId,
+      ...templateData,
+      ...(wizardData.eventType ? { eventType: wizardData.eventType } : {}),
+      ...(wizardData.eventDate ? { eventDate: new Date(wizardData.eventDate) } : {}),
+      ...(wizardData.location ? { location: wizardData.location } : {}),
     })
 
     const saved = await EventRepository.create(event)
+
+    // Seed owner as EventMember
+    const ownerMember = new EventMember({
+      eventId: saved.id,
+      userClerkId: clerkId,
+      role: 'owner',
+    })
+    await EventMemberRepository.create(ownerMember)
+
+    // Create sub-events from wizard data (if no template was used)
+    if (!templateId && wizardData.subEvents?.length > 0) {
+      await SubEventRepository.bulkCreate(
+        wizardData.subEvents.map((se, index) => ({
+          eventId: saved.id,
+          title: se.title,
+          description: null,
+          sortOrder: index,
+        }))
+      )
+    }
+
+    // If created from template, create sub-events
+    if (templateId) {
+      const { default: EventTemplateRepository } = await import('../repositories/eventTemplateRepository')
+      const template = await EventTemplateRepository.findById(templateId)
+      if (template && template.subEventTemplates?.length > 0) {
+        const SubEvent = (await import('../entities/SubEvent')).default
+        await SubEventRepository.bulkCreate(
+          template.subEventTemplates.map((st, index) => ({
+            eventId: saved.id,
+            title: st.title,
+            description: st.description || null,
+            sortOrder: index,
+          }))
+        )
+      }
+    }
+
     return { ...saved.toJSON(), requiresPayment, priceCents }
   }
 
@@ -49,25 +121,33 @@ export default class EventController {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
 
-    const isOwner = event.ownerClerkId === clerkId
-    if (!isOwner) {
-      const invitation = await EventInvitationRepository.findByEventIdAndEmail(eventId, email.toLowerCase())
-      if (!invitation) {
-        throw createError({ statusCode: 403, statusMessage: 'You do not have access to this event' })
-      }
+    // Check membership for role
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (member) {
+      return { ...event.toJSON(), role: member.role, isOwner: member.isOwner }
     }
 
-    return { ...event.toJSON(), isOwner }
+    // Check invitation
+    const invitation = await EventInvitationRepository.findByEventIdAndEmail(eventId, email.toLowerCase())
+    if (invitation) {
+      return { ...event.toJSON(), role: 'guest', isOwner: false }
+    }
+
+    throw createError({ statusCode: 403, statusMessage: 'You do not have access to this event' })
   }
 
-  static async updateEvent(eventId, clerkId, { title, description, features }) {
+  static async updateEvent(eventId, clerkId, { title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, features }) {
+    const validEventTypes = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
+
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
 
-    if (event.ownerClerkId !== clerkId) {
-      throw createError({ statusCode: 403, statusMessage: 'Only the owner can edit this event' })
+    // Allow owner or co-organizer
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to edit this event' })
     }
 
     if (title !== undefined) {
@@ -79,6 +159,36 @@ export default class EventController {
 
     if (description !== undefined) {
       event.description = description
+    }
+
+    if (eventType !== undefined) {
+      if (eventType !== null && !validEventTypes.includes(eventType)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid event type' })
+      }
+      event.eventType = eventType
+    }
+
+    if (eventDate !== undefined) {
+      event.eventDate = eventDate ? new Date(eventDate) : null
+    }
+
+    if (eventEndDate !== undefined) {
+      event.eventEndDate = eventEndDate ? new Date(eventEndDate) : null
+    }
+
+    if (location !== undefined) {
+      event.location = location || null
+    }
+
+    if (maxGuests !== undefined) {
+      if (maxGuests !== null && (!Number.isInteger(maxGuests) || maxGuests < 1)) {
+        throw createError({ statusCode: 400, statusMessage: 'Max guests must be a positive number' })
+      }
+      event.maxGuests = maxGuests
+    }
+
+    if (isPrivate !== undefined) {
+      event.isPrivate = Boolean(isPrivate)
     }
 
     if (features !== undefined) {
@@ -96,10 +206,10 @@ export default class EventController {
 
     const normalizedEmail = inviteeEmail.trim().toLowerCase()
 
-    const events = await EventRepository.findByOwner(inviterClerkId)
-    const event = events.find((e) => e.id === eventId)
-    if (!event) {
-      throw createError({ statusCode: 403, statusMessage: 'You can only invite to your own events' })
+    // Allow owner or co-organizer to invite
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, inviterClerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to invite to this event' })
     }
 
     const existing = await EventInvitationRepository.findByEventIdAndEmail(eventId, normalizedEmail)
@@ -115,5 +225,144 @@ export default class EventController {
 
     const saved = await EventInvitationRepository.create(invitation)
     return saved.toJSON()
+  }
+
+  static async archiveEvent(eventId, clerkId) {
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    if (event.ownerClerkId !== clerkId) {
+      throw createError({ statusCode: 403, statusMessage: 'Only the owner can archive this event' })
+    }
+
+    await EventRepository.archive(eventId)
+    return { success: true }
+  }
+
+  static async restoreEvent(eventId, clerkId) {
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    if (event.ownerClerkId !== clerkId) {
+      throw createError({ statusCode: 403, statusMessage: 'Only the owner can restore this event' })
+    }
+
+    await EventRepository.restore(eventId)
+    return { success: true }
+  }
+
+  static async duplicateEvent(eventId, clerkId) {
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    if (event.ownerClerkId !== clerkId) {
+      throw createError({ statusCode: 403, statusMessage: 'Only the owner can duplicate this event' })
+    }
+
+    const newEvent = new Event({
+      title: event.title + ' (copy)',
+      description: event.description,
+      eventType: event.eventType,
+      location: event.location,
+      maxGuests: event.maxGuests,
+      isPrivate: event.isPrivate,
+      tier: event.tier,
+      features: event.features,
+      ownerClerkId: clerkId,
+    })
+
+    const saved = await EventRepository.create(newEvent)
+
+    // Seed owner member
+    const ownerMember = new EventMember({
+      eventId: saved.id,
+      userClerkId: clerkId,
+      role: 'owner',
+    })
+    await EventMemberRepository.create(ownerMember)
+
+    // Duplicate sub-events
+    const subEvents = await SubEventRepository.findByEventId(eventId)
+    if (subEvents.length > 0) {
+      await SubEventRepository.bulkCreate(
+        subEvents.map((se) => ({
+          eventId: saved.id,
+          title: se.title,
+          description: se.description,
+          location: se.location,
+          sortOrder: se.sortOrder,
+        }))
+      )
+    }
+
+    // Duplicate timeline items (without times)
+    const timelineItems = await TimelineItemRepository.findByEventId(eventId)
+    if (timelineItems.length > 0) {
+      await TimelineItemRepository.bulkCreate(
+        timelineItems.map((item) => ({
+          eventId: saved.id,
+          title: item.title,
+          description: item.description,
+          location: item.location,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          sortOrder: item.sortOrder,
+        }))
+      )
+    }
+
+    return saved.toJSON()
+  }
+
+  static async uploadCoverImage(eventId, clerkId, buffer, contentType) {
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to edit this event' })
+    }
+
+    // Delete old image if exists
+    if (event.coverImageKey) {
+      await deleteImage(event.coverImageKey).catch(() => {})
+    }
+
+    const { key, url } = await uploadImage(buffer, contentType, `events/${eventId}`)
+    event.coverImageUrl = url
+    event.coverImageKey = key
+
+    const saved = await EventRepository.update(event)
+    return { coverImageUrl: saved.coverImageUrl }
+  }
+
+  static async deleteCoverImage(eventId, clerkId) {
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to edit this event' })
+    }
+
+    if (event.coverImageKey) {
+      await deleteImage(event.coverImageKey).catch(() => {})
+    }
+
+    event.coverImageUrl = null
+    event.coverImageKey = null
+
+    const saved = await EventRepository.update(event)
+    return { coverImageUrl: null }
   }
 }

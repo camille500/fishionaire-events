@@ -2,6 +2,7 @@
 const props = defineProps({
   modelValue: { type: String, default: '' },
   eventTitle: { type: String, default: '' },
+  locked: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -94,7 +95,20 @@ function accept() {
     </button>
 
     <Transition name="slide">
-      <div v-if="isOpen" class="ai-assistant__panel">
+      <div v-if="isOpen && locked" class="ai-assistant__panel ai-assistant__panel--locked">
+        <div class="ai-assistant__upsell">
+          <div class="ai-assistant__upsell-icon">
+            <Icon name="lucide:lock" size="20" />
+          </div>
+          <p class="ai-assistant__upsell-title">{{ t('aiAssistant.premiumTitle') }}</p>
+          <p class="ai-assistant__upsell-description">{{ t('aiAssistant.premiumDescription') }}</p>
+          <NuxtLink :to="$localePath('pricing')" class="ai-assistant__upsell-btn">
+            <Icon name="lucide:crown" size="14" />
+            {{ t('aiAssistant.premiumUpgrade') }}
+          </NuxtLink>
+        </div>
+      </div>
+      <div v-else-if="isOpen" class="ai-assistant__panel">
         <div class="ai-assistant__prompt-group">
           <label class="ai-assistant__label">{{ t('aiAssistant.promptLabel') }}</label>
           <textarea
@@ -361,7 +375,7 @@ function accept() {
 
 .ai-assistant__prompt:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
 }
 
 .ai-assistant__prompt::placeholder {
@@ -660,7 +674,7 @@ function accept() {
 
 .ai-assistant__refine-input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
 }
 
 .ai-assistant__refine-input::placeholder {
@@ -704,6 +718,66 @@ function accept() {
   border-color: var(--color-accent);
   color: var(--color-accent);
   background: var(--color-accent-bg);
+}
+
+.ai-assistant__panel--locked {
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+}
+
+.ai-assistant__upsell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ai-assistant__upsell-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-accent-bg), rgba(0, 184, 148, 0.15));
+  color: var(--color-accent);
+}
+
+.ai-assistant__upsell-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.ai-assistant__upsell-description {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  max-width: 320px;
+  margin: 0;
+}
+
+.ai-assistant__upsell-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--gradient-accent);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: var(--space-1);
+}
+
+.ai-assistant__upsell-btn:hover {
+  box-shadow: var(--shadow-accent-sm);
+  transform: translateY(-1px);
 }
 
 /* Slide transition */

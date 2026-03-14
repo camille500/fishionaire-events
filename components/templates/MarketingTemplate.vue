@@ -16,6 +16,14 @@ if (import.meta.client) {
 
 <template>
   <div class="marketing-template">
+    <!-- Global background effects -->
+    <AuroraBackground />
+    <GridOverlay />
+    <ClientOnly>
+      <CursorGlow />
+      <GSAPAnimations />
+    </ClientOnly>
+
     <div
       class="marketing-template__progress"
       :style="{ width: scrollProgress + '%' }"
@@ -31,7 +39,8 @@ if (import.meta.client) {
 <style scoped>
 .marketing-template {
   min-height: 100vh;
-  background: var(--color-background);
+  background: var(--bg-deep);
+  position: relative;
 }
 
 .marketing-template__progress {
@@ -43,5 +52,10 @@ if (import.meta.client) {
   z-index: 200;
   transition: width 50ms linear;
   border-radius: 0 2px 2px 0;
+}
+
+.marketing-template__content {
+  position: relative;
+  z-index: 1;
 }
 </style>

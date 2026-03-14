@@ -60,7 +60,8 @@ async function onPlanSelect(tier) {
         <AppHeading
           v-motion
           :initial="{ opacity: 0, y: 20 }"
-          :visible-once="{ opacity: 1, y: 0, transition: { duration: 500 } }"
+          :whileInView="{ opacity: 1, y: 0, transition: { duration: 0.5 } }"
+          :inViewOptions="{ once: true }"
           :level="2"
           align="center"
           class="pricing-page__faq-title"

@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     '@clerk/nuxt',
     '@nuxtjs/i18n',
     '@vueuse/nuxt',
-    '@vueuse/motion/nuxt',
+    'motion-v/nuxt',
     '@nuxt/icon',
     '@nuxt/fonts',
   ],
@@ -43,33 +43,8 @@ export default defineNuxtConfig({
     serverBundle: 'remote',
   },
 
-  motion: {
-    directives: {
-      'pop-bottom': {
-        initial: { opacity: 0, y: 100, scale: 0.9 },
-        visibleOnce: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 250, damping: 25 } },
-      },
-      'slide-visible-left': {
-        initial: { opacity: 0, x: -80 },
-        visibleOnce: { opacity: 1, x: 0, transition: { duration: 600 } },
-      },
-      'slide-visible-right': {
-        initial: { opacity: 0, x: 80 },
-        visibleOnce: { opacity: 1, x: 0, transition: { duration: 600 } },
-      },
-      'fade-visible': {
-        initial: { opacity: 0, y: 30 },
-        visibleOnce: { opacity: 1, y: 0, transition: { duration: 500 } },
-      },
-      'fade-visible-slow': {
-        initial: { opacity: 0, y: 40 },
-        visibleOnce: { opacity: 1, y: 0, transition: { duration: 800 } },
-      },
-      'scale-visible': {
-        initial: { opacity: 0, scale: 0.9 },
-        visibleOnce: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 200, damping: 20 } },
-      },
-    },
+  motionV: {
+    directives: true,
   },
 
   i18n: {
@@ -111,6 +86,24 @@ export default defineNuxtConfig({
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL || '',
     openaiApiKey: process.env.OPENAI_API_KEY || '',
+    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    awsBucket: process.env.AWS_BUCKET || '',
+    awsRegion: process.env.AWS_REGION || 'eu-west-1',
+    awsCdnUrl: process.env.AWS_CDN_URL || '',
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+    stripeStandardPriceId: process.env.STRIPE_STANDARD_PRICE_ID || '',
+    stripeProPriceId: process.env.STRIPE_PRO_PRICE_ID || '',
+    stripeEventStandardPriceId: process.env.STRIPE_EVENT_STANDARD_PRICE_ID || '',
+    stripeEventProPriceId: process.env.STRIPE_EVENT_PRO_PRICE_ID || '',
+    public: {
+      appUrl: process.env.APP_URL || 'http://localhost:3000',
+    },
+  },
+
+  colorMode: {
+    preference: 'light',
   },
 
   app: {

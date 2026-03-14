@@ -9,13 +9,17 @@ export default function useSubscription() {
   const isPro = computed(() => tier.value === 'pro')
   const isActive = computed(() => subscription.value?.status === 'active')
   const loading = computed(() => status.value === 'pending')
+  const cancelAtPeriodEnd = computed(() => subscription.value?.cancelAtPeriodEnd || false)
+  const currentPeriodEnd = computed(() => subscription.value?.currentPeriodEnd || null)
 
   async function checkout(newTier) {
     const result = await $fetch('/api/subscriptions/checkout', {
       method: 'POST',
       body: { tier: newTier },
     })
-    await refresh()
+    if (result.url) {
+      window.location.href = result.url
+    }
     return result
   }
 
@@ -23,7 +27,9 @@ export default function useSubscription() {
     const result = await $fetch('/api/subscriptions/cancel', {
       method: 'POST',
     })
-    await refresh()
+    if (result.url) {
+      window.location.href = result.url
+    }
     return result
   }
 
@@ -32,6 +38,9 @@ export default function useSubscription() {
       method: 'POST',
       body: { eventId, tier: eventTier },
     })
+    if (result.url) {
+      window.location.href = result.url
+    }
     return result
   }
 
@@ -43,6 +52,8 @@ export default function useSubscription() {
     isPro,
     isActive,
     loading,
+    cancelAtPeriodEnd,
+    currentPeriodEnd,
     refresh,
     checkout,
     cancel,

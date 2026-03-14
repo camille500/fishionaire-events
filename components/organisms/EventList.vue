@@ -1,4 +1,6 @@
 <script setup>
+import { vAutoAnimate } from '@formkit/auto-animate'
+
 const { t } = useI18n()
 
 defineProps({
@@ -32,7 +34,7 @@ const emit = defineEmits(['invited'])
       </AppText>
     </div>
 
-    <div v-else class="event-list__grid">
+    <div v-else v-auto-animate class="event-list__grid">
       <EventCard
         v-for="event in events"
         :key="event.id"

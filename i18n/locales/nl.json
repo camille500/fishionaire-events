@@ -10,7 +10,23 @@
   "home": {
     "hero": {
       "title": "Plan onvergetelijke evenementen, samen",
-      "subtitle": "Van bruiloften tot babyshowers, van verjaardagen tot diners — plan, nodig uit en vier samen met de mensen die ertoe doen."
+      "subtitle": "Van bruiloften tot babyshowers, van verjaardagen tot diners — plan, nodig uit en vier samen met de mensen die ertoe doen.",
+      "badge": "Nu beschikbaar — Slimme RSVP",
+      "titleLine1": "Plan onvergetelijke evenementen,",
+      "titleLine2": "samen.",
+      "typewriter": {
+        "1": "Organiseer het perfecte verjaardagsfeest",
+        "2": "Verstuur prachtige bruiloftsuitnodigingen",
+        "3": "Volg RSVPs in real-time",
+        "4": "Maak gedeelde verlanglijstjes moeiteloos"
+      },
+      "card": {
+        "guests": "Gasten tracking",
+        "guestsUnit": "uitgenodigd",
+        "rsvp": "RSVP Status",
+        "rsvpRate": "responspercentage",
+        "rating": "Gebruikersbeoordeling"
+      }
     },
     "stats": {
       "events": "10.000+",
@@ -21,6 +37,7 @@
       "ratingLabel": "Gemiddelde beoordeling"
     },
     "features": {
+      "label": "Functies",
       "title": "Alles wat je nodig hebt",
       "items": [
         {
@@ -39,7 +56,7 @@
           "description": "Gasten kunnen reageren per sub-evenement, een +1 meenemen en dieetwensen doorgeven."
         },
         {
-          "icon": "chart",
+          "icon": "bar-chart-3",
           "title": "Datum prikken",
           "description": "Laat gasten stemmen op beschikbare data zodat iedereen erbij kan zijn."
         },
@@ -49,12 +66,14 @@
           "description": "Deel een verlanglijst waar gasten items kunnen afstrepen of samen een cadeau kopen."
         },
         {
-          "icon": "message",
+          "icon": "message-circle",
           "title": "Geheime chat",
           "description": "Een verborgen omgeving waar gasten verrassingen kunnen plannen zonder dat de host het ziet."
         }
       ]
     },
+    "showcasesLabel": "Hoe het werkt",
+    "showcasesTitle": "Gemaakt voor echte eventplanning",
     "showcases": [
       {
         "icon": "users",
@@ -67,11 +86,20 @@
         "description": "Voeg cadeaus toe aan je verlanglijst en deel deze met je gasten. Ze kunnen items claimen of zelfs samen voor een groter cadeau gaan. Geen dubbele cadeaus meer."
       },
       {
-        "icon": "chart",
+        "icon": "bar-chart-3",
         "title": "Plan samen de perfecte datum",
         "description": "Nog geen datum geprikt? Stel meerdere opties voor en laat je gasten aangeven wanneer ze kunnen. Zo kies je de datum waarop de meeste mensen erbij kunnen zijn."
       }
     ],
+    "strip": {
+      "1": { "stat": "Snel", "label": "Opgezet in minuten" },
+      "2": { "stat": "98%", "label": "RSVP-percentage" },
+      "3": { "stat": "4.9", "label": "Gebruikersbeoordeling" },
+      "4": { "stat": "24/7", "label": "Altijd beschikbaar" },
+      "5": { "stat": "10.000+", "label": "Evenementen gepland" }
+    },
+    "testimonialsLabel": "Ervaringen",
+    "testimonialsTitle": "Geliefd bij eventplanners",
     "testimonials": [
       {
         "quote": "We hebben onze hele bruiloft georganiseerd via Fishionaire Events. De RSVP-functie bespaarde ons uren werk!",
@@ -112,7 +140,7 @@
         "description": "Gasten reageren per onderdeel van je evenement. Stel in of ze een +1 mogen meenemen, vraag dieetwensen uit en houd alles overzichtelijk bij in één dashboard."
       },
       {
-        "icon": "chart",
+        "icon": "bar-chart-3",
         "title": "Datum prikken",
         "description": "Nog geen datum? Stel meerdere opties voor en laat genodigden stemmen. Het systeem toont automatisch welke datum voor de meeste mensen werkt."
       },
@@ -122,7 +150,7 @@
         "description": "Maak een verlanglijst aan bij je evenement. Gasten kunnen items claimen zodat je geen dubbele cadeaus krijgt. Grotere cadeaus? Die kunnen gezamenlijk worden gekocht."
       },
       {
-        "icon": "message",
+        "icon": "message-circle",
         "title": "Geheime chat",
         "description": "Een verborgen chatruimte waar genodigden verrassingen kunnen bespreken, andere cadeau-ideeën kunnen delen en samen iets speciaals kunnen plannen — zonder dat de host het ziet."
       },
@@ -174,7 +202,7 @@
       },
       {
         "name": "Standaard",
-        "price": "€9",
+        "price": "€9,99",
         "period": "/maand",
         "features": [
           "Onbeperkt evenementen",
@@ -188,11 +216,11 @@
         "ctaLabel": "Kies Standaard",
         "highlighted": true,
         "tier": "standard",
-        "perEventPrice": "of €12 per evenement"
+        "perEventPrice": "of €14,99 per evenement"
       },
       {
         "name": "Pro",
-        "price": "€19",
+        "price": "€19,99",
         "period": "/maand",
         "features": [
           "Alles van Standaard",
@@ -204,7 +232,7 @@
         ],
         "ctaLabel": "Kies Pro",
         "tier": "pro",
-        "perEventPrice": "of €25 per evenement"
+        "perEventPrice": "of €29,99 per evenement"
       }
     ],
     "faq": {
@@ -264,7 +292,7 @@
         "description": "Items toevoegen, claimen en gezamenlijk kopen."
       },
       {
-        "icon": "chart",
+        "icon": "bar-chart-3",
         "title": "Samen plannen",
         "description": "Datum prikken, mede-organisatoren en geheime chat."
       },
@@ -386,6 +414,7 @@
     "accepted": "Geaccepteerd",
     "declined": "Afgewezen",
     "invited": "uitgenodigd",
+    "inviteGuests": "Gasten uitnodigen",
     "inviteByEmail": "Uitnodigen",
     "send": "Versturen",
     "emailPlaceholder": "E-mailadres invoeren",
@@ -471,6 +500,7 @@
       "save": "Opslaan",
       "saving": "Opslaan...",
       "saved": "Wijzigingen opgeslagen",
+      "unsavedChanges": "Niet-opgeslagen wijzigingen",
       "errorSaving": "Er ging iets mis bij het opslaan",
       "notFound": "Evenement niet gevonden",
       "noAccess": "Je hebt geen toegang tot dit evenement",
@@ -484,7 +514,132 @@
         "seatingArrangements": { "label": "Tafelschikking", "description": "Plan je tafelindeling visueel" },
         "timeline": { "label": "Tijdlijn", "description": "Maak een gedetailleerd dagprogramma" },
         "customTheme": { "label": "Eigen thema", "description": "Personaliseer met eigen kleuren en ontwerpen" }
-      }
+      },
+      "detailsSection": "Evenementdetails",
+      "eventTypeLabel": "Type evenement",
+      "eventTypePlaceholder": "Kies een type...",
+      "eventTypes": {
+        "birthday": "Verjaardag",
+        "wedding": "Bruiloft",
+        "baby_shower": "Babyshower",
+        "dinner": "Etentje",
+        "corporate": "Zakelijk evenement",
+        "other": "Anders"
+      },
+      "eventDateLabel": "Datum & tijd",
+      "eventEndDateLabel": "Einddatum & tijd (optioneel)",
+      "locationLabel": "Locatie",
+      "locationPlaceholder": "Adres, locatienaam, of 'Online'",
+      "guestSettingsSection": "Gastinstellingen",
+      "maxGuestsLabel": "Maximum aantal gasten",
+      "maxGuestsPlaceholder": "Laat leeg voor onbeperkt",
+      "isPrivateLabel": "Besloten evenement",
+      "isPrivateDescription": "Alleen uitgenodigde gasten kunnen dit evenement zien",
+      "autoSaved": "Automatisch opgeslagen",
+      "subEventsSection": "Onderdelen",
+      "subEventsSubtitle": "Verdeel je evenement in delen zoals ceremonie, diner en feest",
+      "addSubEvent": "Onderdeel toevoegen",
+      "subEventTitle": "Titel onderdeel",
+      "subEventTitlePlaceholder": "Bijv. Ceremonie, Diner, Feest",
+      "subEventDescription": "Beschrijving",
+      "subEventDescriptionPlaceholder": "Beschrijf dit onderdeel...",
+      "subEventStartTime": "Starttijd",
+      "subEventEndTime": "Eindtijd",
+      "subEventLocation": "Locatie",
+      "subEventLocationPlaceholder": "Locatie voor dit onderdeel",
+      "noSubEvents": "Nog geen onderdelen. Voeg delen toe aan je evenement.",
+      "subEventCreated": "Onderdeel toegevoegd",
+      "subEventUpdated": "Onderdeel bijgewerkt",
+      "subEventDeleted": "Onderdeel verwijderd",
+      "subEventReordered": "Volgorde bijgewerkt",
+      "confirmDeleteSubEvent": "Dit onderdeel verwijderen?",
+      "coOrganizersSection": "Mede-organisatoren",
+      "coOrganizersSubtitle": "Nodig mensen uit om dit evenement mee te beheren",
+      "addCoOrganizer": "Mede-organisator toevoegen",
+      "coOrganizerEmailPlaceholder": "E-mailadres van mede-organisator",
+      "coOrganizerInvited": "Mede-organisator toegevoegd!",
+      "coOrganizerRemoved": "Mede-organisator verwijderd",
+      "confirmRemoveCoOrganizer": "Deze mede-organisator verwijderen?",
+      "noCoOrganizers": "Nog geen mede-organisatoren.",
+      "errorCoOrganizer": "Kon mede-organisator niet toevoegen",
+      "timelineSection": "Dagprogramma",
+      "timelineSubtitle": "Maak een gedetailleerd programma voor de dag",
+      "addTimelineItem": "Toevoegen aan programma",
+      "timelineItemTitle": "Wat gebeurt er",
+      "timelineItemTitlePlaceholder": "Bijv. Ceremonie, Borrel",
+      "timelineItemDescription": "Beschrijving",
+      "timelineItemDescriptionPlaceholder": "Optionele details...",
+      "timelineItemStartTime": "Starttijd",
+      "timelineItemEndTime": "Eindtijd",
+      "timelineItemLocation": "Locatie",
+      "timelineItemLocationPlaceholder": "Waar vindt dit plaats",
+      "noTimelineItems": "Nog geen programma-items.",
+      "timelineItemCreated": "Toegevoegd aan programma",
+      "timelineItemUpdated": "Programma bijgewerkt",
+      "timelineItemDeleted": "Verwijderd uit programma",
+      "timelineLocked": "Dagprogramma is een Pro-functie",
+      "timelineLockedDescription": "Upgrade naar Pro om een gedetailleerd dagprogramma te maken.",
+      "analyticsSection": "Statistieken",
+      "analyticsSubtitle": "Bekijk hoe je evenement presteert",
+      "totalViews": "Totaal weergaven",
+      "viewsOverTime": "Weergaven over tijd",
+      "rsvpBreakdown": "RSVP-overzicht",
+      "acceptanceRate": "Acceptatiepercentage",
+      "analyticsLocked": "Statistieken is een Standaard+ functie",
+      "analyticsLockedDescription": "Upgrade om prestaties van je evenement te bekijken.",
+      "noAnalyticsData": "Nog geen data",
+      "coverImage": {
+        "dropzone": "Klik of sleep een afbeelding om te uploaden",
+        "hint": "JPEG, PNG, WebP of GIF — max 5 MB",
+        "uploading": "Uploaden...",
+        "change": "Wijzigen",
+        "remove": "Verwijderen",
+        "alt": "Omslagfoto van evenement",
+        "invalidType": "Ongeldig bestandstype. Gebruik JPEG, PNG, WebP of GIF.",
+        "tooLarge": "Bestand is te groot. Maximaal 5 MB.",
+        "uploadError": "Afbeelding kon niet worden geüpload",
+        "deleteError": "Afbeelding kon niet worden verwijderd"
+      },
+      "duplicateEvent": "Dupliceren",
+      "duplicating": "Dupliceren...",
+      "duplicated": "Evenement gedupliceerd",
+      "archiveEvent": "Archiveren",
+      "confirmArchiveTitle": "Evenement archiveren",
+      "confirmArchiveMessage": "Dit evenement wordt gearchiveerd en verborgen van je dashboard. Je kunt het later herstellen.",
+      "paidEventWarning": "Dit is een betaald evenement. Archiveren verbergt het, maar je aankoop blijft bewaard.",
+      "restoreEvent": "Herstellen",
+      "saveAsTemplate": "Opslaan als sjabloon",
+      "templateName": "Sjabloonnaam",
+      "templateNamePlaceholder": "Geef je sjabloon een naam",
+      "templateSaved": "Sjabloon opgeslagen!",
+      "errorSavingTemplate": "Kon sjabloon niet opslaan"
+    },
+    "confirm": "Bevestigen",
+    "archivedEvents": "Gearchiveerde evenementen",
+    "coOrganizing": "Mede-organiseren",
+    "noCoOrganizing": "Je organiseert nog geen evenementen mee.",
+    "roles": {
+      "owner": "Eigenaar",
+      "co_organizer": "Mede-organisator",
+      "guest": "Gast"
+    },
+    "templates": {
+      "title": "Kies een sjabloon",
+      "subtitle": "Begin met een sjabloon of start vanaf nul",
+      "systemTemplates": "Sjablonen",
+      "myTemplates": "Mijn sjablonen",
+      "useTemplate": "Gebruik dit",
+      "startFromScratch": "Vanaf nul beginnen",
+      "noUserTemplates": "Je hebt nog geen sjablonen opgeslagen.",
+      "deleteTemplate": "Sjabloon verwijderen",
+      "confirmDeleteTemplate": "Dit sjabloon verwijderen?"
+    },
+    "rsvp": {
+      "perSubEvent": "RSVP per onderdeel",
+      "attending": "Aanwezig",
+      "notAttending": "Niet aanwezig",
+      "noResponse": "Geen reactie",
+      "responses": "Reacties"
     }
   },
   "cta": {
@@ -520,11 +675,11 @@
       },
       "standard": {
         "features": ["RSVP", "Datum prikken", "Verlanglijst", "Geheime chat", "Fotogalerij"],
-        "eventPrice": "€12 eenmalig"
+        "eventPrice": "€14,99 eenmalig"
       },
       "pro": {
         "features": ["Alle Standaard-functies", "Budgettracker", "Tafelschikking", "Tijdlijn", "Eigen thema"],
-        "eventPrice": "€25 eenmalig"
+        "eventPrice": "€29,99 eenmalig"
       }
     }
   },
@@ -542,6 +697,9 @@
     "keepPlan": "Plan behouden",
     "currentLabel": "Huidig",
     "backToDashboard": "Terug naar dashboard",
+    "manageSubscription": "Abonnement beheren",
+    "subscriptionUpdated": "Je abonnement is succesvol bijgewerkt!",
+    "cancelsOn": "Je plan wordt opgezegd op {date}",
     "planDescription": {
       "free": "Basisfuncties voor eenvoudige evenementen",
       "standard": "Uitgebreide functies voor al je evenementen",
@@ -549,8 +707,8 @@
     },
     "prices": {
       "free": "€0/maand",
-      "standard": "€9/maand",
-      "pro": "€19/maand"
+      "standard": "€9,99/maand",
+      "pro": "€19,99/maand"
     }
   },
   "aiAssistant": {
@@ -595,7 +753,107 @@
     "refinePlaceholder": "Pas aan, bijv. 'maak het formeler' of 'voeg info over parkeren toe'",
     "refine": "Aanpassen",
     "historyLabel": "Eerdere versies",
-    "error": "Er ging iets mis. Probeer het opnieuw."
+    "error": "Er ging iets mis. Probeer het opnieuw.",
+    "premiumTitle": "AI Assistent — Premium",
+    "premiumDescription": "Laat AI de perfecte evenementbeschrijving schrijven. Kies toon, lengte en stijl — en verfijn tot het precies goed is.",
+    "premiumUpgrade": "Upgrade om te ontgrendelen"
+  },
+  "editor": {
+    "tabs": {
+      "details": "Details",
+      "schedule": "Programma",
+      "guests": "Gasten",
+      "settings": "Instellingen"
+    },
+    "autoSave": {
+      "saving": "Opslaan...",
+      "saved": "Opgeslagen",
+      "unsaved": "Niet-opgeslagen wijzigingen",
+      "allSaved": "Alle wijzigingen opgeslagen"
+    },
+    "completion": {
+      "complete": "compleet",
+      "missing": "Nog ontbrekend:",
+      "fields": {
+        "title": "Evenementnaam",
+        "date": "Datum & tijd",
+        "location": "Locatie",
+        "description": "Beschrijving",
+        "coverImage": "Omslagfoto",
+        "eventType": "Type evenement"
+      }
+    },
+    "settings": {
+      "tierDescription": "Het tier van je evenement bepaalt welke functies beschikbaar zijn.",
+      "upgradePlan": "Bekijk plannen & upgrade",
+      "actionsLabel": "Acties",
+      "duplicateDesc": "Maak een kopie van dit evenement met alle instellingen",
+      "templateDesc": "Sla deze opzet op als herbruikbaar sjabloon",
+      "archiveEvent": "Evenement archiveren",
+      "archiveDesc": "Verberg dit evenement van je dashboard. Je kunt het later herstellen.",
+      "archiveConfirm": "Weet je zeker dat je dit evenement wilt archiveren? Je kunt het later herstellen vanuit de gearchiveerde evenementen."
+    },
+    "ai": {
+      "suggestTitle": "Titels voorstellen",
+      "suggestActivities": "Activiteiten voorstellen",
+      "suggestTimeline": "Tijdlijn genereren",
+      "writeDescription": "Beschrijving schrijven",
+      "loading": "Even denken...",
+      "unlockAi": "Upgrade om AI-suggesties te ontgrendelen",
+      "acceptAll": "Alle suggesties toevoegen"
+    },
+    "onboarding": {
+      "addActivities": "Voeg activiteiten toe om je evenement op te delen — zoals diner, dansen of spelletjes.",
+      "inviteGuests": "Deel je evenementlink of nodig mensen direct uit via e-mail.",
+      "setEventType": "Kies een type evenement om je pagina een unieke uitstraling te geven.",
+      "tryAi": "Gebruik AI om direct titels, activiteiten en beschrijvingen te genereren."
+    },
+    "emptyStates": {
+      "noActivities": "Nog geen activiteiten",
+      "noActivitiesDesc": "Voeg sub-evenementen toe om je evenement te structureren — elk krijgt een eigen RSVP.",
+      "addFirst": "Voeg je eerste activiteit toe",
+      "noGuests": "Nog geen gasten",
+      "noGuestsDesc": "Nodig vrienden en familie uit voor je evenement.",
+      "inviteFirst": "Verstuur je eerste uitnodiging",
+      "noTimeline": "Nog geen tijdlijn",
+      "noTimelineDesc": "Maak een gedetailleerde tijdlijn zodat gasten weten wat ze kunnen verwachten.",
+      "upgradeToPro": "Upgrade naar Pro"
+    }
+  },
+  "wizard": {
+    "title": "Nieuw evenement aanmaken",
+    "steps": {
+      "type": "Type evenement",
+      "typeDescription": "Wat ben je aan het plannen?",
+      "info": "Basisinfo",
+      "infoDescription": "Vul de basis in",
+      "activities": "Activiteiten",
+      "activitiesDescription": "Plan de onderdelen",
+      "tier": "Kies plan",
+      "tierDescription": "Selecteer functies"
+    },
+    "skipType": "Overslaan — ik beslis later",
+    "titlePlaceholder": "Geef je evenement een naam",
+    "datePlaceholder": "Wanneer is het?",
+    "locationPlaceholder": "Waar is het?",
+    "addActivity": "Activiteit toevoegen",
+    "activityPlaceholder": "Naam activiteit",
+    "durationLabel": "min",
+    "removeActivity": "Verwijderen",
+    "aiSuggestTitle": "AI suggestie",
+    "aiSuggestActivities": "AI suggesties",
+    "createEvent": "Evenement aanmaken",
+    "creating": "Aanmaken...",
+    "prev": "Terug",
+    "next": "Volgende",
+    "eventTypes": {
+      "birthday": { "name": "Verjaardag", "description": "Vier het met vrienden en familie" },
+      "wedding": { "name": "Bruiloft", "description": "Jullie speciale dag, perfect gepland" },
+      "baby_shower": { "name": "Babyshower", "description": "Verwelkom de nieuwe aanwinst" },
+      "dinner": { "name": "Diner", "description": "Een elegante avond samen" },
+      "corporate": { "name": "Zakelijk", "description": "Professionele evenementen en vergaderingen" },
+      "other": { "name": "Anders", "description": "Elk ander evenement" }
+    }
   },
   "footer": {
     "product": "Product",

@@ -13,11 +13,8 @@ const invitations = computed(() => events.value?.invited || [])
 
     <div v-if="invitations.length" class="invitations-page__grid">
       <EventCard
-        v-for="(event, index) in invitations"
+        v-for="event in invitations"
         :key="event.id"
-        v-motion
-        :initial="{ opacity: 0, y: 16 }"
-        :enter="{ opacity: 1, y: 0, transition: { delay: index * 60 } }"
         :event="event"
         :is-owner="false"
       />
@@ -37,10 +34,12 @@ const invitations = computed(() => events.value?.invited || [])
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  max-width: 960px;
 }
 
 .invitations-page__title {
-  font-size: var(--text-2xl);
+  font-family: var(--font-family-heading);
+  font-size: var(--text-xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0;
@@ -48,7 +47,7 @@ const invitations = computed(() => events.value?.invited || [])
 
 .invitations-page__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-4);
 }
 </style>
