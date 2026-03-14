@@ -823,6 +823,8 @@
   "wizard": {
     "title": "Create a new event",
     "steps": {
+      "start": "Get started",
+      "startDescription": "Choose how to begin",
       "type": "Event type",
       "typeDescription": "What are you planning?",
       "info": "Basic info",
@@ -830,29 +832,96 @@
       "activities": "Activities",
       "activitiesDescription": "Plan the sub-events",
       "tier": "Choose plan",
-      "tierDescription": "Select features"
+      "tierDescription": "Select features",
+      "review": "Review",
+      "reviewDescription": "Confirm and create",
+      "typeTitle": "What are you planning?",
+      "typeSubtitle": "Pick the event type that best fits your occasion",
+      "infoTitle": "Tell us about your event",
+      "infoSubtitle": "Add the essentials — you can always update later",
+      "activitiesTitle": "Plan your activities",
+      "activitiesSubtitle": "Add activities or sub-events to your programme — drag to reorder",
+      "tierTitle": "Choose your plan",
+      "tierSubtitle": "Pick the features you need for this event",
+      "reviewTitle": "Looking good!",
+      "reviewSubtitle": "Review your event details before creating"
+    },
+    "start": {
+      "title": "How do you want to start?",
+      "subtitle": "Create your event from scratch or let AI help you plan it",
+      "manual": {
+        "title": "Start from scratch",
+        "description": "Build your event step by step, exactly how you want it"
+      },
+      "ai": {
+        "title": "Let AI help me plan it",
+        "description": "Describe your event and we'll build it for you in seconds",
+        "inputTitle": "Describe your event",
+        "placeholder": "e.g. A 30th birthday dinner for 20 people next Saturday evening, casual but elegant",
+        "build": "Build my event",
+        "building": "Building...",
+        "back": "Back"
+      }
     },
     "skipType": "Skip — I'll decide later",
     "titlePlaceholder": "Give your event a name",
     "datePlaceholder": "When is it?",
     "locationPlaceholder": "Where is it?",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Tell your guests what this event is about...",
     "addActivity": "Add activity",
     "activityPlaceholder": "Activity name",
     "durationLabel": "min",
     "removeActivity": "Remove",
+    "activitiesEmpty": "No activities added yet",
+    "activitiesEmptyHint": "Add activities to build your event programme",
     "aiSuggestTitle": "AI suggest",
     "aiSuggestActivities": "AI suggest activities",
-    "createEvent": "Create event",
+    "aiGenerateDescription": "Generate with AI",
+    "aiActivitiesLocked": "AI suggestions available with Standard+",
+    "aiUpsellHint": "Get unlimited AI suggestions with Standard",
+    "aiUpsellMessage": "You used AI suggestions — keep this and more with Standard",
+    "createEvent": "Create my event",
     "creating": "Creating...",
     "prev": "Back",
     "next": "Next",
+    "validation": {
+      "titleRequired": "Your event needs a name",
+      "titleTooLong": "Title is too long (max 100 characters)"
+    },
+    "progress": {
+      "stepOf": "Step {current} of {total}"
+    },
+    "draft": {
+      "title": "Welcome back!",
+      "description": "You have an unfinished event draft. Resume where you left off?",
+      "resume": "Resume draft",
+      "startFresh": "Start fresh"
+    },
+    "reviewFields": {
+      "title": "Event name",
+      "date": "Date & time",
+      "location": "Location",
+      "activities": "Activities",
+      "activityCount": "{count} activities planned",
+      "noActivities": "None — you can add them later",
+      "plan": "Plan"
+    },
+    "celebration": {
+      "title": "Your event is ready!",
+      "subtitle": "Now invite your guests and make it unforgettable",
+      "goToEvent": "Go to event",
+      "inviteGuests": "Invite guests",
+      "shareLink": "Share link",
+      "linkCopied": "Event link copied!"
+    },
     "eventTypes": {
       "birthday": { "name": "Birthday", "description": "Celebrate with friends and family" },
       "wedding": { "name": "Wedding", "description": "Your special day, perfectly planned" },
       "baby_shower": { "name": "Baby shower", "description": "Welcome the new arrival" },
       "dinner": { "name": "Dinner party", "description": "An elegant evening together" },
       "corporate": { "name": "Corporate", "description": "Professional events and meetings" },
-      "other": { "name": "Other", "description": "Any custom event" }
+      "other": { "name": "Something else", "description": "Any custom event" }
     }
   },
   "footer": {

@@ -823,6 +823,8 @@
   "wizard": {
     "title": "Nieuw evenement aanmaken",
     "steps": {
+      "start": "Aan de slag",
+      "startDescription": "Kies hoe je wilt beginnen",
       "type": "Type evenement",
       "typeDescription": "Wat ben je aan het plannen?",
       "info": "Basisinfo",
@@ -830,29 +832,96 @@
       "activities": "Activiteiten",
       "activitiesDescription": "Plan de onderdelen",
       "tier": "Kies plan",
-      "tierDescription": "Selecteer functies"
+      "tierDescription": "Selecteer functies",
+      "review": "Overzicht",
+      "reviewDescription": "Bevestig en maak aan",
+      "typeTitle": "Wat ben je aan het plannen?",
+      "typeSubtitle": "Kies het type dat het beste bij je gelegenheid past",
+      "infoTitle": "Vertel ons over je evenement",
+      "infoSubtitle": "Vul de basis in — je kunt het later altijd aanpassen",
+      "activitiesTitle": "Plan je activiteiten",
+      "activitiesSubtitle": "Voeg activiteiten of onderdelen toe aan je programma — sleep om te sorteren",
+      "tierTitle": "Kies je plan",
+      "tierSubtitle": "Kies de functies die je nodig hebt voor dit evenement",
+      "reviewTitle": "Ziet er goed uit!",
+      "reviewSubtitle": "Controleer je evenement voordat je het aanmaakt"
+    },
+    "start": {
+      "title": "Hoe wil je beginnen?",
+      "subtitle": "Maak je evenement vanaf nul of laat AI je helpen plannen",
+      "manual": {
+        "title": "Zelf beginnen",
+        "description": "Bouw je evenement stap voor stap, precies zoals je het wilt"
+      },
+      "ai": {
+        "title": "Laat AI me helpen plannen",
+        "description": "Beschrijf je evenement en wij bouwen het voor je op in seconden",
+        "inputTitle": "Beschrijf je evenement",
+        "placeholder": "bijv. Een 30ste verjaardagsdiner voor 20 personen aanstaande zaterdag, casual maar elegant",
+        "build": "Bouw mijn evenement",
+        "building": "Bezig met opbouwen...",
+        "back": "Terug"
+      }
     },
     "skipType": "Overslaan — ik beslis later",
     "titlePlaceholder": "Geef je evenement een naam",
     "datePlaceholder": "Wanneer is het?",
     "locationPlaceholder": "Waar is het?",
+    "descriptionLabel": "Beschrijving",
+    "descriptionPlaceholder": "Vertel je gasten waar dit evenement over gaat...",
     "addActivity": "Activiteit toevoegen",
     "activityPlaceholder": "Naam activiteit",
     "durationLabel": "min",
     "removeActivity": "Verwijderen",
+    "activitiesEmpty": "Nog geen activiteiten toegevoegd",
+    "activitiesEmptyHint": "Voeg activiteiten toe om je programma op te bouwen",
     "aiSuggestTitle": "AI suggestie",
     "aiSuggestActivities": "AI suggesties",
-    "createEvent": "Evenement aanmaken",
+    "aiGenerateDescription": "Genereer met AI",
+    "aiActivitiesLocked": "AI suggesties beschikbaar met Standard+",
+    "aiUpsellHint": "Krijg onbeperkt AI suggesties met Standard",
+    "aiUpsellMessage": "Je hebt AI suggesties gebruikt — bewaar dit en meer met Standard",
+    "createEvent": "Maak mijn evenement aan",
     "creating": "Aanmaken...",
     "prev": "Terug",
     "next": "Volgende",
+    "validation": {
+      "titleRequired": "Je evenement heeft een naam nodig",
+      "titleTooLong": "Titel is te lang (max 100 tekens)"
+    },
+    "progress": {
+      "stepOf": "Stap {current} van {total}"
+    },
+    "draft": {
+      "title": "Welkom terug!",
+      "description": "Je hebt een onafgemaakt evenement. Wil je verdergaan waar je gebleven was?",
+      "resume": "Hervat concept",
+      "startFresh": "Opnieuw beginnen"
+    },
+    "reviewFields": {
+      "title": "Evenementnaam",
+      "date": "Datum & tijd",
+      "location": "Locatie",
+      "activities": "Activiteiten",
+      "activityCount": "{count} activiteiten gepland",
+      "noActivities": "Geen — je kunt ze later toevoegen",
+      "plan": "Plan"
+    },
+    "celebration": {
+      "title": "Je evenement is klaar!",
+      "subtitle": "Nodig nu je gasten uit en maak het onvergetelijk",
+      "goToEvent": "Ga naar evenement",
+      "inviteGuests": "Gasten uitnodigen",
+      "shareLink": "Link delen",
+      "linkCopied": "Evenement link gekopieerd!"
+    },
     "eventTypes": {
       "birthday": { "name": "Verjaardag", "description": "Vier het met vrienden en familie" },
       "wedding": { "name": "Bruiloft", "description": "Jullie speciale dag, perfect gepland" },
       "baby_shower": { "name": "Babyshower", "description": "Verwelkom de nieuwe aanwinst" },
       "dinner": { "name": "Diner", "description": "Een elegante avond samen" },
       "corporate": { "name": "Zakelijk", "description": "Professionele evenementen en vergaderingen" },
-      "other": { "name": "Anders", "description": "Elk ander evenement" }
+      "other": { "name": "Iets anders", "description": "Elk ander evenement" }
     }
   },
   "footer": {

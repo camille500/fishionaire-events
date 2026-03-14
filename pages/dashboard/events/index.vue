@@ -4,7 +4,6 @@ definePageMeta({ layout: 'dashboard' })
 const { t } = useI18n()
 const { data: events, error, refresh: refreshEvents } = await useFetch('/api/events')
 
-const showWizard = ref(false)
 const searchQuery = ref('')
 const showArchived = ref(false)
 
@@ -18,10 +17,8 @@ const filteredEvents = computed(() => {
 const coOrganizingEvents = computed(() => events.value?.coOrganizing || [])
 const archivedEvents = computed(() => events.value?.archived || [])
 
-function onEventCreated(event) {
-  showWizard.value = false
-  refreshEvents()
-  navigateTo(`/dashboard/events/${event.id}?new=1`)
+function openCreateWizard() {
+  navigateTo('/dashboard/events/create')
 }
 
 async function onDuplicate(event) {
@@ -55,22 +52,12 @@ async function onRestore(event) {
             :placeholder="t('dashboard.searchEvents')"
           />
         </div>
-        <AppButton variant="primary" size="sm" @click="showWizard = true">
+        <AppButton variant="primary" size="sm" @click="openCreateWizard">
           <Icon name="lucide:plus" size="14" />
           {{ t('dashboard.newEvent') }}
         </AppButton>
       </div>
     </div>
-
-    <!-- Creation Wizard Drawer -->
-    <UDrawer v-model:open="showWizard" :ui="{ content: 'max-w-2xl mx-auto' }">
-      <template #content>
-        <EventCreationWizard
-          @created="onEventCreated"
-          @close="showWizard = false"
-        />
-      </template>
-    </UDrawer>
 
     <div v-if="error" class="events-page__error">
       <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
@@ -139,7 +126,7 @@ async function onRestore(event) {
       :title="searchQuery ? t('dashboard.emptyState.noResults.title') : t('dashboard.emptyState.noEvents.title')"
       :description="searchQuery ? t('dashboard.emptyState.noResults.description') : t('dashboard.emptyState.noEvents.description')"
       :cta-label="searchQuery ? '' : t('dashboard.emptyState.noEvents.cta')"
-      @cta-click="showWizard = true"
+      @cta-click="openCreateWizard"
     />
   </div>
 </template>

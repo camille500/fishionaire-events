@@ -9,7 +9,6 @@ const { data: user } = await useFetch('/api/users/me')
 const { data: events, error: eventsError, refresh: refreshEvents } = await useFetch('/api/events')
 const { subscription } = useSubscription()
 
-const showCreateForm = ref(false)
 const showConfetti = ref(false)
 
 const displayName = computed(() => user.value?.firstName || 'User')
@@ -40,9 +39,8 @@ const inlineStats = computed(() => {
   ]
 })
 
-function onEventCreated(event) {
-  showCreateForm.value = false
-  navigateTo(`/dashboard/events/${event.id}?new=1`)
+function openCreateWizard() {
+  navigateTo('/dashboard/events/create')
 }
 </script>
 
@@ -77,23 +75,13 @@ function onEventCreated(event) {
           <AppButton
             variant="primary"
             size="sm"
-            @click="showCreateForm = !showCreateForm"
+            @click="openCreateWizard"
           >
             <Icon name="lucide:plus" size="14" />
             {{ t('dashboard.newEvent') }}
           </AppButton>
         </div>
       </div>
-
-      <!-- Create Event Form -->
-      <Transition name="slide-down">
-        <div v-if="showCreateForm" class="dashboard-home__create-form">
-          <CreateEventForm
-            @created="onEventCreated"
-            @cancel="showCreateForm = false"
-          />
-        </div>
-      </Transition>
 
       <div v-if="eventsError" class="dashboard-home__error">
         <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
@@ -208,6 +196,8 @@ function onEventCreated(event) {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
 
@@ -244,14 +234,6 @@ function onEventCreated(event) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-4);
-}
-
-.dashboard-home__create-form {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  margin-bottom: var(--space-4);
 }
 
 .dashboard-home__error {

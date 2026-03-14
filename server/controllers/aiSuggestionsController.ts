@@ -149,4 +149,62 @@ export default class AiSuggestionsController {
       throw createError({ statusCode: 502, statusMessage: 'AI service unavailable' })
     }
   }
+
+  static async buildEvent({ description, language = 'en' }) {
+    const client = this.#getClient()
+
+    const languageInstruction = language === 'en'
+      ? 'Write entirely in English.'
+      : 'Write entirely in Dutch (Nederlands).'
+
+    const eventTypes = 'birthday, wedding, baby_shower, dinner, corporate, other'
+
+    const systemPrompt = [
+      'You are an intelligent event planning assistant for Fishionaire Events.',
+      'The user will describe an event they want to plan in natural language.',
+      'Extract and generate structured event details from their description.',
+      languageInstruction,
+      '',
+      'Return a JSON object with these fields:',
+      `- "eventType": one of [${eventTypes}], pick the best match`,
+      '- "title": a catchy, creative event title based on the description',
+      '- "description": a 2-3 sentence event description',
+      '- "dateSuggestion": { "dayOfWeek": string, "timeOfDay": "morning"|"afternoon"|"evening"|"night", "suggestedTime": "HH:MM" } or null if no date info given',
+      '- "activities": array of { "title": string, "durationMinutes": number }, suggest 3-5 relevant activities',
+      '',
+      'Be creative with the title and description. Make the activities realistic and well-timed.',
+      'If the user mentions a specific date/time, extract it. Otherwise suggest a reasonable day and time.',
+      'Only return valid JSON, nothing else.',
+    ].join('\n')
+
+    try {
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Plan an event based on this description: ${description}` },
+        ],
+        response_format: { type: 'json_object' },
+        max_tokens: 600,
+        temperature: 0.8,
+      })
+
+      const result = JSON.parse(response.choices[0].message.content)
+      return {
+        eventType: result.eventType || 'other',
+        title: result.title || '',
+        description: result.description || '',
+        dateSuggestion: result.dateSuggestion || null,
+        activities: result.activities || [],
+      }
+    } catch (err) {
+      if (err.status === 401) {
+        throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
+      }
+      if (err.status === 429) {
+        throw createError({ statusCode: 429, statusMessage: 'AI service is busy, please try again later' })
+      }
+      throw createError({ statusCode: 502, statusMessage: 'AI service unavailable' })
+    }
+  }
 }
