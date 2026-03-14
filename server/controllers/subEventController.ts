@@ -4,8 +4,24 @@ import EventRepository from '../repositories/eventRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
 
+interface CreateSubEventParams {
+  title: string
+  description?: string | null
+  startTime?: string | null
+  endTime?: string | null
+  location?: string | null
+}
+
+interface UpdateSubEventParams {
+  title?: string
+  description?: string | null
+  startTime?: string | null
+  endTime?: string | null
+  location?: string | null
+}
+
 export default class SubEventController {
-  static async #verifyAccess(eventId, clerkId, email, requireEdit = false) {
+  static async #verifyAccess(eventId: number, clerkId: string, email: string | null, requireEdit: boolean = false): Promise<Event> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -27,12 +43,12 @@ export default class SubEventController {
     throw createError({ statusCode: 403, statusMessage: 'You do not have access to this event' })
   }
 
-  static async listSubEvents(eventId, clerkId, email) {
+  static async listSubEvents(eventId: number, clerkId: string, email: string): Promise<Record<string, unknown>[]> {
     await this.#verifyAccess(eventId, clerkId, email)
-    return (await SubEventRepository.findByEventId(eventId)).map((se) => se.toJSON())
+    return (await SubEventRepository.findByEventId(eventId)).map((se: SubEvent) => se.toJSON())
   }
 
-  static async createSubEvent(eventId, clerkId, { title, description, startTime, endTime, location }) {
+  static async createSubEvent(eventId: number, clerkId: string, { title, description, startTime, endTime, location }: CreateSubEventParams): Promise<Record<string, unknown>> {
     await this.#verifyAccess(eventId, clerkId, null, true)
 
     if (!title || !title.trim()) {
@@ -56,7 +72,7 @@ export default class SubEventController {
     return saved.toJSON()
   }
 
-  static async updateSubEvent(subEventId, clerkId, updates) {
+  static async updateSubEvent(subEventId: number, clerkId: string, updates: UpdateSubEventParams): Promise<Record<string, unknown>> {
     const subEvent = await SubEventRepository.findById(subEventId)
     if (!subEvent) {
       throw createError({ statusCode: 404, statusMessage: 'Sub-event not found' })
@@ -79,7 +95,7 @@ export default class SubEventController {
     return saved.toJSON()
   }
 
-  static async deleteSubEvent(subEventId, clerkId) {
+  static async deleteSubEvent(subEventId: number, clerkId: string): Promise<void> {
     const subEvent = await SubEventRepository.findById(subEventId)
     if (!subEvent) {
       throw createError({ statusCode: 404, statusMessage: 'Sub-event not found' })
@@ -89,7 +105,7 @@ export default class SubEventController {
     await SubEventRepository.delete(subEventId)
   }
 
-  static async reorderSubEvents(eventId, clerkId, orderedIds) {
+  static async reorderSubEvents(eventId: number, clerkId: string, orderedIds: number[]): Promise<Record<string, unknown>[]> {
     await this.#verifyAccess(eventId, clerkId, null, true)
 
     if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
@@ -97,6 +113,6 @@ export default class SubEventController {
     }
 
     await SubEventRepository.reorder(eventId, orderedIds)
-    return (await SubEventRepository.findByEventId(eventId)).map((se) => se.toJSON())
+    return (await SubEventRepository.findByEventId(eventId)).map((se: SubEvent) => se.toJSON())
   }
 }

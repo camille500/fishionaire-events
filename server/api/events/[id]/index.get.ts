@@ -1,7 +1,8 @@
+import type { H3Event } from 'h3'
 import UserController from '../../../controllers/userController'
 import EventController from '../../../controllers/eventController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated, userId } = event.context.auth()
 
   if (!isAuthenticated) {

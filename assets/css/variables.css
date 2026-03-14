@@ -17,8 +17,8 @@
   --color-text-secondary: #4a4a5a;
   --color-text-muted: #787890;
   --color-text-inverse: #ffffff;
-  --color-border: rgba(0, 0, 0, 0.1);
-  --color-border-light: rgba(0, 0, 0, 0.06);
+  --color-border: rgba(0, 0, 0, 0.12);
+  --color-border-light: rgba(0, 0, 0, 0.08);
   --color-success: #00b894;
   --color-warning: #ff9f43;
   --color-error: #ff6b6b;

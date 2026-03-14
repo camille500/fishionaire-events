@@ -12,7 +12,7 @@ export default function useSubscription() {
   const cancelAtPeriodEnd = computed(() => subscription.value?.cancelAtPeriodEnd || false)
   const currentPeriodEnd = computed(() => subscription.value?.currentPeriodEnd || null)
 
-  async function checkout(newTier) {
+  async function checkout(newTier: string) {
     const result = await $fetch('/api/subscriptions/checkout', {
       method: 'POST',
       body: { tier: newTier },
@@ -33,7 +33,7 @@ export default function useSubscription() {
     return result
   }
 
-  async function upgradeEvent(eventId, eventTier) {
+  async function upgradeEvent(eventId: string, eventTier: string) {
     const result = await $fetch('/api/payments/event-upgrade', {
       method: 'POST',
       body: { eventId, tier: eventTier },

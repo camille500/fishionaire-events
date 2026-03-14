@@ -10,26 +10,53 @@ import SubscriptionController from './subscriptionController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
 import { uploadImage, deleteImage } from '../utils/s3'
 
+type EventType = 'birthday' | 'wedding' | 'baby_shower' | 'dinner' | 'corporate' | 'other'
+type Tier = 'free' | 'standard' | 'pro'
+
+interface WizardData {
+  eventType?: EventType
+  eventDate?: string
+  location?: string
+  subEvents?: Array<{ title: string }>
+}
+
+interface UpdateEventParams {
+  title?: string
+  description?: string | null
+  eventType?: EventType | null
+  eventDate?: string | null
+  eventEndDate?: string | null
+  location?: string | null
+  maxGuests?: number | null
+  isPrivate?: boolean
+  features?: Record<string, boolean>
+}
+
 export default class EventController {
-  static async listUserEvents(clerkId, email) {
+  static async listUserEvents(clerkId: string, email: string): Promise<{
+    owned: Record<string, unknown>[]
+    coOrganizing: Record<string, unknown>[]
+    invited: Record<string, unknown>[]
+    archived: Record<string, unknown>[]
+  }> {
     const ownedEvents = await EventRepository.findByOwner(clerkId)
     const invitedResults = await EventRepository.findByInviteeEmail(email.toLowerCase())
     const coOrgResults = await EventMemberRepository.findCoOrganizedEvents(clerkId)
 
     const owned = await Promise.all(
-      ownedEvents.map(async (event) => {
+      ownedEvents.map(async (event: Event) => {
         const invitationCount = await EventRepository.getInvitationCount(event.id)
         return { ...event.toJSON(), invitationCount }
       })
     )
 
-    const invited = invitedResults.map(({ event, status }) => ({
+    const invited = invitedResults.map(({ event, status }: { event: Event, status: string }) => ({
       ...event.toJSON(),
       status,
     }))
 
     const coOrganizing = await Promise.all(
-      coOrgResults.map(async ({ event }) => {
+      coOrgResults.map(async ({ event }: { event: Record<string, unknown> }) => {
         const e = Event.fromJSON(event)
         const invitationCount = await EventRepository.getInvitationCount(e.id)
         return { ...e.toJSON(), invitationCount }
@@ -37,19 +64,25 @@ export default class EventController {
     )
 
     const archivedEvents = await EventRepository.findArchivedByOwner(clerkId)
-    const archived = archivedEvents.map((event) => event.toJSON())
+    const archived = archivedEvents.map((event: Event) => event.toJSON())
 
     return { owned, coOrganizing, invited, archived }
   }
 
-  static async createEvent(clerkId, title, requestedTier = 'free', templateId = null, wizardData = {}) {
+  static async createEvent(
+    clerkId: string,
+    title: string,
+    requestedTier: Tier = 'free',
+    templateId: number | null = null,
+    wizardData: WizardData = {}
+  ): Promise<Record<string, unknown>> {
     if (!title || !title.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'Title is required' })
     }
 
     const { tier, requiresPayment, priceCents } = await SubscriptionController.resolveEventTier(clerkId, requestedTier)
 
-    let templateData = {}
+    let templateData: Record<string, unknown> = {}
     if (templateId) {
       const { default: EventTemplateRepository } = await import('../repositories/eventTemplateRepository')
       const template = await EventTemplateRepository.findById(templateId)
@@ -102,7 +135,7 @@ export default class EventController {
       if (template && template.subEventTemplates?.length > 0) {
         const SubEvent = (await import('../entities/SubEvent')).default
         await SubEventRepository.bulkCreate(
-          template.subEventTemplates.map((st, index) => ({
+          template.subEventTemplates.map((st: { title: string, description?: string | null }, index: number) => ({
             eventId: saved.id,
             title: st.title,
             description: st.description || null,
@@ -115,7 +148,7 @@ export default class EventController {
     return { ...saved.toJSON(), requiresPayment, priceCents }
   }
 
-  static async getEvent(eventId, clerkId, email) {
+  static async getEvent(eventId: number, clerkId: string, email: string): Promise<Record<string, unknown>> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -136,8 +169,10 @@ export default class EventController {
     throw createError({ statusCode: 403, statusMessage: 'You do not have access to this event' })
   }
 
-  static async updateEvent(eventId, clerkId, { title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, features }) {
-    const validEventTypes = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
+  static async updateEvent(eventId: number, clerkId: string, {
+    title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, features
+  }: UpdateEventParams): Promise<Record<string, unknown>> {
+    const validEventTypes: EventType[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
     const event = await EventRepository.findById(eventId)
     if (!event) {
@@ -199,7 +234,7 @@ export default class EventController {
     return saved.toJSON()
   }
 
-  static async inviteToEvent(eventId, inviterClerkId, inviteeEmail) {
+  static async inviteToEvent(eventId: number, inviterClerkId: string, inviteeEmail: string): Promise<Record<string, unknown>> {
     if (!inviteeEmail || !inviteeEmail.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'Email is required' })
     }
@@ -227,7 +262,7 @@ export default class EventController {
     return saved.toJSON()
   }
 
-  static async archiveEvent(eventId, clerkId) {
+  static async archiveEvent(eventId: number, clerkId: string): Promise<{ success: boolean }> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -241,7 +276,7 @@ export default class EventController {
     return { success: true }
   }
 
-  static async restoreEvent(eventId, clerkId) {
+  static async restoreEvent(eventId: number, clerkId: string): Promise<{ success: boolean }> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -255,7 +290,7 @@ export default class EventController {
     return { success: true }
   }
 
-  static async duplicateEvent(eventId, clerkId) {
+  static async duplicateEvent(eventId: number, clerkId: string): Promise<Record<string, unknown>> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -291,7 +326,7 @@ export default class EventController {
     const subEvents = await SubEventRepository.findByEventId(eventId)
     if (subEvents.length > 0) {
       await SubEventRepository.bulkCreate(
-        subEvents.map((se) => ({
+        subEvents.map((se: { title: string, description: string | null, location: string | null, sortOrder: number }) => ({
           eventId: saved.id,
           title: se.title,
           description: se.description,
@@ -305,7 +340,7 @@ export default class EventController {
     const timelineItems = await TimelineItemRepository.findByEventId(eventId)
     if (timelineItems.length > 0) {
       await TimelineItemRepository.bulkCreate(
-        timelineItems.map((item) => ({
+        timelineItems.map((item: { title: string, description: string | null, location: string | null, startTime: Date | null, endTime: Date | null, sortOrder: number }) => ({
           eventId: saved.id,
           title: item.title,
           description: item.description,
@@ -320,7 +355,7 @@ export default class EventController {
     return saved.toJSON()
   }
 
-  static async uploadCoverImage(eventId, clerkId, buffer, contentType) {
+  static async uploadCoverImage(eventId: number, clerkId: string, buffer: Buffer, contentType: string): Promise<{ coverImageUrl: string }> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -344,7 +379,7 @@ export default class EventController {
     return { coverImageUrl: saved.coverImageUrl }
   }
 
-  static async deleteCoverImage(eventId, clerkId) {
+  static async deleteCoverImage(eventId: number, clerkId: string): Promise<{ coverImageUrl: null }> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })

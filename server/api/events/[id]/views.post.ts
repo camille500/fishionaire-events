@@ -1,6 +1,7 @@
+import type { H3Event } from 'h3'
 import AnalyticsController from '../../../controllers/analyticsController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const eventId = parseInt(getRouterParam(event, 'id'))
   if (isNaN(eventId)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })

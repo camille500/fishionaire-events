@@ -3,7 +3,7 @@ defineProps({
   variant: {
     type: String,
     default: 'light',
-    validator: (v) => ['light', 'dark'].includes(v),
+    validator: (v) => ['light', 'dark', 'elevated'].includes(v),
   },
   padding: {
     type: String,
@@ -38,10 +38,10 @@ defineProps({
 }
 
 .glass-card--light {
-  background: var(--glass-bg);
+  background: var(--color-surface);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
@@ -52,6 +52,12 @@ defineProps({
   border: 1px solid var(--glass-dark-border);
 }
 
+.glass-card--elevated {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--card-shadow);
+}
+
 .glass-card--pad-none { padding: 0; }
 .glass-card--pad-sm { padding: var(--space-4); }
 .glass-card--pad-md { padding: var(--space-6); }
@@ -60,7 +66,7 @@ defineProps({
 .glass-card--hover:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(0, 184, 148, 0.15);
+  border-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 /* Gradient border glow on hover */

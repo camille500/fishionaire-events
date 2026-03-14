@@ -1,6 +1,7 @@
+import type { H3Event } from 'h3'
 import TimelineController from '../../../../controllers/timelineController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated, userId } = event.context.auth()
   if (!isAuthenticated) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
@@ -11,6 +12,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }
 
-  const { orderedIds } = await readBody(event)
+  const { orderedIds } = await readBody<{ orderedIds: number[] }>(event)
   return TimelineController.reorderTimeline(eventId, userId, orderedIds)
 })

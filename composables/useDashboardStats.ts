@@ -1,4 +1,23 @@
-export function useDashboardStats(events) {
+import type { Ref } from 'vue'
+
+interface EventItem {
+  date?: string
+  invitationCount?: number
+}
+
+interface EventsData {
+  owned: EventItem[]
+  invited: EventItem[]
+}
+
+interface StatItem {
+  icon: string
+  label: string
+  value: number | string
+  color: string
+}
+
+export function useDashboardStats(events: Ref<EventsData | null>) {
   const { t } = useI18n()
 
   const stats = computed(() => {

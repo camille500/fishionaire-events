@@ -818,6 +818,18 @@
       "noTimeline": "No timeline yet",
       "noTimelineDesc": "Create a detailed timeline so guests know what to expect.",
       "upgradeToPro": "Upgrade to Pro"
+    },
+    "validation": {
+      "titleRequired": "Give your event a name",
+      "endDateAfterStart": "End date must be after start date",
+      "maxGuestsPositive": "Number of guests must be at least 1"
+    },
+    "datePicker": {
+      "selectDate": "Pick a date",
+      "selectEndDate": "Pick an end date",
+      "time": "Time",
+      "hour": "Hour",
+      "minute": "Minute"
     }
   },
   "wizard": {

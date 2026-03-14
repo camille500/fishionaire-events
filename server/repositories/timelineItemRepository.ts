@@ -1,8 +1,18 @@
 import { usePrisma } from '../database'
 import TimelineItem from '../entities/TimelineItem'
 
+interface TimelineItemCreateData {
+  eventId: string
+  title: string
+  description?: string | null
+  location?: string | null
+  startTime: Date | string
+  endTime?: Date | string | null
+  sortOrder?: number
+}
+
 export default class TimelineItemRepository {
-  static async create(item) {
+  static async create(item: TimelineItem): Promise<TimelineItem> {
     const prisma = usePrisma()
     const data = item.toJSON()
     const row = await prisma.timelineItem.create({
@@ -19,7 +29,7 @@ export default class TimelineItemRepository {
     return TimelineItem.fromJSON(row)
   }
 
-  static async findByEventId(eventId) {
+  static async findByEventId(eventId: string): Promise<TimelineItem[]> {
     const prisma = usePrisma()
     const rows = await prisma.timelineItem.findMany({
       where: { eventId },
@@ -28,14 +38,14 @@ export default class TimelineItemRepository {
     return rows.map((row) => TimelineItem.fromJSON(row))
   }
 
-  static async findById(id) {
+  static async findById(id: string): Promise<TimelineItem | null> {
     const prisma = usePrisma()
     const row = await prisma.timelineItem.findUnique({ where: { id } })
     if (!row) return null
     return TimelineItem.fromJSON(row)
   }
 
-  static async update(item) {
+  static async update(item: TimelineItem): Promise<TimelineItem> {
     const prisma = usePrisma()
     const data = item.toJSON()
     const row = await prisma.timelineItem.update({
@@ -53,12 +63,12 @@ export default class TimelineItemRepository {
     return TimelineItem.fromJSON(row)
   }
 
-  static async delete(id) {
+  static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.timelineItem.delete({ where: { id } })
   }
 
-  static async reorder(eventId, orderedIds) {
+  static async reorder(eventId: string, orderedIds: string[]): Promise<void> {
     const prisma = usePrisma()
     await prisma.$transaction(
       orderedIds.map((id, index) =>
@@ -70,7 +80,7 @@ export default class TimelineItemRepository {
     )
   }
 
-  static async bulkCreate(items) {
+  static async bulkCreate(items: TimelineItemCreateData[]): Promise<TimelineItem[]> {
     const prisma = usePrisma()
     const rows = await Promise.all(
       items.map((item) =>

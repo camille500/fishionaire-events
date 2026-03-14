@@ -818,6 +818,18 @@
       "noTimeline": "Nog geen tijdlijn",
       "noTimelineDesc": "Maak een gedetailleerde tijdlijn zodat gasten weten wat ze kunnen verwachten.",
       "upgradeToPro": "Upgrade naar Pro"
+    },
+    "validation": {
+      "titleRequired": "Geef je evenement een naam",
+      "endDateAfterStart": "Einddatum moet na de startdatum liggen",
+      "maxGuestsPositive": "Aantal gasten moet minimaal 1 zijn"
+    },
+    "datePicker": {
+      "selectDate": "Kies een datum",
+      "selectEndDate": "Kies een einddatum",
+      "time": "Tijd",
+      "hour": "Uur",
+      "minute": "Minuut"
     }
   },
   "wizard": {

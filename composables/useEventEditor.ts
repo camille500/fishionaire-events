@@ -1,6 +1,22 @@
-const EDITOR_KEY = Symbol('eventEditor')
+interface EventForm {
+  title: string
+  description: string
+  eventType: string
+  eventDate: string
+  eventEndDate: string
+  location: string
+  maxGuests: string | number
+  isPrivate: boolean
+}
 
-export function useEventEditorProvider(eventId) {
+interface CompletionItem {
+  key: string
+  done: boolean
+}
+
+const EDITOR_KEY: symbol = Symbol('eventEditor')
+
+export function useEventEditorProvider(eventId: string) {
   const { t } = useI18n()
   const route = useRoute()
 
@@ -10,16 +26,16 @@ export function useEventEditorProvider(eventId) {
   const isOwner = computed(() => role.value === 'owner')
   const canEdit = computed(() => role.value === 'owner' || role.value === 'co_organizer')
 
-  const eventTypes = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
+  const eventTypes: string[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
-  function toLocalDatetime(val) {
+  function toLocalDatetime(val: string | null | undefined): string {
     if (!val) return ''
     const d = new Date(val)
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
     return d.toISOString().slice(0, 16)
   }
 
-  function initForm(data) {
+  function initForm(data: Record<string, unknown> | null | undefined): EventForm {
     return {
       title: data?.title || '',
       description: data?.description || '',
@@ -41,12 +57,12 @@ export function useEventEditorProvider(eventId) {
   const saving = ref(false)
   const saved = ref(false)
   const saveError = ref('')
-  let autoSaveTimer = null
-  let lastSaved = JSON.stringify(form)
+  let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+  let lastSaved: string = JSON.stringify(form)
 
   const isDirty = computed(() => JSON.stringify(form) !== lastSaved)
 
-  async function save() {
+  async function save(): Promise<void> {
     if (!form.title.trim()) return
 
     saving.value = true
@@ -90,6 +106,39 @@ export function useEventEditorProvider(eventId) {
 
   onUnmounted(() => clearTimeout(autoSaveTimer))
 
+  // Touch-based validation
+  const touched = reactive<Record<string, boolean>>({
+    title: false,
+    eventDate: false,
+    eventEndDate: false,
+    location: false,
+    description: false,
+    maxGuests: false,
+  })
+
+  function markTouched(field: string): void {
+    touched[field] = true
+  }
+
+  const errors = computed(() => {
+    const errs: Record<string, string> = {}
+    if (touched.title && !form.title.trim()) {
+      errs.title = t('editor.validation.titleRequired')
+    }
+    if (touched.eventEndDate && form.eventDate && form.eventEndDate) {
+      if (new Date(form.eventEndDate) <= new Date(form.eventDate)) {
+        errs.eventEndDate = t('editor.validation.endDateAfterStart')
+      }
+    }
+    if (touched.maxGuests && form.maxGuests) {
+      const val = parseInt(String(form.maxGuests))
+      if (isNaN(val) || val < 1) {
+        errs.maxGuests = t('editor.validation.maxGuestsPositive')
+      }
+    }
+    return errs
+  })
+
   // Completion tracking
   const completionItems = computed(() => {
     const items = [
@@ -122,6 +171,9 @@ export function useEventEditorProvider(eventId) {
     saveError,
     isDirty,
     save,
+    touched,
+    markTouched,
+    errors,
     completionItems,
     completionPercent,
   }

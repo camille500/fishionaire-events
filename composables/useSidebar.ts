@@ -3,7 +3,7 @@ export function useSidebar() {
   const mobileOpen = ref(false)
   const isMobile = useMediaQuery('(max-width: 768px)')
 
-  function toggle() {
+  function toggle(): void {
     if (isMobile.value) {
       mobileOpen.value = !mobileOpen.value
     } else {
@@ -11,19 +11,19 @@ export function useSidebar() {
     }
   }
 
-  function collapse() {
+  function collapse(): void {
     collapsed.value = true
   }
 
-  function expand() {
+  function expand(): void {
     collapsed.value = false
   }
 
-  function openMobile() {
+  function openMobile(): void {
     mobileOpen.value = true
   }
 
-  function closeMobile() {
+  function closeMobile(): void {
     mobileOpen.value = false
   }
 

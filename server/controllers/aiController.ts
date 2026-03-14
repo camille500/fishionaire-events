@@ -1,9 +1,13 @@
 import OpenAI from 'openai'
 
-const VALID_TONES = ['formeel', 'vriendelijk', 'speels', 'professioneel', 'feestelijk', 'casual']
-const VALID_LENGTHS = ['kort', 'middel', 'lang']
+type Tone = 'formeel' | 'vriendelijk' | 'speels' | 'professioneel' | 'feestelijk' | 'casual'
+type Length = 'kort' | 'middel' | 'lang'
+type Language = 'nl' | 'en'
 
-const TONE_INSTRUCTIONS = {
+const VALID_TONES: Tone[] = ['formeel', 'vriendelijk', 'speels', 'professioneel', 'feestelijk', 'casual']
+const VALID_LENGTHS: Length[] = ['kort', 'middel', 'lang']
+
+const TONE_INSTRUCTIONS: Record<Tone, string> = {
   formeel: 'Write in a formal, polished tone. Use proper language and a respectful, professional style.',
   vriendelijk: 'Write in a warm, friendly tone. Be inviting and approachable, like talking to a good friend.',
   speels: 'Write in a playful, fun tone. Be creative, use humor and make it exciting to read.',
@@ -12,22 +16,41 @@ const TONE_INSTRUCTIONS = {
   casual: 'Write in a casual, relaxed tone. Be laid-back, conversational and easy-going.',
 }
 
-const LENGTH_INSTRUCTIONS = {
+const LENGTH_INSTRUCTIONS: Record<Length, string> = {
   kort: 'Keep it concise, around 2-3 sentences (max 50 words).',
   middel: 'Write a medium-length description, around 4-6 sentences (approximately 100-120 words).',
   lang: 'Write a detailed, rich description of around 8-12 sentences (approximately 200-250 words).',
 }
 
+interface SystemPromptParams {
+  tone: Tone
+  language: Language
+  length: Length
+  eventType: string
+  includeEmojis: boolean
+}
+
+interface GenerateDescriptionParams {
+  prompt: string
+  tone?: Tone
+  language?: Language
+  length?: Length
+  eventType?: string
+  includeEmojis?: boolean
+  refineInstruction?: string
+  previousText?: string
+}
+
 export default class AiController {
-  static #getClient() {
+  static #getClient(): OpenAI {
     const config = useRuntimeConfig()
     if (!config.openaiApiKey) {
       throw createError({ statusCode: 502, statusMessage: 'AI service is not configured' })
     }
-    return new OpenAI({ apiKey: config.openaiApiKey })
+    return new OpenAI({ apiKey: config.openaiApiKey as string })
   }
 
-  static buildSystemPrompt({ tone, language, length, eventType, includeEmojis }) {
+  static buildSystemPrompt({ tone, language, length, eventType, includeEmojis }: SystemPromptParams): string {
     const languageInstruction = language === 'en'
       ? 'Write entirely in English.'
       : 'Write entirely in Dutch (Nederlands).'
@@ -58,7 +81,16 @@ export default class AiController {
     ].filter(Boolean).join('\n')
   }
 
-  static async *generateDescriptionStream({ prompt, tone = 'vriendelijk', language = 'nl', length = 'middel', eventType = '', includeEmojis = false, refineInstruction = '', previousText = '' }) {
+  static async *generateDescriptionStream({
+    prompt,
+    tone = 'vriendelijk',
+    language = 'nl',
+    length = 'middel',
+    eventType = '',
+    includeEmojis = false,
+    refineInstruction = '',
+    previousText = '',
+  }: GenerateDescriptionParams): AsyncGenerator<string> {
     if (!prompt || !prompt.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'A prompt is required' })
     }
@@ -74,7 +106,7 @@ export default class AiController {
     const client = this.#getClient()
     const systemPrompt = this.buildSystemPrompt({ tone, language, length, eventType, includeEmojis })
 
-    const messages = [
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt.trim() },
     ]
@@ -101,7 +133,7 @@ export default class AiController {
           yield content
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
       }

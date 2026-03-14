@@ -1,6 +1,7 @@
+import type { H3Event } from 'h3'
 import EventController from '../../../controllers/eventController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated, userId } = event.context.auth()
 
   if (!isAuthenticated) {
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'No image field found' })
   }
 
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   if (!allowedTypes.includes(file.type)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF' })
   }

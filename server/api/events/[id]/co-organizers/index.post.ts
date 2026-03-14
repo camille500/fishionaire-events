@@ -1,6 +1,7 @@
+import type { H3Event } from 'h3'
 import EventMemberController from '../../../../controllers/eventMemberController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated, userId } = event.context.auth()
   if (!isAuthenticated) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
@@ -11,7 +12,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }
 
-  const { email } = await readBody(event)
+  const { email } = await readBody<{ email: string }>(event)
   const result = await EventMemberController.addCoOrganizer(eventId, userId, email)
 
   setResponseStatus(event, 201)

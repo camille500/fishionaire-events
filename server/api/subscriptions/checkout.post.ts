@@ -1,14 +1,15 @@
+import type { H3Event } from 'h3'
 import { clerkClient } from '@clerk/nuxt/server'
 import SubscriptionController from '../../controllers/subscriptionController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated, userId } = event.context.auth()
 
   if (!isAuthenticated) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const { tier } = await readBody(event)
+  const { tier } = await readBody<{ tier: string }>(event)
 
   const clerkUser = await clerkClient(event).users.getUser(userId)
   const email = clerkUser.emailAddresses[0]?.emailAddress

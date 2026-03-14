@@ -1,17 +1,17 @@
 const STORAGE_KEY = 'fishionaire-onboarding-dismissed'
 
 export function useOnboarding() {
-  const dismissed = useLocalStorage(STORAGE_KEY, {})
+  const dismissed = useLocalStorage<Record<string, boolean>>(STORAGE_KEY, {})
 
-  function showTooltip(key) {
+  function showTooltip(key: string): boolean {
     return !dismissed.value[key]
   }
 
-  function dismissTooltip(key) {
+  function dismissTooltip(key: string): void {
     dismissed.value[key] = true
   }
 
-  function resetAll() {
+  function resetAll(): void {
     dismissed.value = {}
   }
 

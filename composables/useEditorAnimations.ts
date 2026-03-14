@@ -1,7 +1,7 @@
 import { gsap } from 'gsap'
 
 export function useEditorAnimations() {
-  function animateTabChange(el, direction = 'right') {
+  function animateTabChange(el: HTMLElement, direction: string = 'right'): void {
     const xFrom = direction === 'right' ? 20 : -20
 
     gsap.fromTo(el, {
@@ -15,7 +15,7 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateNewItem(el) {
+  function animateNewItem(el: HTMLElement): void {
     gsap.fromTo(el, {
       opacity: 0,
       y: 8,
@@ -29,7 +29,7 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateReorderStart(el) {
+  function animateReorderStart(el: HTMLElement): void {
     gsap.to(el, {
       scale: 1.02,
       boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
@@ -38,7 +38,7 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateReorderEnd(el) {
+  function animateReorderEnd(el: HTMLElement): void {
     gsap.to(el, {
       scale: 1,
       boxShadow: 'none',
@@ -47,7 +47,7 @@ export function useEditorAnimations() {
     })
   }
 
-  function staggerIn(container, selector, delay = 0.05) {
+  function staggerIn(container: HTMLElement | null, selector: string, delay: number = 0.05): void {
     const items = container?.querySelectorAll(selector)
     if (!items?.length) return
 
@@ -63,7 +63,7 @@ export function useEditorAnimations() {
     })
   }
 
-  function pulseElement(el) {
+  function pulseElement(el: HTMLElement): void {
     gsap.fromTo(el, {
       scale: 1,
     }, {
@@ -75,6 +75,20 @@ export function useEditorAnimations() {
     })
   }
 
+  function revealField(el: HTMLElement): void {
+    gsap.fromTo(el, {
+      opacity: 0,
+      y: -8,
+      maxHeight: 0,
+    }, {
+      opacity: 1,
+      y: 0,
+      maxHeight: 200,
+      duration: 0.4,
+      ease: 'power2.out',
+    })
+  }
+
   return {
     animateTabChange,
     animateNewItem,
@@ -82,5 +96,6 @@ export function useEditorAnimations() {
     animateReorderEnd,
     staggerIn,
     pulseElement,
+    revealField,
   }
 }

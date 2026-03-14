@@ -1,8 +1,18 @@
 import { usePrisma } from '../database'
 import SubEventRsvp from '../entities/SubEventRsvp'
 
+interface RsvpWithSubEventTitle extends ReturnType<SubEventRsvp['toJSON']> {
+  subEventTitle: string
+}
+
+interface RsvpCounts {
+  accepted: number
+  declined: number
+  pending: number
+}
+
 export default class SubEventRsvpRepository {
-  static async upsert(subEventId, guestEmail, status) {
+  static async upsert(subEventId: string, guestEmail: string, status: string): Promise<SubEventRsvp> {
     const prisma = usePrisma()
     const row = await prisma.subEventRsvp.upsert({
       where: {
@@ -14,7 +24,7 @@ export default class SubEventRsvpRepository {
     return SubEventRsvp.fromJSON(row)
   }
 
-  static async findBySubEventId(subEventId) {
+  static async findBySubEventId(subEventId: string): Promise<SubEventRsvp[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventRsvp.findMany({
       where: { subEventId },
@@ -23,7 +33,7 @@ export default class SubEventRsvpRepository {
     return rows.map((row) => SubEventRsvp.fromJSON(row))
   }
 
-  static async findByEventIdAndEmail(eventId, email) {
+  static async findByEventIdAndEmail(eventId: string, email: string): Promise<RsvpWithSubEventTitle[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventRsvp.findMany({
       where: {
@@ -38,7 +48,7 @@ export default class SubEventRsvpRepository {
     }))
   }
 
-  static async getCountsBySubEventId(subEventId) {
+  static async getCountsBySubEventId(subEventId: string): Promise<RsvpCounts> {
     const prisma = usePrisma()
     const [accepted, declined, pending] = await Promise.all([
       prisma.subEventRsvp.count({ where: { subEventId, status: 'accepted' } }),

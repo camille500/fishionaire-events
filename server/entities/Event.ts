@@ -1,7 +1,90 @@
-import { getFeaturesForTier } from '../utils/tierFeatures.js'
+import { getFeaturesForTier } from '../utils/tierFeatures'
+
+export interface EventFeatures {
+  rsvp: boolean
+  datePolling: boolean
+  wishlist: boolean
+  secretChat: boolean
+  photoGallery: boolean
+  budgetTracker: boolean
+  seatingArrangements: boolean
+  timeline: boolean
+  customTheme: boolean
+  aiAssistant: boolean
+  analytics: boolean
+}
+
+export interface EventData {
+  id: string | null
+  title: string
+  description: string | null
+  eventType: string | null
+  eventDate: string | Date | null
+  eventEndDate: string | Date | null
+  location: string | null
+  maxGuests: number | null
+  isPrivate: boolean
+  tier: string
+  features: EventFeatures
+  coverImageUrl: string | null
+  coverImageKey: string | null
+  ownerClerkId: string
+  archivedAt: string | Date | null
+  createdAt: Date | string
+  updatedAt: Date | string
+}
+
+export interface EventJSON {
+  id?: string | null
+  title: string
+  description?: string | null
+  eventType?: string | null
+  event_type?: string | null
+  eventDate?: string | Date | null
+  event_date?: string | Date | null
+  eventEndDate?: string | Date | null
+  event_end_date?: string | Date | null
+  location?: string | null
+  maxGuests?: number | null
+  max_guests?: number | null
+  isPrivate?: boolean
+  is_private?: boolean
+  tier?: string
+  features?: Partial<EventFeatures>
+  coverImageUrl?: string | null
+  cover_image_url?: string | null
+  coverImageKey?: string | null
+  cover_image_key?: string | null
+  ownerClerkId?: string
+  owner_clerk_id?: string
+  archivedAt?: string | Date | null
+  archived_at?: string | Date | null
+  createdAt?: Date | string
+  created_at?: Date | string
+  updatedAt?: Date | string
+  updated_at?: Date | string
+}
 
 export default class Event {
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, tier, features, coverImageUrl, coverImageKey, ownerClerkId, archivedAt, createdAt, updatedAt }) {
+  id: string | null
+  title: string
+  description: string | null
+  eventType: string | null
+  eventDate: string | Date | null
+  eventEndDate: string | Date | null
+  location: string | null
+  maxGuests: number | null
+  isPrivate: boolean
+  tier: string
+  features: EventFeatures
+  coverImageUrl: string | null
+  coverImageKey: string | null
+  ownerClerkId: string
+  archivedAt: string | Date | null
+  createdAt: Date | string
+  updatedAt: Date | string
+
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, tier, features, coverImageUrl, coverImageKey, ownerClerkId, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -21,29 +104,29 @@ export default class Event {
     this.updatedAt = updatedAt || new Date()
   }
 
-  static fromJSON(data) {
+  static fromJSON(data: EventJSON): Event {
     return new Event({
-      id: data.id,
+      id: data.id ?? null,
       title: data.title,
-      description: data.description,
-      eventType: data.eventType || data.event_type,
-      eventDate: data.eventDate || data.event_date,
-      eventEndDate: data.eventEndDate || data.event_end_date,
-      location: data.location,
-      maxGuests: data.maxGuests || data.max_guests,
+      description: data.description ?? null,
+      eventType: data.eventType || data.event_type || null,
+      eventDate: data.eventDate || data.event_date || null,
+      eventEndDate: data.eventEndDate || data.event_end_date || null,
+      location: data.location ?? null,
+      maxGuests: data.maxGuests || data.max_guests || null,
       isPrivate: data.isPrivate ?? data.is_private ?? true,
-      tier: data.tier,
-      features: data.features,
-      coverImageUrl: data.coverImageUrl || data.cover_image_url,
-      coverImageKey: data.coverImageKey || data.cover_image_key,
-      ownerClerkId: data.ownerClerkId || data.owner_clerk_id,
+      tier: data.tier || 'free',
+      features: (data.features || {}) as EventFeatures,
+      coverImageUrl: data.coverImageUrl || data.cover_image_url || null,
+      coverImageKey: data.coverImageKey || data.cover_image_key || null,
+      ownerClerkId: (data.ownerClerkId || data.owner_clerk_id)!,
       archivedAt: data.archivedAt || data.archived_at || null,
-      createdAt: data.createdAt || data.created_at,
-      updatedAt: data.updatedAt || data.updated_at,
+      createdAt: data.createdAt || data.created_at || new Date(),
+      updatedAt: data.updatedAt || data.updated_at || new Date(),
     })
   }
 
-  toJSON() {
+  toJSON(): EventData {
     return {
       id: this.id,
       title: this.title,

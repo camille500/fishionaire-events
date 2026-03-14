@@ -4,7 +4,7 @@ import EventRepository from '../repositories/eventRepository'
 import { usePrisma } from '../database'
 
 export default class EventMemberController {
-  static async addCoOrganizer(eventId, ownerClerkId, email) {
+  static async addCoOrganizer(eventId: number, ownerClerkId: string, email: string): Promise<Record<string, unknown>> {
     if (!email || !email.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'Email is required' })
     }
@@ -45,7 +45,7 @@ export default class EventMemberController {
     return saved.toJSON()
   }
 
-  static async removeCoOrganizer(eventId, ownerClerkId, targetClerkId) {
+  static async removeCoOrganizer(eventId: number, ownerClerkId: string, targetClerkId: string): Promise<void> {
     const ownerMember = await EventMemberRepository.findByEventIdAndUserId(eventId, ownerClerkId)
     if (!ownerMember || !ownerMember.isOwner) {
       throw createError({ statusCode: 403, statusMessage: 'Only the event owner can remove co-organizers' })
@@ -59,13 +59,13 @@ export default class EventMemberController {
     await EventMemberRepository.delete(eventId, targetClerkId)
   }
 
-  static async listMembers(eventId, clerkId) {
+  static async listMembers(eventId: number, clerkId: string): Promise<Record<string, unknown>[]> {
     const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'Only organizers can view members' })
     }
 
     const members = await EventMemberRepository.findByEventId(eventId)
-    return members.map((m) => m.toJSON())
+    return members.map((m: EventMember) => m.toJSON())
   }
 }

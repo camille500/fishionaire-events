@@ -1,13 +1,25 @@
+import type { H3Event } from 'h3'
 import AiController from '../../controllers/aiController'
 
-export default defineEventHandler(async (event) => {
+interface GenerateDescriptionBody {
+  prompt: string
+  tone: string
+  language: string
+  length: string
+  eventType: string
+  includeEmojis: boolean
+  refineInstruction?: string
+  previousText?: string
+}
+
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated } = event.context.auth()
 
   if (!isAuthenticated) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const { prompt, tone, language, length, eventType, includeEmojis, refineInstruction, previousText } = await readBody(event)
+  const { prompt, tone, language, length, eventType, includeEmojis, refineInstruction, previousText } = await readBody<GenerateDescriptionBody>(event)
 
   const stream = AiController.generateDescriptionStream({
     prompt,
@@ -27,8 +39,8 @@ export default defineEventHandler(async (event) => {
       for await (const chunk of stream) {
         await eventStream.push({ data: chunk })
       }
-    } catch (err) {
-      await eventStream.push({ event: 'error', data: err.statusMessage || 'An error occurred' })
+    } catch (err: unknown) {
+      await eventStream.push({ event: 'error', data: (err as { statusMessage?: string }).statusMessage || 'An error occurred' })
     } finally {
       await eventStream.close()
     }

@@ -4,8 +4,28 @@ import EventRepository from '../repositories/eventRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import { usePrisma } from '../database'
 
+interface RecordViewParams {
+  ip: string | null
+  userAgent: string | null
+  clerkId: string | null
+}
+
+interface RsvpBreakdown {
+  pending: number
+  accepted: number
+  declined: number
+}
+
+interface EventAnalytics {
+  totalViews: number
+  viewsOverTime: Array<{ date: string, count: number }>
+  rsvpBreakdown: RsvpBreakdown
+  invitationCount: number
+  acceptanceRate: number
+}
+
 export default class AnalyticsController {
-  static async recordView(eventId, { ip, userAgent, clerkId }) {
+  static async recordView(eventId: number, { ip, userAgent, clerkId }: RecordViewParams): Promise<EventView | null> {
     // Deduplicate: skip if same IP viewed in last 5 minutes
     const isRecent = await EventViewRepository.hasRecentView(eventId, ip)
     if (isRecent) return null
@@ -20,7 +40,7 @@ export default class AnalyticsController {
     return EventViewRepository.create(view)
   }
 
-  static async getEventAnalytics(eventId, clerkId) {
+  static async getEventAnalytics(eventId: number, clerkId: string): Promise<EventAnalytics> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -44,9 +64,9 @@ export default class AnalyticsController {
       EventRepository.getInvitationCount(eventId),
     ])
 
-    const rsvpBreakdown = { pending: 0, accepted: 0, declined: 0 }
-    rsvpCounts.forEach((r) => {
-      rsvpBreakdown[r.status] = r._count
+    const rsvpBreakdown: RsvpBreakdown = { pending: 0, accepted: 0, declined: 0 }
+    rsvpCounts.forEach((r: { status: string, _count: number }) => {
+      rsvpBreakdown[r.status as keyof RsvpBreakdown] = r._count
     })
 
     return {

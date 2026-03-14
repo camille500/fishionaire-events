@@ -1,8 +1,18 @@
 import { usePrisma } from '../database'
 import SubEvent from '../entities/SubEvent'
 
+interface SubEventCreateData {
+  eventId: string
+  title: string
+  description?: string | null
+  startTime?: Date | string | null
+  endTime?: Date | string | null
+  location?: string | null
+  sortOrder?: number
+}
+
 export default class SubEventRepository {
-  static async create(subEvent) {
+  static async create(subEvent: SubEvent): Promise<SubEvent> {
     const prisma = usePrisma()
     const data = subEvent.toJSON()
     const row = await prisma.subEvent.create({
@@ -19,7 +29,7 @@ export default class SubEventRepository {
     return SubEvent.fromJSON(row)
   }
 
-  static async findByEventId(eventId) {
+  static async findByEventId(eventId: string): Promise<SubEvent[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEvent.findMany({
       where: { eventId },
@@ -28,14 +38,14 @@ export default class SubEventRepository {
     return rows.map((row) => SubEvent.fromJSON(row))
   }
 
-  static async findById(id) {
+  static async findById(id: string): Promise<SubEvent | null> {
     const prisma = usePrisma()
     const row = await prisma.subEvent.findUnique({ where: { id } })
     if (!row) return null
     return SubEvent.fromJSON(row)
   }
 
-  static async update(subEvent) {
+  static async update(subEvent: SubEvent): Promise<SubEvent> {
     const prisma = usePrisma()
     const data = subEvent.toJSON()
     const row = await prisma.subEvent.update({
@@ -53,12 +63,12 @@ export default class SubEventRepository {
     return SubEvent.fromJSON(row)
   }
 
-  static async delete(id) {
+  static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.subEvent.delete({ where: { id } })
   }
 
-  static async reorder(eventId, orderedIds) {
+  static async reorder(eventId: string, orderedIds: string[]): Promise<void> {
     const prisma = usePrisma()
     await prisma.$transaction(
       orderedIds.map((id, index) =>
@@ -70,7 +80,7 @@ export default class SubEventRepository {
     )
   }
 
-  static async bulkCreate(subEvents) {
+  static async bulkCreate(subEvents: SubEventCreateData[]): Promise<SubEvent[]> {
     const prisma = usePrisma()
     const rows = await Promise.all(
       subEvents.map((se) =>

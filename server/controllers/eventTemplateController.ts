@@ -5,19 +5,22 @@ import SubEventRepository from '../repositories/subEventRepository'
 import TimelineItemRepository from '../repositories/timelineItemRepository'
 
 export default class EventTemplateController {
-  static async listTemplates(clerkId) {
+  static async listTemplates(clerkId: string): Promise<{
+    system: Record<string, unknown>[]
+    user: Record<string, unknown>[]
+  }> {
     const [system, user] = await Promise.all([
       EventTemplateRepository.findSystemTemplates(),
       EventTemplateRepository.findByOwner(clerkId),
     ])
 
     return {
-      system: system.map((t) => t.toJSON()),
-      user: user.map((t) => t.toJSON()),
+      system: system.map((t: EventTemplate) => t.toJSON()),
+      user: user.map((t: EventTemplate) => t.toJSON()),
     }
   }
 
-  static async saveAsTemplate(eventId, clerkId, name) {
+  static async saveAsTemplate(eventId: number, clerkId: string, name: string): Promise<Record<string, unknown>> {
     if (!name || !name.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'Template name is required' })
     }
@@ -41,7 +44,7 @@ export default class EventTemplateController {
         maxGuests: event.maxGuests,
         isPrivate: event.isPrivate,
       },
-      subEventTemplates: subEvents.map((se) => ({
+      subEventTemplates: subEvents.map((se: { title: string, description: string | null }) => ({
         title: se.title,
         description: se.description,
       })),
@@ -53,7 +56,7 @@ export default class EventTemplateController {
     return saved.toJSON()
   }
 
-  static async deleteTemplate(templateId, clerkId) {
+  static async deleteTemplate(templateId: number, clerkId: string): Promise<void> {
     const template = await EventTemplateRepository.findById(templateId)
     if (!template) {
       throw createError({ statusCode: 404, statusMessage: 'Template not found' })

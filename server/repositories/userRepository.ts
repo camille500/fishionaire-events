@@ -2,14 +2,14 @@ import { usePrisma } from '../database'
 import User from '../entities/User'
 
 export default class UserRepository {
-  static async findByClerkId(clerkId) {
+  static async findByClerkId(clerkId: string): Promise<User | null> {
     const prisma = usePrisma()
     const row = await prisma.user.findUnique({ where: { clerkId } })
     if (!row) return null
     return User.fromJSON(row)
   }
 
-  static async upsert(user) {
+  static async upsert(user: User): Promise<User> {
     const data = user.toJSON()
     const prisma = usePrisma()
     const row = await prisma.user.upsert({

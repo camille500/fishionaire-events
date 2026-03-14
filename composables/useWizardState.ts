@@ -1,7 +1,59 @@
-const WIZARD_KEY = Symbol('wizardState')
+interface WizardStep {
+  id: string
+  icon: string
+  slot: string
+}
+
+interface WizardSubEvent {
+  id: string
+  title: string
+  durationMinutes: number | null
+  description: string
+}
+
+interface WizardFormData {
+  selectedType: string
+  title: string
+  eventDate: string
+  location: string
+  description: string
+  coverImageUrl: string
+  coverImageKey: string
+  subEvents: WizardSubEvent[]
+  selectedTier: string
+}
+
+interface WizardDraft extends WizardFormData {
+  currentStep: number
+  startMode: string
+  aiPrefilled: boolean
+  savedAt: number | null
+}
+
+interface AiBuildResult {
+  eventType?: string
+  title?: string
+  description?: string
+  dateSuggestion?: { suggestedTime?: string }
+  activities?: Array<{ title: string, durationMinutes?: number, description?: string }>
+}
+
+interface WizardSubmissionData {
+  title: string
+  tier: string
+  eventType: string | null
+  eventDate: string | null
+  location: string | null
+  description: string | null
+  coverImageUrl: string | null
+  coverImageKey: string | null
+  subEvents: Array<{ title: string, durationMinutes: number | null }>
+}
+
+const WIZARD_KEY: symbol = Symbol('wizardState')
 const DRAFT_STORAGE_KEY = 'fishionaire-wizard-draft'
 
-const STEPS = [
+const STEPS: WizardStep[] = [
   { id: 'start', icon: 'i-lucide-rocket', slot: 'start' },
   { id: 'type', icon: 'i-lucide-sparkles', slot: 'type' },
   { id: 'info', icon: 'i-lucide-file-text', slot: 'info' },
@@ -10,9 +62,9 @@ const STEPS = [
   { id: 'review', icon: 'i-lucide-check-circle', slot: 'review' },
 ]
 
-const EVENT_TYPES = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
+const EVENT_TYPES: string[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
-function defaultFormData() {
+function defaultFormData(): WizardFormData {
   return {
     selectedType: '',
     title: '',
@@ -26,7 +78,7 @@ function defaultFormData() {
   }
 }
 
-function defaultState() {
+function defaultState(): WizardDraft {
   return {
     ...defaultFormData(),
     currentStep: 0,
@@ -59,10 +111,10 @@ export function useWizardStateProvider() {
   const currentStep = ref(0)
   const startMode = ref('') // 'manual' | 'ai'
   const aiPrefilled = ref(false)
-  const direction = ref(1) // 1 = forward, -1 = backward
+  const direction = ref<1 | -1>(1) // 1 = forward, -1 = backward
 
   // Touched fields for validation UX
-  const touched = reactive({
+  const touched = reactive<Record<string, boolean>>({
     title: false,
   })
 
@@ -96,7 +148,7 @@ export function useWizardStateProvider() {
   })
 
   // Step navigation
-  function next() {
+  function next(): boolean {
     if (!canProceed.value) return false
     if (currentStep.value < STEPS.length - 1) {
       direction.value = 1
@@ -106,7 +158,7 @@ export function useWizardStateProvider() {
     return false
   }
 
-  function prev() {
+  function prev(): boolean {
     if (currentStep.value > 0) {
       direction.value = -1
       currentStep.value--
@@ -115,7 +167,7 @@ export function useWizardStateProvider() {
     return false
   }
 
-  function goToStep(index) {
+  function goToStep(index: number): void {
     if (index >= 0 && index < STEPS.length) {
       direction.value = index > currentStep.value ? 1 : -1
       currentStep.value = index
@@ -146,8 +198,8 @@ export function useWizardStateProvider() {
   })
 
   // Draft save (debounced)
-  let draftTimer = null
-  function saveDraft() {
+  let draftTimer: ReturnType<typeof setTimeout> | null = null
+  function saveDraft(): void {
     clearTimeout(draftTimer)
     draftTimer = setTimeout(() => {
       savedDraft.value = {
@@ -160,7 +212,7 @@ export function useWizardStateProvider() {
     }, 500)
   }
 
-  function resumeDraft() {
+  function resumeDraft(): boolean {
     if (!savedDraft.value) return false
     const draft = savedDraft.value
     Object.assign(form, {
@@ -180,11 +232,11 @@ export function useWizardStateProvider() {
     return true
   }
 
-  function clearDraft() {
+  function clearDraft(): void {
     savedDraft.value = null
   }
 
-  function resetWizard() {
+  function resetWizard(): void {
     Object.assign(form, defaultFormData())
     currentStep.value = 0
     startMode.value = ''
@@ -204,7 +256,7 @@ export function useWizardStateProvider() {
   onUnmounted(() => clearTimeout(draftTimer))
 
   // Sub-event helpers
-  function addSubEvent() {
+  function addSubEvent(): void {
     form.subEvents.push({
       id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       title: '',
@@ -213,21 +265,21 @@ export function useWizardStateProvider() {
     })
   }
 
-  function removeSubEvent(index) {
+  function removeSubEvent(index: number): void {
     form.subEvents.splice(index, 1)
   }
 
-  function updateSubEvent(index, val) {
+  function updateSubEvent(index: number, val: WizardSubEvent): void {
     form.subEvents[index] = val
   }
 
   // Select event type + auto-advance
-  function selectType(type) {
+  function selectType(type: string): void {
     form.selectedType = type
   }
 
   // Populate form from AI build result
-  function populateFromAi(data) {
+  function populateFromAi(data: AiBuildResult): void {
     if (data.eventType) form.selectedType = data.eventType
     if (data.title) form.title = data.title
     if (data.description) form.description = data.description
@@ -247,7 +299,7 @@ export function useWizardStateProvider() {
   }
 
   // Build submission body
-  function getSubmissionData() {
+  function getSubmissionData(): WizardSubmissionData {
     return {
       title: form.title.trim(),
       tier: form.selectedTier,

@@ -7,14 +7,16 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'default',
-    validator: (v) => ['default', 'accent', 'success'].includes(v),
+    validator: (v) => ['default', 'accent', 'success', 'warning', 'error'].includes(v),
   },
 })
 
 const variantMap = {
-  default: { color: 'neutral', variant: 'soft' },
-  accent: { color: 'error', variant: 'solid' },
-  success: { color: 'success', variant: 'solid' },
+  default: { color: 'neutral', variant: 'subtle' },
+  accent: { color: 'primary', variant: 'soft' },
+  success: { color: 'success', variant: 'soft' },
+  warning: { color: 'warning', variant: 'soft' },
+  error: { color: 'error', variant: 'soft' },
 }
 
 const badgeProps = computed(() => variantMap[props.variant] || variantMap.default)

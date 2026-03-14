@@ -1,7 +1,8 @@
 <script setup>
 const { t } = useI18n()
-const { form, eventData, eventTypes } = useEventEditor()
+const { form, eventData, eventTypes, errors, touched, markTouched } = useEventEditor()
 const { icon } = useEventTheme(computed(() => form.eventType))
+const { staggerIn } = useEditorAnimations()
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
 const {
@@ -19,10 +20,32 @@ function acceptTitle(title) {
   form.title = title
   titleSuggestions.value = []
 }
+
+// Auto-resize description
+const descriptionRef = ref(null)
+
+function autoResize() {
+  const el = descriptionRef.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = Math.max(80, el.scrollHeight) + 'px'
+}
+
+watch(() => form.description, () => nextTick(autoResize))
+
+onMounted(() => {
+  nextTick(autoResize)
+})
+
+// Stagger animation on mount
+const detailsRef = ref(null)
+onMounted(() => {
+  nextTick(() => staggerIn(detailsRef.value, '.editor-details__section, .editor-details__field, .editor-details__ai-row'))
+})
 </script>
 
 <template>
-  <div class="editor-details">
+  <div ref="detailsRef" class="editor-details">
     <!-- AI title suggestions -->
     <div v-if="hasAi" class="editor-details__ai-row">
       <OnboardingTooltip
@@ -56,10 +79,13 @@ function acceptTitle(title) {
     <div class="editor-details__field">
       <label class="editor-details__label">{{ t('dashboard.eventEditor.descriptionPlaceholder') }}</label>
       <textarea
+        ref="descriptionRef"
         v-model="form.description"
         class="editor-details__description"
-        rows="4"
+        rows="3"
         :placeholder="t('dashboard.eventEditor.descriptionPlaceholder')"
+        @input="autoResize"
+        @blur="markTouched('description')"
       />
       <AiDescriptionAssistant
         v-model="form.description"
@@ -79,12 +105,13 @@ function acceptTitle(title) {
       </OnboardingTooltip>
       <div class="editor-details__type-grid">
         <button
-          v-for="type in eventTypes"
+          v-for="(type, index) in eventTypes"
           :key="type"
           type="button"
           class="editor-details__type-card"
           :class="{ 'editor-details__type-card--active': form.eventType === type }"
           :data-event-type="type"
+          :style="{ animationDelay: `${index * 50}ms` }"
           @click="form.eventType = form.eventType === type ? '' : type"
         >
           <Icon :name="useEventTheme(type).icon.value" size="20" />
@@ -102,10 +129,12 @@ function acceptTitle(title) {
             <Icon name="lucide:calendar" size="14" />
             {{ t('dashboard.eventEditor.eventDateLabel') }}
           </span>
-          <input
+          <EditorDatePicker
             v-model="form.eventDate"
-            type="datetime-local"
-            class="editor-details__prop-value"
+            :placeholder="t('editor.datePicker.selectDate')"
+            :error="errors.eventDate"
+            :touched="touched.eventDate"
+            @blur="markTouched('eventDate')"
           />
         </div>
 
@@ -114,10 +143,13 @@ function acceptTitle(title) {
             <Icon name="lucide:calendar-check" size="14" />
             {{ t('dashboard.eventEditor.eventEndDateLabel') }}
           </span>
-          <input
+          <EditorDatePicker
             v-model="form.eventEndDate"
-            type="datetime-local"
-            class="editor-details__prop-value"
+            :placeholder="t('editor.datePicker.selectEndDate')"
+            :min-date="form.eventDate"
+            :error="errors.eventEndDate"
+            :touched="touched.eventEndDate"
+            @blur="markTouched('eventEndDate')"
           />
         </div>
 
@@ -131,6 +163,7 @@ function acceptTitle(title) {
             type="text"
             class="editor-details__prop-value"
             :placeholder="t('dashboard.eventEditor.locationPlaceholder')"
+            @blur="markTouched('location')"
           />
         </div>
       </div>
@@ -202,30 +235,37 @@ function acceptTitle(title) {
   margin-bottom: var(--space-2);
 }
 
+/* Notion-style inline description */
 .editor-details__description {
   width: 100%;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid transparent;
   outline: none;
-  background: var(--color-surface);
+  background: transparent;
   font-family: var(--font-family);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   padding: var(--space-3);
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   min-height: 80px;
   line-height: var(--line-height-relaxed);
   border-radius: var(--radius-md);
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.editor-details__description:hover {
+  background: color-mix(in srgb, var(--color-text-primary) 2%, transparent);
 }
 
 .editor-details__description:focus {
   border-color: var(--color-accent);
+  background: var(--color-surface);
   box-shadow: 0 0 0 3px var(--color-accent-dim);
 }
 
 .editor-details__description::placeholder {
   color: var(--color-text-muted);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .editor-details__section {
@@ -271,6 +311,7 @@ function acceptTitle(title) {
   border-color: var(--color-accent);
   color: var(--color-accent);
   background: var(--color-accent-dim);
+  transform: translateY(-1px);
 }
 
 .editor-details__type-card--active {
@@ -280,7 +321,7 @@ function acceptTitle(title) {
   box-shadow: 0 0 0 2px var(--color-accent-dim);
 }
 
-/* Property rows */
+/* Property rows — Notion-style */
 .editor-details__props {
   display: flex;
   flex-direction: column;
@@ -290,12 +331,18 @@ function acceptTitle(title) {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border-light) 50%, transparent);
+  padding: var(--space-2) var(--space-3);
+  margin: 0 calc(-1 * var(--space-3));
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
 }
 
-.editor-details__prop:last-child {
-  border-bottom: none;
+.editor-details__prop:hover {
+  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
+}
+
+.editor-details__prop + .editor-details__prop {
+  border-top: 1px solid color-mix(in srgb, var(--color-border-light) 40%, transparent);
 }
 
 .editor-details__prop-label {
@@ -316,23 +363,23 @@ function acceptTitle(title) {
   font-family: var(--font-family);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .editor-details__prop-value:hover {
-  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
+  background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
 }
 
 .editor-details__prop-value:focus {
-  background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 .editor-details__prop-value::placeholder {
   color: var(--color-text-muted);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* Transitions */

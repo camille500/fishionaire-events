@@ -6,8 +6,38 @@ import EventRepository from '../repositories/eventRepository'
 import { isTierCoveredBySubscription, EVENT_PRICES_CENTS, getFeaturesForTier } from '../utils/tierFeatures'
 import { useStripe, getStripePriceId } from '../utils/stripe'
 
+type Tier = 'free' | 'standard' | 'pro'
+type PaidTier = 'standard' | 'pro'
+
+interface ResolvedTier {
+  tier: Tier
+  requiresPayment: boolean
+  priceCents: number
+}
+
+interface StripeSession {
+  id: string
+  status: string
+  mode: string
+  customer: string
+  subscription: string
+  metadata: Record<string, string>
+}
+
+interface StripeSubscription {
+  id: string
+  status: string
+  current_period_end: number
+  cancel_at_period_end: boolean
+  items: {
+    data: Array<{
+      price?: { id: string }
+    }>
+  }
+}
+
 export default class SubscriptionController {
-  static async getSubscription(clerkId) {
+  static async getSubscription(clerkId: string): Promise<Record<string, unknown>> {
     const subscription = await SubscriptionRepository.findByUserClerkId(clerkId)
     if (!subscription) {
       return new Subscription({ userClerkId: clerkId, tier: 'free', status: 'active' }).toJSON()
@@ -15,7 +45,7 @@ export default class SubscriptionController {
     return subscription.toJSON()
   }
 
-  static async resolveEventTier(clerkId, requestedTier) {
+  static async resolveEventTier(clerkId: string, requestedTier: Tier): Promise<ResolvedTier> {
     if (requestedTier === 'free') {
       return { tier: 'free', requiresPayment: false, priceCents: 0 }
     }
@@ -30,11 +60,11 @@ export default class SubscriptionController {
     return {
       tier: 'free',
       requiresPayment: true,
-      priceCents: EVENT_PRICES_CENTS[requestedTier],
+      priceCents: EVENT_PRICES_CENTS[requestedTier as PaidTier],
     }
   }
 
-  static async _findOrCreateCustomer(clerkId, email) {
+  static async _findOrCreateCustomer(clerkId: string, email: string): Promise<string> {
     const stripe = useStripe()
     const subscription = await SubscriptionRepository.findByUserClerkId(clerkId)
     let customerId = subscription?.stripeCustomerId
@@ -59,7 +89,7 @@ export default class SubscriptionController {
     return customerId
   }
 
-  static async createCheckoutSession(clerkId, tier, email) {
+  static async createCheckoutSession(clerkId: string, tier: PaidTier, email: string): Promise<{ url: string }> {
     if (!['standard', 'pro'].includes(tier)) {
       throw createError({ statusCode: 400, statusMessage: 'Invalid subscription tier' })
     }
@@ -91,7 +121,7 @@ export default class SubscriptionController {
     return { url: session.url }
   }
 
-  static async createPortalSession(clerkId) {
+  static async createPortalSession(clerkId: string): Promise<{ url: string }> {
     const stripe = useStripe()
     const subscription = await SubscriptionRepository.findByUserClerkId(clerkId)
 
@@ -108,7 +138,7 @@ export default class SubscriptionController {
     return { url: session.url }
   }
 
-  static async createEventUpgradeCheckout(eventId, clerkId, tier, email) {
+  static async createEventUpgradeCheckout(eventId: number, clerkId: string, tier: PaidTier, email: string): Promise<{ url: string }> {
     if (!['standard', 'pro'].includes(tier)) {
       throw createError({ statusCode: 400, statusMessage: 'Invalid tier' })
     }
@@ -155,7 +185,7 @@ export default class SubscriptionController {
     return { url: session.url }
   }
 
-  static async verifyCheckoutSession(sessionId) {
+  static async verifyCheckoutSession(sessionId: string): Promise<{ verified: boolean }> {
     const stripe = useStripe()
     const session = await stripe.checkout.sessions.retrieve(sessionId)
 
@@ -167,7 +197,7 @@ export default class SubscriptionController {
     return { verified: false }
   }
 
-  static async handleCheckoutCompleted(session) {
+  static async handleCheckoutCompleted(session: StripeSession): Promise<void> {
     if (session.mode === 'subscription') {
       const { clerkId, tier } = session.metadata
       const stripe = useStripe()
@@ -204,13 +234,13 @@ export default class SubscriptionController {
     }
   }
 
-  static async handleSubscriptionUpdated(stripeSubscription) {
+  static async handleSubscriptionUpdated(stripeSubscription: StripeSubscription): Promise<void> {
     const sub = await SubscriptionRepository.findByStripeSubscriptionId(stripeSubscription.id)
     if (!sub) return
 
     const config = useRuntimeConfig()
     const priceId = stripeSubscription.items.data[0]?.price?.id
-    let tier = sub.tier
+    let tier: string = sub.tier
     if (priceId === config.stripeStandardPriceId) tier = 'standard'
     if (priceId === config.stripeProPriceId) tier = 'pro'
 
@@ -221,7 +251,7 @@ export default class SubscriptionController {
     await SubscriptionRepository.upsert(sub)
   }
 
-  static async handleSubscriptionDeleted(stripeSubscription) {
+  static async handleSubscriptionDeleted(stripeSubscription: StripeSubscription): Promise<void> {
     const sub = await SubscriptionRepository.findByStripeSubscriptionId(stripeSubscription.id)
     if (!sub) return
 
@@ -232,8 +262,8 @@ export default class SubscriptionController {
     await SubscriptionRepository.upsert(sub)
   }
 
-  static async getEventPurchases(clerkId) {
+  static async getEventPurchases(clerkId: string): Promise<Record<string, unknown>[]> {
     const purchases = await EventPurchaseRepository.findByBuyer(clerkId)
-    return purchases.map((p) => p.toJSON())
+    return purchases.map((p: EventPurchase) => p.toJSON())
   }
 }

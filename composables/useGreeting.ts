@@ -8,7 +8,7 @@ export function useGreeting() {
     return 'dashboard.greeting.evening'
   })
 
-  function getGreeting(name) {
+  function getGreeting(name: string): string {
     return t(greetingKey.value, { name })
   }
 

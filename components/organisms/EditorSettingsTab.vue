@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const route = useRoute()
 const { eventData, isOwner } = useEventEditor()
+const { staggerIn } = useEditorAnimations()
 
 const showTemplateModal = ref(false)
 const duplicating = ref(false)
@@ -27,10 +28,15 @@ async function archiveEvent() {
     archiving.value = false
   }
 }
+
+const settingsRef = ref(null)
+onMounted(() => {
+  nextTick(() => staggerIn(settingsRef.value, '.editor-settings__section'))
+})
 </script>
 
 <template>
-  <div class="editor-settings">
+  <div ref="settingsRef" class="editor-settings">
     <!-- Tier info -->
     <section class="editor-settings__section">
       <h3 class="editor-settings__section-label">{{ t('editor.tabs.settings') }}</h3>
@@ -43,6 +49,7 @@ async function archiveEvent() {
       </AppText>
       <NuxtLink :to="$localePath('pricing')" class="editor-settings__upgrade-link">
         {{ t('editor.settings.upgradePlan') }}
+        <Icon name="lucide:arrow-right" size="14" />
       </NuxtLink>
     </section>
 
@@ -57,7 +64,9 @@ async function archiveEvent() {
           :disabled="duplicating"
           @click="duplicateEvent"
         >
-          <Icon name="lucide:copy" size="16" />
+          <div class="editor-settings__action-icon">
+            <Icon name="lucide:copy" size="16" />
+          </div>
           <div>
             <span class="editor-settings__action-title">
               {{ duplicating ? t('dashboard.eventEditor.duplicating') : t('dashboard.eventEditor.duplicateEvent') }}
@@ -71,7 +80,9 @@ async function archiveEvent() {
           class="editor-settings__action"
           @click="showTemplateModal = true"
         >
-          <Icon name="lucide:bookmark" size="16" />
+          <div class="editor-settings__action-icon">
+            <Icon name="lucide:bookmark" size="16" />
+          </div>
           <div>
             <span class="editor-settings__action-title">{{ t('dashboard.eventEditor.saveAsTemplate') }}</span>
             <span class="editor-settings__action-desc">{{ t('editor.settings.templateDesc') }}</span>
@@ -83,7 +94,9 @@ async function archiveEvent() {
           class="editor-settings__action editor-settings__action--danger"
           @click="showArchiveConfirm = true"
         >
-          <Icon name="lucide:archive" size="16" />
+          <div class="editor-settings__action-icon editor-settings__action-icon--danger">
+            <Icon name="lucide:archive" size="16" />
+          </div>
           <div>
             <span class="editor-settings__action-title">{{ t('editor.settings.archiveEvent') }}</span>
             <span class="editor-settings__action-desc">{{ t('editor.settings.archiveDesc') }}</span>
@@ -154,11 +167,12 @@ async function archiveEvent() {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
-  transition: opacity var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .editor-settings__upgrade-link:hover {
   opacity: 0.8;
+  gap: var(--space-2);
 }
 
 .editor-settings__actions {
@@ -169,22 +183,25 @@ async function archiveEvent() {
 
 .editor-settings__action {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   cursor: pointer;
   font-family: var(--font-family);
   text-align: left;
   transition: all var(--transition-fast);
   color: var(--color-text-secondary);
+  box-shadow: var(--shadow-xs);
 }
 
 .editor-settings__action:hover:not(:disabled) {
-  border-color: var(--color-border);
-  background: var(--color-background);
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .editor-settings__action:disabled {
@@ -194,6 +211,34 @@ async function archiveEvent() {
 
 .editor-settings__action--danger:hover:not(:disabled) {
   border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* Icon backgrounds */
+.editor-settings__action-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.editor-settings__action:hover:not(:disabled) .editor-settings__action-icon {
+  background: var(--color-accent-bg);
+}
+
+.editor-settings__action-icon--danger {
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-text-muted);
+}
+
+.editor-settings__action--danger:hover:not(:disabled) .editor-settings__action-icon--danger {
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
   color: var(--color-error);
 }
 

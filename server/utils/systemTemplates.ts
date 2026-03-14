@@ -1,4 +1,17 @@
-export const SYSTEM_TEMPLATES = [
+interface SubEventTemplate {
+  title: string
+  durationMinutes: number
+}
+
+interface SystemTemplate {
+  name: string
+  description: string
+  eventType: string
+  settings: { isPrivate: boolean }
+  subEventTemplates: SubEventTemplate[]
+}
+
+export const SYSTEM_TEMPLATES: SystemTemplate[] = [
   {
     name: 'Birthday Party',
     description: 'A classic birthday celebration with dinner and party',

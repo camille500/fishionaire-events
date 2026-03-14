@@ -3,8 +3,24 @@ import TimelineItemRepository from '../repositories/timelineItemRepository'
 import EventRepository from '../repositories/eventRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 
+interface AddItemParams {
+  title: string
+  description?: string | null
+  location?: string | null
+  startTime: string
+  endTime?: string | null
+}
+
+interface UpdateItemParams {
+  title?: string
+  description?: string | null
+  location?: string | null
+  startTime?: string
+  endTime?: string | null
+}
+
 export default class TimelineController {
-  static async #verifyEditAccess(eventId, clerkId) {
+  static async #verifyEditAccess(eventId: number, clerkId: string): Promise<Event> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
@@ -22,17 +38,17 @@ export default class TimelineController {
     return event
   }
 
-  static async getTimeline(eventId, clerkId) {
+  static async getTimeline(eventId: number, clerkId: string): Promise<Record<string, unknown>[]> {
     const event = await EventRepository.findById(eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
 
     const items = await TimelineItemRepository.findByEventId(eventId)
-    return items.map((item) => item.toJSON())
+    return items.map((item: TimelineItem) => item.toJSON())
   }
 
-  static async addItem(eventId, clerkId, { title, description, location, startTime, endTime }) {
+  static async addItem(eventId: number, clerkId: string, { title, description, location, startTime, endTime }: AddItemParams): Promise<Record<string, unknown>> {
     await this.#verifyEditAccess(eventId, clerkId)
 
     if (!title || !title.trim()) {
@@ -60,7 +76,7 @@ export default class TimelineController {
     return saved.toJSON()
   }
 
-  static async updateItem(itemId, clerkId, updates) {
+  static async updateItem(itemId: number, clerkId: string, updates: UpdateItemParams): Promise<Record<string, unknown>> {
     const item = await TimelineItemRepository.findById(itemId)
     if (!item) {
       throw createError({ statusCode: 404, statusMessage: 'Timeline item not found' })
@@ -83,7 +99,7 @@ export default class TimelineController {
     return saved.toJSON()
   }
 
-  static async deleteItem(itemId, clerkId) {
+  static async deleteItem(itemId: number, clerkId: string): Promise<void> {
     const item = await TimelineItemRepository.findById(itemId)
     if (!item) {
       throw createError({ statusCode: 404, statusMessage: 'Timeline item not found' })
@@ -93,7 +109,7 @@ export default class TimelineController {
     await TimelineItemRepository.delete(itemId)
   }
 
-  static async reorderTimeline(eventId, clerkId, orderedIds) {
+  static async reorderTimeline(eventId: number, clerkId: string, orderedIds: number[]): Promise<Record<string, unknown>[]> {
     await this.#verifyEditAccess(eventId, clerkId)
 
     if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
@@ -101,6 +117,6 @@ export default class TimelineController {
     }
 
     await TimelineItemRepository.reorder(eventId, orderedIds)
-    return (await TimelineItemRepository.findByEventId(eventId)).map((item) => item.toJSON())
+    return (await TimelineItemRepository.findByEventId(eventId)).map((item: TimelineItem) => item.toJSON())
   }
 }

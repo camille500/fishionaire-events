@@ -1,9 +1,9 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import crypto from 'crypto'
 
-let _client = null
+let _client: S3Client | null = null
 
-function getClient() {
+function getClient(): S3Client {
   if (!_client) {
     const config = useRuntimeConfig()
     _client = new S3Client({
@@ -17,12 +17,12 @@ function getClient() {
   return _client
 }
 
-function getBucket() {
+function getBucket(): string {
   const config = useRuntimeConfig()
-  return config.awsBucket
+  return config.awsBucket as string
 }
 
-function getPublicUrl(key) {
+function getPublicUrl(key: string): string {
   const config = useRuntimeConfig()
   if (config.awsCdnUrl) {
     return `${config.awsCdnUrl}/${key}`
@@ -30,7 +30,7 @@ function getPublicUrl(key) {
   return `https://${getBucket()}.s3.${config.awsRegion}.amazonaws.com/${key}`
 }
 
-export async function uploadImage(buffer, contentType, folder = 'covers') {
+export async function uploadImage(buffer: Buffer, contentType: string, folder: string = 'covers'): Promise<{ key: string, url: string }> {
   const ext = contentType.split('/')[1] || 'jpg'
   const key = `${folder}/${crypto.randomUUID()}.${ext}`
 
@@ -45,7 +45,7 @@ export async function uploadImage(buffer, contentType, folder = 'covers') {
   return { key, url: getPublicUrl(key) }
 }
 
-export async function deleteImage(key) {
+export async function deleteImage(key: string | undefined | null): Promise<void> {
   if (!key) return
   await getClient().send(new DeleteObjectCommand({
     Bucket: getBucket(),

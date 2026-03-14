@@ -1,8 +1,8 @@
 import Stripe from 'stripe'
 
-let stripeInstance = null
+let stripeInstance: Stripe | null = null
 
-export function useStripe() {
+export function useStripe(): Stripe {
   if (!stripeInstance) {
     const config = useRuntimeConfig()
     stripeInstance = new Stripe(config.stripeSecretKey)
@@ -10,7 +10,7 @@ export function useStripe() {
   return stripeInstance
 }
 
-export function getStripePriceId(tier, type = 'subscription') {
+export function getStripePriceId(tier: string, type: string = 'subscription'): string | null {
   const config = useRuntimeConfig()
   const map = {
     subscription: {

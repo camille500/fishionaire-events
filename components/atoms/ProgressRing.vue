@@ -68,7 +68,7 @@ const offset = computed(() =>
 }
 
 .progress-ring__track {
-  stroke: var(--color-border);
+  stroke: var(--color-neutral-200, rgba(0, 0, 0, 0.12));
 }
 
 .progress-ring__fill {

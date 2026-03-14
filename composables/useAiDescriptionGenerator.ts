@@ -1,18 +1,23 @@
+interface GenerateOptions {
+  refineInstruction?: string
+  previousText?: string
+}
+
 export default function useAiDescriptionGenerator() {
-  const generatedText = ref('')
-  const isGenerating = ref(false)
-  const error = ref('')
-  const history = ref([])
-  let abortController = null
+  const generatedText = ref<string>('')
+  const isGenerating = ref<boolean>(false)
+  const error = ref<string>('')
+  const history = ref<string[]>([])
+  let abortController: AbortController | null = null
 
-  const prompt = ref('')
-  const tone = ref('vriendelijk')
-  const language = ref('nl')
-  const length = ref('middel')
-  const eventType = ref('')
-  const includeEmojis = ref(false)
+  const prompt = ref<string>('')
+  const tone = ref<string>('vriendelijk')
+  const language = ref<string>('nl')
+  const length = ref<string>('middel')
+  const eventType = ref<string>('')
+  const includeEmojis = ref<boolean>(false)
 
-  async function generate(options = {}) {
+  async function generate(options: GenerateOptions = {}): Promise<void> {
     if (isGenerating.value) return
 
     const { refineInstruction = '', previousText = '' } = options
@@ -91,14 +96,14 @@ export default function useAiDescriptionGenerator() {
     }
   }
 
-  function refine(instruction) {
+  function refine(instruction: string): Promise<void> {
     return generate({
       refineInstruction: instruction,
       previousText: generatedText.value,
     })
   }
 
-  function abort() {
+  function abort(): void {
     if (abortController) {
       abortController.abort()
       isGenerating.value = false
@@ -106,11 +111,11 @@ export default function useAiDescriptionGenerator() {
     }
   }
 
-  function selectFromHistory(index) {
+  function selectFromHistory(index: number): void {
     generatedText.value = history.value[index]
   }
 
-  function clear() {
+  function clear(): void {
     generatedText.value = ''
     error.value = ''
   }

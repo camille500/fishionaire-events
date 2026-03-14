@@ -5,20 +5,20 @@ export function useWizardAi() {
   const ai = useAiSuggestions()
 
   // Track AI usage during wizard session (for tier upsell)
-  const aiUsageCount = ref(0)
-  const aiFeatureUsed = ref(false)
+  const aiUsageCount = ref<number>(0)
+  const aiFeatureUsed = ref<boolean>(false)
 
   // AI Quick Start state
-  const buildPrompt = ref('')
-  const buildLoading = ref(false)
-  const buildError = ref('')
-  const buildResult = ref(null)
+  const buildPrompt = ref<string>('')
+  const buildLoading = ref<boolean>(false)
+  const buildError = ref<string>('')
+  const buildResult = ref<Record<string, unknown> | null>(null)
 
   // Free tier: limited to 2 title suggestions
   const FREE_TITLE_LIMIT = 2
 
   // Tier-aware title suggestions
-  async function suggestTitles({ eventType, context } = {}) {
+  async function suggestTitles({ eventType, context }: { eventType?: string, context?: string } = {}): Promise<void> {
     aiFeatureUsed.value = true
     aiUsageCount.value++
 
@@ -31,7 +31,7 @@ export function useWizardAi() {
   }
 
   // Tier-aware sub-event suggestions (Standard+)
-  async function suggestSubEvents({ eventType, eventTitle, existingSubEvents } = {}) {
+  async function suggestSubEvents({ eventType, eventTitle, existingSubEvents }: { eventType?: string, eventTitle?: string, existingSubEvents?: unknown[] } = {}): Promise<void> {
     if (isFree.value) return // Free tier: no AI sub-event suggestions
 
     aiFeatureUsed.value = true
@@ -40,7 +40,7 @@ export function useWizardAi() {
   }
 
   // Tier-aware timeline suggestions (Pro only)
-  async function suggestTimeline({ eventType, eventDate, subEvents } = {}) {
+  async function suggestTimeline({ eventType, eventDate, subEvents }: { eventType?: string, eventDate?: string, subEvents?: unknown[] } = {}): Promise<void> {
     if (!isPro.value) return // Pro only
 
     aiFeatureUsed.value = true
@@ -49,7 +49,7 @@ export function useWizardAi() {
   }
 
   // AI Quick Start: build entire event from description (Standard+)
-  async function buildEvent(description) {
+  async function buildEvent(description: string): Promise<Record<string, unknown> | null> {
     if (isFree.value) return null
 
     buildLoading.value = true
@@ -78,7 +78,7 @@ export function useWizardAi() {
   }
 
   // Generate description (Standard+)
-  async function generateDescription({ eventType, title } = {}) {
+  async function generateDescription({ eventType, title }: { eventType?: string, title?: string } = {}): Promise<string | null> {
     if (isFree.value) return null
 
     aiFeatureUsed.value = true
@@ -117,7 +117,7 @@ export function useWizardAi() {
     return 'wizard.aiUpsellMessage'
   })
 
-  function resetAiState() {
+  function resetAiState(): void {
     ai.clearAll()
     buildPrompt.value = ''
     buildLoading.value = false

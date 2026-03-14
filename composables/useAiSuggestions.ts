@@ -1,17 +1,34 @@
+interface TitleSuggestParams {
+  eventType?: string
+  context?: string
+}
+
+interface SubEventSuggestParams {
+  eventType?: string
+  eventTitle?: string
+  existingSubEvents?: unknown[]
+}
+
+interface TimelineSuggestParams {
+  eventType?: string
+  eventDate?: string
+  subEvents?: unknown[]
+}
+
 export function useAiSuggestions() {
   const { locale } = useI18n()
 
-  const titleSuggestions = ref([])
-  const subEventSuggestions = ref([])
-  const timelineItems = ref([])
+  const titleSuggestions = ref<string[]>([])
+  const subEventSuggestions = ref<string[]>([])
+  const timelineItems = ref<unknown[]>([])
 
-  const loadingTitles = ref(false)
-  const loadingSubEvents = ref(false)
-  const loadingTimeline = ref(false)
+  const loadingTitles = ref<boolean>(false)
+  const loadingSubEvents = ref<boolean>(false)
+  const loadingTimeline = ref<boolean>(false)
 
-  const error = ref('')
+  const error = ref<string>('')
 
-  async function suggestTitles({ eventType, context } = {}) {
+  async function suggestTitles({ eventType, context }: TitleSuggestParams = {}): Promise<void> {
     loadingTitles.value = true
     error.value = ''
     titleSuggestions.value = []
@@ -33,7 +50,7 @@ export function useAiSuggestions() {
     }
   }
 
-  async function suggestSubEvents({ eventType, eventTitle, existingSubEvents } = {}) {
+  async function suggestSubEvents({ eventType, eventTitle, existingSubEvents }: SubEventSuggestParams = {}): Promise<void> {
     loadingSubEvents.value = true
     error.value = ''
     subEventSuggestions.value = []
@@ -56,7 +73,7 @@ export function useAiSuggestions() {
     }
   }
 
-  async function suggestTimeline({ eventType, eventDate, subEvents } = {}) {
+  async function suggestTimeline({ eventType, eventDate, subEvents }: TimelineSuggestParams = {}): Promise<void> {
     loadingTimeline.value = true
     error.value = ''
     timelineItems.value = []
@@ -79,15 +96,15 @@ export function useAiSuggestions() {
     }
   }
 
-  function dismissTitleSuggestion(index) {
+  function dismissTitleSuggestion(index: number): void {
     titleSuggestions.value.splice(index, 1)
   }
 
-  function dismissSubEventSuggestion(index) {
+  function dismissSubEventSuggestion(index: number): void {
     subEventSuggestions.value.splice(index, 1)
   }
 
-  function clearAll() {
+  function clearAll(): void {
     titleSuggestions.value = []
     subEventSuggestions.value = []
     timelineItems.value = []

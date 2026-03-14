@@ -2,7 +2,7 @@ import { usePrisma } from '../database'
 import Event from '../entities/Event'
 
 export default class EventRepository {
-  static async create(event) {
+  static async create(event: Event): Promise<Event> {
     const prisma = usePrisma()
     const data = event.toJSON()
     const row = await prisma.event.create({
@@ -25,14 +25,14 @@ export default class EventRepository {
     return Event.fromJSON(row)
   }
 
-  static async findById(id) {
+  static async findById(id: string): Promise<Event | null> {
     const prisma = usePrisma()
     const row = await prisma.event.findUnique({ where: { id } })
     if (!row) return null
     return Event.fromJSON(row)
   }
 
-  static async findByOwner(clerkId) {
+  static async findByOwner(clerkId: string): Promise<Event[]> {
     const prisma = usePrisma()
     const rows = await prisma.event.findMany({
       where: { ownerClerkId: clerkId, archivedAt: null },
@@ -41,7 +41,7 @@ export default class EventRepository {
     return rows.map((row) => Event.fromJSON(row))
   }
 
-  static async findArchivedByOwner(clerkId) {
+  static async findArchivedByOwner(clerkId: string): Promise<Event[]> {
     const prisma = usePrisma()
     const rows = await prisma.event.findMany({
       where: { ownerClerkId: clerkId, archivedAt: { not: null } },
@@ -50,7 +50,7 @@ export default class EventRepository {
     return rows.map((row) => Event.fromJSON(row))
   }
 
-  static async findByInviteeEmail(email) {
+  static async findByInviteeEmail(email: string): Promise<{ event: Event, status: string }[]> {
     const prisma = usePrisma()
     const rows = await prisma.event.findMany({
       where: {
@@ -72,7 +72,7 @@ export default class EventRepository {
     }))
   }
 
-  static async update(event) {
+  static async update(event: Event): Promise<Event> {
     const prisma = usePrisma()
     const data = event.toJSON()
     const row = await prisma.event.update({
@@ -96,7 +96,7 @@ export default class EventRepository {
     return Event.fromJSON(row)
   }
 
-  static async archive(id) {
+  static async archive(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.event.update({
       where: { id },
@@ -104,7 +104,7 @@ export default class EventRepository {
     })
   }
 
-  static async restore(id) {
+  static async restore(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.event.update({
       where: { id },
@@ -112,7 +112,7 @@ export default class EventRepository {
     })
   }
 
-  static async getInvitationCount(eventId) {
+  static async getInvitationCount(eventId: string): Promise<number> {
     const prisma = usePrisma()
     return prisma.eventInvitation.count({ where: { eventId } })
   }

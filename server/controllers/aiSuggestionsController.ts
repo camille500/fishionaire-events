@@ -1,15 +1,65 @@
 import OpenAI from 'openai'
 
+type Language = 'nl' | 'en'
+
+interface SuggestTitlesParams {
+  eventType?: string
+  context?: string
+  language?: Language
+}
+
+interface SuggestSubEventsParams {
+  eventType?: string
+  eventTitle?: string
+  existingSubEvents?: Array<{ title: string }>
+  language?: Language
+}
+
+interface SuggestTimelineParams {
+  eventType?: string
+  eventDate?: string
+  subEvents?: Array<{ title: string, durationMinutes?: number }>
+  language?: Language
+}
+
+interface BuildEventParams {
+  description: string
+  language?: Language
+}
+
+interface TitleSuggestions {
+  suggestions: string[]
+}
+
+interface SubEventSuggestion {
+  title: string
+  durationMinutes: number
+}
+
+interface TimelineItem {
+  title: string
+  startTime: string
+  endTime: string
+}
+
+interface BuildEventResult {
+  eventType: string
+  title: string
+  description: string
+  dateSuggestion: { dayOfWeek: string, timeOfDay: string, suggestedTime: string } | null
+  activities: Array<{ title: string, durationMinutes: number }>
+}
+
 export default class AiSuggestionsController {
-  static #getClient() {
+  static #getClient(): OpenAI {
     const config = useRuntimeConfig()
     if (!config.openaiApiKey) {
       throw createError({ statusCode: 502, statusMessage: 'AI service is not configured' })
     }
-    return new OpenAI({ apiKey: config.openaiApiKey })
+    return new OpenAI({ apiKey: config.openaiApiKey as string })
   }
 
-  static async suggestTitles({ eventType, context, language = 'en' }) {
+  static async suggestTitles({ eventType, context, language = 'en' }: SuggestTitlesParams): Promise<TitleSuggestions> {
     const client = this.#getClient()
 
     const languageInstruction = language === 'en'
@@ -41,9 +91,9 @@ export default class AiSuggestionsController {
         temperature: 0.9,
       })
 
-      const result = JSON.parse(response.choices[0].message.content)
+      const result = JSON.parse(response.choices[0].message.content || '{}')
       return { suggestions: result.suggestions || [] }
-    } catch (err) {
+    } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
       }
@@ -54,7 +104,7 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async suggestSubEvents({ eventType, eventTitle, existingSubEvents = [], language = 'en' }) {
+  static async suggestSubEvents({ eventType, eventTitle, existingSubEvents = [], language = 'en' }: SuggestSubEventsParams): Promise<{ suggestions: SubEventSuggestion[] }> {
     const client = this.#getClient()
 
     const languageInstruction = language === 'en'
@@ -89,9 +139,9 @@ export default class AiSuggestionsController {
         temperature: 0.8,
       })
 
-      const result = JSON.parse(response.choices[0].message.content)
+      const result = JSON.parse(response.choices[0].message.content || '{}')
       return { suggestions: result.suggestions || [] }
-    } catch (err) {
+    } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
       }
@@ -102,7 +152,7 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async suggestTimeline({ eventType, eventDate, subEvents = [], language = 'en' }) {
+  static async suggestTimeline({ eventType, eventDate, subEvents = [], language = 'en' }: SuggestTimelineParams): Promise<{ items: TimelineItem[] }> {
     const client = this.#getClient()
 
     const languageInstruction = language === 'en'
@@ -137,9 +187,9 @@ export default class AiSuggestionsController {
         temperature: 0.7,
       })
 
-      const result = JSON.parse(response.choices[0].message.content)
+      const result = JSON.parse(response.choices[0].message.content || '{}')
       return { items: result.items || [] }
-    } catch (err) {
+    } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
       }
@@ -150,7 +200,7 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async buildEvent({ description, language = 'en' }) {
+  static async buildEvent({ description, language = 'en' }: BuildEventParams): Promise<BuildEventResult> {
     const client = this.#getClient()
 
     const languageInstruction = language === 'en'
@@ -189,7 +239,7 @@ export default class AiSuggestionsController {
         temperature: 0.8,
       })
 
-      const result = JSON.parse(response.choices[0].message.content)
+      const result = JSON.parse(response.choices[0].message.content || '{}')
       return {
         eventType: result.eventType || 'other',
         title: result.title || '',
@@ -197,7 +247,7 @@ export default class AiSuggestionsController {
         dateSuggestion: result.dateSuggestion || null,
         activities: result.activities || [],
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
       }

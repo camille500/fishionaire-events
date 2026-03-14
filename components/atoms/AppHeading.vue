@@ -40,9 +40,15 @@ defineProps({
 .app-heading--right { text-align: right; }
 
 .app-heading--gradient {
-  background: var(--gradient-accent);
+  background: linear-gradient(135deg, #008868, #6c5ce7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:global(.dark) .app-heading--gradient {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
   background-clip: text;
 }
 </style>

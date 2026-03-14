@@ -3,7 +3,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (v) => ['primary', 'secondary', 'outline', 'ghost', 'gradient'].includes(v),
+    validator: (v) => ['primary', 'secondary', 'outline', 'ghost', 'gradient', 'danger'].includes(v),
   },
   size: {
     type: String,
@@ -31,13 +31,16 @@ const props = defineProps({
 const buttonProps = computed(() => {
   const map = {
     primary: { color: 'primary', variant: 'solid' },
-    secondary: { color: 'secondary', variant: 'solid' },
-    outline: { color: 'neutral', variant: 'outline' },
-    ghost: { color: 'neutral', variant: 'ghost' },
+    secondary: { color: 'neutral', variant: 'soft' },
+    outline: { color: 'primary', variant: 'outline' },
+    ghost: { color: 'neutral', variant: 'subtle' },
     gradient: { color: 'primary', variant: 'solid' },
+    danger: { color: 'error', variant: 'soft' },
   }
   return map[props.variant] || map.primary
 })
+
+const isSubtle = computed(() => ['ghost', 'secondary'].includes(props.variant))
 </script>
 
 <template>
@@ -51,7 +54,8 @@ const buttonProps = computed(() => {
     :leading-icon="icon || undefined"
     :class="[
       'app-button',
-      { 'app-button--gradient': variant === 'gradient' },
+      `app-button--${variant}`,
+      { 'app-button--subtle': isSubtle },
     ]"
   >
     <slot />
@@ -60,22 +64,53 @@ const buttonProps = computed(() => {
 
 <style scoped>
 .app-button {
-  transition: all 0.3s ease;
   border-radius: var(--radius-md) !important;
   position: relative;
   overflow: hidden;
 }
 
-.app-button:hover {
-  transform: translateY(-3px);
+/* Solid & gradient: lift on hover */
+.app-button--primary,
+.app-button--gradient {
+  transition: all 0.25s ease;
+}
+
+.app-button--primary:hover:not(:disabled),
+.app-button--gradient:hover:not(:disabled) {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-accent);
 }
 
-.app-button:active {
+.app-button--primary:active:not(:disabled),
+.app-button--gradient:active:not(:disabled) {
   transform: translateY(0) scale(0.98);
   transition-duration: 100ms;
 }
 
+/* Outline: subtle lift */
+.app-button--outline {
+  transition: all 0.2s ease;
+}
+
+.app-button--outline:hover:not(:disabled) {
+  box-shadow: var(--shadow-xs);
+}
+
+/* Subtle variants: no lift, just state change */
+.app-button--subtle {
+  transition: all 0.15s ease;
+}
+
+/* Danger variant */
+.app-button--danger {
+  transition: all 0.2s ease;
+}
+
+.app-button--danger:hover:not(:disabled) {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-error) 30%, transparent);
+}
+
+/* Gradient overlay */
 .app-button--gradient {
   background: var(--gradient-accent) !important;
   border-color: transparent !important;
@@ -83,7 +118,7 @@ const buttonProps = computed(() => {
   color: #fff !important;
 }
 
-.app-button--gradient:hover {
+.app-button--gradient:hover:not(:disabled) {
   background-position: right center;
   box-shadow: var(--shadow-accent-lg);
 }
@@ -101,5 +136,10 @@ const buttonProps = computed(() => {
 .app-button--gradient:hover::before {
   opacity: 1;
   animation: shimmer-btn 1.5s ease infinite;
+}
+
+@keyframes shimmer-btn {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 </style>

@@ -1,9 +1,9 @@
 import { PrismaClient } from '#prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
-let _prisma = null
+let _prisma: PrismaClient | null = null
 
-export function usePrisma() {
+export function usePrisma(): PrismaClient {
   if (!_prisma) {
     const config = useRuntimeConfig()
     const adapter = new PrismaPg({ connectionString: config.databaseUrl })

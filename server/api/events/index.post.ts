@@ -1,8 +1,9 @@
+import type { H3Event } from 'h3'
 import { clerkClient } from '@clerk/nuxt/server'
 import UserController from '../../controllers/userController'
 import EventController from '../../controllers/eventController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const { isAuthenticated, userId } = event.context.auth()
 
   if (!isAuthenticated) {
@@ -17,7 +18,15 @@ export default defineEventHandler(async (event) => {
     lastName: clerkUser.lastName,
   })
 
-  const { title, tier, templateId, eventType, eventDate, location, subEvents } = await readBody(event)
+  const { title, tier, templateId, eventType, eventDate, location, subEvents } = await readBody<{
+    title: string
+    tier: string
+    templateId?: number
+    eventType?: string
+    eventDate?: string
+    location?: string
+    subEvents?: Array<{ title: string, description?: string }>
+  }>(event)
   const result = await EventController.createEvent(userId, title, tier, templateId || null, {
     eventType: eventType || null,
     eventDate: eventDate || null,

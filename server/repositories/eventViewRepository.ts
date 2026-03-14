@@ -1,8 +1,13 @@
 import { usePrisma } from '../database'
 import EventView from '../entities/EventView'
 
+interface ViewCountByDate {
+  date: string
+  count: number
+}
+
 export default class EventViewRepository {
-  static async create(view) {
+  static async create(view: EventView): Promise<EventView> {
     const prisma = usePrisma()
     const data = view.toJSON()
     const row = await prisma.eventView.create({
@@ -16,12 +21,12 @@ export default class EventViewRepository {
     return EventView.fromJSON(row)
   }
 
-  static async countByEventId(eventId) {
+  static async countByEventId(eventId: string): Promise<number> {
     const prisma = usePrisma()
     return prisma.eventView.count({ where: { eventId } })
   }
 
-  static async countGroupedByDate(eventId, days = 30) {
+  static async countGroupedByDate(eventId: string, days: number = 30): Promise<ViewCountByDate[]> {
     const prisma = usePrisma()
     const since = new Date()
     since.setDate(since.getDate() - days)
@@ -33,10 +38,10 @@ export default class EventViewRepository {
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `
-    return rows.map((r) => ({ date: r.date, count: r.count }))
+    return (rows as { date: string, count: number }[]).map((r) => ({ date: r.date, count: r.count }))
   }
 
-  static async hasRecentView(eventId, ip, minutes = 5) {
+  static async hasRecentView(eventId: string, ip: string | null, minutes: number = 5): Promise<boolean> {
     if (!ip) return false
     const prisma = usePrisma()
     const since = new Date()

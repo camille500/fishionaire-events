@@ -1,8 +1,13 @@
 import { usePrisma } from '../database'
 import EventMember from '../entities/EventMember'
 
+interface MemberWithEvent {
+  member: EventMember
+  event: Record<string, unknown>
+}
+
 export default class EventMemberRepository {
-  static async create(member) {
+  static async create(member: EventMember): Promise<EventMember> {
     const prisma = usePrisma()
     const data = member.toJSON()
     const row = await prisma.eventMember.create({
@@ -17,7 +22,7 @@ export default class EventMemberRepository {
     return EventMember.fromJSON(row)
   }
 
-  static async findByEventId(eventId) {
+  static async findByEventId(eventId: string): Promise<EventMember[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventMember.findMany({
       where: { eventId },
@@ -27,7 +32,7 @@ export default class EventMemberRepository {
     return rows.map((row) => EventMember.fromJSON(row))
   }
 
-  static async findByEventIdAndUserId(eventId, clerkId) {
+  static async findByEventIdAndUserId(eventId: string, clerkId: string): Promise<EventMember | null> {
     const prisma = usePrisma()
     const row = await prisma.eventMember.findUnique({
       where: {
@@ -39,7 +44,7 @@ export default class EventMemberRepository {
     return EventMember.fromJSON(row)
   }
 
-  static async findCoOrganizedEvents(clerkId) {
+  static async findCoOrganizedEvents(clerkId: string): Promise<MemberWithEvent[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventMember.findMany({
       where: { userClerkId: clerkId, role: 'co_organizer' },
@@ -51,7 +56,7 @@ export default class EventMemberRepository {
     }))
   }
 
-  static async delete(eventId, userClerkId) {
+  static async delete(eventId: string, userClerkId: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.eventMember.delete({
       where: {

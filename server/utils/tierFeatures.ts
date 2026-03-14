@@ -1,4 +1,20 @@
-export const TIER_FEATURES = {
+type TierName = 'free' | 'standard' | 'pro'
+
+interface TierFeatureSet {
+  rsvp: boolean
+  datePolling: boolean
+  wishlist: boolean
+  secretChat: boolean
+  photoGallery: boolean
+  budgetTracker: boolean
+  seatingArrangements: boolean
+  timeline: boolean
+  customTheme: boolean
+  aiAssistant: boolean
+  analytics: boolean
+}
+
+export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
   free: {
     rsvp: false,
     datePolling: false,
@@ -40,17 +56,17 @@ export const TIER_FEATURES = {
   },
 }
 
-export const TIER_ORDER = { free: 0, standard: 1, pro: 2 }
+export const TIER_ORDER: Record<TierName, number> = { free: 0, standard: 1, pro: 2 }
 
-export const EVENT_PRICES_CENTS = {
+export const EVENT_PRICES_CENTS: Record<string, number> = {
   standard: 1499,
   pro: 2999,
 }
 
-export function getFeaturesForTier(tier) {
+export function getFeaturesForTier(tier: TierName): TierFeatureSet {
   return { ...TIER_FEATURES[tier] }
 }
 
-export function isTierCoveredBySubscription(subscriptionTier, requestedTier) {
+export function isTierCoveredBySubscription(subscriptionTier: TierName, requestedTier: TierName): boolean {
   return TIER_ORDER[subscriptionTier] >= TIER_ORDER[requestedTier]
 }

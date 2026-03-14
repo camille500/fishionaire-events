@@ -1,7 +1,8 @@
+import type { H3Event } from 'h3'
 import { useStripe } from '../../utils/stripe'
 import SubscriptionController from '../../controllers/subscriptionController'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const stripe = useStripe()
   const config = useRuntimeConfig()
   const body = await readRawBody(event)
@@ -10,8 +11,8 @@ export default defineEventHandler(async (event) => {
   let stripeEvent
   try {
     stripeEvent = stripe.webhooks.constructEvent(body, signature, config.stripeWebhookSecret)
-  } catch (err) {
-    throw createError({ statusCode: 400, statusMessage: `Webhook signature verification failed: ${err.message}` })
+  } catch (err: unknown) {
+    throw createError({ statusCode: 400, statusMessage: `Webhook signature verification failed: ${(err as Error).message}` })
   }
 
   switch (stripeEvent.type) {

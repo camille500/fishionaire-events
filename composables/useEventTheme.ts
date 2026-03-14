@@ -1,4 +1,12 @@
-const EVENT_THEMES = {
+import type { MaybeRefOrGetter } from 'vue'
+
+interface EventTheme {
+  icon: string
+  accentColor: string
+  gradient: string
+}
+
+const EVENT_THEMES: Record<string, EventTheme> = {
   birthday: {
     icon: 'lucide:cake',
     accentColor: '#9b59b6',
@@ -31,7 +39,7 @@ const EVENT_THEMES = {
   },
 }
 
-export function useEventTheme(eventType) {
+export function useEventTheme(eventType: MaybeRefOrGetter<string>) {
   const type = computed(() => toValue(eventType) || 'other')
 
   const theme = computed(() => EVENT_THEMES[type.value] || EVENT_THEMES.other)

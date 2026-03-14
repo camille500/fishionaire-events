@@ -1,5 +1,34 @@
+export interface EventInvitationData {
+  id: string | null
+  eventId: string
+  inviteeEmail: string
+  inviterClerkId: string
+  status: string
+  createdAt: Date | string
+}
+
+export interface EventInvitationJSON {
+  id?: string | null
+  eventId?: string
+  event_id?: string
+  inviteeEmail?: string
+  invitee_email?: string
+  inviterClerkId?: string
+  inviter_clerk_id?: string
+  status?: string
+  createdAt?: Date | string
+  created_at?: Date | string
+}
+
 export default class EventInvitation {
-  constructor({ id, eventId, inviteeEmail, inviterClerkId, status, createdAt }) {
+  id: string | null
+  eventId: string
+  inviteeEmail: string
+  inviterClerkId: string
+  status: string
+  createdAt: Date | string
+
+  constructor({ id, eventId, inviteeEmail, inviterClerkId, status, createdAt }: EventInvitationData) {
     this.id = id || null
     this.eventId = eventId
     this.inviteeEmail = inviteeEmail
@@ -8,22 +37,22 @@ export default class EventInvitation {
     this.createdAt = createdAt || new Date()
   }
 
-  get isPending() {
+  get isPending(): boolean {
     return this.status === 'pending'
   }
 
-  static fromJSON(data) {
+  static fromJSON(data: EventInvitationJSON): EventInvitation {
     return new EventInvitation({
-      id: data.id,
-      eventId: data.eventId || data.event_id,
-      inviteeEmail: data.inviteeEmail || data.invitee_email,
-      inviterClerkId: data.inviterClerkId || data.inviter_clerk_id,
-      status: data.status,
-      createdAt: data.createdAt || data.created_at,
+      id: data.id ?? null,
+      eventId: (data.eventId || data.event_id)!,
+      inviteeEmail: (data.inviteeEmail || data.invitee_email)!,
+      inviterClerkId: (data.inviterClerkId || data.inviter_clerk_id)!,
+      status: data.status || 'pending',
+      createdAt: data.createdAt || data.created_at || new Date(),
     })
   }
 
-  toJSON() {
+  toJSON(): EventInvitationData {
     return {
       id: this.id,
       eventId: this.eventId,

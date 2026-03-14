@@ -14,6 +14,9 @@ const {
   saveError,
   isDirty,
   save,
+  errors,
+  touched,
+  markTouched,
   completionPercent,
   completionItems,
 } = useEventEditorProvider(route.params.id)
@@ -89,7 +92,13 @@ function onTabChange(index) {
         v-model="form.title"
         type="text"
         class="event-editor__title-input"
+        :class="{ 'event-editor__title-input--error': errors.title && touched.title }"
         :placeholder="t('dashboard.eventEditor.titlePlaceholder')"
+        @blur="markTouched('title')"
+      />
+      <EditorFieldError
+        :message="errors.title"
+        :visible="!!(errors.title && touched.title)"
       />
 
       <!-- Tabbed content -->
@@ -129,7 +138,7 @@ function onTabChange(index) {
         <div class="event-editor__save-bar-inner">
           <div class="event-editor__save-left">
             <AppButton
-              variant="primary"
+              :variant="isDirty ? 'gradient' : 'primary'"
               size="sm"
               :disabled="saving || !form.title.trim()"
               @click="save"
@@ -191,6 +200,15 @@ function onTabChange(index) {
   margin-bottom: -2px;
 }
 
+.event-editor__title-input--error {
+  border-bottom: 2px solid var(--color-error);
+  margin-bottom: -2px;
+}
+
+.event-editor__title-input--error:focus {
+  border-bottom-color: var(--color-error);
+}
+
 /* Tabs */
 .event-editor__tabs {
   margin-top: var(--space-6);
@@ -216,10 +234,12 @@ function onTabChange(index) {
   justify-content: space-between;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--color-border-light);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--color-border);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .event-editor__save-left {

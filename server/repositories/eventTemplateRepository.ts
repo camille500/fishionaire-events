@@ -3,7 +3,7 @@ import EventTemplate from '../entities/EventTemplate'
 import { SYSTEM_TEMPLATES } from '../utils/systemTemplates'
 
 export default class EventTemplateRepository {
-  static async create(template) {
+  static async create(template: EventTemplate): Promise<EventTemplate> {
     const prisma = usePrisma()
     const data = template.toJSON()
     const row = await prisma.eventTemplate.create({
@@ -20,14 +20,14 @@ export default class EventTemplateRepository {
     return EventTemplate.fromJSON(row)
   }
 
-  static async findById(id) {
+  static async findById(id: string): Promise<EventTemplate | null> {
     const prisma = usePrisma()
     const row = await prisma.eventTemplate.findUnique({ where: { id } })
     if (!row) return null
     return EventTemplate.fromJSON(row)
   }
 
-  static async findSystemTemplates() {
+  static async findSystemTemplates(): Promise<EventTemplate[]> {
     const prisma = usePrisma()
     await this.ensureSystemTemplatesExist()
     const rows = await prisma.eventTemplate.findMany({
@@ -37,7 +37,7 @@ export default class EventTemplateRepository {
     return rows.map((row) => EventTemplate.fromJSON(row))
   }
 
-  static async findByOwner(clerkId) {
+  static async findByOwner(clerkId: string): Promise<EventTemplate[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventTemplate.findMany({
       where: { ownerClerkId: clerkId, isSystem: false },
@@ -46,12 +46,12 @@ export default class EventTemplateRepository {
     return rows.map((row) => EventTemplate.fromJSON(row))
   }
 
-  static async delete(id) {
+  static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.eventTemplate.delete({ where: { id } })
   }
 
-  static async ensureSystemTemplatesExist() {
+  static async ensureSystemTemplatesExist(): Promise<void> {
     const prisma = usePrisma()
     const count = await prisma.eventTemplate.count({ where: { isSystem: true } })
     if (count > 0) return
