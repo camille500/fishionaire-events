@@ -1,0 +1,403 @@
+<script setup>
+const { t } = useI18n()
+
+const props = defineProps({
+  eventData: { type: Object, required: true },
+  invitation: { type: Object, default: null },
+  isPlusOne: { type: Boolean, default: false },
+  invitedByName: { type: String, default: '' },
+  rsvpStatus: { type: String, default: 'pending' },
+  rsvpLoading: { type: Boolean, default: false },
+})
+
+const emit = defineEmits(['rsvp', 'changeResponse'])
+
+const showConfetti = ref(false)
+const confettiParticles = ref([])
+
+function triggerConfetti() {
+  showConfetti.value = true
+  const colors = ['#00b894', '#6c5ce7', '#ff6b6b', '#ffd93d', '#74b9ff', '#fd79a8']
+  confettiParticles.value = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    x: 50 + (Math.random() - 0.5) * 60,
+    delay: Math.random() * 0.5,
+    duration: 1.5 + Math.random() * 1,
+    rotation: Math.random() * 360,
+    size: 6 + Math.random() * 6,
+  }))
+  setTimeout(() => { showConfetti.value = false }, 3000)
+}
+
+function handleRsvp(status) {
+  emit('rsvp', status)
+  if (status === 'accepted') {
+    setTimeout(triggerConfetti, 300)
+  }
+}
+</script>
+
+<template>
+  <section class="invite-rsvp-section">
+    <!-- Confetti overlay -->
+    <div v-if="showConfetti" class="invite-rsvp__confetti" aria-hidden="true">
+      <span
+        v-for="p in confettiParticles"
+        :key="p.id"
+        class="invite-rsvp__confetti-particle"
+        :style="{
+          '--x': p.x + '%',
+          '--color': p.color,
+          '--delay': p.delay + 's',
+          '--duration': p.duration + 's',
+          '--rotation': p.rotation + 'deg',
+          '--size': p.size + 'px',
+        }"
+      />
+    </div>
+
+    <div class="invite-rsvp__card">
+      <!-- Welcome icon -->
+      <div class="invite-rsvp__icon">
+        <Icon :name="isPlusOne ? 'lucide:user-plus' : 'lucide:party-popper'" size="32" />
+      </div>
+
+      <!-- Greeting -->
+      <h2 class="invite-rsvp__greeting">
+        <template v-if="isPlusOne">
+          {{ t('invite.welcomePlusOne', { event: eventData.title, inviter: invitedByName }) }}
+        </template>
+        <template v-else-if="invitation?.inviteeName">
+          {{ t('invite.welcomeNamed', { name: invitation.inviteeName }) }}
+        </template>
+        <template v-else>
+          {{ t('invite.welcome') }}
+        </template>
+      </h2>
+
+      <!-- Plus-one context -->
+      <p v-if="isPlusOne && invitedByName" class="invite-rsvp__plus-one-context">
+        <Icon name="lucide:heart" size="14" />
+        {{ t('invite.plusOneContext', { name: invitedByName }) }}
+      </p>
+
+      <!-- Description -->
+      <p v-if="eventData.description" class="invite-rsvp__description">
+        {{ eventData.description }}
+      </p>
+
+      <!-- Divider -->
+      <div class="invite-rsvp__divider" />
+
+      <!-- RSVP section label -->
+      <p class="invite-rsvp__label">{{ t('invite.rsvp.title') }}</p>
+
+      <!-- RSVP status (if already responded) -->
+      <div v-if="rsvpStatus !== 'pending'" class="invite-rsvp__status">
+        <div
+          class="invite-rsvp__status-badge"
+          :class="{
+            'invite-rsvp__status-badge--accepted': rsvpStatus === 'accepted',
+            'invite-rsvp__status-badge--declined': rsvpStatus === 'declined',
+          }"
+        >
+          <Icon :name="rsvpStatus === 'accepted' ? 'lucide:check-circle' : 'lucide:x-circle'" size="22" />
+          {{ rsvpStatus === 'accepted' ? t('invite.rsvp.youreAttending') : t('invite.rsvp.youreNotAttending') }}
+        </div>
+        <button class="invite-rsvp__change-btn" @click="$emit('changeResponse')">
+          {{ t('invite.rsvp.changeResponse') }}
+        </button>
+      </div>
+
+      <!-- RSVP buttons (pending) -->
+      <div v-else class="invite-rsvp__buttons">
+        <button
+          class="invite-rsvp__btn invite-rsvp__btn--accept"
+          :disabled="rsvpLoading"
+          @click="handleRsvp('accepted')"
+        >
+          <Icon name="lucide:check" size="22" />
+          {{ t('invite.rsvp.attending') }}
+        </button>
+        <button
+          class="invite-rsvp__btn invite-rsvp__btn--decline"
+          :disabled="rsvpLoading"
+          @click="handleRsvp('declined')"
+        >
+          <Icon name="lucide:x" size="18" />
+          {{ t('invite.rsvp.declining') }}
+        </button>
+      </div>
+
+      <!-- Plus-ones note -->
+      <p v-if="invitation?.plusOnes > 0 && !isPlusOne" class="invite-rsvp__plus-note">
+        <Icon name="lucide:user-plus" size="14" />
+        {{ t('invite.rsvp.plusOnesNote', { count: invitation.plusOnes }) }}
+      </p>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.invite-rsvp-section {
+  position: relative;
+  z-index: 2;
+  margin-top: -5rem;
+  padding: 0 var(--space-6);
+  animation: rsvpReveal 700ms ease-out 400ms both;
+}
+
+@keyframes rsvpReveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.invite-rsvp__card {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-10) var(--space-8);
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Icon */
+.invite-rsvp__icon {
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 65%, #6c5ce7));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--event-accent, var(--color-accent)) 25%, transparent);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 8px 32px color-mix(in srgb, var(--event-accent, var(--color-accent)) 25%, transparent); }
+  50% { box-shadow: 0 8px 48px color-mix(in srgb, var(--event-accent, var(--color-accent)) 40%, transparent); }
+}
+
+/* Greeting */
+.invite-rsvp__greeting {
+  font-family: var(--font-family-heading);
+  font-size: clamp(var(--text-xl), 3.5vw, var(--text-3xl));
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+  margin: 0;
+}
+
+.invite-rsvp__plus-one-context {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-accent-violet);
+  margin: 0;
+}
+
+.invite-rsvp__description {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: var(--line-height-relaxed);
+  max-width: 440px;
+  margin: 0;
+}
+
+/* Divider */
+.invite-rsvp__divider {
+  width: 48px;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, #6c5ce7));
+  margin: var(--space-2) 0;
+}
+
+/* RSVP label */
+.invite-rsvp__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Status */
+.invite-rsvp__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.invite-rsvp__status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.invite-rsvp__status-badge--accepted {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+}
+
+.invite-rsvp__status-badge--declined {
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+  color: var(--color-error);
+}
+
+.invite-rsvp__change-btn {
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.invite-rsvp__change-btn:hover {
+  opacity: 1;
+}
+
+/* Buttons */
+.invite-rsvp__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 320px;
+}
+
+.invite-rsvp__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.invite-rsvp__btn--accept {
+  padding: var(--space-5) var(--space-8);
+  font-size: var(--text-lg);
+  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 75%, #6c5ce7));
+  color: #fff;
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--event-accent, var(--color-accent)) 30%, transparent);
+}
+
+.invite-rsvp__btn--accept:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 36px color-mix(in srgb, var(--event-accent, var(--color-accent)) 40%, transparent);
+}
+
+.invite-rsvp__btn--accept:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.invite-rsvp__btn--decline {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-light);
+}
+
+.invite-rsvp__btn--decline:hover:not(:disabled) {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 5%, transparent);
+}
+
+.invite-rsvp__btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* Plus-ones note */
+.invite-rsvp__plus-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-light);
+  width: 100%;
+  justify-content: center;
+}
+
+/* Confetti */
+.invite-rsvp__confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.invite-rsvp__confetti-particle {
+  position: absolute;
+  left: var(--x);
+  top: 40%;
+  width: var(--size);
+  height: var(--size);
+  background: var(--color);
+  border-radius: 2px;
+  animation: confettiBurst var(--duration) ease-out var(--delay) both;
+}
+
+@keyframes confettiBurst {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) rotate(var(--rotation)) scale(0.5) translateX(calc((var(--x) - 50%) * 3));
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .invite-rsvp-section {
+    margin-top: -3rem;
+    padding: 0 var(--space-4);
+  }
+
+  .invite-rsvp__card {
+    padding: var(--space-8) var(--space-5);
+  }
+}
+</style>

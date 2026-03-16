@@ -18,6 +18,9 @@ interface WizardData {
   eventType?: EventType
   eventDate?: string
   location?: string
+  description?: string
+  coverImageUrl?: string
+  coverImageKey?: string
   subEvents?: Array<{ title: string }>
 }
 
@@ -105,6 +108,9 @@ export default class EventController {
       ...(wizardData.eventType ? { eventType: wizardData.eventType } : {}),
       ...(wizardData.eventDate ? { eventDate: new Date(wizardData.eventDate) } : {}),
       ...(wizardData.location ? { location: wizardData.location } : {}),
+      ...(wizardData.description ? { description: wizardData.description } : {}),
+      ...(wizardData.coverImageUrl ? { coverImageUrl: wizardData.coverImageUrl } : {}),
+      ...(wizardData.coverImageKey ? { coverImageKey: wizardData.coverImageKey } : {}),
     })
 
     const saved = await EventRepository.create(event)

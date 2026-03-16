@@ -12,7 +12,7 @@ export default class EventMemberRepository {
     const data = member.toJSON()
     const row = await prisma.eventMember.create({
       data: {
-        eventId: data.eventId,
+        eventId: Number(data.eventId),
         userClerkId: data.userClerkId,
         role: data.role,
         invitedEmail: data.invitedEmail,
@@ -25,7 +25,7 @@ export default class EventMemberRepository {
   static async findByEventId(eventId: string): Promise<EventMember[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventMember.findMany({
-      where: { eventId },
+      where: { eventId: Number(eventId) },
       include: { user: true },
       orderBy: { createdAt: 'asc' },
     })
@@ -36,7 +36,7 @@ export default class EventMemberRepository {
     const prisma = usePrisma()
     const row = await prisma.eventMember.findUnique({
       where: {
-        eventId_userClerkId: { eventId, userClerkId: clerkId },
+        eventId_userClerkId: { eventId: Number(eventId), userClerkId: clerkId },
       },
       include: { user: true },
     })
@@ -60,7 +60,7 @@ export default class EventMemberRepository {
     const prisma = usePrisma()
     await prisma.eventMember.delete({
       where: {
-        eventId_userClerkId: { eventId, userClerkId },
+        eventId_userClerkId: { eventId: Number(eventId), userClerkId },
       },
     })
   }

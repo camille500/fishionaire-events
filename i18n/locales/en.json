@@ -1118,6 +1118,7 @@
       }
     },
     "skipType": "Skip — I'll decide later",
+    "eventTypeLabel": "What kind of event?",
     "titlePlaceholder": "Give your event a name",
     "datePlaceholder": "When is it?",
     "locationPlaceholder": "Where is it?",
@@ -1269,6 +1270,7 @@
     "notePlaceholder": "Write a personal message (anonymous)...",
     "sendNote": "Send",
     "takenByOther": "Already claimed",
+    "claimedLabel": "Claimed",
     "noteError": "Could not save message",
     "myClaims": "claimed by you",
     "allCategories": "All",

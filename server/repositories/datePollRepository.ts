@@ -5,7 +5,7 @@ export default class DatePollRepository {
   static async findByEventId(eventId: string): Promise<DatePoll | null> {
     const prisma = usePrisma()
     const row = await prisma.datePoll.findUnique({
-      where: { eventId },
+      where: { eventId: Number(eventId) },
       include: {
         options: {
           orderBy: { sortOrder: 'asc' },
@@ -20,7 +20,7 @@ export default class DatePollRepository {
   static async create(eventId: string): Promise<DatePoll> {
     const prisma = usePrisma()
     const row = await prisma.datePoll.create({
-      data: { eventId },
+      data: { eventId: Number(eventId) },
       include: { options: { include: { votes: true } } },
     })
     return DatePoll.fromJSON(row)
@@ -29,7 +29,7 @@ export default class DatePollRepository {
   static async setActive(id: string, isActive: boolean): Promise<DatePoll> {
     const prisma = usePrisma()
     const row = await prisma.datePoll.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { isActive, updatedAt: new Date() },
       include: {
         options: {
@@ -43,6 +43,6 @@ export default class DatePollRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.datePoll.delete({ where: { id } })
+    await prisma.datePoll.delete({ where: { id: Number(id) } })
   }
 }

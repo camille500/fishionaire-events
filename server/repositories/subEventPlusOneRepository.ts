@@ -6,7 +6,7 @@ export default class SubEventPlusOneRepository {
     const prisma = usePrisma()
     const row = await prisma.subEventPlusOne.create({
       data: {
-        subEventId: data.subEventId,
+        subEventId: Number(data.subEventId),
         guestEmail: data.guestEmail,
         plusOneName: data.plusOneName,
       },
@@ -17,7 +17,7 @@ export default class SubEventPlusOneRepository {
   static async findBySubEventId(subEventId: string): Promise<SubEventPlusOne[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventPlusOne.findMany({
-      where: { subEventId },
+      where: { subEventId: Number(subEventId) },
       orderBy: { createdAt: 'asc' },
     })
     return rows.map((row) => SubEventPlusOne.fromJSON(row))
@@ -25,11 +25,11 @@ export default class SubEventPlusOneRepository {
 
   static async countBySubEventId(subEventId: string): Promise<number> {
     const prisma = usePrisma()
-    return prisma.subEventPlusOne.count({ where: { subEventId } })
+    return prisma.subEventPlusOne.count({ where: { subEventId: Number(subEventId) } })
   }
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.subEventPlusOne.delete({ where: { id } })
+    await prisma.subEventPlusOne.delete({ where: { id: Number(id) } })
   }
 }

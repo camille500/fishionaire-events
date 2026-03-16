@@ -7,7 +7,7 @@ export default class EventPurchaseRepository {
     const data = purchase.toJSON()
     const row = await prisma.eventPurchase.create({
       data: {
-        eventId: data.eventId,
+        eventId: Number(data.eventId),
         buyerClerkId: data.buyerClerkId,
         tier: data.tier,
         status: data.status,
@@ -20,7 +20,7 @@ export default class EventPurchaseRepository {
 
   static async findByEventId(eventId: string): Promise<EventPurchase | null> {
     const prisma = usePrisma()
-    const row = await prisma.eventPurchase.findFirst({ where: { eventId } })
+    const row = await prisma.eventPurchase.findFirst({ where: { eventId: Number(eventId) } })
     if (!row) return null
     return EventPurchase.fromJSON(row)
   }
@@ -37,7 +37,7 @@ export default class EventPurchaseRepository {
   static async updateStatus(id: string, status: string): Promise<EventPurchase> {
     const prisma = usePrisma()
     const row = await prisma.eventPurchase.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { status },
     })
     return EventPurchase.fromJSON(row)
@@ -46,7 +46,7 @@ export default class EventPurchaseRepository {
   static async updateCheckoutSessionId(id: string, sessionId: string): Promise<EventPurchase> {
     const prisma = usePrisma()
     const row = await prisma.eventPurchase.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { stripeCheckoutSessionId: sessionId },
     })
     return EventPurchase.fromJSON(row)

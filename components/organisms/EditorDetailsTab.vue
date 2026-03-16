@@ -7,17 +7,20 @@ const { staggerIn } = useEditorAnimations()
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
 const hasDatePolling = computed(() => !!eventData.value?.features?.datePolling)
 
-// Date polling toggle state — derived from whether a poll exists
+// Date polling toggle state — derived from whether a poll exists and is active
 const datePollingActive = ref(false)
 const pollLoading = ref(false)
+const pollExists = ref(false)
 
 async function checkPollExists() {
   if (!hasDatePolling.value || !eventData.value?.id) return
   pollLoading.value = true
   try {
     const poll = await $fetch(`/api/events/${eventData.value.id}/date-poll`)
-    datePollingActive.value = !!poll
+    pollExists.value = !!poll
+    datePollingActive.value = !!poll?.isActive
   } catch {
+    pollExists.value = false
     datePollingActive.value = false
   } finally {
     pollLoading.value = false
@@ -29,10 +32,18 @@ async function toggleDatePolling(active) {
   pollLoading.value = true
   try {
     if (active) {
-      await $fetch(`/api/events/${eventData.value.id}/date-poll`, { method: 'POST', body: { options: [] } })
+      if (pollExists.value) {
+        // Reactivate existing poll (preserves options and votes)
+        await $fetch(`/api/events/${eventData.value.id}/date-poll/reopen`, { method: 'POST' })
+      } else {
+        // Create a new poll
+        await $fetch(`/api/events/${eventData.value.id}/date-poll`, { method: 'POST', body: { options: [] } })
+        pollExists.value = true
+      }
       datePollingActive.value = true
     } else {
-      await $fetch(`/api/events/${eventData.value.id}/date-poll`, { method: 'DELETE' })
+      // Deactivate poll (preserves options and votes)
+      await $fetch(`/api/events/${eventData.value.id}/date-poll/close`, { method: 'POST' })
       datePollingActive.value = false
     }
   } finally {
@@ -320,6 +331,7 @@ onMounted(() => {
   resize: none;
   overflow: hidden;
   min-height: 80px;
+  field-sizing: content;
   line-height: var(--line-height-relaxed);
   border-radius: var(--radius-md);
   transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);

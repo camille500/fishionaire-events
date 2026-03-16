@@ -59,7 +59,7 @@ const TIER_OPTIONS = [
         <div v-if="form.selectedType" class="step-review__type-bar" :data-event-type="form.selectedType">
           <Icon :name="typeIcon" size="16" />
           <span>{{ t(`wizard.eventTypes.${form.selectedType}.name`) }}</span>
-          <button type="button" class="step-review__edit" @click="editField('type')">
+          <button type="button" class="step-review__edit" @click="editField('info')">
             <Icon name="lucide:pencil" size="12" />
           </button>
         </div>

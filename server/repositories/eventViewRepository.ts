@@ -12,7 +12,7 @@ export default class EventViewRepository {
     const data = view.toJSON()
     const row = await prisma.eventView.create({
       data: {
-        eventId: data.eventId,
+        eventId: Number(data.eventId),
         viewerIp: data.viewerIp,
         userAgent: data.userAgent,
         clerkId: data.clerkId,
@@ -23,7 +23,7 @@ export default class EventViewRepository {
 
   static async countByEventId(eventId: string): Promise<number> {
     const prisma = usePrisma()
-    return prisma.eventView.count({ where: { eventId } })
+    return prisma.eventView.count({ where: { eventId: Number(eventId) } })
   }
 
   static async countGroupedByDate(eventId: string, days: number = 30): Promise<ViewCountByDate[]> {
@@ -34,7 +34,7 @@ export default class EventViewRepository {
     const rows = await prisma.$queryRaw`
       SELECT DATE(created_at) as date, COUNT(*)::int as count
       FROM event_views
-      WHERE event_id = ${eventId} AND created_at >= ${since}
+      WHERE event_id = ${Number(eventId)} AND created_at >= ${since}
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `
@@ -49,7 +49,7 @@ export default class EventViewRepository {
 
     const count = await prisma.eventView.count({
       where: {
-        eventId,
+        eventId: Number(eventId),
         viewerIp: ip,
         createdAt: { gte: since },
       },

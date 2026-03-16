@@ -55,14 +55,13 @@ const DRAFT_STORAGE_KEY = 'fishionaire-wizard-draft'
 
 const ALL_STEPS: WizardStep[] = [
   { id: 'start', icon: 'i-lucide-rocket', slot: 'start' },
-  { id: 'type', icon: 'i-lucide-sparkles', slot: 'type' },
   { id: 'info', icon: 'i-lucide-file-text', slot: 'info' },
   { id: 'tier', icon: 'i-lucide-crown', slot: 'tier' },
   { id: 'review', icon: 'i-lucide-check-circle', slot: 'review' },
 ]
 
 // Steps to skip when AI has prefilled the form
-const AI_SKIP_STEPS = new Set(['type', 'tier'])
+const AI_SKIP_STEPS = new Set(['tier'])
 
 const EVENT_TYPES: string[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
@@ -132,7 +131,6 @@ export function useWizardStateProvider() {
   const stepValidation = computed(() => {
     return {
       start: startMode.value !== '',
-      type: form.selectedType !== '',
       info: form.title.trim().length > 0,
       tier: true, // always passable (defaults to free)
       review: form.title.trim().length > 0,

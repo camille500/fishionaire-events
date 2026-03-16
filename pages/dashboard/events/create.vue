@@ -144,14 +144,7 @@ const transitionName = computed(() => {
               @ai-complete="next()"
             />
 
-            <!-- Step 1: Event Type -->
-            <WizardStepType
-              v-else-if="currentStepId === 'type'"
-              key="type"
-              @selected="next()"
-            />
-
-            <!-- Step 2: Basic Info -->
+            <!-- Step 1: Basic Info -->
             <WizardStepInfo
               v-else-if="currentStepId === 'info'"
               key="info"

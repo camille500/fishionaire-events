@@ -18,19 +18,25 @@ export default defineEventHandler(async (event: H3Event) => {
     lastName: clerkUser.lastName,
   })
 
-  const { title, tier, templateId, eventType, eventDate, location, subEvents } = await readBody<{
+  const { title, tier, templateId, eventType, eventDate, location, description, coverImageUrl, coverImageKey, subEvents } = await readBody<{
     title: string
     tier: string
     templateId?: number
     eventType?: string
     eventDate?: string
     location?: string
+    description?: string
+    coverImageUrl?: string
+    coverImageKey?: string
     subEvents?: Array<{ title: string, description?: string }>
   }>(event)
   const result = await EventController.createEvent(userId, title, tier, templateId || null, {
     eventType: eventType || null,
     eventDate: eventDate || null,
     location: location || null,
+    description: description || null,
+    coverImageUrl: coverImageUrl || null,
+    coverImageKey: coverImageKey || null,
     subEvents: subEvents || [],
   })
 

@@ -19,7 +19,8 @@ const itemStatus = computed(() => {
     if (props.item.isFullyFunded) return 'funded'
     if (props.item.claimCount > 0) return 'pooling'
   }
-  if (props.item.isClaimed) return 'claimed'
+  // Check both isClaimed (guest view) and claimCount (organizer view)
+  if (props.item.isClaimed || props.item.claimCount > 0) return 'claimed'
   return 'available'
 })
 
@@ -65,6 +66,7 @@ function submitNote() {
     class="wishlist-card"
     :class="{
       'wishlist-card--unavailable': isUnavailable,
+      'wishlist-card--claimed-org': mode === 'organizer' && itemStatus === 'claimed',
       'wishlist-card--mine': !!item.myClaim,
       'wishlist-card--selected': selected,
     }"
@@ -85,10 +87,14 @@ function submitNote() {
       <div v-else class="wishlist-card__placeholder">
         <Icon name="lucide:gift" />
       </div>
-      <!-- Overlay for items claimed by someone else -->
+      <!-- Overlay for claimed items -->
       <div v-if="isUnavailable && mode === 'guest'" class="wishlist-card__taken-overlay">
-        <Icon name="lucide:check-circle" />
+        <Icon name="lucide:check-circle" size="28" />
         <span>{{ t('wishlist.takenByOther') }}</span>
+      </div>
+      <div v-else-if="mode === 'organizer' && itemStatus === 'claimed'" class="wishlist-card__taken-overlay wishlist-card__taken-overlay--org">
+        <Icon name="lucide:gift" size="24" />
+        <span>{{ t('wishlist.claimedLabel') }}</span>
       </div>
     </div>
 
@@ -238,6 +244,11 @@ function submitNote() {
   border-color: var(--color-border);
 }
 
+.wishlist-card--claimed-org {
+  border-color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 3%, var(--color-surface));
+}
+
 .wishlist-card--mine {
   opacity: 1;
   filter: none;
@@ -297,11 +308,16 @@ function submitNote() {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
+}
+
+.wishlist-card__taken-overlay--org {
+  background: color-mix(in srgb, var(--color-warning) 10%, rgba(255, 255, 255, 0.85));
+  color: var(--color-warning);
 }
 
 .wishlist-card__content {

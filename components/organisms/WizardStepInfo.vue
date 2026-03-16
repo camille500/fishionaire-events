@@ -1,9 +1,15 @@
 <script setup>
 const { t } = useI18n()
 const { form, touched, errors, aiPrefilled } = useWizardState()
+const { accentColor } = useEventTheme(computed(() => form.selectedType))
 
 const props = defineProps({
   wizardAi: { type: Object, required: true },
+})
+
+const typeAccentStyle = computed(() => {
+  if (!form.selectedType || form.selectedType === 'other') return {}
+  return { '--type-accent': accentColor.value }
 })
 
 const showDescription = ref(!!form.description)
@@ -48,10 +54,16 @@ const showCharCount = computed(() => descriptionCharCount.value > 1500)
 </script>
 
 <template>
-  <div class="step-info">
+  <div class="step-info" :style="typeAccentStyle">
     <div class="step-info__header">
       <AppHeading :level="2" size="xl">{{ t('wizard.steps.infoTitle') }}</AppHeading>
       <AppText size="sm" muted>{{ t('wizard.steps.infoSubtitle') }}</AppText>
+    </div>
+
+    <!-- Event Type -->
+    <div class="step-info__field">
+      <label class="step-info__label">{{ t('wizard.eventTypeLabel') }}</label>
+      <EventTypePills />
     </div>
 
     <!-- Title -->
@@ -220,7 +232,7 @@ const showCharCount = computed(() => descriptionCharCount.value > 1500)
 }
 
 .step-info__title-input:focus {
-  border-color: var(--color-accent);
+  border-color: var(--type-accent, var(--color-accent));
 }
 
 .step-info__title-input--error {
@@ -300,10 +312,10 @@ const showCharCount = computed(() => descriptionCharCount.value > 1500)
   align-self: flex-start;
   gap: var(--space-1);
   padding: var(--space-1) var(--space-2);
-  border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--type-accent, var(--color-accent)) 25%, transparent);
   border-radius: var(--radius-full);
-  background: var(--color-accent-dim);
-  color: var(--color-accent);
+  background: color-mix(in srgb, var(--type-accent, var(--color-accent)) 8%, transparent);
+  color: var(--type-accent, var(--color-accent));
   font-family: var(--font-family);
   font-size: var(--text-xs);
   font-weight: var(--font-weight-medium);

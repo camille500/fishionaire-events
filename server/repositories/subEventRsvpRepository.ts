@@ -16,10 +16,10 @@ export default class SubEventRsvpRepository {
     const prisma = usePrisma()
     const row = await prisma.subEventRsvp.upsert({
       where: {
-        subEventId_guestEmail: { subEventId, guestEmail },
+        subEventId_guestEmail: { subEventId: Number(subEventId), guestEmail },
       },
       update: { status, updatedAt: new Date() },
-      create: { subEventId, guestEmail, status },
+      create: { subEventId: Number(subEventId), guestEmail, status },
     })
     return SubEventRsvp.fromJSON(row)
   }
@@ -27,7 +27,7 @@ export default class SubEventRsvpRepository {
   static async findBySubEventId(subEventId: string): Promise<SubEventRsvp[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventRsvp.findMany({
-      where: { subEventId },
+      where: { subEventId: Number(subEventId) },
       orderBy: { createdAt: 'asc' },
     })
     return rows.map((row) => SubEventRsvp.fromJSON(row))
@@ -38,7 +38,7 @@ export default class SubEventRsvpRepository {
     const rows = await prisma.subEventRsvp.findMany({
       where: {
         guestEmail: email,
-        subEvent: { eventId },
+        subEvent: { eventId: Number(eventId) },
       },
       include: { subEvent: { select: { id: true, title: true } } },
     })
@@ -51,9 +51,9 @@ export default class SubEventRsvpRepository {
   static async getCountsBySubEventId(subEventId: string): Promise<RsvpCounts> {
     const prisma = usePrisma()
     const [accepted, declined, pending] = await Promise.all([
-      prisma.subEventRsvp.count({ where: { subEventId, status: 'accepted' } }),
-      prisma.subEventRsvp.count({ where: { subEventId, status: 'declined' } }),
-      prisma.subEventRsvp.count({ where: { subEventId, status: 'pending' } }),
+      prisma.subEventRsvp.count({ where: { subEventId: Number(subEventId), status: 'accepted' } }),
+      prisma.subEventRsvp.count({ where: { subEventId: Number(subEventId), status: 'declined' } }),
+      prisma.subEventRsvp.count({ where: { subEventId: Number(subEventId), status: 'pending' } }),
     ])
     return { accepted, declined, pending }
   }

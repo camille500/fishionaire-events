@@ -6,10 +6,10 @@ export default class SubEventDietaryRepository {
     const prisma = usePrisma()
     const row = await prisma.subEventDietary.upsert({
       where: {
-        subEventId_guestEmail: { subEventId, guestEmail },
+        subEventId_guestEmail: { subEventId: Number(subEventId), guestEmail },
       },
       create: {
-        subEventId,
+        subEventId: Number(subEventId),
         guestEmail,
         guestName: data.guestName || null,
         restrictions: data.restrictions,
@@ -28,7 +28,7 @@ export default class SubEventDietaryRepository {
   static async findBySubEventId(subEventId: string): Promise<SubEventDietary[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventDietary.findMany({
-      where: { subEventId },
+      where: { subEventId: Number(subEventId) },
       orderBy: { createdAt: 'asc' },
     })
     return rows.map((row) => SubEventDietary.fromJSON(row))
@@ -38,7 +38,7 @@ export default class SubEventDietaryRepository {
     const prisma = usePrisma()
     const row = await prisma.subEventDietary.findUnique({
       where: {
-        subEventId_guestEmail: { subEventId, guestEmail },
+        subEventId_guestEmail: { subEventId: Number(subEventId), guestEmail },
       },
     })
     if (!row) return null
@@ -47,6 +47,6 @@ export default class SubEventDietaryRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.subEventDietary.delete({ where: { id } })
+    await prisma.subEventDietary.delete({ where: { id: Number(id) } })
   }
 }

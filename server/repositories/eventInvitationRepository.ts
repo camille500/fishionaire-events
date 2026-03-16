@@ -38,18 +38,18 @@ export default class EventInvitationRepository {
     const data = invitation.toJSON()
     const row = await prisma.eventInvitation.create({
       data: {
-        eventId: data.eventId,
+        eventId: Number(data.eventId),
         inviteeEmail: data.inviteeEmail,
         inviteeName: data.inviteeName,
         inviterClerkId: data.inviterClerkId,
         status: data.status,
         plusOnes: data.plusOnes,
         accessToken: data.accessToken || crypto.randomBytes(16).toString('hex'),
-        invitedById: data.invitedById,
+        invitedById: data.invitedById ? Number(data.invitedById) : null,
         subEventInvites: data.subEventInvites.length > 0
           ? {
               create: data.subEventInvites.map((s) => ({
-                subEventId: s.subEventId,
+                subEventId: Number(s.subEventId),
                 plusOnes: s.plusOnes,
               })),
             }
@@ -63,7 +63,7 @@ export default class EventInvitationRepository {
   static async findByEventId(eventId: string): Promise<EventInvitation[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventInvitation.findMany({
-      where: { eventId },
+      where: { eventId: Number(eventId) },
       include: FULL_INCLUDE,
       orderBy: { createdAt: 'desc' },
     })
@@ -73,7 +73,7 @@ export default class EventInvitationRepository {
   static async findPrimaryByEventId(eventId: string): Promise<EventInvitation[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventInvitation.findMany({
-      where: { eventId, invitedById: null },
+      where: { eventId: Number(eventId), invitedById: null },
       include: FULL_INCLUDE,
       orderBy: { createdAt: 'desc' },
     })
@@ -83,7 +83,7 @@ export default class EventInvitationRepository {
   static async findByEventIdAndEmail(eventId: string, email: string): Promise<EventInvitation | null> {
     const prisma = usePrisma()
     const row = await prisma.eventInvitation.findFirst({
-      where: { eventId, inviteeEmail: { equals: email, mode: 'insensitive' } },
+      where: { eventId: Number(eventId), inviteeEmail: { equals: email, mode: 'insensitive' } },
       include: FULL_INCLUDE,
     })
     if (!row) return null
@@ -114,7 +114,7 @@ export default class EventInvitationRepository {
         await prisma.invitationSubEvent.createMany({
           data: data.subEventInvites.map((s) => ({
             invitationId: id,
-            subEventId: s.subEventId,
+            subEventId: Number(s.subEventId),
             plusOnes: s.plusOnes,
           })),
         })
@@ -140,7 +140,7 @@ export default class EventInvitationRepository {
 
   static async countGuests(eventId: string): Promise<{ invited: number, plusOnes: number, total: number }> {
     const prisma = usePrisma()
-    const all = await prisma.eventInvitation.count({ where: { eventId } })
+    const all = await prisma.eventInvitation.count({ where: { eventId: Number(eventId) } })
     return { invited: all, plusOnes: 0, total: all }
   }
 }

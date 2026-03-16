@@ -6,7 +6,7 @@ export default class SubEventMusicRequestRepository {
     const prisma = usePrisma()
     const row = await prisma.subEventMusicRequest.create({
       data: {
-        subEventId: data.subEventId,
+        subEventId: Number(data.subEventId),
         guestEmail: data.guestEmail,
         songTitle: data.songTitle,
         artist: data.artist || null,
@@ -18,7 +18,7 @@ export default class SubEventMusicRequestRepository {
   static async findBySubEventId(subEventId: string): Promise<SubEventMusicRequest[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventMusicRequest.findMany({
-      where: { subEventId },
+      where: { subEventId: Number(subEventId) },
       orderBy: { votes: 'desc' },
     })
     return rows.map((row) => SubEventMusicRequest.fromJSON(row))
@@ -27,7 +27,7 @@ export default class SubEventMusicRequestRepository {
   static async upvote(id: string): Promise<SubEventMusicRequest> {
     const prisma = usePrisma()
     const row = await prisma.subEventMusicRequest.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { votes: { increment: 1 } },
     })
     return SubEventMusicRequest.fromJSON(row)
@@ -35,6 +35,6 @@ export default class SubEventMusicRequestRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.subEventMusicRequest.delete({ where: { id } })
+    await prisma.subEventMusicRequest.delete({ where: { id: Number(id) } })
   }
 }

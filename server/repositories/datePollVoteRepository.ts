@@ -24,7 +24,7 @@ export default class DatePollVoteRepository {
     const rows = await prisma.datePollVote.findMany({
       where: {
         voterEmail,
-        option: { datePollId },
+        option: { datePollId: Number(datePollId) },
       },
     })
     return rows.map((row) => DatePollVote.fromJSON(row))
@@ -35,7 +35,7 @@ export default class DatePollVoteRepository {
     await prisma.datePollVote.deleteMany({
       where: {
         voterEmail,
-        option: { datePollId },
+        option: { datePollId: Number(datePollId) },
       },
     })
   }

@@ -1118,6 +1118,7 @@
       }
     },
     "skipType": "Overslaan — ik beslis later",
+    "eventTypeLabel": "Wat voor evenement?",
     "titlePlaceholder": "Geef je evenement een naam",
     "datePlaceholder": "Wanneer is het?",
     "locationPlaceholder": "Waar is het?",
@@ -1269,6 +1270,7 @@
     "notePlaceholder": "Schrijf een persoonlijk berichtje (anoniem)...",
     "sendNote": "Versturen",
     "takenByOther": "Al geclaimd",
+    "claimedLabel": "Geclaimd",
     "noteError": "Kon bericht niet opslaan",
     "myClaims": "door jou geclaimd",
     "allCategories": "Alles",

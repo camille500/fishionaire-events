@@ -17,7 +17,7 @@ export default class TimelineItemRepository {
     const data = item.toJSON()
     const row = await prisma.timelineItem.create({
       data: {
-        eventId: data.eventId,
+        eventId: Number(data.eventId),
         title: data.title,
         description: data.description,
         location: data.location,
@@ -32,7 +32,7 @@ export default class TimelineItemRepository {
   static async findByEventId(eventId: string): Promise<TimelineItem[]> {
     const prisma = usePrisma()
     const rows = await prisma.timelineItem.findMany({
-      where: { eventId },
+      where: { eventId: Number(eventId) },
       orderBy: [{ sortOrder: 'asc' }, { startTime: 'asc' }],
     })
     return rows.map((row) => TimelineItem.fromJSON(row))
@@ -40,7 +40,7 @@ export default class TimelineItemRepository {
 
   static async findById(id: string): Promise<TimelineItem | null> {
     const prisma = usePrisma()
-    const row = await prisma.timelineItem.findUnique({ where: { id } })
+    const row = await prisma.timelineItem.findUnique({ where: { id: Number(id) } })
     if (!row) return null
     return TimelineItem.fromJSON(row)
   }
@@ -49,7 +49,7 @@ export default class TimelineItemRepository {
     const prisma = usePrisma()
     const data = item.toJSON()
     const row = await prisma.timelineItem.update({
-      where: { id: data.id },
+      where: { id: Number(data.id) },
       data: {
         title: data.title,
         description: data.description,
@@ -65,7 +65,7 @@ export default class TimelineItemRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.timelineItem.delete({ where: { id } })
+    await prisma.timelineItem.delete({ where: { id: Number(id) } })
   }
 
   static async reorder(eventId: string, orderedIds: string[]): Promise<void> {
@@ -73,7 +73,7 @@ export default class TimelineItemRepository {
     await prisma.$transaction(
       orderedIds.map((id, index) =>
         prisma.timelineItem.update({
-          where: { id },
+          where: { id: Number(id) },
           data: { sortOrder: index },
         })
       )
@@ -86,7 +86,7 @@ export default class TimelineItemRepository {
       items.map((item) =>
         prisma.timelineItem.create({
           data: {
-            eventId: item.eventId,
+            eventId: Number(item.eventId),
             title: item.title,
             description: item.description,
             location: item.location,

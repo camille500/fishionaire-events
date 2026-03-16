@@ -248,7 +248,29 @@ export default class DatePollController {
     const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
     if (!invitation) throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
 
-    return this.submitVotes(eventId, invitation.inviteeEmail, invitation.inviteeName, votes)
+    // Token already proves identity — use email or generate a stable identifier for +1 invitees without email
+    const voterEmail = invitation.inviteeEmail || `guest+${accessToken.slice(0, 12)}@invite.local`
+    const voterName = invitation.inviteeName || null
+
+    const poll = await DatePollRepository.findByEventId(eventId)
+    if (!poll) throw createError({ statusCode: 404, statusMessage: 'No date poll found for this event' })
+    if (!poll.isActive) throw createError({ statusCode: 400, statusMessage: 'This poll is closed' })
+
+    const validStatuses: DatePollVoteStatus[] = ['yes', 'maybe', 'no']
+    const optionIds = poll.options.map(o => String(o.id))
+
+    for (const vote of votes) {
+      if (!optionIds.includes(String(vote.optionId))) {
+        throw createError({ statusCode: 400, statusMessage: `Invalid option ID: ${vote.optionId}` })
+      }
+      if (!validStatuses.includes(vote.status)) {
+        throw createError({ statusCode: 400, statusMessage: `Invalid vote status: ${vote.status}` })
+      }
+      await DatePollVoteRepository.upsert(vote.optionId, voterEmail.toLowerCase(), vote.status, voterName)
+    }
+
+    const updated = await DatePollRepository.findByEventId(eventId)
+    return this.#serializePublicPoll(updated!, voterEmail.toLowerCase())
   }
 
   // ── Helpers ───────────────────────────────────────────────────

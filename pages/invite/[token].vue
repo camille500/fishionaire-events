@@ -44,6 +44,7 @@ const hasPoll = computed(() => eventData.value?.features?.datePolling)
 const hasWishlist = computed(() => eventData.value?.features?.wishlist)
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
+const showPlusOnes = computed(() => !isPlusOne.value && invitation.value?.plusOnes > 0)
 const remainingPlusOnes = computed(() => {
   const inv = invitation.value
   if (!inv) return 0
@@ -52,10 +53,7 @@ const remainingPlusOnes = computed(() => {
 })
 const plusOneInvites = computed(() => invitation.value?.plusOneInvites || [])
 
-// Plus-one add form
-const showPlusOneForm = ref(false)
-const plusOneName = ref('')
-const plusOneEmail = ref('')
+// Plus-one management
 const plusOneSaving = ref(false)
 const copiedPlusOneId = ref(null)
 
@@ -72,21 +70,15 @@ async function copyPlusOneLink(accessToken, id) {
   } catch {}
 }
 
-async function addPlusOne() {
-  if (!plusOneName.value.trim() || !plusOneEmail.value.trim()) return
+async function addPlusOne(name, email) {
   plusOneSaving.value = true
   try {
     const result = await $fetch(`/api/invite/${token}/plus-one`, {
       method: 'POST',
-      body: { name: plusOneName.value.trim(), email: plusOneEmail.value.trim() },
+      body: { name, email },
     })
-    plusOneName.value = ''
-    plusOneEmail.value = ''
-    showPlusOneForm.value = false
-    // Refresh data to show the new plus-one in the list
     const refreshed = await $fetch(`/api/invite/${token}`)
     data.value = refreshed
-    // Auto-copy the new link
     if (result.accessToken) {
       copyPlusOneLink(result.accessToken, result.id)
     }
@@ -103,6 +95,7 @@ async function removePlusOne(plusOneId) {
   } catch {}
 }
 
+// RSVP
 async function rsvp(status) {
   rsvpLoading.value = true
   try {
@@ -116,25 +109,25 @@ async function rsvp(status) {
   }
 }
 
-// Watch for initial data
+function handleChangeResponse() {
+  rsvpStatus.value = 'pending'
+}
+
 watch(invitation, (inv) => {
   if (inv) rsvpStatus.value = inv.status
 }, { immediate: true })
 
-// --- Type-specific interactions ---
-
-// Dietary preferences (dinner sub-events)
+// Dietary preferences
 const dietarySaving = ref({})
 
-async function submitDietary(subEventId, data) {
+async function submitDietary(subEventId, dietaryData) {
   dietarySaving.value[subEventId] = true
   try {
-    await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/dietary`, {
+    await $fetch(`/api/invite/${token}/dietary`, {
       method: 'POST',
       body: {
-        email: invitation.value?.inviteeEmail,
-        guestName: invitation.value?.inviteeName,
-        ...data,
+        subEventId,
+        ...dietaryData,
       },
     })
   } catch {}
@@ -143,11 +136,10 @@ async function submitDietary(subEventId, data) {
   }
 }
 
-// Music requests (party sub-events)
+// Music requests
 const musicForms = reactive({})
 const musicLists = reactive({})
 
-// Initialize music forms for party sub-events
 watch(subEvents, (subs) => {
   for (const se of subs) {
     if (se.type === 'party' && !musicForms[se.id]) {
@@ -159,7 +151,7 @@ watch(subEvents, (subs) => {
 
 async function fetchMusicRequests(subEventId) {
   try {
-    musicLists[subEventId] = await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/music-requests`)
+    musicLists[subEventId] = await $fetch(`/api/invite/${token}/music-requests`, { query: { subEventId } })
   } catch {
     musicLists[subEventId] = []
   }
@@ -169,10 +161,10 @@ async function submitMusicRequest(subEventId) {
   const form = musicForms[subEventId]
   if (!form?.songTitle?.trim()) return
   try {
-    await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/music-requests`, {
+    await $fetch(`/api/invite/${token}/music-request`, {
       method: 'POST',
       body: {
-        email: invitation.value?.inviteeEmail,
+        subEventId,
         songTitle: form.songTitle.trim(),
         artist: form.artist?.trim() || null,
       },
@@ -185,7 +177,7 @@ async function submitMusicRequest(subEventId) {
 
 async function upvoteMusic(subEventId, requestId) {
   try {
-    await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/music-requests/${requestId}/upvote`, {
+    await $fetch(`/api/invite/${token}/music-request/${requestId}/upvote`, {
       method: 'POST',
     })
     await fetchMusicRequests(subEventId)
@@ -209,299 +201,112 @@ async function upvoteMusic(subEventId, requestId) {
 
     <!-- Main content -->
     <template v-else-if="eventData">
-      <!-- Hero -->
-      <header class="invite-page__hero">
-        <div
-          v-if="eventData.coverImageUrl"
-          class="invite-page__hero-bg"
-          :style="{ backgroundImage: `url(${eventData.coverImageUrl})` }"
-        />
-        <div v-else class="invite-page__hero-bg invite-page__hero-bg--gradient" />
-        <div class="invite-page__hero-overlay" />
+      <!-- 1. Full-viewport hero -->
+      <InviteHero
+        :event-data="eventData"
+        :accent-color="accentColor"
+        :formatted-date="formattedDate"
+        :formatted-time="formattedTime"
+        :has-poll="hasPoll"
+      />
 
-        <div class="invite-page__hero-content">
-          <div class="invite-page__logo">
-            <NuxtLink to="/" class="invite-page__logo-link">Fishionaire</NuxtLink>
-          </div>
+      <!-- 2. Welcome + RSVP (overlaps hero) -->
+      <InviteWelcomeRsvp
+        :event-data="eventData"
+        :invitation="invitation"
+        :is-plus-one="isPlusOne"
+        :invited-by-name="invitedByName"
+        :rsvp-status="rsvpStatus"
+        :rsvp-loading="rsvpLoading"
+        @rsvp="rsvp"
+        @change-response="handleChangeResponse"
+      />
 
-          <div class="invite-page__hero-text">
-            <div v-if="eventData.eventType" class="invite-page__type-badge">
-              {{ t(`dashboard.eventEditor.eventTypes.${eventData.eventType}`) }}
-            </div>
-            <h1 class="invite-page__title">{{ eventData.title }}</h1>
-            <div class="invite-page__meta">
-              <span v-if="formattedDate" class="invite-page__meta-item">
-                <Icon name="lucide:calendar" size="16" />
-                {{ formattedDate }}
-                <span v-if="formattedTime" class="invite-page__meta-time">{{ formattedTime }}</span>
-              </span>
-              <span v-else-if="hasPoll" class="invite-page__meta-item invite-page__meta-item--poll">
-                <Icon name="lucide:bar-chart-3" size="16" />
-                {{ t('invite.dateToBeDecided') }}
-              </span>
-              <span v-if="eventData.location" class="invite-page__meta-item">
-                <Icon name="lucide:map-pin" size="16" />
-                {{ eventData.location }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Body -->
-      <main class="invite-page__body">
-        <!-- Welcome -->
-        <section class="invite-page__card invite-page__welcome" style="animation-delay: 100ms">
-          <div class="invite-page__welcome-icon">
-            <Icon :name="isPlusOne ? 'lucide:user-plus' : 'lucide:party-popper'" size="28" />
-          </div>
-          <h2 class="invite-page__welcome-text">
-            <template v-if="isPlusOne">
-              {{ t('invite.welcomePlusOne', { event: eventData.title, inviter: invitedByName }) }}
-            </template>
-            <template v-else-if="invitation?.inviteeName">
-              {{ t('invite.welcomeNamed', { name: invitation.inviteeName }) }}
-            </template>
-            <template v-else>
-              {{ t('invite.welcome') }}
-            </template>
-          </h2>
-          <AppText v-if="isPlusOne && invitedByName" size="sm" muted class="invite-page__plus-one-context">
-            <Icon name="lucide:heart" size="14" />
-            {{ t('invite.plusOneContext', { name: invitedByName }) }}
-          </AppText>
-          <AppText v-if="eventData.description" class="invite-page__description">
-            {{ eventData.description }}
-          </AppText>
-        </section>
-
-        <!-- RSVP -->
-        <section class="invite-page__card invite-page__rsvp" style="animation-delay: 200ms">
-          <h3 class="invite-page__section-title">{{ t('invite.rsvp.title') }}</h3>
-
-          <div v-if="rsvpStatus !== 'pending'" class="invite-page__rsvp-status">
-            <div
-              class="invite-page__rsvp-badge"
-              :class="{
-                'invite-page__rsvp-badge--accepted': rsvpStatus === 'accepted',
-                'invite-page__rsvp-badge--declined': rsvpStatus === 'declined',
-              }"
-            >
-              <Icon :name="rsvpStatus === 'accepted' ? 'lucide:check-circle' : 'lucide:x-circle'" size="20" />
-              {{ rsvpStatus === 'accepted' ? t('invite.rsvp.youreAttending') : t('invite.rsvp.youreNotAttending') }}
-            </div>
-            <button class="invite-page__change-btn" @click="rsvpStatus = 'pending'">
-              {{ t('invite.rsvp.changeResponse') }}
-            </button>
-          </div>
-
-          <div v-else class="invite-page__rsvp-buttons">
-            <button
-              class="invite-page__rsvp-btn invite-page__rsvp-btn--accept"
-              :disabled="rsvpLoading"
-              @click="rsvp('accepted')"
-            >
-              <Icon name="lucide:check" size="20" />
-              {{ t('invite.rsvp.attending') }}
-            </button>
-            <button
-              class="invite-page__rsvp-btn invite-page__rsvp-btn--decline"
-              :disabled="rsvpLoading"
-              @click="rsvp('declined')"
-            >
-              <Icon name="lucide:x" size="20" />
-              {{ t('invite.rsvp.declining') }}
-            </button>
-          </div>
-
-          <AppText v-if="invitation?.plusOnes > 0 && !isPlusOne" size="sm" muted class="invite-page__plus-ones-note">
-            <Icon name="lucide:user-plus" size="14" />
-            {{ t('invite.rsvp.plusOnesNote', { count: invitation.plusOnes }) }}
-          </AppText>
-        </section>
-
-        <!-- Plus-one management (only for primary invitees with plus-one slots) -->
+      <!-- 3. Content sections -->
+      <main class="invite-body">
+        <!-- Plus-ones -->
         <section
-          v-if="!isPlusOne && invitation?.plusOnes > 0"
-          class="invite-page__card invite-page__plus-ones-section"
-          style="animation-delay: 250ms"
+          v-if="showPlusOnes"
+          class="invite-section invite-section--tinted invite-section--reveal"
+          style="animation-delay: 100ms"
         >
-          <h3 class="invite-page__section-title">{{ t('invite.plusOnes.title') }}</h3>
-          <AppText size="sm" muted>{{ t('invite.plusOnes.subtitle', { count: invitation.plusOnes }) }}</AppText>
-
-          <!-- List of already-added plus-ones -->
-          <div v-if="plusOneInvites.length > 0" class="invite-page__plus-one-list">
-            <div v-for="po in plusOneInvites" :key="po.id" class="invite-page__plus-one-row">
-              <div class="invite-page__plus-one-avatar">
-                {{ (po.inviteeName || '?').charAt(0).toUpperCase() }}
-              </div>
-              <div class="invite-page__plus-one-info">
-                <span class="invite-page__plus-one-name">{{ po.inviteeName }}</span>
-                <span class="invite-page__plus-one-email">{{ po.inviteeEmail }}</span>
-              </div>
-              <AppBadge :label="t(`editor.guests.status.${po.status}`)" :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" />
-              <div class="invite-page__plus-one-actions-row">
-                <button
-                  class="invite-page__copy-link-btn"
-                  :title="t('invite.plusOnes.copyLink')"
-                  @click="copyPlusOneLink(po.accessToken, po.id)"
-                >
-                  <Icon :name="copiedPlusOneId === po.id ? 'lucide:check' : 'lucide:link'" size="14" />
-                </button>
-                <button
-                  class="invite-page__copy-link-btn invite-page__copy-link-btn--danger"
-                  :title="t('invite.plusOnes.remove')"
-                  @click="removePlusOne(po.id)"
-                >
-                  <Icon name="lucide:x" size="14" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Add plus-one form -->
-          <div v-if="remainingPlusOnes > 0 && showPlusOneForm" class="invite-page__plus-one-form">
-            <input
-              v-model="plusOneName"
-              type="text"
-              class="invite-page__plus-one-input"
-              :placeholder="t('invite.plusOnes.namePlaceholder')"
+          <div class="invite-section__inner">
+            <InvitePlusOnes
+              :plus-one-invites="plusOneInvites"
+              :remaining-plus-ones="remainingPlusOnes"
+              :copied-plus-one-id="copiedPlusOneId"
+              :plus-one-saving="plusOneSaving"
+              :invitation="invitation"
+              @add="addPlusOne"
+              @remove="removePlusOne"
+              @copy-link="copyPlusOneLink"
             />
-            <input
-              v-model="plusOneEmail"
-              type="email"
-              class="invite-page__plus-one-input"
-              :placeholder="t('invite.plusOnes.emailPlaceholder')"
-            />
-            <div class="invite-page__plus-one-actions">
-              <AppButton
-                variant="primary"
-                size="sm"
-                :loading="plusOneSaving"
-                :disabled="!plusOneName.trim() || !plusOneEmail.trim()"
-                @click="addPlusOne"
-              >
-                <Icon name="lucide:link" size="14" />
-                {{ t('invite.plusOnes.createLink') }}
-              </AppButton>
-              <AppButton variant="ghost" size="sm" @click="showPlusOneForm = false">
-                {{ t('common.cancel') }}
-              </AppButton>
-            </div>
           </div>
-
-          <AppButton
-            v-if="remainingPlusOnes > 0 && !showPlusOneForm"
-            variant="outline"
-            size="sm"
-            @click="showPlusOneForm = true"
-          >
-            <Icon name="lucide:user-plus" size="14" />
-            {{ t('invite.plusOnes.addButton') }}
-            <span class="invite-page__remaining">({{ remainingPlusOnes }} {{ t('invite.plusOnes.remaining') }})</span>
-          </AppButton>
         </section>
 
-        <!-- Programme (sub-events the guest is invited to) -->
-        <section v-if="subEvents.length > 0" class="invite-page__card invite-page__programme" style="animation-delay: 300ms">
-          <h3 class="invite-page__section-title">{{ t('invite.programme.title') }}</h3>
-          <div class="invite-page__programme-list">
+        <!-- Programme timeline -->
+        <section
+          v-if="subEvents.length > 0"
+          class="invite-section invite-section--reveal"
+          style="animation-delay: 200ms"
+        >
+          <div class="invite-section__inner">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:calendar-range" size="22" />
+              {{ t('invite.programme.title') }}
+            </h2>
+            <InviteProgrammeTimeline
+              :sub-events="subEvents"
+              :invitation="invitation"
+              :event-data="eventData"
+              :music-forms="musicForms"
+              :music-lists="musicLists"
+              :dietary-saving="dietarySaving"
+              @submit-dietary="submitDietary"
+              @submit-music="submitMusicRequest"
+              @upvote-music="upvoteMusic"
+            />
+          </div>
+        </section>
+
+        <!-- Wishlist + Date poll -->
+        <section
+          v-if="hasWishlist || hasPoll"
+          class="invite-section invite-section--tinted invite-section--reveal"
+          style="animation-delay: 300ms"
+        >
+          <div class="invite-section__inner invite-section__inner--wide">
             <div
-              v-for="se in subEvents"
-              :key="se.id"
-              class="invite-page__programme-item"
+              class="invite-duo-grid"
+              :class="{ 'invite-duo-grid--single': !(hasWishlist && hasPoll) }"
             >
-              <SubEventTypeIcon :type="se.type || 'generic'" size="sm" />
-              <div class="invite-page__programme-info">
-                <span class="invite-page__programme-name">{{ se.title }}</span>
-                <span v-if="se.description" class="invite-page__programme-desc">{{ se.description }}</span>
+              <!-- Wishlist -->
+              <div v-if="hasWishlist" class="invite-duo-grid__card">
+                <h2 class="invite-section__title">
+                  <Icon name="lucide:gift" size="20" />
+                  {{ t('invite.wishlist.title') }}
+                </h2>
+                <p class="invite-section__subtitle">{{ t('invite.wishlist.subtitle') }}</p>
+                <WishlistGuestView :token="token" />
+              </div>
 
-                <!-- Type-specific meta -->
-                <div v-if="se.dressCode" class="invite-page__programme-meta">
-                  <Icon name="lucide:shirt" size="12" />
-                  {{ t('invite.programme.dressCodeNote', { dressCode: se.dressCode }) }}
-                </div>
-                <div v-if="se.type === 'activity' && se.capacity" class="invite-page__programme-meta">
-                  <Icon name="lucide:users" size="12" />
-                  {{ t('editor.subEventPreview.capacity', { count: se.capacity }) }}
-                </div>
-
-                <!-- Dinner: dietary preferences form -->
-                <div v-if="se.type === 'dinner'" class="invite-page__programme-interaction">
-                  <p class="invite-page__programme-hint">
-                    <Icon name="lucide:heart-pulse" size="12" />
-                    {{ t('invite.programme.dietaryHint') }}
-                  </p>
-                  <DietaryPreferenceForm
-                    :loading="dietarySaving[se.id]"
-                    @submit="(data) => submitDietary(se.id, data)"
-                  />
-                </div>
-
-                <!-- Party: music request -->
-                <div v-if="se.type === 'party' && se.typeConfig?.musicRequestsEnabled !== false" class="invite-page__programme-interaction">
-                  <p class="invite-page__programme-hint">
-                    <Icon name="lucide:music" size="12" />
-                    {{ t('invite.programme.musicHint') }}
-                  </p>
-                  <div class="invite-page__music-form">
-                    <input
-                      v-model="musicForms[se.id].songTitle"
-                      type="text"
-                      class="invite-page__music-input"
-                      :placeholder="t('invite.programme.songPlaceholder')"
-                    />
-                    <input
-                      v-model="musicForms[se.id].artist"
-                      type="text"
-                      class="invite-page__music-input"
-                      :placeholder="t('invite.programme.artistPlaceholder')"
-                    />
-                    <AppButton
-                      variant="outline"
-                      size="sm"
-                      :disabled="!musicForms[se.id].songTitle?.trim()"
-                      @click="submitMusicRequest(se.id)"
-                    >
-                      <Icon name="lucide:plus" size="12" />
-                      {{ t('invite.programme.addSong') }}
-                    </AppButton>
-                  </div>
-                  <div v-if="musicLists[se.id]?.length > 0" class="invite-page__music-list">
-                    <MusicRequestCard
-                      v-for="req in musicLists[se.id]"
-                      :key="req.id"
-                      :request="req"
-                      @upvote="(id) => upvoteMusic(se.id, id)"
-                    />
-                  </div>
-                </div>
+              <!-- Date poll -->
+              <div v-if="hasPoll" class="invite-duo-grid__card">
+                <h2 class="invite-section__title">
+                  <Icon name="lucide:bar-chart-3" size="20" />
+                  {{ t('invite.poll.title') }}
+                </h2>
+                <p class="invite-section__subtitle">{{ t('invite.poll.subtitle') }}</p>
+                <DatePollVotingForm
+                  :event-id="parseInt(eventData.id)"
+                  :initial-email="invitation?.inviteeEmail || ''"
+                  :initial-name="invitation?.inviteeName || ''"
+                  :token="token"
+                  :event-title="eventData.title"
+                />
               </div>
             </div>
           </div>
-        </section>
-
-        <!-- Wishlist -->
-        <section v-if="hasWishlist" class="invite-page__card invite-page__wishlist" style="animation-delay: 350ms">
-          <h3 class="invite-page__section-title">
-            <Icon name="lucide:gift" size="16" />
-            {{ t('invite.wishlist.title') }}
-          </h3>
-          <AppText size="sm" muted>{{ t('invite.wishlist.subtitle') }}</AppText>
-          <WishlistGuestView :token="token" />
-        </section>
-
-        <!-- Date poll voting -->
-        <section v-if="hasPoll" class="invite-page__card invite-page__poll" style="animation-delay: 400ms">
-          <h3 class="invite-page__section-title">{{ t('invite.poll.title') }}</h3>
-          <AppText size="sm" muted>{{ t('invite.poll.subtitle') }}</AppText>
-          <DatePollVotingForm
-            :event-id="parseInt(eventData.id)"
-            :initial-email="invitation?.inviteeEmail || ''"
-            :initial-name="invitation?.inviteeName || ''"
-            :token="token"
-            :event-title="eventData.title"
-          />
         </section>
       </main>
 
@@ -523,544 +328,101 @@ async function upvoteMusic(subEventId, requestId) {
   background: var(--color-bg, var(--color-background));
 }
 
-/* ── Hero ────────────────────────────── */
-.invite-page__hero {
-  position: relative;
-  min-height: 340px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-}
-
-.invite-page__hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-}
-
-.invite-page__hero-bg--gradient {
-  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 60%, #1a1a2e));
-}
-
-.invite-page__hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.1) 100%);
-}
-
-.invite-page__hero-content {
-  position: relative;
-  z-index: 1;
-  padding: var(--space-6);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
-
-.invite-page__logo {
-  opacity: 0.8;
-}
-
-.invite-page__logo-link {
-  color: #fff;
-  text-decoration: none;
-  font-family: var(--font-family-heading);
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.02em;
-}
-
-.invite-page__hero-text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-width: 640px;
-}
-
-.invite-page__type-badge {
-  display: inline-flex;
-  align-self: flex-start;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  font-size: var(--text-xs);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.invite-page__title {
-  font-family: var(--font-family-heading);
-  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
-  font-weight: var(--font-weight-bold);
-  color: #fff;
-  line-height: var(--line-height-tight);
-  margin: 0;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
-
-.invite-page__meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.invite-page__meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: var(--text-sm);
-}
-
-.invite-page__meta-time {
-  opacity: 0.7;
-}
-
-.invite-page__meta-item--poll {
-  color: rgba(255, 255, 255, 0.7);
-  font-style: italic;
-}
-
 /* ── Body ────────────────────────────── */
-.invite-page__body {
+.invite-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  padding: var(--space-6);
-  max-width: 640px;
-  width: 100%;
+}
+
+/* ── Sections ────────────────────────── */
+.invite-section {
+  padding: var(--space-16) var(--space-6);
+}
+
+.invite-section:first-child {
+  padding-top: var(--space-12);
+}
+
+.invite-section--reveal {
+  animation: sectionReveal 600ms ease-out both;
+}
+
+@keyframes sectionReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.invite-section--tinted {
+  background: color-mix(in srgb, var(--event-accent, var(--color-accent)) 3%, var(--color-bg, var(--color-background)));
+}
+
+.invite-section__inner {
+  max-width: 720px;
   margin: 0 auto;
-  margin-top: calc(-1 * var(--space-4));
-  position: relative;
-  z-index: 2;
+  width: 100%;
 }
 
-.invite-page__card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6);
-  animation: fadeInUp 500ms ease-out both;
+.invite-section__inner--wide {
+  max-width: 960px;
 }
 
-/* ── Welcome ─────────────────────────── */
-.invite-page__welcome {
+.invite-section__title {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
   gap: var(--space-3);
-}
-
-.invite-page__welcome-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 70%, #6c5ce7));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.invite-page__welcome-text {
   font-family: var(--font-family-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: clamp(var(--text-xl), 3vw, var(--text-2xl));
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
-  margin: 0;
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--space-2) 0;
 }
 
-.invite-page__description {
+.invite-section__title :deep(.iconify) {
+  color: var(--event-accent, var(--color-accent));
+}
+
+.invite-section__subtitle {
+  font-size: var(--text-base);
   color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
-  max-width: 480px;
+  margin: 0 0 var(--space-6) 0;
 }
 
-/* ── RSVP ────────────────────────────── */
-.invite-page__rsvp {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+/* ── Duo grid (wishlist + poll side-by-side) ── */
+.invite-duo-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
 }
 
-.invite-page__section-title {
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--event-accent, var(--color-accent));
-  margin: 0;
-}
-
-.invite-page__rsvp-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.invite-page__rsvp-badge {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-full);
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-semibold);
-}
-
-.invite-page__rsvp-badge--accepted {
-  background: color-mix(in srgb, var(--color-success) 12%, transparent);
-  color: var(--color-success);
-}
-
-.invite-page__rsvp-badge--declined {
-  background: color-mix(in srgb, var(--color-error) 12%, transparent);
-  color: var(--color-error);
-}
-
-.invite-page__change-btn {
-  border: none;
-  background: none;
-  color: var(--color-text-muted);
-  font-family: var(--font-family);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  text-decoration: underline;
-  opacity: 0.7;
-  transition: opacity var(--transition-fast);
-}
-
-.invite-page__change-btn:hover {
-  opacity: 1;
-}
-
-.invite-page__rsvp-buttons {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.invite-page__rsvp-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border: 2px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
+.invite-duo-grid__card {
   background: var(--color-surface);
-  font-family: var(--font-family);
-  font-size: var(--text-base);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.invite-page__rsvp-btn--accept {
-  color: var(--color-success);
-}
-
-.invite-page__rsvp-btn--accept:hover:not(:disabled) {
-  border-color: var(--color-success);
-  background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface));
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-success) 15%, transparent);
-  transform: translateY(-1px);
-}
-
-.invite-page__rsvp-btn--decline {
-  color: var(--color-text-muted);
-}
-
-.invite-page__rsvp-btn--decline:hover:not(:disabled) {
-  border-color: var(--color-error);
-  color: var(--color-error);
-  background: color-mix(in srgb, var(--color-error) 5%, var(--color-surface));
-}
-
-.invite-page__rsvp-btn:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
-
-.invite-page__plus-ones-note {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border-light);
-}
-
-/* ── Plus-one context ────────────────── */
-.invite-page__plus-one-context {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-accent-violet);
-}
-
-/* ── Plus-ones section ───────────────── */
-.invite-page__plus-ones-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.invite-page__plus-one-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.invite-page__plus-one-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-}
-
-.invite-page__plus-one-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--color-accent-violet) 10%, transparent);
-  color: var(--color-accent-violet);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xs);
-  font-weight: var(--font-weight-semibold);
-  flex-shrink: 0;
-}
-
-.invite-page__plus-one-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.invite-page__plus-one-name {
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-}
-
-.invite-page__plus-one-email {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-.invite-page__copy-link-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--color-text-muted);
-  border-radius: var(--radius-md);
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
-}
-
-.invite-page__copy-link-btn:hover {
-  color: var(--color-accent);
-  background: var(--color-accent-dim);
-}
-
-.invite-page__copy-link-btn--danger:hover {
-  color: var(--color-error);
-  background: color-mix(in srgb, var(--color-error) 8%, transparent);
-}
-
-.invite-page__plus-one-actions-row {
-  display: flex;
-  gap: var(--space-1);
-  flex-shrink: 0;
-}
-
-.invite-page__plus-one-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-accent-violet) 2%, var(--color-surface));
-}
-
-.invite-page__plus-one-input {
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.invite-page__plus-one-input:focus {
-  border-color: var(--color-accent-violet);
-}
-
-.invite-page__plus-one-actions {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.invite-page__remaining {
-  font-weight: var(--font-weight-normal);
-  opacity: 0.6;
-}
-
-.invite-page__plus-one-success {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-success);
-}
-
-/* ── Programme ───────────────────────── */
-.invite-page__programme {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.invite-page__programme-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding-left: var(--space-2);
-}
-
-.invite-page__programme-item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-}
-
-.invite-page__programme-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  background: var(--event-accent, var(--color-accent));
-  margin-top: 6px;
-  flex-shrink: 0;
-}
-
-.invite-page__programme-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.invite-page__programme-name {
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-}
-
-.invite-page__programme-desc {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-.invite-page__programme-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-top: var(--space-1);
-}
-
-.invite-page__programme-interaction {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-light);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.invite-page__programme-hint {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.invite-page__music-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.invite-page__music-input {
-  flex: 1;
-  min-width: 120px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font-family: var(--font-family);
-  font-size: var(--text-xs);
-  color: var(--color-text-primary);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.invite-page__music-input:focus {
-  border-color: var(--event-accent, var(--color-accent));
-}
-
-.invite-page__music-input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.invite-page__music-list {
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-/* ── Wishlist ────────────────────────── */
-.invite-page__wishlist {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+.invite-duo-grid__card .invite-section__subtitle {
+  margin-bottom: var(--space-4);
 }
 
-.invite-page__wishlist .invite-page__section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* ── Date poll ───────────────────────── */
-.invite-page__poll {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+@media (min-width: 769px) {
+  .invite-duo-grid:not(.invite-duo-grid--single) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ── Error state ─────────────────────── */
@@ -1088,12 +450,12 @@ async function upvoteMusic(subEventId, requestId) {
 
 /* ── Footer ──────────────────────────── */
 .invite-page__footer {
-  padding: var(--space-6);
+  padding: var(--space-8) var(--space-6);
   text-align: center;
 }
 
 .invite-page__footer-link {
-  color: var(--color-accent);
+  color: var(--event-accent, var(--color-accent));
   text-decoration: none;
   font-weight: var(--font-weight-medium);
 }
@@ -1102,39 +464,19 @@ async function upvoteMusic(subEventId, requestId) {
   text-decoration: underline;
 }
 
-/* ── Animation ───────────────────────── */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* ── Responsive ──────────────────────── */
 @media (max-width: 640px) {
-  .invite-page__hero {
-    min-height: 280px;
+  .invite-section {
+    padding: var(--space-10) var(--space-4);
   }
 
-  .invite-page__hero-content {
+  .invite-section:first-child {
+    padding-top: var(--space-8);
+  }
+
+  .invite-duo-grid__card {
     padding: var(--space-4);
-  }
-
-  .invite-page__body {
-    padding: var(--space-4);
-  }
-
-  .invite-page__card {
-    padding: var(--space-4);
-    border-radius: var(--radius-lg);
-  }
-
-  .invite-page__rsvp-buttons {
-    flex-direction: column;
+    border-radius: var(--radius-xl);
   }
 }
 </style>

@@ -25,7 +25,7 @@ export default class SubEventRepository {
     const data = subEvent.toJSON()
     const row = await prisma.subEvent.create({
       data: {
-        eventId: data.eventId,
+        eventId: Number(data.eventId),
         title: data.title,
         description: data.description,
         type: data.type,
@@ -47,7 +47,7 @@ export default class SubEventRepository {
   static async findByEventId(eventId: string): Promise<SubEvent[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEvent.findMany({
-      where: { eventId },
+      where: { eventId: Number(eventId) },
       orderBy: { sortOrder: 'asc' },
     })
     return rows.map((row) => SubEvent.fromJSON(row))
@@ -55,7 +55,7 @@ export default class SubEventRepository {
 
   static async findById(id: string): Promise<SubEvent | null> {
     const prisma = usePrisma()
-    const row = await prisma.subEvent.findUnique({ where: { id } })
+    const row = await prisma.subEvent.findUnique({ where: { id: Number(id) } })
     if (!row) return null
     return SubEvent.fromJSON(row)
   }
@@ -63,7 +63,7 @@ export default class SubEventRepository {
   static async findByIdWithCounts(id: string): Promise<{ subEvent: SubEvent, rsvpCount: number, dietaryCount: number, plusOneCount: number, musicRequestCount: number } | null> {
     const prisma = usePrisma()
     const row = await prisma.subEvent.findUnique({
-      where: { id },
+      where: { id: Number(id) },
       include: {
         _count: {
           select: {
@@ -89,7 +89,7 @@ export default class SubEventRepository {
     const prisma = usePrisma()
     const data = subEvent.toJSON()
     const row = await prisma.subEvent.update({
-      where: { id: data.id },
+      where: { id: Number(data.id) },
       data: {
         title: data.title,
         description: data.description,
@@ -112,7 +112,7 @@ export default class SubEventRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.subEvent.delete({ where: { id } })
+    await prisma.subEvent.delete({ where: { id: Number(id) } })
   }
 
   static async reorder(eventId: string, orderedIds: string[]): Promise<void> {
@@ -120,7 +120,7 @@ export default class SubEventRepository {
     await prisma.$transaction(
       orderedIds.map((id, index) =>
         prisma.subEvent.update({
-          where: { id },
+          where: { id: Number(id) },
           data: { sortOrder: index },
         })
       )
@@ -133,7 +133,7 @@ export default class SubEventRepository {
       subEvents.map((se) =>
         prisma.subEvent.create({
           data: {
-            eventId: se.eventId,
+            eventId: Number(se.eventId),
             title: se.title,
             description: se.description,
             type: se.type || 'generic',

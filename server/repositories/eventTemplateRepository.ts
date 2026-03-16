@@ -22,7 +22,7 @@ export default class EventTemplateRepository {
 
   static async findById(id: string): Promise<EventTemplate | null> {
     const prisma = usePrisma()
-    const row = await prisma.eventTemplate.findUnique({ where: { id } })
+    const row = await prisma.eventTemplate.findUnique({ where: { id: Number(id) } })
     if (!row) return null
     return EventTemplate.fromJSON(row)
   }
@@ -48,7 +48,7 @@ export default class EventTemplateRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.eventTemplate.delete({ where: { id } })
+    await prisma.eventTemplate.delete({ where: { id: Number(id) } })
   }
 
   static async ensureSystemTemplatesExist(): Promise<void> {

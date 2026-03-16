@@ -20,7 +20,7 @@ export default class DatePollOptionRepository {
     const prisma = usePrisma()
     const row = await prisma.datePollOption.create({
       data: {
-        datePollId: data.datePollId,
+        datePollId: Number(data.datePollId),
         date: new Date(data.date),
         startTime: toValidDate(data.startTime),
         endTime: toValidDate(data.endTime),
@@ -37,7 +37,7 @@ export default class DatePollOptionRepository {
       options.map((o) =>
         prisma.datePollOption.create({
           data: {
-            datePollId: o.datePollId,
+            datePollId: Number(o.datePollId),
             date: new Date(o.date),
             startTime: toValidDate(o.startTime),
             endTime: toValidDate(o.endTime),
@@ -52,6 +52,6 @@ export default class DatePollOptionRepository {
 
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
-    await prisma.datePollOption.delete({ where: { id } })
+    await prisma.datePollOption.delete({ where: { id: Number(id) } })
   }
 }

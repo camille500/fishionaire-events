@@ -37,7 +37,7 @@ export default class EventRepository {
 
   static async findById(id: string): Promise<Event | null> {
     const prisma = usePrisma()
-    const row = await prisma.event.findUnique({ where: { id } })
+    const row = await prisma.event.findUnique({ where: { id: Number(id) } })
     if (!row) return null
     return Event.fromJSON(row)
   }
@@ -86,7 +86,7 @@ export default class EventRepository {
     const prisma = usePrisma()
     const data = event.toJSON()
     const row = await prisma.event.update({
-      where: { id: data.id },
+      where: { id: Number(data.id) },
       data: {
         title: data.title,
         description: data.description,
@@ -112,7 +112,7 @@ export default class EventRepository {
   static async archive(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.event.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { archivedAt: new Date() },
     })
   }
@@ -120,13 +120,13 @@ export default class EventRepository {
   static async restore(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.event.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { archivedAt: null },
     })
   }
 
   static async getInvitationCount(eventId: string): Promise<number> {
     const prisma = usePrisma()
-    return prisma.eventInvitation.count({ where: { eventId } })
+    return prisma.eventInvitation.count({ where: { eventId: Number(eventId) } })
   }
 }

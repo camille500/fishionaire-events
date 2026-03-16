@@ -1,0 +1,302 @@
+<script setup>
+const { t } = useI18n()
+
+defineProps({
+  subEvents: { type: Array, required: true },
+  invitation: { type: Object, default: null },
+  eventData: { type: Object, required: true },
+  musicForms: { type: Object, default: () => ({}) },
+  musicLists: { type: Object, default: () => ({}) },
+  dietarySaving: { type: Object, default: () => ({}) },
+})
+
+const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
+</script>
+
+<template>
+  <div class="invite-timeline">
+    <div
+      v-for="(se, idx) in subEvents"
+      :key="se.id"
+      class="invite-timeline__item"
+      :style="{ animationDelay: (100 + idx * 120) + 'ms' }"
+    >
+      <!-- Track: dot + connecting line -->
+      <div class="invite-timeline__track">
+        <div class="invite-timeline__dot">
+          <SubEventTypeIcon :type="se.type || 'generic'" size="sm" />
+        </div>
+        <div v-if="idx < subEvents.length - 1" class="invite-timeline__line" />
+      </div>
+
+      <!-- Content card -->
+      <div class="invite-timeline__content">
+        <div class="invite-timeline__header">
+          <h4 class="invite-timeline__name">{{ se.title }}</h4>
+          <div v-if="se.startTime" class="invite-timeline__time">
+            <Icon name="lucide:clock" size="12" />
+            {{ new Date(se.startTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) }}
+          </div>
+        </div>
+
+        <p v-if="se.description" class="invite-timeline__desc">{{ se.description }}</p>
+
+        <!-- Location -->
+        <div v-if="se.location" class="invite-timeline__meta">
+          <Icon name="lucide:map-pin" size="12" />
+          {{ se.location }}
+        </div>
+
+        <!-- Dress code -->
+        <div v-if="se.dressCode" class="invite-timeline__meta">
+          <Icon name="lucide:shirt" size="12" />
+          {{ t('invite.programme.dressCodeNote', { dressCode: se.dressCode }) }}
+        </div>
+
+        <!-- Capacity -->
+        <div v-if="se.type === 'activity' && se.capacity" class="invite-timeline__meta">
+          <Icon name="lucide:users" size="12" />
+          {{ t('editor.subEventPreview.capacity', { count: se.capacity }) }}
+        </div>
+
+        <!-- Dinner: dietary preferences -->
+        <div v-if="se.type === 'dinner'" class="invite-timeline__interaction">
+          <p class="invite-timeline__hint">
+            <Icon name="lucide:heart-pulse" size="13" />
+            {{ t('invite.programme.dietaryHint') }}
+          </p>
+          <DietaryPreferenceForm
+            :loading="dietarySaving[se.id]"
+            @submit="(data) => $emit('submitDietary', se.id, data)"
+          />
+        </div>
+
+        <!-- Party: music requests -->
+        <div v-if="se.type === 'party' && se.typeConfig?.musicRequestsEnabled !== false" class="invite-timeline__interaction">
+          <p class="invite-timeline__hint">
+            <Icon name="lucide:music" size="13" />
+            {{ t('invite.programme.musicHint') }}
+          </p>
+          <div v-if="musicForms[se.id]" class="invite-timeline__music-form">
+            <input
+              v-model="musicForms[se.id].songTitle"
+              type="text"
+              class="invite-timeline__input"
+              :placeholder="t('invite.programme.songPlaceholder')"
+            />
+            <input
+              v-model="musicForms[se.id].artist"
+              type="text"
+              class="invite-timeline__input"
+              :placeholder="t('invite.programme.artistPlaceholder')"
+            />
+            <AppButton
+              variant="outline"
+              size="sm"
+              :disabled="!musicForms[se.id].songTitle?.trim()"
+              @click="$emit('submitMusic', se.id)"
+            >
+              <Icon name="lucide:plus" size="12" />
+              {{ t('invite.programme.addSong') }}
+            </AppButton>
+          </div>
+          <div v-if="musicLists[se.id]?.length > 0" class="invite-timeline__music-list">
+            <MusicRequestCard
+              v-for="req in musicLists[se.id]"
+              :key="req.id"
+              :request="req"
+              @upvote="(id) => $emit('upvoteMusic', se.id, id)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.invite-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.invite-timeline__item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: var(--space-4);
+  animation: timelineItemReveal 500ms ease-out both;
+}
+
+@keyframes timelineItemReveal {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Track */
+.invite-timeline__track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.invite-timeline__dot {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.invite-timeline__line {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--event-accent, var(--color-accent)) 40%, transparent),
+    color-mix(in srgb, var(--event-accent, var(--color-accent)) 10%, transparent)
+  );
+  border-radius: 1px;
+  margin: var(--space-2) 0;
+}
+
+/* Content card */
+.invite-timeline__content {
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.invite-timeline__content:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header */
+.invite-timeline__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.invite-timeline__name {
+  font-family: var(--font-family-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.invite-timeline__time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--event-accent, var(--color-accent));
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--event-accent, var(--color-accent)) 8%, transparent);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.invite-timeline__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.invite-timeline__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* Interaction sections */
+.invite-timeline__interaction {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.invite-timeline__hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Music form */
+.invite-timeline__music-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.invite-timeline__input {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.invite-timeline__input:focus {
+  border-color: var(--event-accent, var(--color-accent));
+}
+
+.invite-timeline__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.invite-timeline__music-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .invite-timeline__item {
+    grid-template-columns: 40px 1fr;
+    gap: var(--space-3);
+  }
+
+  .invite-timeline__content {
+    padding: var(--space-4);
+  }
+
+  .invite-timeline__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+}
+</style>
