@@ -262,6 +262,33 @@ export default class SubscriptionController {
     await SubscriptionRepository.upsert(sub)
   }
 
+  static async upgradeEventWithSubscription(eventId: number, clerkId: string, tier: PaidTier): Promise<Record<string, unknown>> {
+    if (!['standard', 'pro'].includes(tier)) {
+      throw createError({ statusCode: 400, statusMessage: 'Invalid tier' })
+    }
+
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+    if (event.ownerClerkId !== clerkId) {
+      throw createError({ statusCode: 403, statusMessage: 'Only the owner can upgrade an event' })
+    }
+
+    const subscription = await SubscriptionRepository.findByUserClerkId(clerkId)
+    const currentTier = subscription?.isActive ? subscription.tier : 'free'
+
+    if (!isTierCoveredBySubscription(currentTier, tier)) {
+      throw createError({ statusCode: 402, statusMessage: 'Tier not covered by subscription — payment required' })
+    }
+
+    event.tier = tier
+    event.features = getFeaturesForTier(tier)
+    await EventRepository.update(event)
+
+    return event.toJSON()
+  }
+
   static async getEventPurchases(clerkId: string): Promise<Record<string, unknown>[]> {
     const purchases = await EventPurchaseRepository.findByBuyer(clerkId)
     return purchases.map((p: EventPurchase) => p.toJSON())

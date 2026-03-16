@@ -927,6 +927,126 @@
       "time": "Tijd",
       "hour": "Uur",
       "minute": "Minuut"
+    },
+    "subEventTypes": {
+      "generic": "Algemeen",
+      "ceremony": "Ceremonie",
+      "dinner": "Diner",
+      "party": "Feest",
+      "activity": "Activiteit",
+      "genericDesc": "Een algemeen onderdeel",
+      "ceremonyDesc": "Toespraken, rituelen, presentaties",
+      "dinnerDesc": "Maaltijd, eten & drinken",
+      "partyDesc": "Sociaal, dansen, entertainment",
+      "activityDesc": "Workshop, spel of sport",
+      "chooseType": "Wat voor onderdeel is dit?",
+      "partySettings": "Feest-instellingen",
+      "activitySettings": "Activiteit-instellingen"
+    },
+    "subEventPreview": {
+      "menuItems": "{count} menusecties",
+      "dinnerDefault": "Dieetwensen ingeschakeld",
+      "plusOnesAllowed": "Plus-ones toegestaan",
+      "musicRequests": "Muziekverzoeken",
+      "capacity": "{count} plekken",
+      "hasContent": "Tekst toegevoegd"
+    },
+    "subEventDetail": {
+      "overview": "Overzicht",
+      "content": "Inhoud",
+      "speakers": "Sprekers",
+      "menu": "Menu",
+      "dietary": "Dieetwensen",
+      "plusOnes": "Plus-ones",
+      "musicRequests": "Muziekverzoeken",
+      "activityDetails": "Details",
+      "when": "Wanneer",
+      "where": "Waar",
+      "rsvps": "Aanmeldingen",
+      "dietaryResponses": "Dieetreacties",
+      "plusOneRequests": "Plus-one verzoeken"
+    },
+    "coCreate": {
+      "title": "Wat voor evenement organiseer je?",
+      "subtitle": "Beschrijf het en wij helpen je het perfecte programma samen te stellen.",
+      "placeholder": "bijv. Een rustieke buitenbruiloft voor 80 gasten met een ceremonie bij het meer, diner in een schuur en dansen onder de sterren...",
+      "generate": "Programma genereren",
+      "loading": "Bezig met genereren...",
+      "accept": "Accepteren",
+      "edit": "Bewerken",
+      "dismiss": "Verwijderen",
+      "acceptAll": "Alles accepteren",
+      "regenerate": "Opnieuw genereren",
+      "addManually": "of voeg handmatig toe",
+      "addMore": "Meer toevoegen met AI",
+      "allAccepted": "Alle suggesties toegevoegd!",
+      "generateMore": "Meer genereren",
+      "upgradeHint": "Upgrade naar Standaard voor AI-gegenereerde programma's"
+    },
+    "dressCode": {
+      "label": "Dresscode",
+      "placeholder": "bijv. Smart casual, Black tie"
+    },
+    "plusOne": {
+      "allowPlusOnes": "Plus-ones toestaan",
+      "namePlaceholder": "Naam van de plus-one",
+      "request": "Plus-one aanvragen",
+      "invitedBy": "Uitgenodigd door",
+      "none": "Nog geen plus-one verzoeken"
+    },
+    "musicRequest": {
+      "enableRequests": "Muziekverzoeken inschakelen",
+      "none": "Nog geen muziekverzoeken"
+    },
+    "capacity": {
+      "label": "Capaciteit",
+      "placeholder": "Max. aantal gasten",
+      "full": "Vol"
+    },
+    "skillLevel": {
+      "label": "Niveau",
+      "none": "Geen niveau",
+      "beginner": "Beginner",
+      "intermediate": "Gemiddeld",
+      "advanced": "Gevorderd"
+    },
+    "materials": {
+      "label": "Benodigdheden",
+      "placeholder": "bijv. Yogamat, Notitieboek, Pen"
+    },
+    "dinner": {
+      "configHint": "Sla dit onderdeel eerst op en open het daarna om het menu en dieetwensen in te stellen."
+    },
+    "ceremony": {
+      "configHint": "Sla dit onderdeel eerst op en open het daarna om inhoud en sprekers toe te voegen.",
+      "noContent": "Nog geen inhoud toegevoegd"
+    },
+    "dietary": {
+      "vegetarian": "Vegetarisch",
+      "vegan": "Veganistisch",
+      "glutenFree": "Glutenvrij",
+      "halal": "Halal",
+      "kosher": "Koosjer",
+      "nutAllergy": "Notenallergie",
+      "lactoseIntolerant": "Lactose-intolerant",
+      "notes": "Aanvullende opmerkingen",
+      "notesPlaceholder": "Is er nog iets dat we moeten weten?",
+      "submit": "Voorkeuren opslaan",
+      "noResponses": "Nog geen dieetreacties"
+    },
+    "menu": {
+      "sectionName": "Sectienaam (bijv. Voorgerecht, Hoofdgerecht)",
+      "itemName": "Naam van het gerecht",
+      "itemDesc": "Beschrijving (optioneel)",
+      "addItem": "Gerecht toevoegen",
+      "addSection": "Menusectie toevoegen",
+      "none": "Nog geen menu ingesteld"
+    },
+    "speakers": {
+      "name": "Naam spreker",
+      "role": "Rol (bijv. Getuige, Bruid)",
+      "add": "Spreker toevoegen",
+      "none": "Nog geen sprekers toegevoegd"
     }
   },
   "wizard": {

@@ -91,6 +91,16 @@ enum DatePollVoteStatus {
   @@map("date_poll_vote_status")
 }
 
+enum SubEventType {
+  generic
+  ceremony
+  dinner
+  party
+  activity
+
+  @@map("sub_event_type")
+}
+
 model User {
   clerkId   String   @id @map("clerk_id")
   email     String
@@ -246,22 +256,75 @@ model EventInvitation {
 }
 
 model SubEvent {
-  id          Int       @id @default(autoincrement())
-  eventId     Int       @map("event_id")
-  title       String
-  description String?
-  startTime   DateTime? @map("start_time")
-  endTime     DateTime? @map("end_time")
-  location    String?
-  sortOrder   Int       @default(0) @map("sort_order")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @default(now()) @map("updated_at")
+  id            Int          @id @default(autoincrement())
+  eventId       Int          @map("event_id")
+  title         String
+  description   String?
+  type          SubEventType @default(generic)
+  richContent   String?      @map("rich_content")
+  coverImageUrl String?      @map("cover_image_url")
+  coverImageKey String?      @map("cover_image_key")
+  capacity      Int?
+  dressCode     String?      @map("dress_code")
+  typeConfig    Json         @default("{}") @map("type_config")
+  startTime     DateTime?    @map("start_time")
+  endTime       DateTime?    @map("end_time")
+  location      String?
+  sortOrder     Int          @default(0) @map("sort_order")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @default(now()) @map("updated_at")
 
-  event          Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  rsvps          SubEventRsvp[]
-  invitedGuests  InvitationSubEvent[]
+  event            Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rsvps            SubEventRsvp[]
+  invitedGuests    InvitationSubEvent[]
+  dietaryResponses SubEventDietary[]
+  plusOneRequests   SubEventPlusOne[]
+  musicRequests    SubEventMusicRequest[]
 
   @@map("sub_events")
+}
+
+model SubEventDietary {
+  id           Int      @id @default(autoincrement())
+  subEventId   Int      @map("sub_event_id")
+  guestEmail   String   @map("guest_email")
+  guestName    String?  @map("guest_name")
+  restrictions String
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @map("updated_at")
+
+  subEvent SubEvent @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+
+  @@unique([subEventId, guestEmail])
+  @@map("sub_event_dietaries")
+}
+
+model SubEventPlusOne {
+  id           Int                @id @default(autoincrement())
+  subEventId   Int                @map("sub_event_id")
+  guestEmail   String             @map("guest_email")
+  plusOneName   String             @map("plus_one_name")
+  status       SubEventRsvpStatus @default(pending)
+  createdAt    DateTime           @default(now()) @map("created_at")
+
+  subEvent SubEvent @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+
+  @@map("sub_event_plus_ones")
+}
+
+model SubEventMusicRequest {
+  id          Int      @id @default(autoincrement())
+  subEventId  Int      @map("sub_event_id")
+  guestEmail  String   @map("guest_email")
+  songTitle   String   @map("song_title")
+  artist      String?
+  votes       Int      @default(1)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  subEvent SubEvent @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+
+  @@map("sub_event_music_requests")
 }
 
 model InvitationSubEvent {

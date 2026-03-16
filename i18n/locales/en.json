@@ -927,6 +927,126 @@
       "time": "Time",
       "hour": "Hour",
       "minute": "Minute"
+    },
+    "subEventTypes": {
+      "generic": "General",
+      "ceremony": "Ceremony",
+      "dinner": "Dinner",
+      "party": "Party",
+      "activity": "Activity",
+      "genericDesc": "A general part of your event",
+      "ceremonyDesc": "Speeches, rituals, presentations",
+      "dinnerDesc": "Meals, food & drinks",
+      "partyDesc": "Social, dancing, entertainment",
+      "activityDesc": "Workshop, game, or sport",
+      "chooseType": "What kind of part is this?",
+      "partySettings": "Party settings",
+      "activitySettings": "Activity settings"
+    },
+    "subEventPreview": {
+      "menuItems": "{count} menu sections",
+      "dinnerDefault": "Dietary preferences enabled",
+      "plusOnesAllowed": "Plus-ones allowed",
+      "musicRequests": "Music requests",
+      "capacity": "{count} spots",
+      "hasContent": "Rich content added"
+    },
+    "subEventDetail": {
+      "overview": "Overview",
+      "content": "Content",
+      "speakers": "Speakers",
+      "menu": "Menu",
+      "dietary": "Dietary",
+      "plusOnes": "Plus-ones",
+      "musicRequests": "Music requests",
+      "activityDetails": "Details",
+      "when": "When",
+      "where": "Where",
+      "rsvps": "RSVPs",
+      "dietaryResponses": "Dietary responses",
+      "plusOneRequests": "Plus-one requests"
+    },
+    "coCreate": {
+      "title": "What kind of event are you planning?",
+      "subtitle": "Describe it and we'll help you build the perfect programme.",
+      "placeholder": "e.g. A rustic outdoor wedding for 80 guests with a ceremony by the lake, dinner in a barn, and dancing under the stars...",
+      "generate": "Generate programme",
+      "loading": "Generating...",
+      "accept": "Accept",
+      "edit": "Edit",
+      "dismiss": "Dismiss",
+      "acceptAll": "Accept all",
+      "regenerate": "Regenerate",
+      "addManually": "or add manually",
+      "addMore": "Add more with AI",
+      "allAccepted": "All suggestions added!",
+      "generateMore": "Generate more",
+      "upgradeHint": "Upgrade to Standard for AI-powered programme generation"
+    },
+    "dressCode": {
+      "label": "Dress code",
+      "placeholder": "e.g. Smart casual, Black tie"
+    },
+    "plusOne": {
+      "allowPlusOnes": "Allow plus-ones",
+      "namePlaceholder": "Name of the plus-one",
+      "request": "Request plus-one",
+      "invitedBy": "Invited by",
+      "none": "No plus-one requests yet"
+    },
+    "musicRequest": {
+      "enableRequests": "Enable music requests",
+      "none": "No music requests yet"
+    },
+    "capacity": {
+      "label": "Capacity",
+      "placeholder": "Max number of guests",
+      "full": "Full"
+    },
+    "skillLevel": {
+      "label": "Skill level",
+      "none": "No level",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "materials": {
+      "label": "Materials needed",
+      "placeholder": "e.g. Yoga mat, Notebook, Pen"
+    },
+    "dinner": {
+      "configHint": "Save this sub-event first, then open it to configure the menu and dietary preferences."
+    },
+    "ceremony": {
+      "configHint": "Save this sub-event first, then open it to add content and speakers.",
+      "noContent": "No content added yet"
+    },
+    "dietary": {
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "glutenFree": "Gluten-free",
+      "halal": "Halal",
+      "kosher": "Kosher",
+      "nutAllergy": "Nut allergy",
+      "lactoseIntolerant": "Lactose intolerant",
+      "notes": "Additional notes",
+      "notesPlaceholder": "Anything else we should know?",
+      "submit": "Save preferences",
+      "noResponses": "No dietary responses yet"
+    },
+    "menu": {
+      "sectionName": "Section name (e.g. Starters, Main)",
+      "itemName": "Dish name",
+      "itemDesc": "Description (optional)",
+      "addItem": "Add dish",
+      "addSection": "Add menu section",
+      "none": "No menu configured yet"
+    },
+    "speakers": {
+      "name": "Speaker name",
+      "role": "Role (e.g. Best man, Bride)",
+      "add": "Add speaker",
+      "none": "No speakers added yet"
     }
   },
   "wizard": {

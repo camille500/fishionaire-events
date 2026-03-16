@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     default: 'free',
   },
+  minTier: {
+    type: String,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -21,6 +25,7 @@ const tiers = computed(() => {
   return tierKeys.map((key) => {
     const features = tm(`tierSelector.tiers.${key}.features`).map((f) => rt(f))
     const isCovered = TIER_ORDER[props.subscriptionTier] >= TIER_ORDER[key]
+    const disabled = props.minTier ? TIER_ORDER[key] <= TIER_ORDER[props.minTier] : false
     return {
       key,
       name: t(`tiers.${key}`),
@@ -28,11 +33,14 @@ const tiers = computed(() => {
       isCovered: key === 'free' || isCovered,
       price: key === 'free' ? null : t(`tierSelector.tiers.${key}.eventPrice`),
       recommended: key === 'standard',
+      disabled,
     }
   })
 })
 
 function select(tierKey) {
+  const tier = tiers.value.find((t) => t.key === tierKey)
+  if (tier?.disabled) return
   emit('update:modelValue', tierKey)
 }
 </script>
@@ -48,8 +56,10 @@ function select(tierKey) {
         class="tier-option"
         :class="{
           'tier-option--selected': modelValue === tier.key,
+          'tier-option--disabled': tier.disabled,
           [`tier-option--${tier.key}`]: true,
         }"
+        :disabled="tier.disabled"
         @click="select(tier.key)"
       >
         <div class="tier-option__top-bar" />
@@ -57,7 +67,10 @@ function select(tierKey) {
           <div class="tier-option__header">
             <div class="tier-option__name-row">
               <span class="tier-option__name">{{ tier.name }}</span>
-              <span v-if="tier.recommended" class="tier-option__recommended">
+              <span v-if="tier.disabled" class="tier-option__current">
+                {{ t('tierSelector.currentTier') }}
+              </span>
+              <span v-else-if="tier.recommended" class="tier-option__recommended">
                 {{ t('tierSelector.recommended') }}
               </span>
             </div>
@@ -179,6 +192,23 @@ function select(tierKey) {
   letter-spacing: 0.05em;
   background: #e8f4fd;
   color: #1a73e8;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.tier-option--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.tier-option__current {
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-background-alt);
+  color: var(--color-text-muted);
   padding: 1px var(--space-2);
   border-radius: var(--radius-full);
 }

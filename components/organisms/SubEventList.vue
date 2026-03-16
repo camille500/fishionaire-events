@@ -14,6 +14,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['open-detail'])
+
 const subEvents = ref([])
 const showForm = ref(false)
 const editingSubEvent = ref(null)
@@ -76,6 +78,12 @@ function onCancelEdit() {
   showForm.value = false
 }
 
+function onCardClick(subEvent) {
+  if (!editingSubEvent.value) {
+    emit('open-detail', subEvent)
+  }
+}
+
 async function onReorder() {
   const order = subEvents.value.map((se) => se.id)
   try {
@@ -90,7 +98,7 @@ async function onReorder() {
 
 onMounted(fetchSubEvents)
 
-defineExpose({ fetchSubEvents })
+defineExpose({ fetchSubEvents, subEvents })
 </script>
 
 <template>
@@ -146,6 +154,7 @@ defineExpose({ fetchSubEvents })
           :can-edit="canEdit"
           @edit="onEdit"
           @delete="onDeleteSubEvent"
+          @click="onCardClick(se)"
         />
       </template>
     </VueDraggable>

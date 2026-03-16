@@ -45,6 +45,27 @@ interface TitleSuggestions {
 interface SubEventSuggestion {
   title: string
   durationMinutes: number
+  type?: string
+  description?: string
+}
+
+interface CoCreateSubEventsParams {
+  eventType?: string
+  eventTitle?: string
+  userPrompt: string
+  existingSubEvents?: Array<{ title: string }>
+  language?: Language
+  clerkId?: string
+  eventId?: string
+}
+
+interface CoCreateSubEventSuggestion {
+  title: string
+  type: string
+  description: string
+  durationMinutes: number
+  location?: string
+  typeConfig?: Record<string, unknown>
 }
 
 interface TimelineItem {
@@ -215,6 +236,76 @@ export default class AiSuggestionsController {
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
       return { items: result.items || [] }
+    } catch (err: any) {
+      if (err.status === 401) {
+        throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
+      }
+      if (err.status === 429) {
+        throw createError({ statusCode: 429, statusMessage: 'AI service is busy, please try again later' })
+      }
+      throw createError({ statusCode: 502, statusMessage: 'AI service unavailable' })
+    }
+  }
+
+  static async coCreateSubEvents({ eventType, eventTitle, userPrompt, existingSubEvents = [], language = 'en', clerkId, eventId }: CoCreateSubEventsParams): Promise<{ suggestions: CoCreateSubEventSuggestion[] }> {
+    const client = this.#getClient()
+    const extraContext = await this.#resolveExtraContext(clerkId, eventId)
+
+    const languageInstruction = language === 'en'
+      ? 'Write entirely in English.'
+      : 'Write entirely in Dutch (Nederlands).'
+
+    const existingContext = existingSubEvents.length > 0
+      ? `The event already has these parts: ${existingSubEvents.map((se) => se.title).join(', ')}. Suggest complementary parts that don't duplicate these.`
+      : ''
+
+    const systemPrompt = [
+      'You are an expert event planner for Fishionaire Events.',
+      'The user will describe their event and you will suggest structured sub-events (parts/sections of the event).',
+      languageInstruction,
+      '',
+      'Each sub-event must have a "type" from these options:',
+      '- "ceremony": For ceremonies, presentations, speeches, rituals (features: rich text, speakers/reading order)',
+      '- "dinner": For meals, food events, tastings (features: menu, dietary preferences collection)',
+      '- "party": For parties, receptions, social gatherings (features: plus-ones, dress code, music requests)',
+      '- "activity": For workshops, games, activities (features: capacity limit, materials, skill level)',
+      '- "generic": For anything that doesn\'t fit above categories',
+      '',
+      eventType ? `This is a ${eventType} event.` : '',
+      eventTitle ? `The event is called "${eventTitle}".` : '',
+      existingContext,
+      extraContext ? `Additional instructions from the user: ${extraContext}` : '',
+      '',
+      'Return a JSON object with a "suggestions" array of objects, each with:',
+      '- "title" (string): Name of the sub-event',
+      '- "type" (string): One of ceremony, dinner, party, activity, generic',
+      '- "description" (string): 1-2 sentence description',
+      '- "durationMinutes" (number): Estimated duration',
+      '- "typeConfig" (object): Type-specific configuration:',
+      '  - For ceremony: { speakers: [] }',
+      '  - For dinner: { menuSections: [] }',
+      '  - For party: { allowPlusOnes: true/false, musicRequestsEnabled: true/false, dressCode: string|null }',
+      '  - For activity: { maxCapacity: number|null, materialsNeeded: [], skillLevel: "beginner"|"intermediate"|"advanced"|null }',
+      '  - For generic: {}',
+      '',
+      'Suggest 3-6 sub-events. Be creative and thoughtful about which type fits each part best.',
+      'Only return valid JSON, nothing else.',
+    ].filter(Boolean).join('\n')
+
+    try {
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        response_format: { type: 'json_object' },
+        max_tokens: 800,
+        temperature: 0.7,
+      })
+
+      const result = JSON.parse(response.choices[0].message.content || '{}')
+      return { suggestions: result.suggestions || [] }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
