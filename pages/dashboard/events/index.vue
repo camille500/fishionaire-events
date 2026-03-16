@@ -137,6 +137,7 @@ async function onRestore(event) {
   flex-direction: column;
   gap: var(--space-6);
   max-width: 960px;
+  margin: 0 auto;
 }
 
 .events-page__header {

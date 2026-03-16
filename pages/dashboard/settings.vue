@@ -7,6 +7,12 @@ const currentLanguage = computed({
   get: () => locale.value,
   set: (val) => setLocale(val),
 })
+
+const { settings: aiSettings, loading: aiLoading, saving: aiSaving, error: aiError, fetchAccountSettings, saveAccountSettings } = useLlmSettings()
+
+onMounted(() => {
+  fetchAccountSettings()
+})
 </script>
 
 <template>
@@ -38,6 +44,19 @@ const currentLanguage = computed({
     </div>
 
     <div class="settings-page__section">
+      <h2 class="settings-page__section-title">{{ t('dashboard.aiSettings.title') }}</h2>
+      <p v-if="aiLoading" class="settings-page__placeholder">{{ t('dashboard.aiSettings.loading') }}</p>
+      <p v-else-if="aiError" class="settings-page__error">{{ aiError }}</p>
+      <LlmSettingsForm
+        v-else
+        :settings="aiSettings"
+        :saving="aiSaving"
+        @update:settings="aiSettings = $event"
+        @save="saveAccountSettings"
+      />
+    </div>
+
+    <div class="settings-page__section">
       <h2 class="settings-page__section-title">{{ t('dashboard.settings.profile') }}</h2>
       <p class="settings-page__placeholder">{{ t('dashboard.settings.profilePlaceholder') }}</p>
     </div>
@@ -54,7 +73,8 @@ const currentLanguage = computed({
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  max-width: var(--max-width-narrow);
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .settings-page__title {
@@ -106,6 +126,12 @@ const currentLanguage = computed({
 .settings-page__placeholder {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  margin: 0;
+}
+
+.settings-page__error {
+  font-size: var(--text-sm);
+  color: var(--color-error, #e74c3c);
   margin: 0;
 }
 </style>

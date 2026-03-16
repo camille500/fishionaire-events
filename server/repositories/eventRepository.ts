@@ -20,6 +20,9 @@ export default class EventRepository {
         coverImageUrl: data.coverImageUrl,
         coverImageKey: data.coverImageKey,
         ownerClerkId: data.ownerClerkId,
+        aiTone: data.aiTone,
+        aiToneCustom: data.aiToneCustom,
+        aiExtraContext: data.aiExtraContext,
       },
     })
     return Event.fromJSON(row)
@@ -90,6 +93,9 @@ export default class EventRepository {
         features: data.features,
         coverImageUrl: data.coverImageUrl,
         coverImageKey: data.coverImageKey,
+        aiTone: data.aiTone,
+        aiToneCustom: data.aiToneCustom,
+        aiExtraContext: data.aiExtraContext,
         updatedAt: new Date(),
       },
     })

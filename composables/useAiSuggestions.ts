@@ -1,6 +1,7 @@
 interface TitleSuggestParams {
   eventType?: string
   context?: string
+  eventId?: string
 }
 
 interface SubEventSuggestParams {
@@ -9,12 +10,14 @@ interface SubEventSuggestParams {
   description?: string
   eventDate?: string
   existingSubEvents?: unknown[]
+  eventId?: string
 }
 
 interface TimelineSuggestParams {
   eventType?: string
   eventDate?: string
   subEvents?: unknown[]
+  eventId?: string
 }
 
 export function useAiSuggestions() {
@@ -30,7 +33,7 @@ export function useAiSuggestions() {
 
   const error = ref<string>('')
 
-  async function suggestTitles({ eventType, context }: TitleSuggestParams = {}): Promise<void> {
+  async function suggestTitles({ eventType, context, eventId }: TitleSuggestParams = {}): Promise<void> {
     loadingTitles.value = true
     error.value = ''
     titleSuggestions.value = []
@@ -42,6 +45,7 @@ export function useAiSuggestions() {
           eventType,
           context,
           language: locale.value,
+          eventId: eventId || undefined,
         },
       })
       titleSuggestions.value = result.suggestions || []
@@ -52,7 +56,7 @@ export function useAiSuggestions() {
     }
   }
 
-  async function suggestSubEvents({ eventType, eventTitle, description, eventDate, existingSubEvents }: SubEventSuggestParams = {}): Promise<void> {
+  async function suggestSubEvents({ eventType, eventTitle, description, eventDate, existingSubEvents, eventId }: SubEventSuggestParams = {}): Promise<void> {
     loadingSubEvents.value = true
     error.value = ''
     subEventSuggestions.value = []
@@ -67,6 +71,7 @@ export function useAiSuggestions() {
           eventDate,
           existingSubEvents,
           language: locale.value,
+          eventId: eventId || undefined,
         },
       })
       subEventSuggestions.value = result.suggestions || []
@@ -77,7 +82,7 @@ export function useAiSuggestions() {
     }
   }
 
-  async function suggestTimeline({ eventType, eventDate, subEvents }: TimelineSuggestParams = {}): Promise<void> {
+  async function suggestTimeline({ eventType, eventDate, subEvents, eventId }: TimelineSuggestParams = {}): Promise<void> {
     loadingTimeline.value = true
     error.value = ''
     timelineItems.value = []
@@ -90,6 +95,7 @@ export function useAiSuggestions() {
           eventDate,
           subEvents,
           language: locale.value,
+          eventId: eventId || undefined,
         },
       })
       timelineItems.value = result.items || []

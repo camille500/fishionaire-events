@@ -7,11 +7,12 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const { eventType, eventDate, subEvents, language } = await readBody<{
+  const { eventType, eventDate, subEvents, language, eventId } = await readBody<{
     eventType?: string
     eventDate?: string
     subEvents?: string[]
     language?: string
+    eventId?: string
   }>(event)
 
   return await AiSuggestionsController.suggestTimeline({
@@ -19,5 +20,7 @@ export default defineEventHandler(async (event: H3Event) => {
     eventDate: eventDate || null,
     subEvents: subEvents || [],
     language: language || 'en',
+    clerkId: userId,
+    eventId,
   })
 })

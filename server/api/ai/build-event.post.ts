@@ -17,5 +17,6 @@ export default defineEventHandler(async (event: H3Event) => {
   return await AiSuggestionsController.buildEvent({
     description: description.trim(),
     language: language || 'en',
+    clerkId: userId,
   })
 })

@@ -4,6 +4,9 @@ export interface UserData {
   firstName: string | null
   lastName: string | null
   role: string
+  aiTone?: string | null
+  aiToneCustom?: string | null
+  aiExtraContext?: string | null
   createdAt: Date | string
   updatedAt: Date | string
 }
@@ -17,6 +20,12 @@ export interface UserJSON {
   lastName?: string | null
   last_name?: string | null
   role?: string
+  aiTone?: string | null
+  ai_tone?: string | null
+  aiToneCustom?: string | null
+  ai_tone_custom?: string | null
+  aiExtraContext?: string | null
+  ai_extra_context?: string | null
   createdAt?: Date | string
   created_at?: Date | string
   updatedAt?: Date | string
@@ -29,15 +38,21 @@ export default class User {
   firstName: string | null
   lastName: string | null
   role: string
+  aiTone: string | null
+  aiToneCustom: string | null
+  aiExtraContext: string | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ clerkId, email, firstName, lastName, role, createdAt, updatedAt }: UserData) {
+  constructor({ clerkId, email, firstName, lastName, role, aiTone, aiToneCustom, aiExtraContext, createdAt, updatedAt }: UserData) {
     this.clerkId = clerkId
     this.email = email
     this.firstName = firstName || null
     this.lastName = lastName || null
     this.role = role || 'user'
+    this.aiTone = aiTone || null
+    this.aiToneCustom = aiToneCustom || null
+    this.aiExtraContext = aiExtraContext || null
     this.createdAt = createdAt || new Date()
     this.updatedAt = updatedAt || new Date()
   }
@@ -53,6 +68,9 @@ export default class User {
       firstName: data.firstName || data.first_name || null,
       lastName: data.lastName || data.last_name || null,
       role: data.role || 'user',
+      aiTone: data.aiTone ?? data.ai_tone ?? null,
+      aiToneCustom: data.aiToneCustom ?? data.ai_tone_custom ?? null,
+      aiExtraContext: data.aiExtraContext ?? data.ai_extra_context ?? null,
       createdAt: data.createdAt || data.created_at || new Date(),
       updatedAt: data.updatedAt || data.updated_at || new Date(),
     })
@@ -65,6 +83,9 @@ export default class User {
       firstName: this.firstName,
       lastName: this.lastName,
       role: this.role,
+      aiTone: this.aiTone,
+      aiToneCustom: this.aiToneCustom,
+      aiExtraContext: this.aiExtraContext,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     }

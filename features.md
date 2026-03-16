@@ -28,9 +28,9 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 
 ## Date Polling / Co-Planning
 
-- [ ] Suggest multiple date options for an event
-- [ ] Guest voting on preferred dates
-- [ ] Automatic best-date calculation based on availability
+- [x] Suggest multiple date options for an event
+- [x] Guest voting on preferred dates
+- [x] Automatic best-date calculation based on availability
 - [ ] Visual calendar view of responses
 
 ## Wishlists & Gift Splitting

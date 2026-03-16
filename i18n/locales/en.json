@@ -489,6 +489,28 @@
       "notifications": "Notifications",
       "notificationsPlaceholder": "Notification preferences coming soon"
     },
+    "aiSettings": {
+      "title": "AI Settings",
+      "loading": "Loading AI settings...",
+      "toneLabel": "Tone of voice",
+      "toneHint": "Choose a default writing style for AI-generated content.",
+      "extraContextLabel": "Extra context",
+      "extraContextHint": "Provide additional instructions for the AI, such as your brand voice or specific guidelines.",
+      "extraContextPlaceholder": "E.g. always write in a casual tone, avoid jargon, keep it short...",
+      "toneCustomPlaceholder": "Describe the desired tone...",
+      "overrideAccount": "Override account default",
+      "save": "Save",
+      "saving": "Saving...",
+      "tones": {
+        "formeel": "Formal",
+        "vriendelijk": "Friendly",
+        "speels": "Playful",
+        "professioneel": "Professional",
+        "feestelijk": "Festive",
+        "casual": "Casual",
+        "custom": "Custom"
+      }
+    },
     "eventEditor": {
       "title": "Edit Event",
       "titleLabel": "Title",
@@ -818,6 +840,46 @@
       "noTimeline": "No timeline yet",
       "noTimelineDesc": "Create a detailed timeline so guests know what to expect.",
       "upgradeToPro": "Upgrade to Pro"
+    },
+    "datePoll": {
+      "title": "Date Poll",
+      "subtitle": "Propose dates and let guests vote for when they're available.",
+      "createPoll": "Create date poll",
+      "addDate": "Add date option",
+      "closePoll": "Close poll",
+      "reopenPoll": "Reopen poll",
+      "setOfficialDate": "Set as event date",
+      "copyLink": "Copy voting link",
+      "linkCopied": "Copied!",
+      "open": "Open",
+      "closed": "Closed",
+      "voters": "responses",
+      "noOptions": "No dates proposed yet. Add your first date option.",
+      "noPollYet": "No date poll has been created yet.",
+      "responses": "Responses",
+      "yes": "Yes",
+      "maybe": "Maybe",
+      "no": "No",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "removeOption": "Remove date",
+      "locked": {
+        "title": "Date Polling",
+        "description": "Propose multiple dates and let your guests vote for when they're available. The best date is highlighted automatically.",
+        "upgradeCta": "Upgrade to Standard"
+      },
+      "guestVoting": {
+        "title": "When can you make it?",
+        "subtitle": "Select the dates that work for you.",
+        "nameLabel": "Your name",
+        "namePlaceholder": "Jane Smith",
+        "emailLabel": "Your email",
+        "emailPlaceholder": "jane@example.com",
+        "submit": "Submit my availability",
+        "thankYou": "Thanks for voting!",
+        "thankYouDesc": "The organiser will use your input to pick the best date.",
+        "pollClosed": "This date poll is no longer accepting responses."
+      }
     },
     "programme": {
       "emptyTitle": "Plan your programme",

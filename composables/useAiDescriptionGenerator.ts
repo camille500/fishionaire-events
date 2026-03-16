@@ -16,6 +16,7 @@ export default function useAiDescriptionGenerator() {
   const length = ref<string>('middel')
   const eventType = ref<string>('')
   const includeEmojis = ref<boolean>(false)
+  const eventId = ref<string>('')
 
   async function generate(options: GenerateOptions = {}): Promise<void> {
     if (isGenerating.value) return
@@ -41,6 +42,7 @@ export default function useAiDescriptionGenerator() {
           includeEmojis: includeEmojis.value,
           refineInstruction,
           previousText,
+          eventId: eventId.value || undefined,
         }),
         signal: abortController.signal,
       })
@@ -127,6 +129,7 @@ export default function useAiDescriptionGenerator() {
     length,
     eventType,
     includeEmojis,
+    eventId,
     generatedText,
     isGenerating,
     error,

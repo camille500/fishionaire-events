@@ -35,6 +35,7 @@ const invitations = computed(() => events.value?.invited || [])
   flex-direction: column;
   gap: var(--space-6);
   max-width: 960px;
+  margin: 0 auto;
 }
 
 .invitations-page__title {

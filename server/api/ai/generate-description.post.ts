@@ -10,16 +10,17 @@ interface GenerateDescriptionBody {
   includeEmojis: boolean
   refineInstruction?: string
   previousText?: string
+  eventId?: string
 }
 
 export default defineEventHandler(async (event: H3Event) => {
-  const { isAuthenticated } = event.context.auth()
+  const { isAuthenticated, userId } = event.context.auth()
 
   if (!isAuthenticated) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const { prompt, tone, language, length, eventType, includeEmojis, refineInstruction, previousText } = await readBody<GenerateDescriptionBody>(event)
+  const { prompt, tone, language, length, eventType, includeEmojis, refineInstruction, previousText, eventId } = await readBody<GenerateDescriptionBody>(event)
 
   const stream = AiController.generateDescriptionStream({
     prompt,
@@ -30,6 +31,8 @@ export default defineEventHandler(async (event: H3Event) => {
     includeEmojis,
     refineInstruction,
     previousText,
+    clerkId: userId,
+    eventId,
   })
 
   const eventStream = createEventStream(event)

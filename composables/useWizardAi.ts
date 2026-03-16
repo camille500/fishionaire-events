@@ -1,4 +1,4 @@
-export function useWizardAi() {
+export function useWizardAi(eventId?: Ref<string | undefined>) {
   const { locale } = useI18n()
   const { tier, isFree, isStandard, isPro } = useSubscription()
 
@@ -22,7 +22,7 @@ export function useWizardAi() {
     aiFeatureUsed.value = true
     aiUsageCount.value++
 
-    await ai.suggestTitles({ eventType, context })
+    await ai.suggestTitles({ eventType, context, eventId: eventId?.value })
 
     // Free tier: limit to 2 suggestions
     if (isFree.value && ai.titleSuggestions.value.length > FREE_TITLE_LIMIT) {
@@ -36,7 +36,7 @@ export function useWizardAi() {
 
     aiFeatureUsed.value = true
     aiUsageCount.value++
-    await ai.suggestSubEvents({ eventType, eventTitle, existingSubEvents })
+    await ai.suggestSubEvents({ eventType, eventTitle, existingSubEvents, eventId: eventId?.value })
   }
 
   // Tier-aware timeline suggestions (Pro only)
@@ -45,7 +45,7 @@ export function useWizardAi() {
 
     aiFeatureUsed.value = true
     aiUsageCount.value++
-    await ai.suggestTimeline({ eventType, eventDate, subEvents })
+    await ai.suggestTimeline({ eventType, eventDate, subEvents, eventId: eventId?.value })
   }
 
   // AI Quick Start: build entire event from description (all tiers)

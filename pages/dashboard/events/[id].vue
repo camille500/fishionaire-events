@@ -154,7 +154,8 @@ function onTabChange(index) {
 
 <style scoped>
 .event-editor {
-  max-width: 720px;
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .event-editor__error-page {

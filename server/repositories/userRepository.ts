@@ -20,12 +20,29 @@ export default class UserRepository {
         firstName: data.firstName,
         lastName: data.lastName,
         role: data.role,
+        aiTone: data.aiTone,
+        aiToneCustom: data.aiToneCustom,
+        aiExtraContext: data.aiExtraContext,
         updatedAt: new Date(),
       },
       update: {
         email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
+        updatedAt: new Date(),
+      },
+    })
+    return User.fromJSON(row)
+  }
+
+  static async updateLlmSettings(clerkId: string, settings: { aiTone?: string | null, aiToneCustom?: string | null, aiExtraContext?: string | null }): Promise<User> {
+    const prisma = usePrisma()
+    const row = await prisma.user.update({
+      where: { clerkId },
+      data: {
+        aiTone: settings.aiTone,
+        aiToneCustom: settings.aiToneCustom,
+        aiExtraContext: settings.aiExtraContext,
         updatedAt: new Date(),
       },
     })

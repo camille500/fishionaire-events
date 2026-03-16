@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import LlmSettingsController from './llmSettingsController'
 
 type Language = 'nl' | 'en'
 
@@ -6,6 +7,8 @@ interface SuggestTitlesParams {
   eventType?: string
   context?: string
   language?: Language
+  clerkId?: string
+  eventId?: string
 }
 
 interface SuggestSubEventsParams {
@@ -15,6 +18,8 @@ interface SuggestSubEventsParams {
   eventDate?: string
   existingSubEvents?: Array<{ title: string }>
   language?: Language
+  clerkId?: string
+  eventId?: string
 }
 
 interface SuggestTimelineParams {
@@ -22,11 +27,15 @@ interface SuggestTimelineParams {
   eventDate?: string
   subEvents?: Array<{ title: string, durationMinutes?: number }>
   language?: Language
+  clerkId?: string
+  eventId?: string
 }
 
 interface BuildEventParams {
   description: string
   language?: Language
+  clerkId?: string
+  eventId?: string
 }
 
 interface TitleSuggestions {
@@ -61,8 +70,15 @@ export default class AiSuggestionsController {
     return new OpenAI({ apiKey: config.openaiApiKey as string })
   }
 
-  static async suggestTitles({ eventType, context, language = 'en' }: SuggestTitlesParams): Promise<TitleSuggestions> {
+  static async #resolveExtraContext(clerkId?: string, eventId?: string): Promise<string | null> {
+    if (!clerkId) return null
+    const settings = await LlmSettingsController.resolveSettings(clerkId, eventId)
+    return settings.extraContext
+  }
+
+  static async suggestTitles({ eventType, context, language = 'en', clerkId, eventId }: SuggestTitlesParams): Promise<TitleSuggestions> {
     const client = this.#getClient()
+    const extraContext = await this.#resolveExtraContext(clerkId, eventId)
 
     const languageInstruction = language === 'en'
       ? 'Write entirely in English.'
@@ -73,6 +89,7 @@ export default class AiSuggestionsController {
       'Generate 3 unique, catchy event titles.',
       languageInstruction,
       eventType ? `This is a ${eventType} event. Tailor names accordingly.` : '',
+      extraContext ? `Additional instructions from the user: ${extraContext}` : '',
       'Return a JSON object with a "suggestions" array of exactly 3 strings.',
       'Only return valid JSON, nothing else.',
     ].filter(Boolean).join('\n')
@@ -106,8 +123,9 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async suggestSubEvents({ eventType, eventTitle, description, eventDate, existingSubEvents = [], language = 'en' }: SuggestSubEventsParams): Promise<{ suggestions: SubEventSuggestion[] }> {
+  static async suggestSubEvents({ eventType, eventTitle, description, eventDate, existingSubEvents = [], language = 'en', clerkId, eventId }: SuggestSubEventsParams): Promise<{ suggestions: SubEventSuggestion[] }> {
     const client = this.#getClient()
+    const extraContext = await this.#resolveExtraContext(clerkId, eventId)
 
     const languageInstruction = language === 'en'
       ? 'Write entirely in English.'
@@ -127,6 +145,7 @@ export default class AiSuggestionsController {
       eventDate ? `The event is scheduled for ${eventDate}.` : '',
       existingContext,
       'Use the event details above to suggest activities that fit the specific context and tone of this event.',
+      extraContext ? `Additional instructions from the user: ${extraContext}` : '',
       'Return a JSON object with a "suggestions" array of objects, each with "title" (string) and "durationMinutes" (number).',
       'Suggest 3-5 activities with realistic durations.',
       'Only return valid JSON, nothing else.',
@@ -157,8 +176,9 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async suggestTimeline({ eventType, eventDate, subEvents = [], language = 'en' }: SuggestTimelineParams): Promise<{ items: TimelineItem[] }> {
+  static async suggestTimeline({ eventType, eventDate, subEvents = [], language = 'en', clerkId, eventId }: SuggestTimelineParams): Promise<{ items: TimelineItem[] }> {
     const client = this.#getClient()
+    const extraContext = await this.#resolveExtraContext(clerkId, eventId)
 
     const languageInstruction = language === 'en'
       ? 'Write entirely in English.'
@@ -175,6 +195,7 @@ export default class AiSuggestionsController {
       eventType ? `This is a ${eventType} event.` : '',
       eventDate ? `The event is on ${eventDate}.` : '',
       subEventsContext,
+      extraContext ? `Additional instructions from the user: ${extraContext}` : '',
       'Return a JSON object with an "items" array of objects, each with "title" (string), "startTime" (HH:MM format), and "endTime" (HH:MM format).',
       'Create a logical, well-paced timeline. Include setup and transition time between activities.',
       'Only return valid JSON, nothing else.',
@@ -205,8 +226,9 @@ export default class AiSuggestionsController {
     }
   }
 
-  static async buildEvent({ description, language = 'en' }: BuildEventParams): Promise<BuildEventResult> {
+  static async buildEvent({ description, language = 'en', clerkId, eventId }: BuildEventParams): Promise<BuildEventResult> {
     const client = this.#getClient()
+    const extraContext = await this.#resolveExtraContext(clerkId, eventId)
 
     const languageInstruction = language === 'en'
       ? 'Write entirely in English.'
@@ -227,6 +249,7 @@ export default class AiSuggestionsController {
       '- "dateSuggestion": { "dayOfWeek": string, "timeOfDay": "morning"|"afternoon"|"evening"|"night", "suggestedTime": "HH:MM", "isoDate": "YYYY-MM-DDTHH:MM" } or null if no date info given. If the user mentions a specific date like "next Saturday" or "March 25", calculate the actual date relative to today (' + new Date().toISOString().split('T')[0] + ') and include it as "isoDate" in ISO 8601 format.',
       '- "activities": array of { "title": string, "durationMinutes": number }, suggest 3-5 relevant activities',
       '',
+      extraContext ? `Additional instructions from the user: ${extraContext}` : '',
       'Be creative with the title and description. Make the activities realistic and well-timed.',
       'If the user mentions a specific date/time, extract it. Otherwise suggest a reasonable day and time.',
       'Only return valid JSON, nothing else.',

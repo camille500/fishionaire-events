@@ -4,6 +4,7 @@ const { eventId, eventData, form, canEdit } = useEventEditor()
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
 const hasTimeline = computed(() => !!eventData.value?.features?.timeline)
+const hasDatePolling = computed(() => !!eventData.value?.features?.datePolling)
 
 const {
   subEventSuggestions,
@@ -185,6 +186,18 @@ async function acceptAllSubEvents() {
           </button>
         </div>
       </div>
+    </section>
+
+    <!-- Date Polling (Standard+ feature) -->
+    <section
+      class="editor-schedule__section"
+      :class="{ 'editor-schedule__section--locked': !hasDatePolling }"
+    >
+      <DatePollEditor
+        :event-id="eventData.id"
+        :editable="canEdit"
+        :locked="!hasDatePolling"
+      />
     </section>
 
     <!-- Timeline (Pro feature) -->

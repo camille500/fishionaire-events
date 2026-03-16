@@ -489,6 +489,28 @@
       "notifications": "Meldingen",
       "notificationsPlaceholder": "Meldingsvoorkeuren komen binnenkort"
     },
+    "aiSettings": {
+      "title": "AI-instellingen",
+      "loading": "AI-instellingen laden...",
+      "toneLabel": "Toon",
+      "toneHint": "Kies een standaard schrijfstijl voor AI-gegenereerde teksten.",
+      "extraContextLabel": "Extra context",
+      "extraContextHint": "Geef aanvullende instructies mee aan de AI, zoals je merkstem of specifieke richtlijnen.",
+      "extraContextPlaceholder": "Bijv. schrijf altijd in de 'je'-vorm, gebruik geen moeilijke woorden...",
+      "toneCustomPlaceholder": "Beschrijf de gewenste toon...",
+      "overrideAccount": "Overschrijf accountinstelling",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "tones": {
+        "formeel": "Formeel",
+        "vriendelijk": "Vriendelijk",
+        "speels": "Speels",
+        "professioneel": "Professioneel",
+        "feestelijk": "Feestelijk",
+        "casual": "Casual",
+        "custom": "Aangepast"
+      }
+    },
     "eventEditor": {
       "title": "Evenement bewerken",
       "titleLabel": "Titel",
@@ -818,6 +840,46 @@
       "noTimeline": "Nog geen tijdlijn",
       "noTimelineDesc": "Maak een gedetailleerde tijdlijn zodat gasten weten wat ze kunnen verwachten.",
       "upgradeToPro": "Upgrade naar Pro"
+    },
+    "datePoll": {
+      "title": "Datumstemming",
+      "subtitle": "Stel meerdere data voor en laat gasten stemmen wanneer zij beschikbaar zijn.",
+      "createPoll": "Maak datumstemming",
+      "addDate": "Datum toevoegen",
+      "closePoll": "Stemming sluiten",
+      "reopenPoll": "Stemming heropenen",
+      "setOfficialDate": "Instellen als eventdatum",
+      "copyLink": "Kopieer stemlink",
+      "linkCopied": "Gekopieerd!",
+      "open": "Open",
+      "closed": "Gesloten",
+      "voters": "reacties",
+      "noOptions": "Nog geen data voorgesteld. Voeg je eerste datumoptie toe.",
+      "noPollYet": "Er is nog geen datumstemming aangemaakt.",
+      "responses": "Reacties",
+      "yes": "Ja",
+      "maybe": "Misschien",
+      "no": "Nee",
+      "startTime": "Begintijd",
+      "endTime": "Eindtijd",
+      "removeOption": "Datum verwijderen",
+      "locked": {
+        "title": "Datumstemming",
+        "description": "Stel meerdere data voor en laat gasten stemmen wanneer zij beschikbaar zijn. De beste datum wordt automatisch gemarkeerd.",
+        "upgradeCta": "Upgrade naar Standard"
+      },
+      "guestVoting": {
+        "title": "Wanneer kun jij erbij zijn?",
+        "subtitle": "Selecteer de data die voor jou werken.",
+        "nameLabel": "Je naam",
+        "namePlaceholder": "Jan Janssen",
+        "emailLabel": "Je e-mailadres",
+        "emailPlaceholder": "jan{'@'}voorbeeld.nl",
+        "submit": "Mijn beschikbaarheid insturen",
+        "thankYou": "Bedankt voor je stem!",
+        "thankYouDesc": "De organisator gebruikt jouw input om de beste datum te kiezen.",
+        "pollClosed": "Deze datumstemming accepteert geen reacties meer."
+      }
     },
     "programme": {
       "emptyTitle": "Plan je programma",

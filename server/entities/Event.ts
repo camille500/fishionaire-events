@@ -29,6 +29,9 @@ export interface EventData {
   coverImageUrl: string | null
   coverImageKey: string | null
   ownerClerkId: string
+  aiTone?: string | null
+  aiToneCustom?: string | null
+  aiExtraContext?: string | null
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
@@ -57,6 +60,12 @@ export interface EventJSON {
   cover_image_key?: string | null
   ownerClerkId?: string
   owner_clerk_id?: string
+  aiTone?: string | null
+  ai_tone?: string | null
+  aiToneCustom?: string | null
+  ai_tone_custom?: string | null
+  aiExtraContext?: string | null
+  ai_extra_context?: string | null
   archivedAt?: string | Date | null
   archived_at?: string | Date | null
   createdAt?: Date | string
@@ -80,11 +89,14 @@ export default class Event {
   coverImageUrl: string | null
   coverImageKey: string | null
   ownerClerkId: string
+  aiTone: string | null
+  aiToneCustom: string | null
+  aiExtraContext: string | null
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, tier, features, coverImageUrl, coverImageKey, ownerClerkId, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, tier, features, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -99,6 +111,9 @@ export default class Event {
     this.coverImageUrl = coverImageUrl || null
     this.coverImageKey = coverImageKey || null
     this.ownerClerkId = ownerClerkId
+    this.aiTone = aiTone || null
+    this.aiToneCustom = aiToneCustom || null
+    this.aiExtraContext = aiExtraContext || null
     this.archivedAt = archivedAt || null
     this.createdAt = createdAt || new Date()
     this.updatedAt = updatedAt || new Date()
@@ -120,6 +135,9 @@ export default class Event {
       coverImageUrl: data.coverImageUrl || data.cover_image_url || null,
       coverImageKey: data.coverImageKey || data.cover_image_key || null,
       ownerClerkId: (data.ownerClerkId || data.owner_clerk_id)!,
+      aiTone: data.aiTone ?? data.ai_tone ?? null,
+      aiToneCustom: data.aiToneCustom ?? data.ai_tone_custom ?? null,
+      aiExtraContext: data.aiExtraContext ?? data.ai_extra_context ?? null,
       archivedAt: data.archivedAt || data.archived_at || null,
       createdAt: data.createdAt || data.created_at || new Date(),
       updatedAt: data.updatedAt || data.updated_at || new Date(),
@@ -142,6 +160,9 @@ export default class Event {
       coverImageUrl: this.coverImageUrl,
       coverImageKey: this.coverImageKey,
       ownerClerkId: this.ownerClerkId,
+      aiTone: this.aiTone,
+      aiToneCustom: this.aiToneCustom,
+      aiExtraContext: this.aiExtraContext,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

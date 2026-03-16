@@ -1,13 +1,14 @@
 import OpenAI from 'openai'
+import LlmSettingsController from './llmSettingsController'
 
-type Tone = 'formeel' | 'vriendelijk' | 'speels' | 'professioneel' | 'feestelijk' | 'casual'
+type Tone = 'formeel' | 'vriendelijk' | 'speels' | 'professioneel' | 'feestelijk' | 'casual' | 'custom'
 type Length = 'kort' | 'middel' | 'lang'
 type Language = 'nl' | 'en'
 
-const VALID_TONES: Tone[] = ['formeel', 'vriendelijk', 'speels', 'professioneel', 'feestelijk', 'casual']
+const VALID_TONES: Tone[] = ['formeel', 'vriendelijk', 'speels', 'professioneel', 'feestelijk', 'casual', 'custom']
 const VALID_LENGTHS: Length[] = ['kort', 'middel', 'lang']
 
-const TONE_INSTRUCTIONS: Record<Tone, string> = {
+const TONE_INSTRUCTIONS: Record<string, string> = {
   formeel: 'Write in a formal, polished tone. Use proper language and a respectful, professional style.',
   vriendelijk: 'Write in a warm, friendly tone. Be inviting and approachable, like talking to a good friend.',
   speels: 'Write in a playful, fun tone. Be creative, use humor and make it exciting to read.',
@@ -24,21 +25,26 @@ const LENGTH_INSTRUCTIONS: Record<Length, string> = {
 
 interface SystemPromptParams {
   tone: Tone
+  toneCustom?: string | null
   language: Language
   length: Length
   eventType: string
   includeEmojis: boolean
+  extraContext?: string | null
 }
 
 interface GenerateDescriptionParams {
   prompt: string
   tone?: Tone
+  toneCustom?: string | null
   language?: Language
   length?: Length
   eventType?: string
   includeEmojis?: boolean
   refineInstruction?: string
   previousText?: string
+  clerkId?: string
+  eventId?: string
 }
 
 export default class AiController {
@@ -50,12 +56,14 @@ export default class AiController {
     return new OpenAI({ apiKey: config.openaiApiKey as string })
   }
 
-  static buildSystemPrompt({ tone, language, length, eventType, includeEmojis }: SystemPromptParams): string {
+  static buildSystemPrompt({ tone, toneCustom, language, length, eventType, includeEmojis, extraContext }: SystemPromptParams): string {
     const languageInstruction = language === 'en'
       ? 'Write entirely in English.'
       : 'Write entirely in Dutch (Nederlands).'
 
-    const toneInstruction = TONE_INSTRUCTIONS[tone] || TONE_INSTRUCTIONS.vriendelijk
+    const toneInstruction = tone === 'custom' && toneCustom
+      ? `Write in the following tone: ${toneCustom}`
+      : TONE_INSTRUCTIONS[tone] || TONE_INSTRUCTIONS.vriendelijk
     const lengthInstruction = LENGTH_INSTRUCTIONS[length] || LENGTH_INSTRUCTIONS.middel
 
     const eventTypeInstruction = eventType
@@ -65,6 +73,10 @@ export default class AiController {
     const emojiInstruction = includeEmojis
       ? 'Include relevant emojis throughout the text to make it visually appealing.'
       : 'Do not use any emojis.'
+
+    const extraContextInstruction = extraContext
+      ? `Additional instructions from the user: ${extraContext}`
+      : ''
 
     return [
       'You are a professional event copywriter for Fishionaire Events, a platform for planning events like birthdays, weddings, baby showers, dinners, and more.',
@@ -76,6 +88,7 @@ export default class AiController {
       lengthInstruction,
       eventTypeInstruction,
       emojiInstruction,
+      extraContextInstruction,
       '',
       'Output ONLY the event description text. Do not include a title, heading, or any meta-commentary.',
     ].filter(Boolean).join('\n')
@@ -83,19 +96,34 @@ export default class AiController {
 
   static async *generateDescriptionStream({
     prompt,
-    tone = 'vriendelijk',
+    tone,
+    toneCustom,
     language = 'nl',
     length = 'middel',
     eventType = '',
     includeEmojis = false,
     refineInstruction = '',
     previousText = '',
+    clerkId,
+    eventId,
   }: GenerateDescriptionParams): AsyncGenerator<string> {
     if (!prompt || !prompt.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'A prompt is required' })
     }
 
-    if (tone && !VALID_TONES.includes(tone)) {
+    // Resolve LLM settings: per-request > event > account > default
+    let resolvedTone: Tone = tone || 'vriendelijk'
+    let resolvedToneCustom: string | null = toneCustom || null
+    let resolvedExtraContext: string | null = null
+
+    if (clerkId) {
+      const settings = await LlmSettingsController.resolveSettings(clerkId, eventId)
+      if (!tone) resolvedTone = settings.tone as Tone
+      if (!toneCustom) resolvedToneCustom = settings.toneCustom
+      resolvedExtraContext = settings.extraContext
+    }
+
+    if (resolvedTone && !VALID_TONES.includes(resolvedTone)) {
       throw createError({ statusCode: 400, statusMessage: `Invalid tone. Must be one of: ${VALID_TONES.join(', ')}` })
     }
 
@@ -104,7 +132,7 @@ export default class AiController {
     }
 
     const client = this.#getClient()
-    const systemPrompt = this.buildSystemPrompt({ tone, language, length, eventType, includeEmojis })
+    const systemPrompt = this.buildSystemPrompt({ tone: resolvedTone, toneCustom: resolvedToneCustom, language, length, eventType, includeEmojis, extraContext: resolvedExtraContext })
 
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       { role: 'system', content: systemPrompt },
