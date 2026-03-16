@@ -233,6 +233,24 @@ export default class DatePollController {
     return this.#serializePublicPoll(updated!, voterEmail.toLowerCase())
   }
 
+  static async getPublicPollByToken(eventId: number, accessToken: string): Promise<Record<string, unknown> | null> {
+    const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
+    if (!invitation) throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
+
+    return this.getPublicPoll(eventId, invitation.inviteeEmail)
+  }
+
+  static async submitVotesByToken(
+    eventId: number,
+    accessToken: string,
+    votes: VoteInput[],
+  ): Promise<Record<string, unknown>> {
+    const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
+    if (!invitation) throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
+
+    return this.submitVotes(eventId, invitation.inviteeEmail, invitation.inviteeName, votes)
+  }
+
   // ── Helpers ───────────────────────────────────────────────────
 
   static #serializePoll(poll: DatePoll): Record<string, unknown> {

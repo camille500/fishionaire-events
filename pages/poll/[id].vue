@@ -16,7 +16,7 @@ const { data: eventData } = await useFetch(`/api/events/${eventId}`)
   <div class="poll-page">
     <header class="poll-page__header">
       <NuxtLink to="/" class="poll-page__logo">
-        <img src="/logo.svg" alt="Fishionaire" height="28" />
+        Fishionaire
       </NuxtLink>
     </header>
 

@@ -1,6 +1,6 @@
 <script setup>
 const { t } = useI18n()
-const { form, eventData, isOwner, canEdit, role, errors, touched, markTouched } = useEventEditor()
+const { form, eventData, isOwner, canEdit, role } = useEventEditor()
 const { staggerIn } = useEditorAnimations()
 
 const guestsRef = ref(null)
@@ -11,28 +11,10 @@ onMounted(() => {
 
 <template>
   <div ref="guestsRef" class="editor-guests">
-    <!-- Guest settings -->
+    <!-- Private toggle card -->
     <section class="editor-guests__section">
       <h3 class="editor-guests__section-label">{{ t('dashboard.eventEditor.guestSettingsSection') }}</h3>
 
-      <div class="editor-guests__props">
-        <EditorPropertyRow :label="t('dashboard.eventEditor.maxGuestsLabel')" icon="lucide:users">
-          <input
-            v-model="form.maxGuests"
-            type="number"
-            min="1"
-            class="editor-guests__prop-value editor-guests__prop-value--short"
-            :placeholder="t('dashboard.eventEditor.maxGuestsPlaceholder')"
-            @blur="markTouched('maxGuests')"
-          />
-        </EditorPropertyRow>
-        <EditorFieldError
-          :message="errors.maxGuests"
-          :visible="!!(errors.maxGuests && touched.maxGuests)"
-        />
-      </div>
-
-      <!-- Private toggle card -->
       <div
         class="editor-guests__toggle-card"
         :class="{ 'editor-guests__toggle-card--active': form.isPrivate }"
@@ -50,10 +32,10 @@ onMounted(() => {
       </div>
     </section>
 
-    <!-- Invite guests -->
+    <!-- Guest management -->
     <section v-if="canEdit" class="editor-guests__section">
       <h3 class="editor-guests__section-label">{{ t('dashboard.inviteGuests') }}</h3>
-      <InviteForm :event-id="eventData.id" />
+      <GuestManager :event-id="eventData.id" />
     </section>
 
     <!-- Co-organizers (owner only) -->
@@ -94,37 +76,6 @@ onMounted(() => {
   letter-spacing: 0.08em;
   color: var(--color-accent);
   margin: 0;
-}
-
-.editor-guests__props {
-  display: flex;
-  flex-direction: column;
-}
-
-.editor-guests__prop-value {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.editor-guests__prop-value:hover {
-  background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
-}
-
-.editor-guests__prop-value:focus {
-  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 25%, transparent);
-}
-
-.editor-guests__prop-value--short {
-  max-width: 120px;
 }
 
 /* Toggle card */
@@ -191,10 +142,6 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
-  .editor-guests__prop-value {
-    width: 100%;
-  }
-
   .editor-guests__toggle-card {
     flex-direction: column;
     align-items: flex-start;

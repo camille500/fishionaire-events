@@ -138,8 +138,8 @@ model Event {
   eventDate    DateTime?  @map("event_date")
   eventEndDate DateTime?  @map("event_end_date")
   location     String?
-  maxGuests    Int?       @map("max_guests")
   isPrivate      Boolean    @default(true) @map("is_private")
+  shareToken     String?    @unique @map("share_token")
   tier           EventTier  @default(free)
   features       Json       @default("{}")
   coverImageUrl  String?    @map("cover_image_url")
@@ -228,12 +228,19 @@ model EventInvitation {
   id             Int              @id @default(autoincrement())
   eventId        Int              @map("event_id")
   inviteeEmail   String           @map("invitee_email")
+  inviteeName    String?          @map("invitee_name")
   inviterClerkId String           @map("inviter_clerk_id")
   status         InvitationStatus @default(pending)
+  plusOnes       Int              @default(0) @map("plus_ones")
+  accessToken    String           @unique @map("access_token")
+  invitedById    Int?             @map("invited_by_id")
   createdAt      DateTime         @default(now()) @map("created_at")
 
-  event   Event @relation(fields: [eventId], references: [id])
-  inviter User  @relation(fields: [inviterClerkId], references: [clerkId])
+  event           Event                @relation(fields: [eventId], references: [id])
+  inviter         User                 @relation(fields: [inviterClerkId], references: [clerkId])
+  invitedBy       EventInvitation?     @relation("PlusOneLink", fields: [invitedById], references: [id], onDelete: SetNull)
+  plusOneInvites  EventInvitation[]     @relation("PlusOneLink")
+  subEventInvites InvitationSubEvent[]
 
   @@map("event_invitations")
 }
@@ -250,10 +257,24 @@ model SubEvent {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @default(now()) @map("updated_at")
 
-  event Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  rsvps SubEventRsvp[]
+  event          Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rsvps          SubEventRsvp[]
+  invitedGuests  InvitationSubEvent[]
 
   @@map("sub_events")
+}
+
+model InvitationSubEvent {
+  id           Int @id @default(autoincrement())
+  invitationId Int @map("invitation_id")
+  subEventId   Int @map("sub_event_id")
+  plusOnes     Int @default(0) @map("plus_ones")
+
+  invitation EventInvitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  subEvent   SubEvent        @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+
+  @@unique([invitationId, subEventId])
+  @@map("invitation_sub_events")
 }
 
 model SubEventRsvp {

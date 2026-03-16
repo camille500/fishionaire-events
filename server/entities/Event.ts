@@ -22,8 +22,8 @@ export interface EventData {
   eventDate: string | Date | null
   eventEndDate: string | Date | null
   location: string | null
-  maxGuests: number | null
   isPrivate: boolean
+  shareToken: string | null
   tier: string
   features: EventFeatures
   coverImageUrl: string | null
@@ -48,10 +48,10 @@ export interface EventJSON {
   eventEndDate?: string | Date | null
   event_end_date?: string | Date | null
   location?: string | null
-  maxGuests?: number | null
-  max_guests?: number | null
   isPrivate?: boolean
   is_private?: boolean
+  shareToken?: string | null
+  share_token?: string | null
   tier?: string
   features?: Partial<EventFeatures>
   coverImageUrl?: string | null
@@ -82,8 +82,8 @@ export default class Event {
   eventDate: string | Date | null
   eventEndDate: string | Date | null
   location: string | null
-  maxGuests: number | null
   isPrivate: boolean
+  shareToken: string | null
   tier: string
   features: EventFeatures
   coverImageUrl: string | null
@@ -96,7 +96,7 @@ export default class Event {
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, tier, features, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, isPrivate, shareToken, tier, features, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -104,8 +104,8 @@ export default class Event {
     this.eventDate = eventDate || null
     this.eventEndDate = eventEndDate || null
     this.location = location || null
-    this.maxGuests = maxGuests || null
     this.isPrivate = isPrivate ?? true
+    this.shareToken = shareToken || null
     this.tier = tier || 'free'
     this.features = { ...getFeaturesForTier(this.tier), ...(features || {}) }
     this.coverImageUrl = coverImageUrl || null
@@ -128,8 +128,8 @@ export default class Event {
       eventDate: data.eventDate || data.event_date || null,
       eventEndDate: data.eventEndDate || data.event_end_date || null,
       location: data.location ?? null,
-      maxGuests: data.maxGuests || data.max_guests || null,
       isPrivate: data.isPrivate ?? data.is_private ?? true,
+      shareToken: data.shareToken || data.share_token || null,
       tier: data.tier || 'free',
       features: (data.features || {}) as EventFeatures,
       coverImageUrl: data.coverImageUrl || data.cover_image_url || null,
@@ -153,8 +153,8 @@ export default class Event {
       eventDate: this.eventDate,
       eventEndDate: this.eventEndDate,
       location: this.location,
-      maxGuests: this.maxGuests,
       isPrivate: this.isPrivate,
+      shareToken: this.shareToken,
       tier: this.tier,
       features: this.features,
       coverImageUrl: this.coverImageUrl,

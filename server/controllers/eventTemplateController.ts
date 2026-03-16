@@ -41,7 +41,6 @@ export default class EventTemplateController {
       description: event.description,
       eventType: event.eventType,
       settings: {
-        maxGuests: event.maxGuests,
         isPrivate: event.isPrivate,
       },
       subEventTemplates: subEvents.map((se: { title: string, description: string | null }) => ({

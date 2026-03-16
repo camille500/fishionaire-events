@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import Event from '../entities/Event'
 import EventInvitation from '../entities/EventInvitation'
 import EventMember from '../entities/EventMember'
@@ -27,7 +28,6 @@ interface UpdateEventParams {
   eventDate?: string | null
   eventEndDate?: string | null
   location?: string | null
-  maxGuests?: number | null
   isPrivate?: boolean
   features?: Record<string, boolean>
 }
@@ -100,6 +100,7 @@ export default class EventController {
       tier,
       features: getFeaturesForTier(tier),
       ownerClerkId: clerkId,
+      shareToken: crypto.randomBytes(16).toString('hex'),
       ...templateData,
       ...(wizardData.eventType ? { eventType: wizardData.eventType } : {}),
       ...(wizardData.eventDate ? { eventDate: new Date(wizardData.eventDate) } : {}),
@@ -170,7 +171,7 @@ export default class EventController {
   }
 
   static async updateEvent(eventId: number, clerkId: string, {
-    title, description, eventType, eventDate, eventEndDate, location, maxGuests, isPrivate, features
+    title, description, eventType, eventDate, eventEndDate, location, isPrivate, features
   }: UpdateEventParams): Promise<Record<string, unknown>> {
     const validEventTypes: EventType[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
@@ -215,13 +216,6 @@ export default class EventController {
       event.location = location || null
     }
 
-    if (maxGuests !== undefined) {
-      if (maxGuests !== null && (!Number.isInteger(maxGuests) || maxGuests < 1)) {
-        throw createError({ statusCode: 400, statusMessage: 'Max guests must be a positive number' })
-      }
-      event.maxGuests = maxGuests
-    }
-
     if (isPrivate !== undefined) {
       event.isPrivate = Boolean(isPrivate)
     }
@@ -234,7 +228,14 @@ export default class EventController {
     return saved.toJSON()
   }
 
-  static async inviteToEvent(eventId: number, inviterClerkId: string, inviteeEmail: string): Promise<Record<string, unknown>> {
+  static async inviteToEvent(
+    eventId: number,
+    inviterClerkId: string,
+    inviteeEmail: string,
+    inviteeName?: string | null,
+    plusOnes: number = 0,
+    subEventInvites: { subEventId: number, plusOnes: number }[] = []
+  ): Promise<Record<string, unknown>> {
     if (!inviteeEmail || !inviteeEmail.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'Email is required' })
     }
@@ -253,13 +254,190 @@ export default class EventController {
     }
 
     const invitation = new EventInvitation({
+      id: null,
       eventId,
       inviteeEmail: normalizedEmail,
+      inviteeName: inviteeName || null,
       inviterClerkId,
+      status: 'pending',
+      plusOnes,
+      accessToken: crypto.randomBytes(16).toString('hex'),
+      invitedById: null,
+      invitedByName: null,
+      subEventInvites,
+      plusOneInvites: [],
+      createdAt: new Date(),
     })
 
     const saved = await EventInvitationRepository.create(invitation)
     return saved.toJSON()
+  }
+
+  static async addPlusOneInvite(
+    accessToken: string,
+    plusOneName: string,
+    plusOneEmail: string,
+  ): Promise<Record<string, unknown>> {
+    if (!plusOneEmail || !plusOneEmail.trim()) {
+      throw createError({ statusCode: 400, statusMessage: 'Email is required' })
+    }
+    if (!plusOneName || !plusOneName.trim()) {
+      throw createError({ statusCode: 400, statusMessage: 'Name is required' })
+    }
+
+    const parentInvitation = await EventInvitationRepository.findByAccessToken(accessToken)
+    if (!parentInvitation) {
+      throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
+    }
+
+    if (parentInvitation.remainingPlusOnes <= 0) {
+      throw createError({ statusCode: 400, statusMessage: 'No plus-one slots remaining' })
+    }
+
+    const normalizedEmail = plusOneEmail.trim().toLowerCase()
+
+    const existing = await EventInvitationRepository.findByEventIdAndEmail(parentInvitation.eventId, normalizedEmail)
+    if (existing) {
+      throw createError({ statusCode: 409, statusMessage: 'This person is already invited' })
+    }
+
+    const plusOneInvitation = new EventInvitation({
+      id: null,
+      eventId: parentInvitation.eventId,
+      inviteeEmail: normalizedEmail,
+      inviteeName: plusOneName.trim(),
+      inviterClerkId: parentInvitation.inviterClerkId,
+      status: 'pending',
+      plusOnes: 0,
+      accessToken: crypto.randomBytes(16).toString('hex'),
+      invitedById: parseInt(parentInvitation.id!),
+      invitedByName: parentInvitation.inviteeName,
+      subEventInvites: parentInvitation.subEventInvites,
+      plusOneInvites: [],
+      createdAt: new Date(),
+    })
+
+    const saved = await EventInvitationRepository.create(plusOneInvitation)
+    return saved.toJSON()
+  }
+
+  static async getEventGuests(eventId: number, clerkId: string): Promise<{
+    guests: Record<string, unknown>[]
+    stats: { total: number, accepted: number, declined: number, pending: number }
+  }> {
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to view guests' })
+    }
+
+    // Get primary guests only (not plus-ones) — plus-ones are nested in plusOneInvites
+    const primaryInvitations = await EventInvitationRepository.findPrimaryByEventId(eventId)
+    // Get all invitations for stats
+    const allInvitations = await EventInvitationRepository.findByEventId(eventId)
+
+    const guests = primaryInvitations.map((inv) => inv.toJSON())
+    const accepted = allInvitations.filter((inv) => inv.isAccepted).length
+    const declined = allInvitations.filter((inv) => inv.isDeclined).length
+    const pending = allInvitations.filter((inv) => inv.isPending).length
+
+    return {
+      guests,
+      stats: { total: allInvitations.length, accepted, declined, pending },
+    }
+  }
+
+  static async updateGuest(
+    eventId: number,
+    invitationId: number,
+    clerkId: string,
+    data: { inviteeName?: string | null, plusOnes?: number, subEventInvites?: { subEventId: number, plusOnes: number }[] }
+  ): Promise<Record<string, unknown>> {
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to edit guests' })
+    }
+
+    const updated = await EventInvitationRepository.update(invitationId, data)
+    return updated.toJSON()
+  }
+
+  static async removeGuest(eventId: number, invitationId: number, clerkId: string): Promise<{ success: boolean }> {
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to remove guests' })
+    }
+
+    await EventInvitationRepository.delete(invitationId)
+    return { success: true }
+  }
+
+  static async getPublicEvent(shareToken: string): Promise<Record<string, unknown>> {
+    const event = await EventRepository.findByShareToken(shareToken)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    // Return public-safe data only
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      eventType: event.eventType,
+      eventDate: event.eventDate,
+      eventEndDate: event.eventEndDate,
+      location: event.location,
+      coverImageUrl: event.coverImageUrl,
+      features: event.features,
+    }
+  }
+
+  static async getInviteEvent(accessToken: string): Promise<Record<string, unknown>> {
+    const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
+    if (!invitation) {
+      throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
+    }
+
+    const event = await EventRepository.findById(invitation.eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    // Get sub-events the guest is invited to
+    const allSubEvents = await SubEventRepository.findByEventId(event.id)
+    const invitedSubEventIds = invitation.subEventInvites.map((s) => s.subEventId)
+    const subEvents = invitedSubEventIds.length > 0
+      ? allSubEvents.filter((se) => invitedSubEventIds.includes(parseInt(se.id)))
+      : allSubEvents
+
+    return {
+      event: {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        eventType: event.eventType,
+        eventDate: event.eventDate,
+        eventEndDate: event.eventEndDate,
+        location: event.location,
+        coverImageUrl: event.coverImageUrl,
+        features: event.features,
+      },
+      invitation: invitation.toJSON(),
+      subEvents: subEvents.map((se) => se.toJSON()),
+    }
+  }
+
+  static async rsvpByToken(accessToken: string, status: string): Promise<Record<string, unknown>> {
+    if (!['accepted', 'declined'].includes(status)) {
+      throw createError({ statusCode: 400, statusMessage: 'Status must be accepted or declined' })
+    }
+
+    const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
+    if (!invitation) {
+      throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
+    }
+
+    const updated = await EventInvitationRepository.update(parseInt(invitation.id!), { status })
+    return updated.toJSON()
   }
 
   static async archiveEvent(eventId: number, clerkId: string): Promise<{ success: boolean }> {
@@ -305,8 +483,8 @@ export default class EventController {
       description: event.description,
       eventType: event.eventType,
       location: event.location,
-      maxGuests: event.maxGuests,
       isPrivate: event.isPrivate,
+      shareToken: crypto.randomBytes(16).toString('hex'),
       tier: event.tier,
       features: event.features,
       ownerClerkId: clerkId,

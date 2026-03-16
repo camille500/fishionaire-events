@@ -841,6 +841,33 @@
       "noTimelineDesc": "Create a detailed timeline so guests know what to expect.",
       "upgradeToPro": "Upgrade to Pro"
     },
+    "details": {
+      "datePollingToggle": "Date polling",
+      "datePollingToggleDesc": "Let guests vote on the best date",
+      "datePollingUpsell": "Upgrade to Standard to let guests vote on the best date"
+    },
+    "guests": {
+      "addGuest": "Add guest",
+      "namePlaceholder": "Name",
+      "emailPlaceholder": "Email address",
+      "plusOnesLabel": "Plus ones",
+      "inviteTo": "Invited to",
+      "leaveEmptyForAll": "Leave empty to invite to all parts",
+      "copyInviteLink": "Copy invite link",
+      "copyShareLink": "Copy shareable link",
+      "linkCopied": "Copied!",
+      "noGuests": "No guests invited yet",
+      "editGuest": "Edit guest",
+      "removeGuest": "Remove guest",
+      "plusOnesFilled": "filled",
+      "totalGuests": "guests",
+      "allSubEvents": "All parts",
+      "status": {
+        "accepted": "Attending",
+        "declined": "Declined",
+        "pending": "Pending"
+      }
+    },
     "datePoll": {
       "title": "Date Poll",
       "subtitle": "Propose dates and let guests vote for when they're available.",
@@ -874,7 +901,7 @@
         "nameLabel": "Your name",
         "namePlaceholder": "Jane Smith",
         "emailLabel": "Your email",
-        "emailPlaceholder": "jane@example.com",
+        "emailPlaceholder": "jane{'@'}example.com",
         "submit": "Submit my availability",
         "thankYou": "Thanks for voting!",
         "thankYouDesc": "The organiser will use your input to pick the best date.",
@@ -886,7 +913,8 @@
       "emptySubtitle": "Add activities so your guests know what to expect — you can always change these later.",
       "generateAi": "Generate suggested programme",
       "useTemplate": "Use a starter template",
-      "dismiss": "I'll add them myself"
+      "dismiss": "I'll add them myself",
+      "upgradeHint": "Upgrade to Standard for AI suggestions, templates and more"
     },
     "validation": {
       "titleRequired": "Give your event a name",
@@ -1005,6 +1033,65 @@
       "dinner": { "name": "Dinner party", "description": "An elegant evening together" },
       "corporate": { "name": "Corporate", "description": "Professional events and meetings" },
       "other": { "name": "Something else", "description": "Any custom event" }
+    }
+  },
+  "common": {
+    "add": "Add",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "invite": {
+    "welcome": "You're invited!",
+    "welcomeNamed": "Hey {name}, you're invited!",
+    "welcomePlusOne": "You're invited to {event} by {inviter}!",
+    "plusOneContext": "You've been invited as a +1 by {name}",
+    "dateToBeDecided": "Date to be decided",
+    "error": {
+      "title": "Invitation not found",
+      "description": "This invitation link is invalid or has expired.",
+      "backHome": "Back to home"
+    },
+    "rsvp": {
+      "title": "Will you be there?",
+      "attending": "I'll be there!",
+      "declining": "Can't make it",
+      "youreAttending": "You're attending!",
+      "youreNotAttending": "You've declined",
+      "changeResponse": "Change response",
+      "plusOnesNote": "You can bring {count} additional guest(s)"
+    },
+    "programme": {
+      "title": "Programme"
+    },
+    "poll": {
+      "title": "Date preference",
+      "subtitle": "Let us know when you're available."
+    },
+    "plusOnes": {
+      "title": "Your extra guests",
+      "subtitle": "You can invite {count} additional guest(s). Fill in their details so they receive a personal invitation.",
+      "namePlaceholder": "Name of your +1",
+      "emailPlaceholder": "Email of your +1",
+      "createLink": "Create link",
+      "copyLink": "Copy invite link",
+      "remove": "Remove",
+      "addButton": "Add extra guest",
+      "remaining": "remaining"
+    },
+    "auth": {
+      "title": "Identify yourself",
+      "description": "Enter your personal invitation code to access this event.",
+      "codePlaceholder": "Your invitation code",
+      "submit": "Continue",
+      "invalidCode": "This code is invalid. Please check and try again.",
+      "tooManyAttempts": "Too many attempts. Please try again later.",
+      "or": "or",
+      "signIn": "Sign in with your account"
+    },
+    "footer": {
+      "poweredBy": "Powered by"
     }
   },
   "footer": {

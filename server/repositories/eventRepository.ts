@@ -13,7 +13,7 @@ export default class EventRepository {
         eventDate: data.eventDate,
         eventEndDate: data.eventEndDate,
         location: data.location,
-        maxGuests: data.maxGuests,
+        shareToken: data.shareToken,
         isPrivate: data.isPrivate,
         tier: data.tier,
         features: data.features,
@@ -25,6 +25,13 @@ export default class EventRepository {
         aiExtraContext: data.aiExtraContext,
       },
     })
+    return Event.fromJSON(row)
+  }
+
+  static async findByShareToken(shareToken: string): Promise<Event | null> {
+    const prisma = usePrisma()
+    const row = await prisma.event.findUnique({ where: { shareToken } })
+    if (!row) return null
     return Event.fromJSON(row)
   }
 
@@ -87,7 +94,7 @@ export default class EventRepository {
         eventDate: data.eventDate,
         eventEndDate: data.eventEndDate,
         location: data.location,
-        maxGuests: data.maxGuests,
+        shareToken: data.shareToken,
         isPrivate: data.isPrivate,
         tier: data.tier,
         features: data.features,

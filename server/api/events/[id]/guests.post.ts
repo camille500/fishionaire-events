@@ -13,15 +13,22 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }
 
-  const { title, description, eventType, eventDate, eventEndDate, location, isPrivate, features } = await readBody<{
-    title?: string
-    description?: string
-    eventType?: string
-    eventDate?: string
-    eventEndDate?: string
-    location?: string
-    isPrivate?: boolean
-    features?: Record<string, boolean>
+  const { email, name, plusOnes, subEventInvites } = await readBody<{
+    email: string
+    name?: string
+    plusOnes?: number
+    subEventInvites?: { subEventId: number, plusOnes: number }[]
   }>(event)
-  return await EventController.updateEvent(eventId, userId, { title, description, eventType, eventDate, eventEndDate, location, isPrivate, features })
+
+  const result = await EventController.inviteToEvent(
+    eventId,
+    userId,
+    email,
+    name || null,
+    plusOnes || 0,
+    subEventInvites || []
+  )
+
+  setResponseStatus(event, 201)
+  return result
 })

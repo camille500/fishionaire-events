@@ -4,7 +4,6 @@ const { eventId, eventData, form, canEdit } = useEventEditor()
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
 const hasTimeline = computed(() => !!eventData.value?.features?.timeline)
-const hasDatePolling = computed(() => !!eventData.value?.features?.datePolling)
 
 const {
   subEventSuggestions,
@@ -95,28 +94,33 @@ async function acceptAllSubEvents() {
         <span class="programme-banner__description">{{ t('editor.programme.emptySubtitle') }}</span>
       </div>
       <div class="programme-banner__actions">
-        <AppButton
-          v-if="hasAi"
-          variant="primary"
-          size="sm"
-          :disabled="loadingSubEvents"
-          @click="onSuggestActivities"
-        >
-          <Icon name="lucide:sparkles" size="14" :class="{ 'programme-banner__spinner': loadingSubEvents }" />
-          {{ loadingSubEvents ? t('editor.ai.loading') : t('editor.programme.generateAi') }}
-        </AppButton>
-        <AppButton
-          v-if="form.eventType"
-          variant="outline"
-          size="sm"
-          :disabled="loadingTemplate"
-          @click="onUseTemplate"
-        >
-          <Icon name="lucide:layout-template" size="14" />
-          {{ t('editor.programme.useTemplate') }}
-        </AppButton>
+        <template v-if="hasAi">
+          <AppButton
+            variant="primary"
+            size="sm"
+            :disabled="loadingSubEvents"
+            @click="onSuggestActivities"
+          >
+            <Icon name="lucide:sparkles" size="14" :class="{ 'programme-banner__spinner': loadingSubEvents }" />
+            {{ loadingSubEvents ? t('editor.ai.loading') : t('editor.programme.generateAi') }}
+          </AppButton>
+          <AppButton
+            v-if="form.eventType"
+            variant="outline"
+            size="sm"
+            :disabled="loadingTemplate"
+            @click="onUseTemplate"
+          >
+            <Icon name="lucide:layout-template" size="14" />
+            {{ t('editor.programme.useTemplate') }}
+          </AppButton>
+        </template>
+        <div v-else class="programme-banner__upsell">
+          <AppText size="xs" muted>{{ t('editor.programme.upgradeHint') }}</AppText>
+          <TierBadge tier="standard" />
+        </div>
       </div>
-      <button type="button" class="programme-banner__dismiss" @click="programmeBannerDismissed = true">
+      <button v-if="hasAi" type="button" class="programme-banner__dismiss" @click="programmeBannerDismissed = true">
         {{ t('editor.programme.dismiss') }}
       </button>
 
@@ -186,18 +190,6 @@ async function acceptAllSubEvents() {
           </button>
         </div>
       </div>
-    </section>
-
-    <!-- Date Polling (Standard+ feature) -->
-    <section
-      class="editor-schedule__section"
-      :class="{ 'editor-schedule__section--locked': !hasDatePolling }"
-    >
-      <DatePollEditor
-        :event-id="eventData.id"
-        :editable="canEdit"
-        :locked="!hasDatePolling"
-      />
     </section>
 
     <!-- Timeline (Pro feature) -->
@@ -273,6 +265,12 @@ async function acceptAllSubEvents() {
   gap: var(--space-2);
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.programme-banner__upsell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .programme-banner__dismiss {

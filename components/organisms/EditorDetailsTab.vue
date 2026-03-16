@@ -5,6 +5,42 @@ const { icon } = useEventTheme(computed(() => form.eventType))
 const { staggerIn } = useEditorAnimations()
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
+const hasDatePolling = computed(() => !!eventData.value?.features?.datePolling)
+
+// Date polling toggle state — derived from whether a poll exists
+const datePollingActive = ref(false)
+const pollLoading = ref(false)
+
+async function checkPollExists() {
+  if (!hasDatePolling.value || !eventData.value?.id) return
+  pollLoading.value = true
+  try {
+    const poll = await $fetch(`/api/events/${eventData.value.id}/date-poll`)
+    datePollingActive.value = !!poll
+  } catch {
+    datePollingActive.value = false
+  } finally {
+    pollLoading.value = false
+  }
+}
+
+async function toggleDatePolling(active) {
+  if (!eventData.value?.id) return
+  pollLoading.value = true
+  try {
+    if (active) {
+      await $fetch(`/api/events/${eventData.value.id}/date-poll`, { method: 'POST', body: { options: [] } })
+      datePollingActive.value = true
+    } else {
+      await $fetch(`/api/events/${eventData.value.id}/date-poll`, { method: 'DELETE' })
+      datePollingActive.value = false
+    }
+  } finally {
+    pollLoading.value = false
+  }
+}
+
+onMounted(checkPollExists)
 const {
   titleSuggestions,
   loadingTitles,
@@ -124,26 +160,74 @@ onMounted(() => {
     <section class="editor-details__section">
       <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.detailsSection') }}</h3>
       <div class="editor-details__props">
-        <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
-          <EditorDatePicker
-            v-model="form.eventDate"
-            :placeholder="t('editor.datePicker.selectDate')"
-            :error="errors.eventDate"
-            :touched="touched.eventDate"
-            @blur="markTouched('eventDate')"
-          />
-        </EditorPropertyRow>
+        <!-- Date polling locked upsell (free tier) -->
+        <div v-if="!hasDatePolling" class="editor-details__upsell-card">
+          <div class="editor-details__upsell-left">
+            <div class="editor-details__upsell-icon">
+              <Icon name="lucide:bar-chart-3" size="16" />
+            </div>
+            <div class="editor-details__toggle-text">
+              <span class="editor-details__toggle-title">{{ t('editor.details.datePollingToggle') }}</span>
+              <span class="editor-details__toggle-desc">{{ t('editor.details.datePollingUpsell') }}</span>
+            </div>
+          </div>
+          <TierBadge tier="standard" />
+        </div>
 
-        <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
-          <EditorDatePicker
-            v-model="form.eventEndDate"
-            :placeholder="t('editor.datePicker.selectEndDate')"
-            :min-date="form.eventDate"
-            :error="errors.eventEndDate"
-            :touched="touched.eventEndDate"
-            @blur="markTouched('eventEndDate')"
+        <!-- Date polling toggle (Standard+) -->
+        <div
+          v-if="hasDatePolling"
+          class="editor-details__toggle-card"
+          :class="{ 'editor-details__toggle-card--active': datePollingActive }"
+        >
+          <div class="editor-details__toggle-left">
+            <div class="editor-details__toggle-icon">
+              <Icon :name="datePollingActive ? 'lucide:bar-chart-3' : 'lucide:calendar'" size="16" />
+            </div>
+            <div class="editor-details__toggle-text">
+              <span class="editor-details__toggle-title">{{ t('editor.details.datePollingToggle') }}</span>
+              <span class="editor-details__toggle-desc">{{ t('editor.details.datePollingToggleDesc') }}</span>
+            </div>
+          </div>
+          <AppSwitch
+            :model-value="datePollingActive"
+            :disabled="pollLoading"
+            @update:model-value="toggleDatePolling"
           />
-        </EditorPropertyRow>
+        </div>
+
+        <!-- Fixed date pickers (when polling is OFF) -->
+        <template v-if="!datePollingActive">
+          <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
+            <EditorDatePicker
+              v-model="form.eventDate"
+              :placeholder="t('editor.datePicker.selectDate')"
+              :error="errors.eventDate"
+              :touched="touched.eventDate"
+              @blur="markTouched('eventDate')"
+            />
+          </EditorPropertyRow>
+
+          <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
+            <EditorDatePicker
+              v-model="form.eventEndDate"
+              :placeholder="t('editor.datePicker.selectEndDate')"
+              :min-date="form.eventDate"
+              :error="errors.eventEndDate"
+              :touched="touched.eventEndDate"
+              @blur="markTouched('eventEndDate')"
+            />
+          </EditorPropertyRow>
+        </template>
+
+        <!-- Date poll editor (when polling is ON) -->
+        <div v-if="datePollingActive" class="editor-details__poll-section">
+          <DatePollEditor
+            :event-id="eventData.id"
+            :editable="true"
+            :locked="false"
+          />
+        </div>
 
         <EditorPropertyRow :label="t('dashboard.eventEditor.locationLabel')" icon="lucide:map-pin">
           <input
@@ -307,6 +391,110 @@ onMounted(() => {
   color: var(--color-accent);
   background: var(--color-accent-bg);
   box-shadow: 0 0 0 2px var(--color-accent-dim);
+}
+
+/* Date polling toggle card */
+.editor-details__toggle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  transition: all var(--transition-fast);
+}
+
+.editor-details__toggle-card:hover {
+  border-color: var(--color-border);
+}
+
+.editor-details__toggle-card--active {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 3%, var(--color-surface));
+}
+
+.editor-details__toggle-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.editor-details__toggle-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.editor-details__toggle-card--active .editor-details__toggle-icon {
+  background: var(--color-accent-bg);
+}
+
+.editor-details__toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.editor-details__toggle-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.editor-details__toggle-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+}
+
+.editor-details__poll-section {
+  padding: var(--space-2) 0;
+}
+
+/* Upsell card (free tier) */
+.editor-details__upsell-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  opacity: 0.7;
+  transition: all var(--transition-fast);
+}
+
+.editor-details__upsell-card:hover {
+  opacity: 1;
+  border-color: var(--color-border);
+}
+
+.editor-details__upsell-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.editor-details__upsell-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* Property rows — Notion-style */

@@ -5,7 +5,6 @@ interface EventForm {
   eventDate: string
   eventEndDate: string
   location: string
-  maxGuests: string | number
   isPrivate: boolean
 }
 
@@ -43,7 +42,6 @@ export function useEventEditorProvider(eventId: string) {
       eventDate: toLocalDatetime(data?.eventDate),
       eventEndDate: toLocalDatetime(data?.eventEndDate),
       location: data?.location || '',
-      maxGuests: data?.maxGuests || '',
       isPrivate: data?.isPrivate ?? true,
     }
   }
@@ -77,7 +75,6 @@ export function useEventEditorProvider(eventId: string) {
         eventDate: form.eventDate || null,
         eventEndDate: form.eventEndDate || null,
         location: form.location || null,
-        maxGuests: form.maxGuests ? parseInt(form.maxGuests) : null,
         isPrivate: form.isPrivate,
       }
 
@@ -113,7 +110,6 @@ export function useEventEditorProvider(eventId: string) {
     eventEndDate: false,
     location: false,
     description: false,
-    maxGuests: false,
   })
 
   function markTouched(field: string): void {
@@ -128,12 +124,6 @@ export function useEventEditorProvider(eventId: string) {
     if (touched.eventEndDate && form.eventDate && form.eventEndDate) {
       if (new Date(form.eventEndDate) <= new Date(form.eventDate)) {
         errs.eventEndDate = t('editor.validation.endDateAfterStart')
-      }
-    }
-    if (touched.maxGuests && form.maxGuests) {
-      const val = parseInt(String(form.maxGuests))
-      if (isNaN(val) || val < 1) {
-        errs.maxGuests = t('editor.validation.maxGuestsPositive')
       }
     }
     return errs

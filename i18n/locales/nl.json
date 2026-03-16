@@ -841,6 +841,33 @@
       "noTimelineDesc": "Maak een gedetailleerde tijdlijn zodat gasten weten wat ze kunnen verwachten.",
       "upgradeToPro": "Upgrade naar Pro"
     },
+    "details": {
+      "datePollingToggle": "Datumpeiling",
+      "datePollingToggleDesc": "Laat gasten stemmen op de beste datum",
+      "datePollingUpsell": "Upgrade naar Standard om gasten te laten stemmen op de beste datum"
+    },
+    "guests": {
+      "addGuest": "Gast toevoegen",
+      "namePlaceholder": "Naam",
+      "emailPlaceholder": "E-mailadres",
+      "plusOnesLabel": "Extra personen",
+      "inviteTo": "Uitgenodigd voor",
+      "leaveEmptyForAll": "Laat leeg om voor alle onderdelen uit te nodigen",
+      "copyInviteLink": "Kopieer uitnodigingslink",
+      "copyShareLink": "Kopieer deelbare link",
+      "linkCopied": "Gekopieerd!",
+      "noGuests": "Nog geen gasten uitgenodigd",
+      "editGuest": "Gast bewerken",
+      "removeGuest": "Gast verwijderen",
+      "plusOnesFilled": "ingevuld",
+      "totalGuests": "gasten",
+      "allSubEvents": "Alle onderdelen",
+      "status": {
+        "accepted": "Bevestigd",
+        "declined": "Afgemeld",
+        "pending": "Wachtend"
+      }
+    },
     "datePoll": {
       "title": "Datumstemming",
       "subtitle": "Stel meerdere data voor en laat gasten stemmen wanneer zij beschikbaar zijn.",
@@ -886,7 +913,8 @@
       "emptySubtitle": "Voeg activiteiten toe zodat je gasten weten wat ze kunnen verwachten — je kunt ze later altijd aanpassen.",
       "generateAi": "Programma laten genereren",
       "useTemplate": "Gebruik een standaardsjabloon",
-      "dismiss": "Ik voeg ze zelf toe"
+      "dismiss": "Ik voeg ze zelf toe",
+      "upgradeHint": "Upgrade naar Standard voor AI-suggesties, sjablonen en meer"
     },
     "validation": {
       "titleRequired": "Geef je evenement een naam",
@@ -1005,6 +1033,65 @@
       "dinner": { "name": "Diner", "description": "Een elegante avond samen" },
       "corporate": { "name": "Zakelijk", "description": "Professionele evenementen en vergaderingen" },
       "other": { "name": "Iets anders", "description": "Elk ander evenement" }
+    }
+  },
+  "common": {
+    "add": "Toevoegen",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "delete": "Verwijderen",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "invite": {
+    "welcome": "Je bent uitgenodigd!",
+    "welcomeNamed": "Hey {name}, je bent uitgenodigd!",
+    "welcomePlusOne": "Je bent uitgenodigd voor {event} door {inviter}!",
+    "plusOneContext": "Je bent uitgenodigd als +1 van {name}",
+    "dateToBeDecided": "Datum wordt nog bepaald",
+    "error": {
+      "title": "Uitnodiging niet gevonden",
+      "description": "Deze uitnodigingslink is ongeldig of verlopen.",
+      "backHome": "Terug naar home"
+    },
+    "rsvp": {
+      "title": "Ben je erbij?",
+      "attending": "Ik kom!",
+      "declining": "Kan helaas niet",
+      "youreAttending": "Je hebt bevestigd!",
+      "youreNotAttending": "Je hebt afgemeld",
+      "changeResponse": "Reactie wijzigen",
+      "plusOnesNote": "Je mag {count} extra persoon(en) meenemen"
+    },
+    "programme": {
+      "title": "Programma"
+    },
+    "poll": {
+      "title": "Datumvoorkeur",
+      "subtitle": "Geef aan wanneer jij beschikbaar bent."
+    },
+    "plusOnes": {
+      "title": "Jouw extra gasten",
+      "subtitle": "Je mag {count} extra persoon(en) uitnodigen. Vul hun gegevens in zodat ze een persoonlijke uitnodiging ontvangen.",
+      "namePlaceholder": "Naam van je +1",
+      "emailPlaceholder": "E-mailadres van je +1",
+      "createLink": "Link aanmaken",
+      "copyLink": "Kopieer uitnodigingslink",
+      "remove": "Verwijderen",
+      "addButton": "Extra gast toevoegen",
+      "remaining": "over"
+    },
+    "auth": {
+      "title": "Identificeer jezelf",
+      "description": "Voer je persoonlijke uitnodigingscode in om toegang te krijgen tot dit evenement.",
+      "codePlaceholder": "Jouw uitnodigingscode",
+      "submit": "Ga verder",
+      "invalidCode": "Deze code is ongeldig. Controleer de code en probeer het opnieuw.",
+      "tooManyAttempts": "Te veel pogingen. Probeer het later opnieuw.",
+      "or": "of",
+      "signIn": "Inloggen met je account"
+    },
+    "footer": {
+      "poweredBy": "Powered by"
     }
   },
   "footer": {
