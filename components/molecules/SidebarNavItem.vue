@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   icon: {
     type: String,
     required: true,
@@ -20,14 +20,20 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  exact: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const route = useRoute()
 
 const isActive = computed(() => {
-  const props_ = getCurrentInstance()?.props
-  if (!props_) return false
-  return route.path === props_.to || route.path.startsWith(props_.to + '/')
+  const path = route.path.replace(/\/$/, '')
+  const to = props.to.replace(/\/$/, '')
+  if (path === to) return true
+  if (props.exact) return false
+  return path.startsWith(to + '/')
 })
 </script>
 

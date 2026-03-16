@@ -18,7 +18,7 @@ export default defineEventHandler(async (event: H3Event) => {
   const clerkUser = await clerkClient(event).users.getUser(userId)
   const email = clerkUser.emailAddresses[0]?.emailAddress
 
-  const result = await SubscriptionController.createEventUpgradeCheckout(eventId, userId, tier, email)
+  const result = await SubscriptionController.createEventUpgradeCheckout(Number(eventId), userId, tier, email)
 
   return result
 })

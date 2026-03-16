@@ -3,6 +3,8 @@ import { VueDraggable } from 'vue-draggable-plus'
 
 const { t } = useI18n()
 
+const emit = defineEmits(['upgrade'])
+
 const props = defineProps({
   eventId: {
     type: Number,
@@ -126,6 +128,7 @@ onMounted(() => {
       :description="t('editor.emptyStates.noTimelineDesc')"
       :locked="true"
       :upgrade-label="t('editor.emptyStates.upgradeToPro')"
+      @upgrade="emit('upgrade')"
     />
 
     <template v-else>

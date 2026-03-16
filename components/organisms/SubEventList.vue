@@ -12,6 +12,18 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  eventDate: {
+    type: String,
+    default: null,
+  },
+  hasAi: {
+    type: Boolean,
+    default: false,
+  },
+  eventType: {
+    type: String,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['open-detail'])
@@ -145,6 +157,9 @@ defineExpose({ fetchSubEvents, subEvents })
           v-if="editingSubEvent?.id === se.id"
           :sub-event="se"
           :loading="loading"
+          :event-date="eventDate"
+          :has-ai="hasAi"
+          :event-type="eventType"
           @submit="onUpdateSubEvent"
           @cancel="onCancelEdit"
         />
@@ -162,6 +177,9 @@ defineExpose({ fetchSubEvents, subEvents })
     <SubEventForm
       v-if="showForm"
       :loading="loading"
+      :event-date="eventDate"
+      :has-ai="hasAi"
+      :event-type="eventType"
       @submit="onCreateSubEvent"
       @cancel="onCancelEdit"
     />

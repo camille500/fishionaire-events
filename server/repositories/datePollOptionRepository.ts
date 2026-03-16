@@ -9,6 +9,12 @@ interface OptionCreateData {
   sortOrder?: number
 }
 
+function toValidDate(value: Date | string | null | undefined): Date | null {
+  if (!value) return null
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? null : d
+}
+
 export default class DatePollOptionRepository {
   static async create(data: OptionCreateData): Promise<DatePollOption> {
     const prisma = usePrisma()
@@ -16,8 +22,8 @@ export default class DatePollOptionRepository {
       data: {
         datePollId: data.datePollId,
         date: new Date(data.date),
-        startTime: data.startTime ? new Date(data.startTime) : null,
-        endTime: data.endTime ? new Date(data.endTime) : null,
+        startTime: toValidDate(data.startTime),
+        endTime: toValidDate(data.endTime),
         sortOrder: data.sortOrder ?? 0,
       },
       include: { votes: true },
@@ -33,8 +39,8 @@ export default class DatePollOptionRepository {
           data: {
             datePollId: o.datePollId,
             date: new Date(o.date),
-            startTime: o.startTime ? new Date(o.startTime) : null,
-            endTime: o.endTime ? new Date(o.endTime) : null,
+            startTime: toValidDate(o.startTime),
+            endTime: toValidDate(o.endTime),
             sortOrder: o.sortOrder ?? 0,
           },
           include: { votes: true },

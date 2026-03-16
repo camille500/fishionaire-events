@@ -9,12 +9,12 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const { tier } = await readBody<{ tier: string }>(event)
+  const { tier, interval, eventId } = await readBody<{ tier: string, interval?: 'monthly' | 'yearly', eventId?: number }>(event)
 
   const clerkUser = await clerkClient(event).users.getUser(userId)
   const email = clerkUser.emailAddresses[0]?.emailAddress
 
-  const result = await SubscriptionController.createCheckoutSession(userId, tier, email)
+  const result = await SubscriptionController.createCheckoutSession(userId, tier, email, interval || 'monthly', eventId)
 
   return result
 })

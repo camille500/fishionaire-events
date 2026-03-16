@@ -5,11 +5,12 @@ const props = defineProps({
   locked: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'upgrade'])
 
 const { t } = useI18n()
 
 const isOpen = ref(false)
+const showUpgrade = ref(false)
 const refineInput = ref('')
 
 const {
@@ -95,17 +96,23 @@ function accept() {
     </button>
 
     <Transition name="slide">
-      <div v-if="isOpen && locked" class="ai-assistant__panel ai-assistant__panel--locked">
+      <div v-if="isOpen && locked && showUpgrade" class="ai-assistant__panel">
+        <EventUpgradePanel
+          @close="showUpgrade = false"
+          @upgraded="showUpgrade = false; isOpen = false"
+        />
+      </div>
+      <div v-else-if="isOpen && locked" class="ai-assistant__panel ai-assistant__panel--locked">
         <div class="ai-assistant__upsell">
           <div class="ai-assistant__upsell-icon">
             <Icon name="lucide:lock" size="20" />
           </div>
           <p class="ai-assistant__upsell-title">{{ t('aiAssistant.premiumTitle') }}</p>
           <p class="ai-assistant__upsell-description">{{ t('aiAssistant.premiumDescription') }}</p>
-          <NuxtLink :to="$localePath('pricing')" class="ai-assistant__upsell-btn">
+          <button type="button" class="ai-assistant__upsell-btn" @click="showUpgrade = true">
             <Icon name="lucide:crown" size="14" />
             {{ t('aiAssistant.premiumUpgrade') }}
-          </NuxtLink>
+          </button>
         </div>
       </div>
       <div v-else-if="isOpen" class="ai-assistant__panel">
@@ -723,6 +730,7 @@ function accept() {
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family);
   text-decoration: none;
   cursor: pointer;
   transition: all var(--transition-fast);

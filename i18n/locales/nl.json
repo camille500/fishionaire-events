@@ -689,6 +689,7 @@
   "tierSelector": {
     "label": "Kies evenement-niveau",
     "recommended": "Aanbevolen",
+    "currentTier": "Huidig",
     "includedWithPlan": "Inbegrepen bij je plan",
     "tiers": {
       "free": {
@@ -697,11 +698,15 @@
       },
       "standard": {
         "features": ["RSVP", "Datum prikken", "Verlanglijst", "Geheime chat", "Fotogalerij"],
-        "eventPrice": "€14,99 eenmalig"
+        "eventPrice": "€14,99 eenmalig",
+        "monthlyPrice": "€9,99/maand",
+        "yearlyPrice": "€7,99/maand (jaarlijks)"
       },
       "pro": {
         "features": ["Alle Standaard-functies", "Budgettracker", "Tafelschikking", "Tijdlijn", "Eigen thema"],
-        "eventPrice": "€29,99 eenmalig"
+        "eventPrice": "€29,99 eenmalig",
+        "monthlyPrice": "€19,99/maand",
+        "yearlyPrice": "€15,99/maand (jaarlijks)"
       }
     }
   },
@@ -785,6 +790,7 @@
       "details": "Details",
       "schedule": "Programma",
       "guests": "Gasten",
+      "wishlist": "Verlanglijst",
       "settings": "Instellingen"
     },
     "autoSave": {
@@ -808,6 +814,20 @@
     "settings": {
       "tierDescription": "Het tier van je evenement bepaalt welke functies beschikbaar zijn.",
       "upgradePlan": "Bekijk plannen & upgrade",
+      "upgradeTier": "Upgrade tier",
+      "confirmUpgrade": "Upgraden naar {tier}",
+      "upgrading": "Bezig met upgraden...",
+      "coveredByPlan": "Inbegrepen bij je abonnement",
+      "maxTier": "Je hebt het hoogste niveau",
+      "upgradeSuccess": "Evenement succesvol geüpgraded!",
+      "upgradeError": "Upgrade mislukt. Probeer het opnieuw.",
+      "cancel": "Annuleren",
+      "paymentMode": "Hoe wil je betalen?",
+      "paymentEvent": "Eenmalig",
+      "paymentMonthly": "Maandelijks",
+      "paymentYearly": "Jaarlijks",
+      "paymentYearlySave": "-20%",
+      "subscriptionHint": "Een abonnement ontgrendelt deze functies voor al je evenementen.",
       "actionsLabel": "Acties",
       "duplicateDesc": "Maak een kopie van dit evenement met alle instellingen",
       "templateDesc": "Sla deze opzet op als herbruikbaar sjabloon",
@@ -853,6 +873,8 @@
       "plusOnesLabel": "Extra personen",
       "inviteTo": "Uitgenodigd voor",
       "leaveEmptyForAll": "Laat leeg om voor alle onderdelen uit te nodigen",
+      "dietaryNote": "Gast wordt gevraagd naar dieetwensen",
+      "musicNote": "Gast kan nummers aanvragen",
       "copyInviteLink": "Kopieer uitnodigingslink",
       "copyShareLink": "Kopieer deelbare link",
       "linkCopied": "Gekopieerd!",
@@ -905,7 +927,8 @@
         "submit": "Mijn beschikbaarheid insturen",
         "thankYou": "Bedankt voor je stem!",
         "thankYouDesc": "De organisator gebruikt jouw input om de beste datum te kiezen.",
-        "pollClosed": "Deze datumstemming accepteert geen reacties meer."
+        "pollClosed": "Deze datumstemming accepteert geen reacties meer.",
+        "saving": "Opslaan..."
       }
     },
     "programme": {
@@ -1183,7 +1206,13 @@
       "plusOnesNote": "Je mag {count} extra persoon(en) meenemen"
     },
     "programme": {
-      "title": "Programma"
+      "title": "Programma",
+      "dressCodeNote": "Dresscode: {dressCode}",
+      "dietaryHint": "Laat ons weten over je dieetwensen",
+      "musicHint": "Vraag nummers aan voor de playlist",
+      "songPlaceholder": "Nummer",
+      "artistPlaceholder": "Artiest (optioneel)",
+      "addSong": "Toevoegen"
     },
     "poll": {
       "title": "Datumvoorkeur",
@@ -1210,8 +1239,90 @@
       "or": "of",
       "signIn": "Inloggen met je account"
     },
+    "wishlist": {
+      "title": "Verlanglijst",
+      "subtitle": "Claim een cadeau om dubbele geschenken te voorkomen"
+    },
     "footer": {
       "poweredBy": "Powered by"
+    }
+  },
+  "wishlist": {
+    "addItem": "Item toevoegen",
+    "editItem": "Item bewerken",
+    "searchProducts": "Producten zoeken",
+    "searchPlaceholder": "Zoek cadeau-ideeën bij Nederlandse winkels...",
+    "selected": "geselecteerd",
+    "bulkDelete": "Verwijderen",
+    "emptyTitle": "Je verlanglijst is leeg",
+    "emptyDescription": "Voeg items toe die je graag zou willen ontvangen. Je gasten kunnen ze claimen om dubbele cadeaus te voorkomen.",
+    "guestEmpty": "Er zijn nog geen items op de verlanglijst.",
+    "deleteConfirmTitle": "Item verwijderen",
+    "deleteConfirmMessage": "Weet je zeker dat je dit item wilt verwijderen? Claims worden ook verwijderd.",
+    "viewProduct": "Bekijk product",
+    "claim": "Ik koop dit",
+    "unclaim": "Annuleren",
+    "addNote": "Bericht toevoegen",
+    "markPurchased": "Gekocht",
+    "purchased": "Gekocht!",
+    "cancel": "Annuleren",
+    "notePlaceholder": "Schrijf een persoonlijk berichtje (anoniem)...",
+    "sendNote": "Versturen",
+    "takenByOther": "Al geclaimd",
+    "noteError": "Kon bericht niet opslaan",
+    "myClaims": "door jou geclaimd",
+    "allCategories": "Alles",
+    "allPrices": "Alle prijzen",
+    "priceUnder25": "< €25",
+    "price25to50": "€25 - €50",
+    "price50to100": "€50 - €100",
+    "priceOver100": "> €100",
+    "stats": {
+      "items": "items",
+      "claimed": "geclaimd"
+    },
+    "status": {
+      "available": "Beschikbaar",
+      "claimed": "Geclaimd",
+      "purchased": "Gekocht",
+      "pooling": "Spaarpot",
+      "funded": "Voltooid"
+    },
+    "categories": {
+      "electronics": "Elektronica",
+      "books": "Boeken",
+      "home": "Wonen",
+      "kitchen": "Keuken",
+      "fashion": "Mode & Accessoires",
+      "beauty": "Verzorging",
+      "experiences": "Belevenissen",
+      "toys": "Spellen & Speelgoed"
+    },
+    "form": {
+      "title": "Titel",
+      "titlePlaceholder": "Bijv. Sony koptelefoon",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Korte omschrijving van het item...",
+      "price": "Prijs (€)",
+      "category": "Categorie",
+      "noCategory": "Geen categorie",
+      "imageUrl": "Afbeelding URL",
+      "imageUrlPlaceholder": "https://...",
+      "externalUrl": "Link naar webshop",
+      "externalUrlPlaceholder": "https://www.bol.com/...",
+      "priority": "Prioriteit",
+      "poolable": "Groepscadeau",
+      "poolableHint": "Meerdere gasten kunnen bijdragen aan dit cadeau",
+      "poolTarget": "Streefbedrag (€)",
+      "save": "Opslaan",
+      "add": "Toevoegen"
+    },
+    "ai": {
+      "title": "AI Cadeau-ideeën",
+      "placeholder": "Beschrijf de persoon en gelegenheid, bijv. 'buitenmens, 30e verjaardag, budget €50'...",
+      "generate": "Genereer ideeën",
+      "addToList": "Toevoegen",
+      "error": "Er ging iets mis bij het genereren van ideeën"
     }
   },
   "footer": {

@@ -7,6 +7,7 @@ const route = useRoute()
 const {
   eventData,
   fetchError,
+  refreshEvent,
   form,
   canEdit,
   saving,
@@ -24,12 +25,18 @@ const {
 const { dataAttr } = useEventTheme(computed(() => form.eventType))
 
 // Tabs
-const tabs = computed(() => [
-  { label: t('editor.tabs.details'), icon: 'i-lucide-file-text', slot: 'details' },
-  { label: t('editor.tabs.schedule'), icon: 'i-lucide-calendar-clock', slot: 'schedule' },
-  { label: t('editor.tabs.guests'), icon: 'i-lucide-users', slot: 'guests' },
-  { label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' },
-])
+const tabs = computed(() => {
+  const base = [
+    { label: t('editor.tabs.details'), icon: 'i-lucide-file-text', slot: 'details' },
+    { label: t('editor.tabs.schedule'), icon: 'i-lucide-calendar-clock', slot: 'schedule' },
+    { label: t('editor.tabs.guests'), icon: 'i-lucide-users', slot: 'guests' },
+  ]
+  if (eventData.value?.features?.wishlist) {
+    base.push({ label: t('editor.tabs.wishlist'), icon: 'i-lucide-gift', slot: 'wishlist' })
+  }
+  base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
+  return base
+})
 
 // Confetti on new event
 const showConfetti = ref(false)
@@ -37,6 +44,30 @@ onMounted(() => {
   if (route.query.new) {
     showConfetti.value = true
     setTimeout(() => { showConfetti.value = false }, 2000)
+  }
+})
+
+// Success banner after Stripe upgrade redirect
+const showUpgradeSuccess = ref(false)
+const router = useRouter()
+onMounted(async () => {
+  if (route.query.upgraded === 'true') {
+    // Verify the Stripe session to ensure payment is processed
+    // (fallback for when webhook hasn't fired yet)
+    if (route.query.session_id) {
+      try {
+        await $fetch('/api/subscriptions/verify-session', {
+          method: 'POST',
+          body: { sessionId: route.query.session_id },
+        })
+      } catch {
+        // Webhook may have already processed it
+      }
+    }
+    await refreshEvent()
+    showUpgradeSuccess.value = true
+    router.replace({ query: {} })
+    setTimeout(() => { showUpgradeSuccess.value = false }, 5000)
   }
 })
 
@@ -73,6 +104,14 @@ function onTabChange(index) {
     </div>
 
     <template v-else-if="eventData">
+      <!-- Upgrade success banner -->
+      <Transition name="fade">
+        <div v-if="showUpgradeSuccess" class="event-editor__upgrade-success">
+          <Icon name="lucide:check-circle" size="18" />
+          <span>{{ t('editor.settings.upgradeSuccess') }}</span>
+        </div>
+      </Transition>
+
       <!-- Completion bar -->
       <ClientOnly>
         <EventCompletionBar
@@ -120,6 +159,17 @@ function onTabChange(index) {
         <template #guests>
           <div class="event-editor__tab-content">
             <EditorGuestsTab />
+          </div>
+        </template>
+
+        <template v-if="eventData?.features?.wishlist" #wishlist>
+          <div class="event-editor__tab-content">
+            <EditorWishlistTab
+              :event-id="eventData.id"
+              :event-type="form.eventType"
+              :event-title="form.title"
+              :features="eventData.features"
+            />
           </div>
         </template>
 
@@ -202,6 +252,30 @@ function onTabChange(index) {
 
 .event-editor__title-input--error:focus {
   border-bottom-color: var(--color-error);
+}
+
+/* Upgrade success */
+.event-editor__upgrade-success {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: var(--color-success);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-4);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-normal);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* Tabs */

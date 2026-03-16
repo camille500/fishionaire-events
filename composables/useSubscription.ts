@@ -12,10 +12,10 @@ export default function useSubscription() {
   const cancelAtPeriodEnd = computed(() => subscription.value?.cancelAtPeriodEnd || false)
   const currentPeriodEnd = computed(() => subscription.value?.currentPeriodEnd || null)
 
-  async function checkout(newTier: string) {
+  async function checkout(newTier: string, interval: 'monthly' | 'yearly' = 'monthly', eventId?: string | number) {
     const result = await $fetch('/api/subscriptions/checkout', {
       method: 'POST',
-      body: { tier: newTier },
+      body: { tier: newTier, interval, eventId: eventId ? Number(eventId) : undefined },
     })
     if (result.url) {
       window.location.href = result.url
@@ -33,10 +33,10 @@ export default function useSubscription() {
     return result
   }
 
-  async function upgradeEvent(eventId: string, eventTier: string) {
+  async function upgradeEvent(eventId: string | number, eventTier: string) {
     const result = await $fetch('/api/payments/event-upgrade', {
       method: 'POST',
-      body: { eventId, tier: eventTier },
+      body: { eventId: Number(eventId), tier: eventTier },
     })
     if (result.url) {
       window.location.href = result.url

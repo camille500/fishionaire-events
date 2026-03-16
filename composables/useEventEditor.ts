@@ -19,7 +19,7 @@ export function useEventEditorProvider(eventId: string) {
   const { t } = useI18n()
   const route = useRoute()
 
-  const { data: eventData, error: fetchError } = useFetch(`/api/events/${eventId}`)
+  const { data: eventData, error: fetchError, refresh: refreshEvent } = useFetch(`/api/events/${eventId}`)
 
   const role = computed(() => eventData.value?.role || 'guest')
   const isOwner = computed(() => role.value === 'owner')
@@ -151,6 +151,7 @@ export function useEventEditorProvider(eventId: string) {
     eventId,
     eventData,
     fetchError,
+    refreshEvent,
     form,
     role,
     isOwner,

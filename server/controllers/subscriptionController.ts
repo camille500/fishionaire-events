@@ -89,13 +89,14 @@ export default class SubscriptionController {
     return customerId
   }
 
-  static async createCheckoutSession(clerkId: string, tier: PaidTier, email: string): Promise<{ url: string }> {
+  static async createCheckoutSession(clerkId: string, tier: PaidTier, email: string, interval: 'monthly' | 'yearly' = 'monthly', eventId?: number): Promise<{ url: string }> {
     if (!['standard', 'pro'].includes(tier)) {
       throw createError({ statusCode: 400, statusMessage: 'Invalid subscription tier' })
     }
 
     const stripe = useStripe()
-    const priceId = getStripePriceId(tier, 'subscription')
+    const priceType = interval === 'yearly' ? 'subscription_yearly' : 'subscription'
+    const priceId = getStripePriceId(tier, priceType)
     const customerId = await this._findOrCreateCustomer(clerkId, email)
 
     // Cancel any existing active subscriptions to prevent duplicates
@@ -108,13 +109,23 @@ export default class SubscriptionController {
     }
 
     const config = useRuntimeConfig()
+    const successUrl = eventId
+      ? `${config.public.appUrl}/dashboard/events/${eventId}?upgraded=true&session_id={CHECKOUT_SESSION_ID}`
+      : `${config.public.appUrl}/facturering?session_id={CHECKOUT_SESSION_ID}`
+    const cancelUrl = eventId
+      ? `${config.public.appUrl}/dashboard/events/${eventId}`
+      : `${config.public.appUrl}/facturering`
+
+    const metadata: Record<string, string> = { clerkId, tier }
+    if (eventId) metadata.eventId = String(eventId)
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${config.public.appUrl}/facturering?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${config.public.appUrl}/facturering`,
-      metadata: { clerkId, tier },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata,
       subscription_data: { metadata: { clerkId, tier } },
     })
 
@@ -170,7 +181,7 @@ export default class SubscriptionController {
       customer: customerId,
       mode: 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${config.public.appUrl}/dashboard/events/${eventId}?upgraded=true`,
+      success_url: `${config.public.appUrl}/dashboard/events/${eventId}?upgraded=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${config.public.appUrl}/dashboard/events/${eventId}`,
       metadata: {
         clerkId,
@@ -199,7 +210,7 @@ export default class SubscriptionController {
 
   static async handleCheckoutCompleted(session: StripeSession): Promise<void> {
     if (session.mode === 'subscription') {
-      const { clerkId, tier } = session.metadata
+      const { clerkId, tier, eventId } = session.metadata
       const stripe = useStripe()
       const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription)
 
@@ -217,6 +228,16 @@ export default class SubscriptionController {
         cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
       })
       await SubscriptionRepository.upsert(sub)
+
+      // If subscription was created from an event upgrade context, upgrade the event too
+      if (eventId) {
+        const event = await EventRepository.findById(Number(eventId))
+        if (event && event.ownerClerkId === clerkId) {
+          event.tier = tier
+          event.features = getFeaturesForTier(tier)
+          await EventRepository.update(event)
+        }
+      }
     }
 
     if (session.mode === 'payment') {

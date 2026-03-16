@@ -170,6 +170,7 @@ model Event {
   timelineItems TimelineItem[]
   views         EventView[]
   datePoll      DatePoll?
+  wishlistItems WishlistItem[]
 
   @@map("events")
 }
@@ -414,4 +415,47 @@ model EventView {
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("event_views")
+}
+
+model WishlistItem {
+  id                Int      @id @default(autoincrement())
+  eventId           Int      @map("event_id")
+  title             String
+  description       String?
+  imageUrl          String?  @map("image_url")
+  imageKey          String?  @map("image_key")
+  externalUrl       String?  @map("external_url")
+  externalProductId String?  @map("external_product_id")
+  provider          String   @default("manual")
+  priceCents        Int?     @map("price_cents")
+  currency          String   @default("EUR")
+  category          String?
+  priority          Int      @default(0)
+  sortOrder         Int      @default(0) @map("sort_order")
+  isPoolable        Boolean  @default(false) @map("is_poolable")
+  poolTargetCents   Int?     @map("pool_target_cents")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @map("updated_at")
+
+  event  Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  claims WishlistClaim[]
+
+  @@map("wishlist_items")
+}
+
+model WishlistClaim {
+  id             Int      @id @default(autoincrement())
+  wishlistItemId Int      @map("wishlist_item_id")
+  guestEmail     String   @map("guest_email")
+  guestName      String?  @map("guest_name")
+  amountCents    Int?     @map("amount_cents")
+  message        String?
+  status         String   @default("claimed")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  wishlistItem WishlistItem @relation(fields: [wishlistItemId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistItemId, guestEmail])
+  @@map("wishlist_claims")
 }

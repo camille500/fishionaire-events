@@ -7,6 +7,8 @@ const props = defineProps({
   locked: { type: Boolean, default: false },
 })
 
+const emit = defineEmits(['upgrade'])
+
 const poll = ref(null)
 const loading = ref(false)
 const saving = ref(false)
@@ -146,6 +148,7 @@ onMounted(fetchPoll)
       :description="t('editor.datePoll.locked.description')"
       :locked="true"
       :upgrade-label="t('editor.datePoll.locked.upgradeCta')"
+      @upgrade="emit('upgrade')"
     />
 
     <!-- Loading -->

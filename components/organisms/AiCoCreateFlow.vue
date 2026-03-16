@@ -28,7 +28,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['sub-events-created', 'add-manually'])
+const emit = defineEmits(['sub-events-created', 'add-manually', 'upgrade'])
 
 const {
   prompt,
@@ -194,7 +194,7 @@ function onRegenerate() {
     <template v-else-if="canEdit && !hasAi">
       <div v-if="!isCompact" class="co-create__free">
         <div class="co-create__free-hint">
-          <AppText size="xs" muted>{{ t('editor.coCreate.upgradeHint') }}</AppText>
+          <AppText size="sm" muted>{{ t('editor.coCreate.upgradeHint') }}</AppText>
           <TierBadge tier="standard" />
         </div>
         <button type="button" class="co-create__text-link" @click="emit('add-manually')">

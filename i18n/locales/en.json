@@ -689,6 +689,7 @@
   "tierSelector": {
     "label": "Choose event tier",
     "recommended": "Recommended",
+    "currentTier": "Current",
     "includedWithPlan": "Included with your plan",
     "tiers": {
       "free": {
@@ -697,11 +698,15 @@
       },
       "standard": {
         "features": ["RSVP", "Date polling", "Wishlist", "Secret chat", "Photo gallery"],
-        "eventPrice": "€14.99 one-time"
+        "eventPrice": "€14.99 one-time",
+        "monthlyPrice": "€9.99/month",
+        "yearlyPrice": "€7.99/month (yearly)"
       },
       "pro": {
         "features": ["All Standard features", "Budget tracker", "Seating", "Timeline", "Custom theme"],
-        "eventPrice": "€29.99 one-time"
+        "eventPrice": "€29.99 one-time",
+        "monthlyPrice": "€19.99/month",
+        "yearlyPrice": "€15.99/month (yearly)"
       }
     }
   },
@@ -785,6 +790,7 @@
       "details": "Details",
       "schedule": "Schedule",
       "guests": "Guests",
+      "wishlist": "Wishlist",
       "settings": "Settings"
     },
     "autoSave": {
@@ -808,6 +814,20 @@
     "settings": {
       "tierDescription": "Your event tier determines which features are available.",
       "upgradePlan": "View plans & upgrade",
+      "upgradeTier": "Upgrade tier",
+      "confirmUpgrade": "Upgrade to {tier}",
+      "upgrading": "Upgrading...",
+      "coveredByPlan": "Included with your subscription",
+      "maxTier": "You have the highest tier",
+      "upgradeSuccess": "Event upgraded successfully!",
+      "upgradeError": "Upgrade failed. Please try again.",
+      "cancel": "Cancel",
+      "paymentMode": "How would you like to pay?",
+      "paymentEvent": "One-time",
+      "paymentMonthly": "Monthly",
+      "paymentYearly": "Yearly",
+      "paymentYearlySave": "-20%",
+      "subscriptionHint": "A subscription unlocks these features for all your events.",
       "actionsLabel": "Actions",
       "duplicateDesc": "Create a copy of this event with all settings",
       "templateDesc": "Save this setup as a reusable template",
@@ -853,6 +873,8 @@
       "plusOnesLabel": "Plus ones",
       "inviteTo": "Invited to",
       "leaveEmptyForAll": "Leave empty to invite to all parts",
+      "dietaryNote": "Guest will be asked about dietary preferences",
+      "musicNote": "Guest can request songs",
       "copyInviteLink": "Copy invite link",
       "copyShareLink": "Copy shareable link",
       "linkCopied": "Copied!",
@@ -905,7 +927,8 @@
         "submit": "Submit my availability",
         "thankYou": "Thanks for voting!",
         "thankYouDesc": "The organiser will use your input to pick the best date.",
-        "pollClosed": "This date poll is no longer accepting responses."
+        "pollClosed": "This date poll is no longer accepting responses.",
+        "saving": "Saving..."
       }
     },
     "programme": {
@@ -1183,7 +1206,13 @@
       "plusOnesNote": "You can bring {count} additional guest(s)"
     },
     "programme": {
-      "title": "Programme"
+      "title": "Programme",
+      "dressCodeNote": "Dress code: {dressCode}",
+      "dietaryHint": "Let us know about your dietary preferences",
+      "musicHint": "Request songs for the playlist",
+      "songPlaceholder": "Song title",
+      "artistPlaceholder": "Artist (optional)",
+      "addSong": "Add song"
     },
     "poll": {
       "title": "Date preference",
@@ -1210,8 +1239,90 @@
       "or": "or",
       "signIn": "Sign in with your account"
     },
+    "wishlist": {
+      "title": "Wishlist",
+      "subtitle": "Claim a gift to prevent duplicates"
+    },
     "footer": {
       "poweredBy": "Powered by"
+    }
+  },
+  "wishlist": {
+    "addItem": "Add item",
+    "editItem": "Edit item",
+    "searchProducts": "Search products",
+    "searchPlaceholder": "Search gift ideas from Dutch shops...",
+    "selected": "selected",
+    "bulkDelete": "Delete",
+    "emptyTitle": "Your wishlist is empty",
+    "emptyDescription": "Add items you'd like to receive. Your guests can claim them to prevent duplicate gifts.",
+    "guestEmpty": "No items on the wishlist yet.",
+    "deleteConfirmTitle": "Delete item",
+    "deleteConfirmMessage": "Are you sure you want to delete this item? Claims will also be removed.",
+    "viewProduct": "View product",
+    "claim": "I'll get this",
+    "unclaim": "Cancel",
+    "addNote": "Add a note",
+    "markPurchased": "Purchased",
+    "purchased": "Purchased!",
+    "cancel": "Cancel",
+    "notePlaceholder": "Write a personal message (anonymous)...",
+    "sendNote": "Send",
+    "takenByOther": "Already claimed",
+    "noteError": "Could not save message",
+    "myClaims": "claimed by you",
+    "allCategories": "All",
+    "allPrices": "All prices",
+    "priceUnder25": "< €25",
+    "price25to50": "€25 - €50",
+    "price50to100": "€50 - €100",
+    "priceOver100": "> €100",
+    "stats": {
+      "items": "items",
+      "claimed": "claimed"
+    },
+    "status": {
+      "available": "Available",
+      "claimed": "Claimed",
+      "purchased": "Purchased",
+      "pooling": "Group gift",
+      "funded": "Fully funded"
+    },
+    "categories": {
+      "electronics": "Electronics",
+      "books": "Books",
+      "home": "Home & Living",
+      "kitchen": "Kitchen",
+      "fashion": "Fashion & Accessories",
+      "beauty": "Beauty & Care",
+      "experiences": "Experiences",
+      "toys": "Games & Toys"
+    },
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "E.g. Sony headphones",
+      "description": "Description",
+      "descriptionPlaceholder": "Short description of the item...",
+      "price": "Price (€)",
+      "category": "Category",
+      "noCategory": "No category",
+      "imageUrl": "Image URL",
+      "imageUrlPlaceholder": "https://...",
+      "externalUrl": "Link to shop",
+      "externalUrlPlaceholder": "https://www.bol.com/...",
+      "priority": "Priority",
+      "poolable": "Group gift",
+      "poolableHint": "Multiple guests can contribute to this gift",
+      "poolTarget": "Target amount (€)",
+      "save": "Save",
+      "add": "Add"
+    },
+    "ai": {
+      "title": "AI Gift Ideas",
+      "placeholder": "Describe the person and occasion, e.g. 'outdoor lover, 30th birthday, budget €50'...",
+      "generate": "Generate ideas",
+      "addToList": "Add to list",
+      "error": "Something went wrong generating ideas"
     }
   },
   "footer": {

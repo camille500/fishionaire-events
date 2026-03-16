@@ -4,6 +4,8 @@ const { t } = useI18n()
 const props = defineProps({
   eventId: { type: Number, required: true },
   initialEmail: { type: String, default: '' },
+  initialName: { type: String, default: '' },
+  token: { type: String, default: '' },
   eventTitle: { type: String, default: '' },
 })
 
@@ -12,10 +14,18 @@ const loading = ref(true)
 const submitting = ref(false)
 const submitted = ref(false)
 const error = ref(null)
+const savingVoteId = ref(null)
 
 const email = ref(props.initialEmail)
-const name = ref('')
+const name = ref(props.initialName)
 const votes = ref({}) // { [optionId]: 'yes' | 'maybe' | 'no' }
+
+// Sync email/name if props change after mount (async data)
+watch(() => props.initialEmail, (v) => { if (v) email.value = v })
+watch(() => props.initialName, (v) => { if (v) name.value = v })
+
+// When on invite page, the guest is already identified — no need for manual form
+const isIdentified = computed(() => !!props.token || !!props.initialEmail)
 
 async function fetchPoll() {
   loading.value = true
@@ -36,11 +46,49 @@ async function fetchPoll() {
   }
 }
 
-function setVote(optionId, status) {
+async function setVote(optionId, status) {
   if (votes.value[optionId] === status) {
     delete votes.value[optionId]
   } else {
     votes.value[optionId] = status
+  }
+
+  // Auto-save when the guest is already identified via invite token
+  if (isIdentified.value) {
+    await autoSaveVotes(optionId)
+  }
+}
+
+async function autoSaveVotes(optionId) {
+  savingVoteId.value = optionId
+  error.value = null
+  const votePayload = Object.entries(votes.value).map(([id, status]) => ({ optionId: id, status }))
+  if (votePayload.length === 0) {
+    savingVoteId.value = null
+    return
+  }
+  try {
+    if (props.token) {
+      // Token-based endpoint — no email needed, works for +1 invitees
+      await $fetch(`/api/invite/${props.token}/vote`, {
+        method: 'POST',
+        body: { votes: votePayload },
+      })
+    } else {
+      // Fallback to email-based endpoint
+      await $fetch(`/api/events/${props.eventId}/date-poll/vote`, {
+        method: 'POST',
+        body: {
+          email: email.value,
+          name: name.value || null,
+          votes: votePayload,
+        },
+      })
+    }
+  } catch (err) {
+    error.value = err.data?.message || err.statusMessage || t('common.errorGeneric')
+  } finally {
+    savingVoteId.value = null
   }
 }
 
@@ -125,41 +173,52 @@ onMounted(fetchPoll)
         </span>
       </div>
 
-      <div class="voting-form__identity">
-        <div class="voting-form__field">
-          <label class="voting-form__label">{{ t('editor.datePoll.guestVoting.nameLabel') }}</label>
-          <input
-            v-model="name"
-            type="text"
-            class="voting-form__input"
-            :placeholder="t('editor.datePoll.guestVoting.namePlaceholder')"
-          />
+      <!-- Auto-save indicator when identified via invite token -->
+      <Transition name="fade">
+        <div v-if="isIdentified && savingVoteId" class="voting-form__auto-save">
+          <span class="voting-form__auto-save-spinner" />
+          {{ t('editor.datePoll.guestVoting.saving') }}
         </div>
-        <div class="voting-form__field">
-          <label class="voting-form__label">{{ t('editor.datePoll.guestVoting.emailLabel') }} *</label>
-          <input
-            v-model="email"
-            type="email"
-            class="voting-form__input"
-            :placeholder="t('editor.datePoll.guestVoting.emailPlaceholder')"
-            required
-          />
+      </Transition>
+
+      <!-- Identity form only shown when guest is NOT already identified (e.g. public poll page) -->
+      <template v-if="!isIdentified">
+        <div class="voting-form__identity">
+          <div class="voting-form__field">
+            <label class="voting-form__label">{{ t('editor.datePoll.guestVoting.nameLabel') }}</label>
+            <input
+              v-model="name"
+              type="text"
+              class="voting-form__input"
+              :placeholder="t('editor.datePoll.guestVoting.namePlaceholder')"
+            />
+          </div>
+          <div class="voting-form__field">
+            <label class="voting-form__label">{{ t('editor.datePoll.guestVoting.emailLabel') }} *</label>
+            <input
+              v-model="email"
+              type="email"
+              class="voting-form__input"
+              :placeholder="t('editor.datePoll.guestVoting.emailPlaceholder')"
+              required
+            />
+          </div>
         </div>
-      </div>
+
+        <AppButton
+          variant="primary"
+          :loading="submitting"
+          :disabled="!email || !email.includes('@') || Object.keys(votes).length === 0"
+          @click="submit"
+        >
+          {{ t('editor.datePoll.guestVoting.submit') }}
+        </AppButton>
+      </template>
 
       <div v-if="error" class="voting-form__error-inline">
         <Icon name="lucide:alert-circle" size="14" />
         {{ error }}
       </div>
-
-      <AppButton
-        variant="primary"
-        :loading="submitting"
-        :disabled="!email || !email.includes('@') || Object.keys(votes).length === 0"
-        @click="submit"
-      >
-        {{ t('editor.datePoll.guestVoting.submit') }}
-      </AppButton>
     </template>
   </div>
 </template>
@@ -260,11 +319,43 @@ onMounted(fetchPoll)
   border-color: var(--color-accent);
 }
 
+.voting-form__auto-save {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  justify-content: center;
+}
+
+.voting-form__auto-save-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .voting-form__error-inline {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-sm);
   color: var(--color-error);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-fast);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

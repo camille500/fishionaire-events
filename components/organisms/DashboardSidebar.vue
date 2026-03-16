@@ -16,7 +16,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 
 const navItems = computed(() => [
-  { icon: 'home', label: t('dashboard.sidebar.home'), to: localePath('dashboard') },
+  { icon: 'home', label: t('dashboard.sidebar.home'), to: localePath('dashboard'), exact: true },
   { icon: 'calendar', label: t('dashboard.sidebar.events'), to: localePath('dashboard') + '/events' },
   { icon: 'inbox', label: t('dashboard.sidebar.invitations'), to: localePath('dashboard') + '/invitations' },
   { icon: 'settings', label: t('dashboard.sidebar.settings'), to: localePath('dashboard') + '/settings' },
@@ -76,6 +76,7 @@ const sidebarHovered = ref(false)
           :to="item.to"
           :badge="item.badge || 0"
           :collapsed="collapsed"
+          :exact="item.exact || false"
         />
       </nav>
 

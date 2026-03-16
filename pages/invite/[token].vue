@@ -41,6 +41,7 @@ const formattedTime = computed(() => {
 })
 
 const hasPoll = computed(() => eventData.value?.features?.datePolling)
+const hasWishlist = computed(() => eventData.value?.features?.wishlist)
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
 const remainingPlusOnes = computed(() => {
@@ -119,6 +120,77 @@ async function rsvp(status) {
 watch(invitation, (inv) => {
   if (inv) rsvpStatus.value = inv.status
 }, { immediate: true })
+
+// --- Type-specific interactions ---
+
+// Dietary preferences (dinner sub-events)
+const dietarySaving = ref({})
+
+async function submitDietary(subEventId, data) {
+  dietarySaving.value[subEventId] = true
+  try {
+    await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/dietary`, {
+      method: 'POST',
+      body: {
+        email: invitation.value?.inviteeEmail,
+        guestName: invitation.value?.inviteeName,
+        ...data,
+      },
+    })
+  } catch {}
+  finally {
+    dietarySaving.value[subEventId] = false
+  }
+}
+
+// Music requests (party sub-events)
+const musicForms = reactive({})
+const musicLists = reactive({})
+
+// Initialize music forms for party sub-events
+watch(subEvents, (subs) => {
+  for (const se of subs) {
+    if (se.type === 'party' && !musicForms[se.id]) {
+      musicForms[se.id] = { songTitle: '', artist: '' }
+      fetchMusicRequests(se.id)
+    }
+  }
+}, { immediate: true })
+
+async function fetchMusicRequests(subEventId) {
+  try {
+    musicLists[subEventId] = await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/music-requests`)
+  } catch {
+    musicLists[subEventId] = []
+  }
+}
+
+async function submitMusicRequest(subEventId) {
+  const form = musicForms[subEventId]
+  if (!form?.songTitle?.trim()) return
+  try {
+    await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/music-requests`, {
+      method: 'POST',
+      body: {
+        email: invitation.value?.inviteeEmail,
+        songTitle: form.songTitle.trim(),
+        artist: form.artist?.trim() || null,
+      },
+    })
+    form.songTitle = ''
+    form.artist = ''
+    await fetchMusicRequests(subEventId)
+  } catch {}
+}
+
+async function upvoteMusic(subEventId, requestId) {
+  try {
+    await $fetch(`/api/events/${eventData.value.id}/sub-events/${subEventId}/music-requests/${requestId}/upvote`, {
+      method: 'POST',
+    })
+    await fetchMusicRequests(subEventId)
+  } catch {}
+}
 </script>
 
 <template>
@@ -267,9 +339,7 @@ watch(invitation, (inv) => {
                 <span class="invite-page__plus-one-name">{{ po.inviteeName }}</span>
                 <span class="invite-page__plus-one-email">{{ po.inviteeEmail }}</span>
               </div>
-              <AppBadge :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" size="sm">
-                {{ t(`editor.guests.status.${po.status}`) }}
-              </AppBadge>
+              <AppBadge :label="t(`editor.guests.status.${po.status}`)" :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" />
               <div class="invite-page__plus-one-actions-row">
                 <button
                   class="invite-page__copy-link-btn"
@@ -341,13 +411,84 @@ watch(invitation, (inv) => {
               :key="se.id"
               class="invite-page__programme-item"
             >
-              <div class="invite-page__programme-dot" />
+              <SubEventTypeIcon :type="se.type || 'generic'" size="sm" />
               <div class="invite-page__programme-info">
                 <span class="invite-page__programme-name">{{ se.title }}</span>
                 <span v-if="se.description" class="invite-page__programme-desc">{{ se.description }}</span>
+
+                <!-- Type-specific meta -->
+                <div v-if="se.dressCode" class="invite-page__programme-meta">
+                  <Icon name="lucide:shirt" size="12" />
+                  {{ t('invite.programme.dressCodeNote', { dressCode: se.dressCode }) }}
+                </div>
+                <div v-if="se.type === 'activity' && se.capacity" class="invite-page__programme-meta">
+                  <Icon name="lucide:users" size="12" />
+                  {{ t('editor.subEventPreview.capacity', { count: se.capacity }) }}
+                </div>
+
+                <!-- Dinner: dietary preferences form -->
+                <div v-if="se.type === 'dinner'" class="invite-page__programme-interaction">
+                  <p class="invite-page__programme-hint">
+                    <Icon name="lucide:heart-pulse" size="12" />
+                    {{ t('invite.programme.dietaryHint') }}
+                  </p>
+                  <DietaryPreferenceForm
+                    :loading="dietarySaving[se.id]"
+                    @submit="(data) => submitDietary(se.id, data)"
+                  />
+                </div>
+
+                <!-- Party: music request -->
+                <div v-if="se.type === 'party' && se.typeConfig?.musicRequestsEnabled !== false" class="invite-page__programme-interaction">
+                  <p class="invite-page__programme-hint">
+                    <Icon name="lucide:music" size="12" />
+                    {{ t('invite.programme.musicHint') }}
+                  </p>
+                  <div class="invite-page__music-form">
+                    <input
+                      v-model="musicForms[se.id].songTitle"
+                      type="text"
+                      class="invite-page__music-input"
+                      :placeholder="t('invite.programme.songPlaceholder')"
+                    />
+                    <input
+                      v-model="musicForms[se.id].artist"
+                      type="text"
+                      class="invite-page__music-input"
+                      :placeholder="t('invite.programme.artistPlaceholder')"
+                    />
+                    <AppButton
+                      variant="outline"
+                      size="sm"
+                      :disabled="!musicForms[se.id].songTitle?.trim()"
+                      @click="submitMusicRequest(se.id)"
+                    >
+                      <Icon name="lucide:plus" size="12" />
+                      {{ t('invite.programme.addSong') }}
+                    </AppButton>
+                  </div>
+                  <div v-if="musicLists[se.id]?.length > 0" class="invite-page__music-list">
+                    <MusicRequestCard
+                      v-for="req in musicLists[se.id]"
+                      :key="req.id"
+                      :request="req"
+                      @upvote="(id) => upvoteMusic(se.id, id)"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </section>
+
+        <!-- Wishlist -->
+        <section v-if="hasWishlist" class="invite-page__card invite-page__wishlist" style="animation-delay: 350ms">
+          <h3 class="invite-page__section-title">
+            <Icon name="lucide:gift" size="16" />
+            {{ t('invite.wishlist.title') }}
+          </h3>
+          <AppText size="sm" muted>{{ t('invite.wishlist.subtitle') }}</AppText>
+          <WishlistGuestView :token="token" />
         </section>
 
         <!-- Date poll voting -->
@@ -357,6 +498,8 @@ watch(invitation, (inv) => {
           <DatePollVotingForm
             :event-id="parseInt(eventData.id)"
             :initial-email="invitation?.inviteeEmail || ''"
+            :initial-name="invitation?.inviteeName || ''"
+            :token="token"
             :event-title="eventData.title"
           />
         </section>
@@ -836,6 +979,81 @@ watch(invitation, (inv) => {
 .invite-page__programme-desc {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+.invite-page__programme-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.invite-page__programme-interaction {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.invite-page__programme-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.invite-page__music-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.invite-page__music-input {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.invite-page__music-input:focus {
+  border-color: var(--event-accent, var(--color-accent));
+}
+
+.invite-page__music-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.invite-page__music-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Wishlist ────────────────────────── */
+.invite-page__wishlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.invite-page__wishlist .invite-page__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* ── Date poll ───────────────────────── */

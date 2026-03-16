@@ -8,6 +8,9 @@ const showTemplateModal = ref(false)
 const duplicating = ref(false)
 const archiving = ref(false)
 const showArchiveConfirm = ref(false)
+const showUpgrade = ref(false)
+
+const canUpgrade = computed(() => eventData.value?.tier !== 'pro')
 
 async function duplicateEvent() {
   duplicating.value = true
@@ -47,10 +50,26 @@ onMounted(() => {
       <AppText size="sm" muted>
         {{ t('editor.settings.tierDescription') }}
       </AppText>
-      <NuxtLink :to="$localePath('pricing')" class="editor-settings__upgrade-link">
-        {{ t('editor.settings.upgradePlan') }}
-        <Icon name="lucide:arrow-right" size="14" />
-      </NuxtLink>
+
+      <template v-if="canUpgrade">
+        <button
+          v-if="!showUpgrade"
+          type="button"
+          class="editor-settings__upgrade-link"
+          @click="showUpgrade = true"
+        >
+          {{ t('editor.settings.upgradeTier') }}
+          <Icon name="lucide:arrow-right" size="14" />
+        </button>
+
+        <EventUpgradePanel
+          v-else
+          @close="showUpgrade = false"
+        />
+      </template>
+      <AppText v-else size="sm" muted>
+        {{ t('editor.settings.maxTier') }}
+      </AppText>
     </section>
 
     <!-- Actions (owner only) -->
@@ -168,6 +187,11 @@ onMounted(() => {
   font-weight: var(--font-weight-medium);
   text-decoration: none;
   transition: all var(--transition-fast);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-family);
 }
 
 .editor-settings__upgrade-link:hover {

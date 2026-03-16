@@ -15,7 +15,6 @@ function onSubEventsCreated() {
 }
 
 function onAddManually() {
-  // Trigger the SubEventList's showForm
   const list = subEventListRef.value
   if (list) {
     list.showForm = true
@@ -56,6 +55,9 @@ function onDetailSaved() {
         ref="subEventListRef"
         :event-id="eventData.id"
         :can-edit="canEdit"
+        :event-date="form.eventDate"
+        :has-ai="hasAi"
+        :event-type="form.eventType"
         @open-detail="onOpenDetail"
       />
 
@@ -111,7 +113,6 @@ function onDetailSaved() {
 }
 
 .editor-schedule__section--locked {
-  opacity: 0.5;
   position: relative;
 }
 </style>

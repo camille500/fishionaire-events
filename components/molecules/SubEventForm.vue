@@ -1,5 +1,5 @@
 <script setup>
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const props = defineProps({
   subEvent: {
@@ -10,29 +10,68 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  eventDate: {
+    type: String,
+    default: null,
+  },
+  hasAi: {
+    type: Boolean,
+    default: false,
+  },
+  eventType: {
+    type: String,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['submit', 'cancel'])
+
+// Convert UTC date to datetime-local format for prefill
+function toLocalDatetime(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return ''
+  const offset = d.getTimezoneOffset()
+  const local = new Date(d.getTime() - offset * 60000)
+  return local.toISOString().slice(0, 16)
+}
 
 const form = reactive({
   title: props.subEvent?.title || '',
   description: props.subEvent?.description || '',
   type: props.subEvent?.type || 'generic',
-  startTime: props.subEvent?.startTime || '',
-  endTime: props.subEvent?.endTime || '',
+  startTime: props.subEvent?.startTime
+    ? toLocalDatetime(props.subEvent.startTime)
+    : (props.eventDate ? toLocalDatetime(props.eventDate) : ''),
+  endTime: props.subEvent?.endTime ? toLocalDatetime(props.subEvent.endTime) : '',
   location: props.subEvent?.location || '',
   capacity: props.subEvent?.capacity || null,
   dressCode: props.subEvent?.dressCode || '',
   typeConfig: props.subEvent?.typeConfig || {},
 })
 
-const showTypeFields = computed(() => form.type !== 'generic')
+// AI description generator
+const aiGenerator = props.hasAi ? useAiDescriptionGenerator() : null
+
+function generateDescription() {
+  if (!aiGenerator || !form.title.trim()) return
+  aiGenerator.prompt.value = `Write a short description for a "${form.title}" sub-event (type: ${form.type}) for a ${props.eventType || 'general'} event.`
+  aiGenerator.language.value = locale.value
+  aiGenerator.length.value = 'kort'
+  aiGenerator.generate()
+}
+
+// Watch AI output and stream into description
+if (aiGenerator) {
+  watch(() => aiGenerator.generatedText.value, (text) => {
+    if (text) form.description = text
+  })
+}
 
 // Party config helpers
 const partyConfig = computed({
   get() {
     return {
-      allowPlusOnes: form.typeConfig.allowPlusOnes ?? true,
       musicRequestsEnabled: form.typeConfig.musicRequestsEnabled ?? true,
     }
   },
@@ -65,10 +104,6 @@ const materialsText = computed({
     }
   },
 })
-
-function togglePlusOnes(e) {
-  form.typeConfig = { ...form.typeConfig, allowPlusOnes: e.target.checked }
-}
 
 function toggleMusicRequests(e) {
   form.typeConfig = { ...form.typeConfig, musicRequestsEnabled: e.target.checked }
@@ -112,7 +147,19 @@ function onSubmit() {
       />
     </div>
     <div class="sub-event-form__field">
-      <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventDescription') }}</label>
+      <div class="sub-event-form__label-row">
+        <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventDescription') }}</label>
+        <button
+          v-if="hasAi && form.title.trim()"
+          type="button"
+          class="sub-event-form__ai-btn"
+          :disabled="aiGenerator?.isGenerating.value"
+          @click="generateDescription"
+        >
+          <Icon name="lucide:sparkles" size="12" :class="{ 'sub-event-form__spinner': aiGenerator?.isGenerating.value }" />
+          {{ aiGenerator?.isGenerating.value ? t('editor.ai.loading') : t('editor.ai.writeDescription') }}
+        </button>
+      </div>
       <AppTextarea
         v-model="form.description"
         :placeholder="t('dashboard.eventEditor.subEventDescriptionPlaceholder')"
@@ -132,11 +179,10 @@ function onSubmit() {
     </div>
     <div class="sub-event-form__field">
       <label class="sub-event-form__label">{{ t('dashboard.eventEditor.subEventLocation') }}</label>
-      <AppInput
+      <AddressAutocompleteInput
         v-model="form.location"
         :placeholder="t('dashboard.eventEditor.subEventLocationPlaceholder')"
         :disabled="loading"
-        icon="lucide:map-pin"
       />
     </div>
 
@@ -157,14 +203,6 @@ function onSubmit() {
         />
       </div>
       <div class="sub-event-form__check-row">
-        <label class="sub-event-form__checkbox">
-          <input
-            type="checkbox"
-            :checked="partyConfig.allowPlusOnes"
-            @change="togglePlusOnes"
-          />
-          {{ t('editor.plusOne.allowPlusOnes') }}
-        </label>
         <label class="sub-event-form__checkbox">
           <input
             type="checkbox"
@@ -272,6 +310,43 @@ function onSubmit() {
   color: var(--color-text-secondary);
 }
 
+.sub-event-form__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sub-event-form__ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sub-event-form__ai-btn:hover:not(:disabled) {
+  background: var(--color-accent-bg);
+  box-shadow: var(--shadow-accent-sm);
+}
+
+.sub-event-form__ai-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.sub-event-form__spinner {
+  animation: spin 1s linear infinite;
+}
+
 .sub-event-form__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -338,5 +413,10 @@ function onSubmit() {
   justify-content: flex-end;
   gap: var(--space-2);
   padding-top: var(--space-2);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

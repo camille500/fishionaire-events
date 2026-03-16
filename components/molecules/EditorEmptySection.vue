@@ -28,35 +28,44 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['action'])
+const emit = defineEmits(['action', 'upgrade'])
+
+const showUpgrade = ref(false)
 </script>
 
 <template>
-  <div class="empty-section" :class="{ 'empty-section--locked': locked }">
-    <div class="empty-section__icon-wrapper">
-      <Icon :name="locked ? 'lucide:lock' : icon" size="28" class="empty-section__icon" />
+  <div>
+    <EventUpgradePanel
+      v-if="showUpgrade"
+      @close="showUpgrade = false"
+      @upgraded="showUpgrade = false"
+    />
+    <div v-else class="empty-section" :class="{ 'empty-section--locked': locked }">
+      <div class="empty-section__icon-wrapper">
+        <Icon :name="locked ? 'lucide:lock' : icon" size="28" class="empty-section__icon" />
+      </div>
+      <div class="empty-section__text">
+        <span class="empty-section__title">{{ title }}</span>
+        <span v-if="description" class="empty-section__description">{{ description }}</span>
+      </div>
+      <AppButton
+        v-if="locked && upgradeLabel"
+        variant="primary"
+        size="sm"
+        @click="showUpgrade = true"
+      >
+        <Icon name="lucide:crown" size="14" />
+        {{ upgradeLabel }}
+      </AppButton>
+      <AppButton
+        v-else-if="ctaLabel && !locked"
+        variant="ghost"
+        size="sm"
+        @click="emit('action')"
+      >
+        {{ ctaLabel }}
+      </AppButton>
     </div>
-    <div class="empty-section__text">
-      <span class="empty-section__title">{{ title }}</span>
-      <span v-if="description" class="empty-section__description">{{ description }}</span>
-    </div>
-    <AppButton
-      v-if="locked && upgradeLabel"
-      variant="primary"
-      size="sm"
-      to="/pricing"
-    >
-      <Icon name="lucide:crown" size="14" />
-      {{ upgradeLabel }}
-    </AppButton>
-    <AppButton
-      v-else-if="ctaLabel && !locked"
-      variant="ghost"
-      size="sm"
-      @click="emit('action')"
-    >
-      {{ ctaLabel }}
-    </AppButton>
   </div>
 </template>
 

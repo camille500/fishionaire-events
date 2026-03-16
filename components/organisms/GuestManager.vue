@@ -227,8 +227,21 @@ function toggleSubEvent(id) {
               class="guest-manager__checkbox"
               @change="toggleSubEvent(se.id)"
             />
+            <SubEventTypeIcon :type="se.type || 'generic'" size="xs" />
             <span>{{ se.title }}</span>
           </label>
+        </div>
+        <div v-if="selectedSubEventIds.length > 0" class="guest-manager__sub-event-notes">
+          <template v-for="se in subEvents" :key="'note-' + se.id">
+            <div v-if="selectedSubEventIds.includes(se.id) && se.type === 'dinner'" class="guest-manager__sub-event-note">
+              <Icon name="lucide:utensils" size="11" />
+              {{ t('editor.guests.dietaryNote') }}
+            </div>
+            <div v-if="selectedSubEventIds.includes(se.id) && se.type === 'party' && se.typeConfig?.musicRequestsEnabled !== false" class="guest-manager__sub-event-note">
+              <Icon name="lucide:music" size="11" />
+              {{ t('editor.guests.musicNote') }}
+            </div>
+          </template>
         </div>
         <AppText size="xs" muted>{{ t('editor.guests.leaveEmptyForAll') }}</AppText>
       </div>
@@ -464,6 +477,21 @@ function toggleSubEvent(id) {
 
 .guest-manager__checkbox {
   display: none;
+}
+
+.guest-manager__sub-event-notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.guest-manager__sub-event-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  padding-left: var(--space-1);
 }
 
 .guest-manager__add-actions {

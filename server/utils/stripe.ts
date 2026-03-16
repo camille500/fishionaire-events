@@ -17,6 +17,10 @@ export function getStripePriceId(tier: string, type: string = 'subscription'): s
       standard: config.stripeStandardPriceId,
       pro: config.stripeProPriceId,
     },
+    subscription_yearly: {
+      standard: config.stripeStandardYearlyPriceId,
+      pro: config.stripeProYearlyPriceId,
+    },
     event: {
       standard: config.stripeEventStandardPriceId,
       pro: config.stripeEventProPriceId,

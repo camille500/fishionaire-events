@@ -14,6 +14,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  paymentMode: {
+    type: String,
+    default: 'event',
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -26,12 +30,17 @@ const tiers = computed(() => {
     const features = tm(`tierSelector.tiers.${key}.features`).map((f) => rt(f))
     const isCovered = TIER_ORDER[props.subscriptionTier] >= TIER_ORDER[key]
     const disabled = props.minTier ? TIER_ORDER[key] <= TIER_ORDER[props.minTier] : false
+    const priceKey = props.paymentMode === 'monthly'
+      ? 'monthlyPrice'
+      : props.paymentMode === 'yearly'
+        ? 'yearlyPrice'
+        : 'eventPrice'
     return {
       key,
       name: t(`tiers.${key}`),
       features,
       isCovered: key === 'free' || isCovered,
-      price: key === 'free' ? null : t(`tierSelector.tiers.${key}.eventPrice`),
+      price: key === 'free' ? null : t(`tierSelector.tiers.${key}.${priceKey}`),
       recommended: key === 'standard',
       disabled,
     }

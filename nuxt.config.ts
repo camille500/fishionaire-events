@@ -94,6 +94,8 @@ export default defineNuxtConfig({
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
     stripeStandardPriceId: process.env.STRIPE_STANDARD_PRICE_ID || '',
     stripeProPriceId: process.env.STRIPE_PRO_PRICE_ID || '',
+    stripeStandardYearlyPriceId: process.env.STRIPE_STANDARD_YEARLY_PRICE_ID || '',
+    stripeProYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID || '',
     stripeEventStandardPriceId: process.env.STRIPE_EVENT_STANDARD_PRICE_ID || '',
     stripeEventProPriceId: process.env.STRIPE_EVENT_PRO_PRICE_ID || '',
     public: {

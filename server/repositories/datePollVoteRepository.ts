@@ -3,17 +3,18 @@ import DatePollVote, { DatePollVoteStatus } from '../entities/DatePollVote'
 
 export default class DatePollVoteRepository {
   static async upsert(
-    datePollOptionId: string,
+    datePollOptionId: string | number,
     voterEmail: string,
     status: DatePollVoteStatus,
     voterName?: string | null,
     token?: string | null,
   ): Promise<DatePollVote> {
     const prisma = usePrisma()
+    const optionId = typeof datePollOptionId === 'string' ? parseInt(datePollOptionId, 10) : datePollOptionId
     const row = await prisma.datePollVote.upsert({
-      where: { datePollOptionId_voterEmail: { datePollOptionId, voterEmail } },
+      where: { datePollOptionId_voterEmail: { datePollOptionId: optionId, voterEmail } },
       update: { status, voterName: voterName || undefined, updatedAt: new Date() },
-      create: { datePollOptionId, voterEmail, voterName, status, token },
+      create: { datePollOptionId: optionId, voterEmail, voterName, status, token },
     })
     return DatePollVote.fromJSON(row)
   }

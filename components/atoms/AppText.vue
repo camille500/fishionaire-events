@@ -7,7 +7,7 @@ defineProps({
   size: {
     type: String,
     default: 'base',
-    validator: (v) => ['sm', 'base', 'lg'].includes(v),
+    validator: (v) => ['xs', 'sm', 'base', 'lg'].includes(v),
   },
   align: {
     type: String,
@@ -35,6 +35,7 @@ defineProps({
   margin: 0;
 }
 
+.app-text--xs { font-size: var(--text-xs); }
 .app-text--sm { font-size: var(--text-sm); }
 .app-text--base { font-size: var(--text-base); }
 .app-text--lg { font-size: var(--text-lg); }
