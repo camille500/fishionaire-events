@@ -163,7 +163,6 @@ export default class SubscriptionController {
     }
 
     const stripe = useStripe()
-    const priceId = getStripePriceId(tier, 'event')
     const customerId = await this._findOrCreateCustomer(clerkId, email)
     const priceCents = EVENT_PRICES_CENTS[tier]
 
@@ -177,10 +176,21 @@ export default class SubscriptionController {
     const savedPurchase = await EventPurchaseRepository.create(purchase)
 
     const config = useRuntimeConfig()
+    const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'payment',
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: `${tierLabel} Event Upgrade`,
+            description: `One-time payment to unlock ${tierLabel} features for a single event`,
+          },
+          unit_amount: priceCents,
+        },
+        quantity: 1,
+      }],
       success_url: `${config.public.appUrl}/dashboard/events/${eventId}?upgraded=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${config.public.appUrl}/dashboard/events/${eventId}`,
       metadata: {

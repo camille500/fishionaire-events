@@ -22,6 +22,8 @@ export interface EventData {
   eventDate: string | Date | null
   eventEndDate: string | Date | null
   location: string | null
+  locationLat: number | null
+  locationLon: number | null
   isPrivate: boolean
   shareToken: string | null
   tier: string
@@ -32,6 +34,8 @@ export interface EventData {
   aiTone?: string | null
   aiToneCustom?: string | null
   aiExtraContext?: string | null
+  rsvpEnabled: boolean
+  rsvpDeadline: string | Date | null
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
@@ -48,6 +52,10 @@ export interface EventJSON {
   eventEndDate?: string | Date | null
   event_end_date?: string | Date | null
   location?: string | null
+  locationLat?: number | null
+  location_lat?: number | null
+  locationLon?: number | null
+  location_lon?: number | null
   isPrivate?: boolean
   is_private?: boolean
   shareToken?: string | null
@@ -66,6 +74,10 @@ export interface EventJSON {
   ai_tone_custom?: string | null
   aiExtraContext?: string | null
   ai_extra_context?: string | null
+  rsvpEnabled?: boolean
+  rsvp_enabled?: boolean
+  rsvpDeadline?: string | Date | null
+  rsvp_deadline?: string | Date | null
   archivedAt?: string | Date | null
   archived_at?: string | Date | null
   createdAt?: Date | string
@@ -82,6 +94,8 @@ export default class Event {
   eventDate: string | Date | null
   eventEndDate: string | Date | null
   location: string | null
+  locationLat: number | null
+  locationLon: number | null
   isPrivate: boolean
   shareToken: string | null
   tier: string
@@ -92,11 +106,13 @@ export default class Event {
   aiTone: string | null
   aiToneCustom: string | null
   aiExtraContext: string | null
+  rsvpEnabled: boolean
+  rsvpDeadline: string | Date | null
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, isPrivate, shareToken, tier, features, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -104,6 +120,8 @@ export default class Event {
     this.eventDate = eventDate || null
     this.eventEndDate = eventEndDate || null
     this.location = location || null
+    this.locationLat = locationLat ?? null
+    this.locationLon = locationLon ?? null
     this.isPrivate = isPrivate ?? true
     this.shareToken = shareToken || null
     this.tier = tier || 'free'
@@ -114,6 +132,8 @@ export default class Event {
     this.aiTone = aiTone || null
     this.aiToneCustom = aiToneCustom || null
     this.aiExtraContext = aiExtraContext || null
+    this.rsvpEnabled = rsvpEnabled ?? true
+    this.rsvpDeadline = rsvpDeadline || null
     this.archivedAt = archivedAt || null
     this.createdAt = createdAt || new Date()
     this.updatedAt = updatedAt || new Date()
@@ -128,6 +148,8 @@ export default class Event {
       eventDate: data.eventDate || data.event_date || null,
       eventEndDate: data.eventEndDate || data.event_end_date || null,
       location: data.location ?? null,
+      locationLat: data.locationLat ?? data.location_lat ?? null,
+      locationLon: data.locationLon ?? data.location_lon ?? null,
       isPrivate: data.isPrivate ?? data.is_private ?? true,
       shareToken: data.shareToken || data.share_token || null,
       tier: data.tier || 'free',
@@ -138,6 +160,8 @@ export default class Event {
       aiTone: data.aiTone ?? data.ai_tone ?? null,
       aiToneCustom: data.aiToneCustom ?? data.ai_tone_custom ?? null,
       aiExtraContext: data.aiExtraContext ?? data.ai_extra_context ?? null,
+      rsvpEnabled: data.rsvpEnabled ?? data.rsvp_enabled ?? true,
+      rsvpDeadline: data.rsvpDeadline || data.rsvp_deadline || null,
       archivedAt: data.archivedAt || data.archived_at || null,
       createdAt: data.createdAt || data.created_at || new Date(),
       updatedAt: data.updatedAt || data.updated_at || new Date(),
@@ -153,6 +177,8 @@ export default class Event {
       eventDate: this.eventDate,
       eventEndDate: this.eventEndDate,
       location: this.location,
+      locationLat: this.locationLat,
+      locationLon: this.locationLon,
       isPrivate: this.isPrivate,
       shareToken: this.shareToken,
       tier: this.tier,
@@ -163,6 +189,8 @@ export default class Event {
       aiTone: this.aiTone,
       aiToneCustom: this.aiToneCustom,
       aiExtraContext: this.aiExtraContext,
+      rsvpEnabled: this.rsvpEnabled,
+      rsvpDeadline: this.rsvpDeadline,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

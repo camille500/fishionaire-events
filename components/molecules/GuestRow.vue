@@ -81,7 +81,7 @@ async function copyLink() {
       <div v-if="!editing" class="guest-row__info">
         <div class="guest-row__name-line">
           <span class="guest-row__name">{{ invitation.inviteeName || invitation.inviteeEmail }}</span>
-          <AppBadge :variant="statusVariant" size="sm">{{ statusLabel }}</AppBadge>
+          <AppBadge :variant="statusVariant" size="sm" :label="statusLabel" />
         </div>
         <span v-if="invitation.inviteeName" class="guest-row__email">{{ invitation.inviteeEmail }}</span>
         <div class="guest-row__meta">
@@ -171,9 +171,7 @@ async function copyLink() {
           <span class="guest-row__plus-one-name">{{ po.inviteeName || po.inviteeEmail }}</span>
           <span v-if="po.inviteeName" class="guest-row__plus-one-email">{{ po.inviteeEmail }}</span>
         </div>
-        <AppBadge :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" size="sm">
-          {{ t(`editor.guests.status.${po.status}`) }}
-        </AppBadge>
+        <AppBadge :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" size="sm" :label="t(`editor.guests.status.${po.status}`)" />
         <span class="guest-row__plus-one-label">+1</span>
       </div>
     </div>

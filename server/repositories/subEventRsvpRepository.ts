@@ -48,6 +48,35 @@ export default class SubEventRsvpRepository {
     }))
   }
 
+  static async findAllByEventId(eventId: string): Promise<SubEventRsvp[]> {
+    const prisma = usePrisma()
+    const rows = await prisma.subEventRsvp.findMany({
+      where: { subEvent: { eventId: Number(eventId) } },
+      include: { subEvent: { select: { id: true, title: true } } },
+      orderBy: { createdAt: 'asc' },
+    })
+    return rows.map((row) => SubEventRsvp.fromJSON(row))
+  }
+
+  static async getCountsByEventId(eventId: string): Promise<Record<number, RsvpCounts>> {
+    const prisma = usePrisma()
+    const rows = await prisma.subEventRsvp.groupBy({
+      by: ['subEventId', 'status'],
+      where: { subEvent: { eventId: Number(eventId) } },
+      _count: true,
+    })
+    const counts: Record<number, RsvpCounts> = {}
+    for (const row of rows) {
+      if (!counts[row.subEventId]) {
+        counts[row.subEventId] = { accepted: 0, declined: 0, pending: 0 }
+      }
+      if (row.status === 'accepted') counts[row.subEventId].accepted = row._count
+      else if (row.status === 'declined') counts[row.subEventId].declined = row._count
+      else if (row.status === 'pending') counts[row.subEventId].pending = row._count
+    }
+    return counts
+  }
+
   static async getCountsBySubEventId(subEventId: string): Promise<RsvpCounts> {
     const prisma = usePrisma()
     const [accepted, declined, pending] = await Promise.all([

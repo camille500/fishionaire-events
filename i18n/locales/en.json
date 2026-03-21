@@ -406,6 +406,13 @@
     "creating": "Creating...",
     "cancel": "Cancel",
     "myEvents": "My Events",
+    "upcoming": {
+      "title": "Upcoming Events",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "inDays": "In {count} days",
+      "pastEvents": "Past Events"
+    },
     "invitations": "Invitations",
     "noEvents": "You don't have any events yet. Create your first event!",
     "noInvitations": "You haven't received any invitations yet.",
@@ -522,6 +529,7 @@
       "save": "Save changes",
       "saving": "Saving...",
       "saved": "Changes saved",
+      "allSaved": "All changes saved",
       "unsavedChanges": "Unsaved changes",
       "errorSaving": "Something went wrong while saving",
       "notFound": "Event not found",
@@ -575,6 +583,11 @@
       "subEventDeleted": "Sub-event deleted",
       "subEventReordered": "Order updated",
       "confirmDeleteSubEvent": "Delete this sub-event?",
+      "confirmBulkDelete": "Delete {count} selected sub-events?",
+      "selectItems": "Select",
+      "selectAll": "Select all",
+      "itemsSelected": "{count} selected",
+      "deleteSelected": "Delete selected",
       "coOrganizersSection": "Co-organizers",
       "coOrganizersSubtitle": "Invite people to help manage this event",
       "addCoOrganizer": "Add co-organizer",
@@ -791,6 +804,7 @@
       "schedule": "Schedule",
       "guests": "Guests",
       "wishlist": "Wishlist",
+      "rsvp": "RSVP",
       "settings": "Settings"
     },
     "autoSave": {
@@ -944,6 +958,22 @@
       "endDateAfterStart": "End date must be after start date",
       "maxGuestsPositive": "Number of guests must be at least 1"
     },
+    "rsvp": {
+      "settingsLabel": "RSVP settings",
+      "enableLabel": "Accept RSVPs",
+      "enableDescription": "Allow guests to respond to your invitation",
+      "deadlineLabel": "RSVP deadline",
+      "deadlinePassed": "This deadline has passed — guests can no longer RSVP",
+      "overviewLabel": "Overview",
+      "invited": "Invited",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "pending": "Pending",
+      "responses": "responses",
+      "exportLabel": "Export",
+      "exportCsv": "Download guest list",
+      "exportCsvDescription": "Export all guests with RSVP status, dietary info and plus-ones as CSV"
+    },
     "datePicker": {
       "selectDate": "Pick a date",
       "selectEndDate": "Pick an end date",
@@ -1019,7 +1049,33 @@
     },
     "musicRequest": {
       "enableRequests": "Enable music requests",
-      "none": "No music requests yet"
+      "autoApprove": "Auto-approve requests",
+      "none": "No music requests yet",
+      "noResults": "No requests match this filter",
+      "refresh": "Refresh requests",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "queued": "Queued",
+      "filter": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    },
+    "spotify": {
+      "connect": "Connect Spotify",
+      "disconnect": "Disconnect",
+      "viewPlaylist": "View playlist",
+      "createPlaylist": "Create playlist",
+      "syncPlaylist": "Sync playlist",
+      "addToQueue": "Add to queue",
+      "addToPlaylist": "Add to playlist...",
+      "playlistNamePlaceholder": "Playlist name",
+      "premiumRequired": "Spotify Premium is required to add tracks to the queue",
+      "quotaMessage": "Spotify requires app approval for playlist creation. You can copy the track list and create the playlist manually.",
+      "copyTrackList": "Copy track list"
     },
     "capacity": {
       "label": "Capacity",
@@ -1204,7 +1260,10 @@
       "youreAttending": "You're attending!",
       "youreNotAttending": "You've declined",
       "changeResponse": "Change response",
-      "plusOnesNote": "You can bring {count} additional guest(s)"
+      "plusOnesNote": "You can bring {count} additional guest(s)",
+      "deadlineNote": "Please respond before {date}",
+      "closed": "RSVPs are closed for this event",
+      "whichParts": "Which parts will you attend?"
     },
     "programme": {
       "title": "Programme",
@@ -1213,7 +1272,15 @@
       "musicHint": "Request songs for the playlist",
       "songPlaceholder": "Song title",
       "artistPlaceholder": "Artist (optional)",
-      "addSong": "Add song"
+      "addSong": "Add song",
+      "spotifySearchPlaceholder": "Search for a song on Spotify...",
+      "spotifySearch": "Search Spotify",
+      "manualEntry": "Type manually"
+    },
+    "location": {
+      "title": "Location",
+      "navigate": "Navigate",
+      "mapAlt": "Map of the location"
     },
     "poll": {
       "title": "Date preference",
@@ -1243,6 +1310,18 @@
     "wishlist": {
       "title": "Wishlist",
       "subtitle": "Claim a gift to prevent duplicates"
+    },
+    "calendar": {
+      "addToCalendar": "Add to calendar",
+      "downloadIcs": "Download .ics file"
+    },
+    "countdown": {
+      "days": "days",
+      "hours": "hours",
+      "minutes": "min",
+      "eventStarted": "The event has started!",
+      "eventPassed": "Thank you for attending!",
+      "rsvpClosesIn": "RSVP closes in {time}"
     },
     "footer": {
       "poweredBy": "Powered by"

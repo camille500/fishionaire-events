@@ -115,9 +115,23 @@ const eventEmojis = computed(() =>
           </span>
           <span v-if="eventData.location" class="invite-hero__meta-item">
             <Icon name="lucide:map-pin" size="18" />
-            {{ eventData.location }}
+            <a
+              v-if="eventData.locationLat && eventData.locationLon"
+              :href="`https://www.google.com/maps/search/?api=1&query=${eventData.locationLat},${eventData.locationLon}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="invite-hero__location-link"
+            >{{ eventData.location }}</a>
+            <template v-else>{{ eventData.location }}</template>
           </span>
         </div>
+
+        <!-- Countdown -->
+        <CountdownTimer
+          v-if="eventData.eventDate"
+          :target-date="eventData.eventDate"
+          variant="hero"
+        />
       </div>
 
       <!-- Scroll hint -->
@@ -324,6 +338,17 @@ const eventEmojis = computed(() =>
   font-style: italic;
 }
 
+.invite-hero__location-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  transition: border-color var(--transition-fast);
+}
+
+.invite-hero__location-link:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
 /* Scroll hint */
 .invite-hero__scroll-hint {
   padding-bottom: var(--space-8);
@@ -366,12 +391,13 @@ const eventEmojis = computed(() =>
     min-height: 85svh;
   }
 
-  .invite-hero__particles {
-    display: none;
+  .invite-hero__particle {
+    font-size: 1.2rem;
+    opacity: 0.5;
   }
 
-  .invite-hero__particle {
-    font-size: 1.4rem;
+  .invite-hero__particle:nth-child(n+3) {
+    display: none;
   }
 
   .invite-hero__aurora-blob--1 {

@@ -6,6 +6,7 @@ import EventRepository from '../repositories/eventRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import SubEventRepository from '../repositories/subEventRepository'
+import SubEventRsvpRepository from '../repositories/subEventRsvpRepository'
 import TimelineItemRepository from '../repositories/timelineItemRepository'
 import SubscriptionController from './subscriptionController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
@@ -31,7 +32,11 @@ interface UpdateEventParams {
   eventDate?: string | null
   eventEndDate?: string | null
   location?: string | null
+  locationLat?: number | null
+  locationLon?: number | null
   isPrivate?: boolean
+  rsvpEnabled?: boolean
+  rsvpDeadline?: string | null
   features?: Record<string, boolean>
 }
 
@@ -177,7 +182,7 @@ export default class EventController {
   }
 
   static async updateEvent(eventId: number, clerkId: string, {
-    title, description, eventType, eventDate, eventEndDate, location, isPrivate, features
+    title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, rsvpEnabled, rsvpDeadline, features
   }: UpdateEventParams): Promise<Record<string, unknown>> {
     const validEventTypes: EventType[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
@@ -222,8 +227,24 @@ export default class EventController {
       event.location = location || null
     }
 
+    if (locationLat !== undefined) {
+      event.locationLat = locationLat ?? null
+    }
+
+    if (locationLon !== undefined) {
+      event.locationLon = locationLon ?? null
+    }
+
     if (isPrivate !== undefined) {
       event.isPrivate = Boolean(isPrivate)
+    }
+
+    if (rsvpEnabled !== undefined) {
+      event.rsvpEnabled = Boolean(rsvpEnabled)
+    }
+
+    if (rsvpDeadline !== undefined) {
+      event.rsvpDeadline = rsvpDeadline ? new Date(rsvpDeadline) : null
     }
 
     if (features !== undefined) {
@@ -392,6 +413,8 @@ export default class EventController {
       eventDate: event.eventDate,
       eventEndDate: event.eventEndDate,
       location: event.location,
+      locationLat: event.locationLat,
+      locationLon: event.locationLon,
       coverImageUrl: event.coverImageUrl,
       features: event.features,
     }
@@ -415,6 +438,13 @@ export default class EventController {
       ? allSubEvents.filter((se) => invitedSubEventIds.includes(parseInt(se.id)))
       : allSubEvents
 
+    // Get guest's existing sub-event RSVPs
+    const subEventRsvps = await SubEventRsvpRepository.findByEventIdAndEmail(event.id!, invitation.inviteeEmail)
+    const subEventRsvpMap: Record<string, string> = {}
+    for (const rsvp of subEventRsvps) {
+      subEventRsvpMap[rsvp.subEventId] = rsvp.status
+    }
+
     return {
       event: {
         id: event.id,
@@ -424,11 +454,16 @@ export default class EventController {
         eventDate: event.eventDate,
         eventEndDate: event.eventEndDate,
         location: event.location,
+        locationLat: event.locationLat,
+        locationLon: event.locationLon,
         coverImageUrl: event.coverImageUrl,
         features: event.features,
+        rsvpEnabled: event.rsvpEnabled,
+        rsvpDeadline: event.rsvpDeadline,
       },
       invitation: invitation.toJSON(),
       subEvents: subEvents.map((se) => se.toJSON()),
+      subEventRsvps: subEventRsvpMap,
     }
   }
 
@@ -440,6 +475,16 @@ export default class EventController {
     const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
     if (!invitation) {
       throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
+    }
+
+    const event = await EventRepository.findById(invitation.eventId)
+    if (event) {
+      if (!event.rsvpEnabled) {
+        throw createError({ statusCode: 403, statusMessage: 'RSVP is disabled for this event' })
+      }
+      if (event.rsvpDeadline && new Date() > new Date(event.rsvpDeadline)) {
+        throw createError({ statusCode: 400, statusMessage: 'RSVP deadline has passed' })
+      }
     }
 
     const updated = await EventInvitationRepository.update(parseInt(invitation.id!), { status })
@@ -489,6 +534,8 @@ export default class EventController {
       description: event.description,
       eventType: event.eventType,
       location: event.location,
+      locationLat: event.locationLat,
+      locationLon: event.locationLon,
       isPrivate: event.isPrivate,
       shareToken: crypto.randomBytes(16).toString('hex'),
       tier: event.tier,
@@ -510,11 +557,13 @@ export default class EventController {
     const subEvents = await SubEventRepository.findByEventId(eventId)
     if (subEvents.length > 0) {
       await SubEventRepository.bulkCreate(
-        subEvents.map((se: { title: string, description: string | null, location: string | null, sortOrder: number }) => ({
+        subEvents.map((se) => ({
           eventId: saved.id,
           title: se.title,
           description: se.description,
           location: se.location,
+          locationLat: se.locationLat,
+          locationLon: se.locationLon,
           sortOrder: se.sortOrder,
         }))
       )

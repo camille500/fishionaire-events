@@ -14,7 +14,9 @@ const {
   saved,
   saveError,
   isDirty,
+  saveStatus,
   save,
+  forceSave,
   errors,
   touched,
   markTouched,
@@ -31,12 +33,25 @@ const tabs = computed(() => {
     { label: t('editor.tabs.schedule'), icon: 'i-lucide-calendar-clock', slot: 'schedule' },
     { label: t('editor.tabs.guests'), icon: 'i-lucide-users', slot: 'guests' },
   ]
+  if (eventData.value?.features?.rsvp) {
+    base.push({ label: t('editor.tabs.rsvp'), icon: 'i-lucide-check-circle', slot: 'rsvp' })
+  }
   if (eventData.value?.features?.wishlist) {
     base.push({ label: t('editor.tabs.wishlist'), icon: 'i-lucide-gift', slot: 'wishlist' })
   }
   base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
   return base
 })
+
+// Keyboard shortcut: Cmd/Ctrl+S to force save
+function handleKeydown(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+    e.preventDefault()
+    forceSave()
+  }
+}
+onMounted(() => document.addEventListener('keydown', handleKeydown))
+onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 
 // Confetti on new event
 const showConfetti = ref(false)
@@ -128,15 +143,18 @@ function onTabChange(index) {
         @updated="(url) => eventData.coverImageUrl = url"
       />
 
-      <!-- Notion-style title -->
-      <input
-        v-model="form.title"
-        type="text"
-        class="event-editor__title-input"
-        :class="{ 'event-editor__title-input--error': errors.title && touched.title }"
-        :placeholder="t('dashboard.eventEditor.titlePlaceholder')"
-        @blur="markTouched('title')"
-      />
+      <!-- Notion-style title + save status -->
+      <div class="event-editor__title-row">
+        <input
+          v-model="form.title"
+          type="text"
+          class="event-editor__title-input"
+          :class="{ 'event-editor__title-input--error': errors.title && touched.title }"
+          :placeholder="t('dashboard.eventEditor.titlePlaceholder')"
+          @blur="markTouched('title')"
+        />
+        <SaveStatusIndicator :status="saveStatus" />
+      </div>
       <EditorFieldError
         :message="errors.title"
         :visible="!!(errors.title && touched.title)"
@@ -159,6 +177,12 @@ function onTabChange(index) {
         <template #guests>
           <div class="event-editor__tab-content">
             <EditorGuestsTab />
+          </div>
+        </template>
+
+        <template v-if="eventData?.features?.rsvp" #rsvp>
+          <div class="event-editor__tab-content">
+            <EditorRsvpTab />
           </div>
         </template>
 
@@ -206,6 +230,7 @@ function onTabChange(index) {
 .event-editor {
   max-width: 860px;
   margin: 0 auto;
+  transition: --color-accent 0.4s ease, --color-accent-light 0.4s ease, --color-accent-dark 0.4s ease, --color-accent-bg 0.4s ease, --color-accent-dim 0.4s ease;
 }
 
 .event-editor__error-page {
@@ -220,8 +245,15 @@ function onTabChange(index) {
 }
 
 /* Notion-style title */
+.event-editor__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .event-editor__title-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
   background: transparent;

@@ -2,6 +2,37 @@
    Apply via data-event-type attribute on a container element.
    Overrides accent colors so all child components inherit the event's visual identity. */
 
+/* Register accent properties so they can be transitioned smoothly */
+@property --color-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #00b894;
+}
+
+@property --color-accent-light {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #00d4aa;
+}
+
+@property --color-accent-dark {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #00a07e;
+}
+
+@property --color-accent-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(0, 184, 148, 0.1);
+}
+
+@property --color-accent-dim {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(0, 184, 148, 0.06);
+}
+
 /* Wedding — rose pink, elegant */
 [data-event-type="wedding"] {
   --color-accent: #e91e63;

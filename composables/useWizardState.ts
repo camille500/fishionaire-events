@@ -34,8 +34,9 @@ interface AiBuildResult {
   eventType?: string
   title?: string
   description?: string
-  dateSuggestion?: { suggestedTime?: string, isoDate?: string }
+  dateSuggestion?: { suggestedTime?: string, isoDate?: string, dayOfWeek?: string }
   activities?: Array<{ title: string, durationMinutes?: number, description?: string }>
+  location?: string
 }
 
 interface WizardSubmissionData {
@@ -307,6 +308,8 @@ export function useWizardStateProvider() {
         }
       }
     }
+
+    if (data.location) form.location = data.location
 
     if (data.activities?.length) {
       form.subEvents = data.activities.map((a, i) => ({

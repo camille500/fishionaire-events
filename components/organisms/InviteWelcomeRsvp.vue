@@ -8,9 +8,23 @@ const props = defineProps({
   invitedByName: { type: String, default: '' },
   rsvpStatus: { type: String, default: 'pending' },
   rsvpLoading: { type: Boolean, default: false },
+  subEvents: { type: Array, default: () => [] },
+  subEventRsvps: { type: Object, default: () => ({}) },
 })
 
-const emit = defineEmits(['rsvp', 'changeResponse'])
+const emit = defineEmits(['rsvp', 'changeResponse', 'subEventRsvp'])
+
+const rsvpClosed = computed(() => {
+  if (!props.eventData.rsvpEnabled) return true
+  if (props.eventData.rsvpDeadline && new Date() > new Date(props.eventData.rsvpDeadline)) return true
+  return false
+})
+
+const deadlineLabel = computed(() => {
+  if (!props.eventData.rsvpDeadline) return ''
+  const d = new Date(props.eventData.rsvpDeadline)
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+})
 
 const showConfetti = ref(false)
 const confettiParticles = ref([])
@@ -83,9 +97,12 @@ function handleRsvp(status) {
       </p>
 
       <!-- Description -->
-      <p v-if="eventData.description" class="invite-rsvp__description">
-        {{ eventData.description }}
-      </p>
+      <FormattedText
+        v-if="eventData.description"
+        :text="eventData.description"
+        tag="p"
+        class="invite-rsvp__description"
+      />
 
       <!-- Divider -->
       <div class="invite-rsvp__divider" />
@@ -93,8 +110,26 @@ function handleRsvp(status) {
       <!-- RSVP section label -->
       <p class="invite-rsvp__label">{{ t('invite.rsvp.title') }}</p>
 
+      <!-- Deadline info with countdown -->
+      <div v-if="eventData.rsvpDeadline && !rsvpClosed" class="invite-rsvp__deadline">
+        <p class="invite-rsvp__deadline-text">
+          <Icon name="lucide:clock" size="14" />
+          {{ t('invite.rsvp.deadlineNote', { date: deadlineLabel }) }}
+        </p>
+        <CountdownTimer
+          :target-date="eventData.rsvpDeadline"
+          variant="urgent"
+        />
+      </div>
+
+      <!-- RSVP closed -->
+      <div v-if="rsvpClosed" class="invite-rsvp__closed">
+        <Icon name="lucide:lock" size="18" />
+        <span>{{ t('invite.rsvp.closed') }}</span>
+      </div>
+
       <!-- RSVP status (if already responded) -->
-      <div v-if="rsvpStatus !== 'pending'" class="invite-rsvp__status">
+      <div v-else-if="rsvpStatus !== 'pending'" class="invite-rsvp__status">
         <div
           class="invite-rsvp__status-badge"
           :class="{
@@ -105,6 +140,40 @@ function handleRsvp(status) {
           <Icon :name="rsvpStatus === 'accepted' ? 'lucide:check-circle' : 'lucide:x-circle'" size="22" />
           {{ rsvpStatus === 'accepted' ? t('invite.rsvp.youreAttending') : t('invite.rsvp.youreNotAttending') }}
         </div>
+        <!-- Per-sub-event RSVP selection -->
+        <div v-if="rsvpStatus === 'accepted' && subEvents.length > 1" class="invite-rsvp__sub-events">
+          <p class="invite-rsvp__sub-events-label">
+            <Icon name="lucide:list-checks" size="14" />
+            {{ t('invite.rsvp.whichParts') }}
+          </p>
+          <div
+            v-for="se in subEvents"
+            :key="se.id"
+            class="invite-rsvp__sub-event-row"
+          >
+            <label class="invite-rsvp__sub-event-toggle">
+              <input
+                type="checkbox"
+                :checked="subEventRsvps[se.id] !== 'declined'"
+                @change="$emit('subEventRsvp', se.id, $event.target.checked ? 'accepted' : 'declined')"
+              />
+              <span class="invite-rsvp__sub-event-name">{{ se.title }}</span>
+              <span v-if="se.startTime" class="invite-rsvp__sub-event-time">
+                {{ new Date(se.startTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <AddToCalendarButton
+          v-if="rsvpStatus === 'accepted' && eventData.eventDate"
+          :event-id="eventData.id"
+          :title="eventData.title"
+          :description="eventData.description"
+          :location="eventData.location"
+          :start-date="eventData.eventDate"
+          :end-date="eventData.eventEndDate"
+        />
         <button class="invite-rsvp__change-btn" @click="$emit('changeResponse')">
           {{ t('invite.rsvp.changeResponse') }}
         </button>
@@ -239,6 +308,38 @@ function handleRsvp(status) {
   margin: 0;
 }
 
+/* Deadline */
+.invite-rsvp__deadline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.invite-rsvp__deadline-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Closed */
+.invite-rsvp__closed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+}
+
 /* Status */
 .invite-rsvp__status {
   display: flex;
@@ -342,6 +443,64 @@ function handleRsvp(status) {
 .invite-rsvp__btn:disabled {
   opacity: 0.5;
   cursor: wait;
+}
+
+/* Sub-event selection */
+.invite-rsvp__sub-events {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--event-accent, var(--color-accent)) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--event-accent, var(--color-accent)) 12%, transparent);
+  border-radius: var(--radius-xl);
+}
+
+.invite-rsvp__sub-events-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 var(--space-1) 0;
+}
+
+.invite-rsvp__sub-event-row {
+  padding: var(--space-1) 0;
+}
+
+.invite-rsvp__sub-event-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.invite-rsvp__sub-event-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--event-accent, var(--color-accent));
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.invite-rsvp__sub-event-name {
+  flex: 1;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  text-align: left;
+}
+
+.invite-rsvp__sub-event-time {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 /* Plus-ones note */

@@ -5,7 +5,11 @@ interface EventForm {
   eventDate: string
   eventEndDate: string
   location: string
+  locationLat: number | null
+  locationLon: number | null
   isPrivate: boolean
+  rsvpEnabled: boolean
+  rsvpDeadline: string
 }
 
 interface CompletionItem {
@@ -42,7 +46,11 @@ export function useEventEditorProvider(eventId: string) {
       eventDate: toLocalDatetime(data?.eventDate),
       eventEndDate: toLocalDatetime(data?.eventEndDate),
       location: data?.location || '',
+      locationLat: data?.locationLat ?? null,
+      locationLon: data?.locationLon ?? null,
       isPrivate: data?.isPrivate ?? true,
+      rsvpEnabled: data?.rsvpEnabled ?? true,
+      rsvpDeadline: toLocalDatetime(data?.rsvpDeadline),
     }
   }
 
@@ -60,6 +68,19 @@ export function useEventEditorProvider(eventId: string) {
 
   const isDirty = computed(() => JSON.stringify(form) !== lastSaved)
 
+  const saveStatus = computed<'idle' | 'pending' | 'saving' | 'saved' | 'error'>(() => {
+    if (saveError.value) return 'error'
+    if (saving.value) return 'saving'
+    if (saved.value) return 'saved'
+    if (isDirty.value) return 'pending'
+    return 'idle'
+  })
+
+  function forceSave(): void {
+    if (autoSaveTimer) clearTimeout(autoSaveTimer)
+    if (isDirty.value) save()
+  }
+
   async function save(): Promise<void> {
     if (!form.title.trim()) return
 
@@ -75,7 +96,11 @@ export function useEventEditorProvider(eventId: string) {
         eventDate: form.eventDate || null,
         eventEndDate: form.eventEndDate || null,
         location: form.location || null,
+        locationLat: form.locationLat,
+        locationLon: form.locationLon,
         isPrivate: form.isPrivate,
+        rsvpEnabled: form.rsvpEnabled,
+        rsvpDeadline: form.rsvpDeadline || null,
       }
 
       await $fetch(`/api/events/${eventId}`, {
@@ -161,7 +186,9 @@ export function useEventEditorProvider(eventId: string) {
     saved,
     saveError,
     isDirty,
+    saveStatus,
     save,
+    forceSave,
     touched,
     markTouched,
     errors,

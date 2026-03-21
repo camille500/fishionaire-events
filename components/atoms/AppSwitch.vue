@@ -24,7 +24,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const switchId = computed(() => props.id || `switch-${Math.random().toString(36).slice(2, 9)}`)
+const fallbackId = useId()
+const switchId = computed(() => props.id || fallbackId)
 
 function toggle() {
   if (props.disabled) return

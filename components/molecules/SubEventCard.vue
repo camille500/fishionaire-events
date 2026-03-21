@@ -11,9 +11,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  selectable: {
+    type: Boolean,
+    default: false,
+  },
+  selected: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['edit', 'delete', 'click'])
+const emit = defineEmits(['edit', 'delete', 'click', 'toggle-select'])
 
 const typeConfig = computed(() => getType(props.subEvent.type || 'generic'))
 const preview = computed(() => getPreview(props.subEvent))
@@ -27,9 +35,22 @@ function formatTime(dateStr) {
 <template>
   <div
     class="sub-event-card"
+    :class="{
+      'sub-event-card--selected': selected,
+      'sub-event-card--selectable': selectable,
+    }"
     :style="{ '--card-accent': typeConfig.color, '--card-accent-bg': typeConfig.bgColor, '--card-accent-border': typeConfig.borderColor }"
     @click="emit('click', subEvent)"
   >
+    <!-- Selection checkbox -->
+    <div v-if="selectable" class="sub-event-card__checkbox" @click.stop>
+      <input
+        type="checkbox"
+        :checked="selected"
+        @change="emit('toggle-select')"
+      />
+    </div>
+
     <div class="sub-event-card__drag" v-if="canEdit">
       <Icon name="lucide:grip-vertical" size="14" />
     </div>
@@ -72,7 +93,7 @@ function formatTime(dateStr) {
       </AppButton>
     </div>
 
-    <Icon v-if="!canEdit" name="lucide:chevron-right" size="14" class="sub-event-card__chevron" />
+    <Icon v-if="!canEdit && !selectable" name="lucide:chevron-right" size="14" class="sub-event-card__chevron" />
   </div>
 </template>
 
@@ -94,6 +115,27 @@ function formatTime(dateStr) {
   border-color: var(--card-accent-border);
   border-left-color: var(--card-accent);
   background: var(--card-accent-bg);
+}
+
+.sub-event-card--selectable {
+  cursor: pointer;
+}
+
+.sub-event-card--selected {
+  border-color: var(--color-accent);
+  border-left-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
+}
+
+.sub-event-card__checkbox {
+  flex-shrink: 0;
+}
+
+.sub-event-card__checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
 }
 
 .sub-event-card__drag {

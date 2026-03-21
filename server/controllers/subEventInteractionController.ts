@@ -4,6 +4,8 @@ import SubEventPlusOneRepository from '../repositories/subEventPlusOneRepository
 import SubEventMusicRequestRepository from '../repositories/subEventMusicRequestRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
+import SpotifyConnectionRepository from '../repositories/spotifyConnectionRepository'
+import { getValidToken, addTracksToPlaylist } from '../utils/spotifyClient'
 
 export default class SubEventInteractionController {
   static async #verifyGuestAccess(subEventId: number, email: string) {
@@ -123,14 +125,22 @@ export default class SubEventInteractionController {
   }
 
   // Music requests
-  static async submitMusicRequest(subEventId: number, email: string, data: { songTitle: string, artist?: string }): Promise<Record<string, unknown>> {
+  static async submitMusicRequest(subEventId: number, email: string, data: {
+    songTitle: string
+    artist?: string
+    spotifyTrackId?: string | null
+    spotifyUri?: string | null
+    albumArtUrl?: string | null
+    previewUrl?: string | null
+    durationMs?: number | null
+  }): Promise<Record<string, unknown>> {
     const subEvent = await this.#verifyGuestAccess(subEventId, email)
 
     if (subEvent.type !== 'party') {
       throw createError({ statusCode: 400, statusMessage: 'Music requests are only available for party sub-events' })
     }
 
-    const config = subEvent.typeConfig as { musicRequestsEnabled?: boolean }
+    const config = subEvent.typeConfig as { musicRequestsEnabled?: boolean, autoApproveRequests?: boolean }
     if (config.musicRequestsEnabled === false) {
       throw createError({ statusCode: 400, statusMessage: 'Music requests are not enabled for this sub-event' })
     }
@@ -144,6 +154,12 @@ export default class SubEventInteractionController {
       guestEmail: email.toLowerCase(),
       songTitle: data.songTitle.trim(),
       artist: data.artist || null,
+      status: config.autoApproveRequests ? 'approved' : 'pending',
+      spotifyTrackId: data.spotifyTrackId || null,
+      spotifyUri: data.spotifyUri || null,
+      albumArtUrl: data.albumArtUrl || null,
+      previewUrl: data.previewUrl || null,
+      durationMs: data.durationMs || null,
     })
     return request.toJSON()
   }
@@ -159,6 +175,40 @@ export default class SubEventInteractionController {
 
   static async upvoteMusicRequest(requestId: number): Promise<Record<string, unknown>> {
     const updated = await SubEventMusicRequestRepository.upvote(requestId)
+    return updated.toJSON()
+  }
+
+  static async approveMusicRequest(requestId: number, clerkId: string, subEventId: number): Promise<Record<string, unknown>> {
+    const subEvent = await this.#verifyOrganizerAccess(subEventId, clerkId)
+    const updated = await SubEventMusicRequestRepository.updateStatus(requestId, 'approved')
+
+    // Auto-add to playlist if exactly one playlist exists
+    if (updated.spotifyUri) {
+      try {
+        const connection = await SpotifyConnectionRepository.findByEventId(subEvent.eventId)
+        if (connection) {
+          const playlists = await SpotifyConnectionRepository.findPlaylists(Number(connection.id))
+          if (playlists.length === 1) {
+            const playlist = playlists[0]
+            const accessToken = await getValidToken(connection)
+            await addTracksToPlaylist(accessToken, playlist.spotifyPlaylistId, [updated.spotifyUri])
+            await SubEventMusicRequestRepository.assignToPlaylist([Number(updated.id)], playlist.id)
+            const result = updated.toJSON()
+            result.playlistId = playlist.id
+            return result
+          }
+        }
+      } catch (err) {
+        console.error('[Spotify] Auto-add to playlist failed:', err)
+      }
+    }
+
+    return updated.toJSON()
+  }
+
+  static async rejectMusicRequest(requestId: number, clerkId: string, subEventId: number): Promise<Record<string, unknown>> {
+    await this.#verifyOrganizerAccess(subEventId, clerkId)
+    const updated = await SubEventMusicRequestRepository.updateStatus(requestId, 'rejected')
     return updated.toJSON()
   }
 }

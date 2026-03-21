@@ -101,6 +101,15 @@ enum SubEventType {
   @@map("sub_event_type")
 }
 
+enum MusicRequestStatus {
+  pending
+  approved
+  rejected
+  queued
+
+  @@map("music_request_status")
+}
+
 model User {
   clerkId   String   @id @map("clerk_id")
   email     String
@@ -113,12 +122,13 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
-  subscription     Subscription?
-  events           Event[]
-  eventPurchases   EventPurchase[]
-  eventInvitations EventInvitation[]
-  eventMembers     EventMember[]
-  templates        EventTemplate[]
+  subscription       Subscription?
+  events             Event[]
+  eventPurchases     EventPurchase[]
+  eventInvitations   EventInvitation[]
+  eventMembers       EventMember[]
+  templates          EventTemplate[]
+  spotifyConnections SpotifyConnection[]
 
   @@map("users")
 }
@@ -148,6 +158,8 @@ model Event {
   eventDate    DateTime?  @map("event_date")
   eventEndDate DateTime?  @map("event_end_date")
   location     String?
+  locationLat  Float?     @map("location_lat")
+  locationLon  Float?     @map("location_lon")
   isPrivate      Boolean    @default(true) @map("is_private")
   shareToken     String?    @unique @map("share_token")
   tier           EventTier  @default(free)
@@ -158,19 +170,22 @@ model Event {
   aiTone         String?    @map("ai_tone")
   aiToneCustom   String?    @map("ai_tone_custom")
   aiExtraContext String?    @map("ai_extra_context")
+  rsvpEnabled    Boolean    @default(true) @map("rsvp_enabled")
+  rsvpDeadline   DateTime?  @map("rsvp_deadline")
   archivedAt     DateTime?  @map("archived_at")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @default(now()) @map("updated_at")
 
-  owner         User              @relation(fields: [ownerClerkId], references: [clerkId])
-  purchases     EventPurchase[]
-  invitations   EventInvitation[]
-  subEvents     SubEvent[]
-  members       EventMember[]
-  timelineItems TimelineItem[]
-  views         EventView[]
-  datePoll      DatePoll?
-  wishlistItems WishlistItem[]
+  owner              User               @relation(fields: [ownerClerkId], references: [clerkId])
+  purchases          EventPurchase[]
+  invitations        EventInvitation[]
+  subEvents          SubEvent[]
+  members            EventMember[]
+  timelineItems      TimelineItem[]
+  views              EventView[]
+  datePoll           DatePoll?
+  wishlistItems      WishlistItem[]
+  spotifyConnection  SpotifyConnection?
 
   @@map("events")
 }
@@ -271,6 +286,8 @@ model SubEvent {
   startTime     DateTime?    @map("start_time")
   endTime       DateTime?    @map("end_time")
   location      String?
+  locationLat   Float?       @map("location_lat")
+  locationLon   Float?       @map("location_lon")
   sortOrder     Int          @default(0) @map("sort_order")
   createdAt     DateTime     @default(now()) @map("created_at")
   updatedAt     DateTime     @default(now()) @map("updated_at")
@@ -315,15 +332,23 @@ model SubEventPlusOne {
 }
 
 model SubEventMusicRequest {
-  id          Int      @id @default(autoincrement())
-  subEventId  Int      @map("sub_event_id")
-  guestEmail  String   @map("guest_email")
-  songTitle   String   @map("song_title")
-  artist      String?
-  votes       Int      @default(1)
-  createdAt   DateTime @default(now()) @map("created_at")
+  id             Int                @id @default(autoincrement())
+  subEventId     Int                @map("sub_event_id")
+  guestEmail     String             @map("guest_email")
+  songTitle      String             @map("song_title")
+  artist         String?
+  votes          Int                @default(1)
+  status         MusicRequestStatus @default(pending)
+  spotifyTrackId String?            @map("spotify_track_id")
+  spotifyUri     String?            @map("spotify_uri")
+  albumArtUrl    String?            @map("album_art_url")
+  previewUrl     String?            @map("preview_url")
+  durationMs     Int?               @map("duration_ms")
+  playlistId     Int?               @map("playlist_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
 
-  subEvent SubEvent @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+  subEvent SubEvent         @relation(fields: [subEventId], references: [id], onDelete: Cascade)
+  playlist SpotifyPlaylist? @relation(fields: [playlistId], references: [id], onDelete: SetNull)
 
   @@map("sub_event_music_requests")
 }
@@ -441,6 +466,41 @@ model WishlistItem {
   claims WishlistClaim[]
 
   @@map("wishlist_items")
+}
+
+model SpotifyConnection {
+  id                 Int      @id @default(autoincrement())
+  eventId            Int      @unique @map("event_id")
+  userClerkId        String   @map("user_clerk_id")
+  spotifyUserId      String   @map("spotify_user_id")
+  spotifyDisplayName String?  @map("spotify_display_name")
+  accessToken        String   @map("access_token")
+  refreshToken       String   @map("refresh_token")
+  tokenExpiresAt     DateTime @map("token_expires_at")
+  playlistId         String?  @map("playlist_id")
+  playlistUrl        String?  @map("playlist_url")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userClerkId], references: [clerkId])
+  playlists SpotifyPlaylist[]
+
+  @@map("spotify_connections")
+}
+
+model SpotifyPlaylist {
+  id                  Int      @id @default(autoincrement())
+  spotifyConnectionId Int      @map("spotify_connection_id")
+  spotifyPlaylistId   String   @map("spotify_playlist_id")
+  spotifyPlaylistUrl  String   @map("spotify_playlist_url")
+  name                String
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  connection    SpotifyConnection      @relation(fields: [spotifyConnectionId], references: [id], onDelete: Cascade)
+  musicRequests SubEventMusicRequest[]
+
+  @@map("spotify_playlists")
 }
 
 model WishlistClaim {

@@ -45,6 +45,8 @@ const form = reactive({
     : (props.eventDate ? toLocalDatetime(props.eventDate) : ''),
   endTime: props.subEvent?.endTime ? toLocalDatetime(props.subEvent.endTime) : '',
   location: props.subEvent?.location || '',
+  locationLat: props.subEvent?.locationLat ?? null,
+  locationLon: props.subEvent?.locationLon ?? null,
   capacity: props.subEvent?.capacity || null,
   dressCode: props.subEvent?.dressCode || '',
   typeConfig: props.subEvent?.typeConfig || {},
@@ -109,8 +111,27 @@ function toggleMusicRequests(e) {
   form.typeConfig = { ...form.typeConfig, musicRequestsEnabled: e.target.checked }
 }
 
+function toggleAutoApprove(e) {
+  form.typeConfig = { ...form.typeConfig, autoApproveRequests: e.target.checked }
+}
+
 function setSkillLevel(e) {
   form.typeConfig = { ...form.typeConfig, skillLevel: e.target.value || null }
+}
+
+let lastSelectedLocation = ''
+
+function onLocationSelect(result) {
+  form.locationLat = parseFloat(result.lat)
+  form.locationLon = parseFloat(result.lon)
+  lastSelectedLocation = result.displayName
+}
+
+function onLocationInput() {
+  if (form.location !== lastSelectedLocation) {
+    form.locationLat = null
+    form.locationLon = null
+  }
 }
 
 function onSubmit() {
@@ -121,6 +142,8 @@ function onSubmit() {
     startTime: form.startTime || null,
     endTime: form.endTime || null,
     location: form.location || null,
+    locationLat: form.locationLat,
+    locationLon: form.locationLon,
     capacity: form.type === 'activity' ? form.capacity : null,
     dressCode: form.type === 'party' ? form.dressCode : null,
     typeConfig: form.typeConfig,
@@ -183,6 +206,8 @@ function onSubmit() {
         v-model="form.location"
         :placeholder="t('dashboard.eventEditor.subEventLocationPlaceholder')"
         :disabled="loading"
+        @select="onLocationSelect"
+        @update:model-value="onLocationInput"
       />
     </div>
 
@@ -210,6 +235,14 @@ function onSubmit() {
             @change="toggleMusicRequests"
           />
           {{ t('editor.musicRequest.enableRequests') }}
+        </label>
+        <label v-if="partyConfig.musicRequestsEnabled" class="sub-event-form__checkbox">
+          <input
+            type="checkbox"
+            :checked="form.typeConfig.autoApproveRequests || false"
+            @change="toggleAutoApprove"
+          />
+          {{ t('editor.musicRequest.autoApprove') }}
         </label>
       </div>
     </template>

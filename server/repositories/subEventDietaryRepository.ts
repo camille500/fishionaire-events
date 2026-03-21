@@ -25,6 +25,15 @@ export default class SubEventDietaryRepository {
     return SubEventDietary.fromJSON(row)
   }
 
+  static async findAllByEventId(eventId: string): Promise<SubEventDietary[]> {
+    const prisma = usePrisma()
+    const rows = await prisma.subEventDietary.findMany({
+      where: { subEvent: { eventId: Number(eventId) } },
+      orderBy: { createdAt: 'asc' },
+    })
+    return rows.map((row) => SubEventDietary.fromJSON(row))
+  }
+
   static async findBySubEventId(subEventId: string): Promise<SubEventDietary[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventDietary.findMany({

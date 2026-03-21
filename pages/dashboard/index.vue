@@ -26,7 +26,39 @@ const ownedEvents = computed(() => events.value?.owned || [])
 const coOrgEvents = computed(() => events.value?.coOrganizing || [])
 const invitedEvents = computed(() => events.value?.invited || [])
 
+const now = new Date()
+
+const upcomingEvents = computed(() =>
+  ownedEvents.value
+    .filter(e => e.eventDate && new Date(e.eventDate) >= now)
+    .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+)
+
+const pastEvents = computed(() =>
+  ownedEvents.value
+    .filter(e => !e.eventDate || new Date(e.eventDate) < now)
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+)
+
+const nextEvent = computed(() => upcomingEvents.value[0] || null)
+
 const recentEvents = computed(() => ownedEvents.value.slice(0, 6))
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null
+  const diff = new Date(dateStr).getTime() - now.getTime()
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+}
+
+function countdownLabel(dateStr) {
+  const days = daysUntil(dateStr)
+  if (days === null) return ''
+  if (days === 0) return t('dashboard.upcoming.today')
+  if (days === 1) return t('dashboard.upcoming.tomorrow')
+  return t('dashboard.upcoming.inDays', { count: days })
+}
+
+const showPastEvents = ref(false)
 
 const isFirstTimeUser = computed(() => {
   return ownedEvents.value.length === 0 && coOrgEvents.value.length === 0 && invitedEvents.value.length === 0
@@ -73,15 +105,39 @@ function openCreateWizard() {
           <QuickCreateCard />
         </section>
 
-        <!-- My Events (full width) -->
+        <!-- Next Event Hero -->
+        <section v-if="nextEvent" class="bento-next-event">
+          <NuxtLink :to="`/dashboard/events/${nextEvent.id}`" class="next-event-card">
+            <div class="next-event-card__badge">
+              {{ countdownLabel(nextEvent.eventDate) }}
+            </div>
+            <h3 class="next-event-card__title">{{ nextEvent.title }}</h3>
+            <div class="next-event-card__meta">
+              <span v-if="nextEvent.eventDate" class="next-event-card__date">
+                <Icon name="lucide:calendar" size="14" />
+                {{ new Date(nextEvent.eventDate).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' }) }}
+              </span>
+              <span v-if="nextEvent.location" class="next-event-card__location">
+                <Icon name="lucide:map-pin" size="14" />
+                {{ nextEvent.location }}
+              </span>
+              <span v-if="nextEvent.invitationCount" class="next-event-card__guests">
+                <Icon name="lucide:users" size="14" />
+                {{ nextEvent.invitationCount }} {{ t('dashboard.stats.totalGuests').toLowerCase() }}
+              </span>
+            </div>
+          </NuxtLink>
+        </section>
+
+        <!-- Upcoming Events -->
         <section class="bento-events">
           <div class="dashboard-home__section-header">
             <h2 class="dashboard-home__section-title">
-              {{ t('dashboard.myEvents') }}
+              {{ t('dashboard.upcoming.title') }}
             </h2>
             <div class="dashboard-home__section-actions">
               <NuxtLink
-                v-if="recentEvents.length > 0"
+                v-if="ownedEvents.length > 0"
                 :to="localePath('dashboard') + '/events'"
                 class="dashboard-home__view-all"
               >
@@ -106,9 +162,9 @@ function openCreateWizard() {
             </AppButton>
           </div>
 
-          <div v-else-if="recentEvents.length" class="dashboard-home__events-grid">
+          <div v-else-if="upcomingEvents.length" class="dashboard-home__events-grid">
             <EventCard
-              v-for="event in recentEvents"
+              v-for="event in upcomingEvents"
               :key="event.id"
               :event="event"
               :is-owner="true"
@@ -124,6 +180,29 @@ function openCreateWizard() {
             :cta-label="t('dashboard.emptyState.noEvents.cta')"
             @cta-click="openCreateWizard"
           />
+        </section>
+
+        <!-- Past Events (collapsible) -->
+        <section v-if="pastEvents.length" class="bento-past-events">
+          <button class="dashboard-home__collapsible-header" @click="showPastEvents = !showPastEvents">
+            <h2 class="dashboard-home__section-title">
+              {{ t('dashboard.upcoming.pastEvents') }}
+              <span class="dashboard-home__count-badge">{{ pastEvents.length }}</span>
+            </h2>
+            <Icon
+              :name="showPastEvents ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+              size="16"
+              class="dashboard-home__collapse-icon"
+            />
+          </button>
+          <div v-if="showPastEvents" class="dashboard-home__events-grid">
+            <EventCard
+              v-for="event in pastEvents.slice(0, 6)"
+              :key="'past-' + event.id"
+              :event="event"
+              :is-owner="true"
+            />
+          </div>
         </section>
 
         <!-- Co-organizing -->
@@ -192,7 +271,9 @@ function openCreateWizard() {
   grid-template-columns: repeat(3, 1fr);
   grid-template-areas:
     "greeting greeting quick-create"
+    "next-event next-event next-event"
     "events events events"
+    "past-events past-events past-events"
     "co-org co-org invitations";
   gap: var(--space-4);
 }
@@ -215,6 +296,104 @@ function openCreateWizard() {
 
 .bento-invitations {
   grid-area: invitations;
+}
+
+.bento-next-event {
+  grid-area: next-event;
+}
+
+.bento-past-events {
+  grid-area: past-events;
+}
+
+/* Next Event Card */
+.next-event-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 70%, var(--color-accent-violet)));
+  border-radius: var(--radius-xl);
+  color: #fff;
+  text-decoration: none;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.next-event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.next-event-card__badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-3);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.next-event-card__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.next-event-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  opacity: 0.85;
+}
+
+.next-event-card__date,
+.next-event-card__location,
+.next-event-card__guests {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Collapsible header */
+.dashboard-home__collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3) 0;
+  margin-bottom: var(--space-4);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  color: var(--color-text-primary);
+}
+
+.dashboard-home__count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 var(--space-2);
+  margin-left: var(--space-2);
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.dashboard-home__collapse-icon {
+  color: var(--color-text-muted);
+  transition: transform var(--transition-fast);
 }
 
 /* Greeting */
@@ -313,7 +492,9 @@ function openCreateWizard() {
     grid-template-areas:
       "quick-create"
       "greeting"
+      "next-event"
       "events"
+      "past-events"
       "co-org"
       "invitations";
   }

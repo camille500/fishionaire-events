@@ -406,6 +406,13 @@
     "creating": "Aanmaken...",
     "cancel": "Annuleren",
     "myEvents": "Mijn evenementen",
+    "upcoming": {
+      "title": "Aankomende evenementen",
+      "today": "Vandaag",
+      "tomorrow": "Morgen",
+      "inDays": "Over {count} dagen",
+      "pastEvents": "Afgelopen evenementen"
+    },
     "invitations": "Uitnodigingen",
     "noEvents": "Je hebt nog geen evenementen. Maak je eerste evenement aan!",
     "noInvitations": "Je hebt nog geen uitnodigingen ontvangen.",
@@ -522,6 +529,7 @@
       "save": "Opslaan",
       "saving": "Opslaan...",
       "saved": "Wijzigingen opgeslagen",
+      "allSaved": "Alle wijzigingen opgeslagen",
       "unsavedChanges": "Niet-opgeslagen wijzigingen",
       "errorSaving": "Er ging iets mis bij het opslaan",
       "notFound": "Evenement niet gevonden",
@@ -575,6 +583,11 @@
       "subEventDeleted": "Onderdeel verwijderd",
       "subEventReordered": "Volgorde bijgewerkt",
       "confirmDeleteSubEvent": "Dit onderdeel verwijderen?",
+      "confirmBulkDelete": "{count} geselecteerde onderdelen verwijderen?",
+      "selectItems": "Selecteren",
+      "selectAll": "Alles selecteren",
+      "itemsSelected": "{count} geselecteerd",
+      "deleteSelected": "Verwijder selectie",
       "coOrganizersSection": "Mede-organisatoren",
       "coOrganizersSubtitle": "Nodig mensen uit om dit evenement mee te beheren",
       "addCoOrganizer": "Mede-organisator toevoegen",
@@ -791,6 +804,7 @@
       "schedule": "Programma",
       "guests": "Gasten",
       "wishlist": "Verlanglijst",
+      "rsvp": "RSVP",
       "settings": "Instellingen"
     },
     "autoSave": {
@@ -944,6 +958,22 @@
       "endDateAfterStart": "Einddatum moet na de startdatum liggen",
       "maxGuestsPositive": "Aantal gasten moet minimaal 1 zijn"
     },
+    "rsvp": {
+      "settingsLabel": "RSVP-instellingen",
+      "enableLabel": "RSVP's accepteren",
+      "enableDescription": "Sta gasten toe om te reageren op je uitnodiging",
+      "deadlineLabel": "RSVP-deadline",
+      "deadlinePassed": "Deze deadline is verstreken — gasten kunnen niet meer reageren",
+      "overviewLabel": "Overzicht",
+      "invited": "Uitgenodigd",
+      "accepted": "Geaccepteerd",
+      "declined": "Afgewezen",
+      "pending": "In afwachting",
+      "responses": "reacties",
+      "exportLabel": "Exporteren",
+      "exportCsv": "Gastenlijst downloaden",
+      "exportCsvDescription": "Exporteer alle gasten met RSVP-status, dieetwensen en plus-ones als CSV"
+    },
     "datePicker": {
       "selectDate": "Kies een datum",
       "selectEndDate": "Kies een einddatum",
@@ -1019,7 +1049,33 @@
     },
     "musicRequest": {
       "enableRequests": "Muziekverzoeken inschakelen",
-      "none": "Nog geen muziekverzoeken"
+      "autoApprove": "Verzoeken automatisch goedkeuren",
+      "none": "Nog geen muziekverzoeken",
+      "noResults": "Geen verzoeken voor dit filter",
+      "refresh": "Verzoeken vernieuwen",
+      "pending": "In afwachting",
+      "approved": "Goedgekeurd",
+      "rejected": "Afgewezen",
+      "queued": "In wachtrij",
+      "filter": {
+        "all": "Alle",
+        "pending": "In afwachting",
+        "approved": "Goedgekeurd",
+        "rejected": "Afgewezen"
+      }
+    },
+    "spotify": {
+      "connect": "Spotify koppelen",
+      "disconnect": "Ontkoppelen",
+      "viewPlaylist": "Afspeellijst bekijken",
+      "createPlaylist": "Afspeellijst maken",
+      "syncPlaylist": "Afspeellijst synchroniseren",
+      "addToQueue": "Aan wachtrij toevoegen",
+      "addToPlaylist": "Toevoegen aan lijst...",
+      "playlistNamePlaceholder": "Naam afspeellijst",
+      "premiumRequired": "Spotify Premium is vereist om nummers aan de wachtrij toe te voegen",
+      "quotaMessage": "Spotify vereist app-goedkeuring voor het maken van afspeellijsten. Je kunt de nummers kopiëren en handmatig een afspeellijst maken.",
+      "copyTrackList": "Kopieer nummers"
     },
     "capacity": {
       "label": "Capaciteit",
@@ -1204,7 +1260,10 @@
       "youreAttending": "Je hebt bevestigd!",
       "youreNotAttending": "Je hebt afgemeld",
       "changeResponse": "Reactie wijzigen",
-      "plusOnesNote": "Je mag {count} extra persoon(en) meenemen"
+      "plusOnesNote": "Je mag {count} extra persoon(en) meenemen",
+      "deadlineNote": "Reageer voor {date}",
+      "closed": "RSVP's zijn gesloten voor dit evenement",
+      "whichParts": "Bij welke onderdelen ben je erbij?"
     },
     "programme": {
       "title": "Programma",
@@ -1213,7 +1272,15 @@
       "musicHint": "Vraag nummers aan voor de playlist",
       "songPlaceholder": "Nummer",
       "artistPlaceholder": "Artiest (optioneel)",
-      "addSong": "Toevoegen"
+      "addSong": "Toevoegen",
+      "spotifySearchPlaceholder": "Zoek een nummer op Spotify...",
+      "spotifySearch": "Zoek op Spotify",
+      "manualEntry": "Handmatig invoeren"
+    },
+    "location": {
+      "title": "Locatie",
+      "navigate": "Navigeer",
+      "mapAlt": "Kaart van de locatie"
     },
     "poll": {
       "title": "Datumvoorkeur",
@@ -1243,6 +1310,18 @@
     "wishlist": {
       "title": "Verlanglijst",
       "subtitle": "Claim een cadeau om dubbele geschenken te voorkomen"
+    },
+    "calendar": {
+      "addToCalendar": "Toevoegen aan agenda",
+      "downloadIcs": "Download .ics bestand"
+    },
+    "countdown": {
+      "days": "dagen",
+      "hours": "uur",
+      "minutes": "min",
+      "eventStarted": "Het evenement is begonnen!",
+      "eventPassed": "Bedankt voor je komst!",
+      "rsvpClosesIn": "RSVP sluit over {time}"
     },
     "footer": {
       "poweredBy": "Powered by"

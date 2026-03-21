@@ -5,7 +5,7 @@ defineProps({
   subEvents: { type: Array, required: true },
   invitation: { type: Object, default: null },
   eventData: { type: Object, required: true },
-  musicForms: { type: Object, default: () => ({}) },
+  token: { type: String, default: '' },
   musicLists: { type: Object, default: () => ({}) },
   dietarySaving: { type: Object, default: () => ({}) },
 })
@@ -44,7 +44,14 @@ const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
         <!-- Location -->
         <div v-if="se.location" class="invite-timeline__meta">
           <Icon name="lucide:map-pin" size="12" />
-          {{ se.location }}
+          <a
+            v-if="se.locationLat && se.locationLon"
+            :href="`https://www.google.com/maps/search/?api=1&query=${se.locationLat},${se.locationLon}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="invite-timeline__location-link"
+          >{{ se.location }}</a>
+          <template v-else>{{ se.location }}</template>
         </div>
 
         <!-- Dress code -->
@@ -77,29 +84,10 @@ const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
             <Icon name="lucide:music" size="13" />
             {{ t('invite.programme.musicHint') }}
           </p>
-          <div v-if="musicForms[se.id]" class="invite-timeline__music-form">
-            <input
-              v-model="musicForms[se.id].songTitle"
-              type="text"
-              class="invite-timeline__input"
-              :placeholder="t('invite.programme.songPlaceholder')"
-            />
-            <input
-              v-model="musicForms[se.id].artist"
-              type="text"
-              class="invite-timeline__input"
-              :placeholder="t('invite.programme.artistPlaceholder')"
-            />
-            <AppButton
-              variant="outline"
-              size="sm"
-              :disabled="!musicForms[se.id].songTitle?.trim()"
-              @click="$emit('submitMusic', se.id)"
-            >
-              <Icon name="lucide:plus" size="12" />
-              {{ t('invite.programme.addSong') }}
-            </AppButton>
-          </div>
+          <SpotifyTrackSearch
+            :token="token"
+            @select="(track) => $emit('submitMusic', se.id, track)"
+          />
           <div v-if="musicLists[se.id]?.length > 0" class="invite-timeline__music-list">
             <MusicRequestCard
               v-for="req in musicLists[se.id]"
@@ -227,6 +215,16 @@ const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
   color: var(--color-text-muted);
 }
 
+.invite-timeline__location-link {
+  color: var(--event-accent, var(--color-accent));
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.invite-timeline__location-link:hover {
+  text-decoration: underline;
+}
+
 /* Interaction sections */
 .invite-timeline__interaction {
   margin-top: var(--space-3);
@@ -245,35 +243,6 @@ const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
   margin: 0;
-}
-
-/* Music form */
-.invite-timeline__music-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.invite-timeline__input {
-  flex: 1;
-  min-width: 120px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  font-family: var(--font-family);
-  font-size: var(--text-xs);
-  color: var(--color-text-primary);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.invite-timeline__input:focus {
-  border-color: var(--event-accent, var(--color-accent));
-}
-
-.invite-timeline__input::placeholder {
-  color: var(--color-text-muted);
 }
 
 .invite-timeline__music-list {

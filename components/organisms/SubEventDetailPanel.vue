@@ -93,8 +93,122 @@ async function saveTypeConfig() {
 
 // Music requests
 const musicRequests = ref([])
+const musicFilter = ref('all')
+const spotifyStatus = ref(null)
+const creatingPlaylist = ref(false)
+const addingToPlaylist = ref(false)
+const playlistName = ref('')
+const selectedPlaylistId = ref(null)
+
+const filteredMusicRequests = computed(() => {
+  if (musicFilter.value === 'all') return musicRequests.value
+  return musicRequests.value.filter((r) => r.status === musicFilter.value)
+})
+
+const musicCounts = computed(() => {
+  const counts = { all: 0, pending: 0, approved: 0, rejected: 0 }
+  for (const r of musicRequests.value) {
+    counts.all++
+    if (counts[r.status] !== undefined) counts[r.status]++
+  }
+  return counts
+})
+
 async function fetchMusicRequests() {
   musicRequests.value = await $fetch(`/api/events/${props.eventId}/sub-events/${props.subEvent.id}/music-requests`)
+}
+
+async function fetchSpotifyStatus() {
+  try {
+    spotifyStatus.value = await $fetch(`/api/events/${props.eventId}/spotify/status`)
+  } catch {
+    spotifyStatus.value = { connected: false }
+  }
+}
+
+async function onApproveMusic(requestId) {
+  await $fetch(`/api/events/${props.eventId}/sub-events/${props.subEvent.id}/music-requests/${requestId}/approve`, {
+    method: 'POST',
+  })
+  await fetchMusicRequests()
+}
+
+async function onRejectMusic(requestId) {
+  await $fetch(`/api/events/${props.eventId}/sub-events/${props.subEvent.id}/music-requests/${requestId}/reject`, {
+    method: 'POST',
+  })
+  await fetchMusicRequests()
+}
+
+async function onQueueMusic(requestId) {
+  try {
+    await $fetch(`/api/events/${props.eventId}/spotify/queue`, {
+      method: 'POST',
+      body: { requestId },
+    })
+    await fetchMusicRequests()
+  } catch (err) {
+    // Error will surface via the 403/404 status
+  }
+}
+
+const playlistError = ref('')
+
+async function onCreatePlaylist() {
+  if (!playlistName.value.trim()) return
+  creatingPlaylist.value = true
+  playlistError.value = ''
+  try {
+    await $fetch(`/api/events/${props.eventId}/spotify/playlist`, {
+      method: 'POST',
+      body: { name: playlistName.value.trim(), subEventId: props.subEvent.id },
+    })
+    await fetchSpotifyStatus()
+    playlistName.value = ''
+  } catch (err) {
+    if (err?.statusCode === 403) {
+      playlistError.value = 'quota'
+    }
+  } finally {
+    creatingPlaylist.value = false
+  }
+}
+
+function copyTrackList() {
+  const approved = musicRequests.value.filter((r) => r.status === 'approved' && r.spotifyUri)
+  const text = approved.map((r) => `${r.songTitle} - ${r.artist || 'Unknown'}`).join('\n')
+  navigator.clipboard.writeText(text)
+}
+
+function openSpotifySearch(request) {
+  const q = encodeURIComponent(`${request.songTitle} ${request.artist || ''}`.trim())
+  window.open(`https://open.spotify.com/search/${q}`, '_blank')
+}
+
+async function onAddToPlaylist(playlistId, requestId) {
+  addingToPlaylist.value = true
+  try {
+    await $fetch(`/api/events/${props.eventId}/spotify/playlist-add`, {
+      method: 'POST',
+      body: { playlistId, requestIds: [requestId] },
+    })
+    await fetchMusicRequests()
+  } catch (err) {
+    if (err?.statusCode === 403) {
+      playlistError.value = 'quota'
+    }
+  } finally {
+    addingToPlaylist.value = false
+  }
+}
+
+async function onDisconnectSpotify() {
+  await $fetch(`/api/events/${props.eventId}/spotify/disconnect`, { method: 'POST' })
+  spotifyStatus.value = { connected: false }
+}
+
+function connectSpotify() {
+  window.location.href = `/api/events/${props.eventId}/spotify/connect`
 }
 
 async function onUpvoteMusic(requestId) {
@@ -130,6 +244,7 @@ onMounted(() => {
   if (props.subEvent.type === 'party') {
     fetchMusicRequests()
     fetchPlusOnes()
+    fetchSpotifyStatus()
   }
   document.addEventListener('keydown', onKeydown)
 })
@@ -320,19 +435,125 @@ onUnmounted(() => {
 
             <!-- Party: Music tab -->
             <div v-if="activeTab === 'music'" class="panel__section">
-              <div v-if="musicRequests.length > 0" class="panel__music-list">
+              <!-- Spotify connection -->
+              <div class="panel__spotify-bar">
+                <template v-if="spotifyStatus?.connected">
+                  <div class="panel__spotify-connected">
+                    <Icon name="lucide:music-2" size="14" class="panel__spotify-icon" />
+                    <span class="panel__spotify-name">{{ spotifyStatus.spotifyDisplayName || 'Spotify' }}</span>
+                    <button type="button" class="panel__spotify-disconnect" @click="onDisconnectSpotify">
+                      {{ t('editor.spotify.disconnect') }}
+                    </button>
+                  </div>
+                  <div v-if="spotifyStatus.playlistUrl" class="panel__spotify-playlist-link">
+                    <a :href="spotifyStatus.playlistUrl" target="_blank" rel="noopener noreferrer" class="panel__spotify-link">
+                      <Icon name="lucide:external-link" size="11" />
+                      {{ t('editor.spotify.viewPlaylist') }}
+                    </a>
+                  </div>
+                </template>
+                <button v-else type="button" class="panel__spotify-connect" @click="connectSpotify">
+                  <Icon name="lucide:music-2" size="14" />
+                  {{ t('editor.spotify.connect') }}
+                </button>
+              </div>
+
+              <!-- Playlists -->
+              <div v-if="spotifyStatus?.connected" class="panel__playlist-section">
+                <!-- Existing playlists -->
+                <div v-if="spotifyStatus.playlists?.length > 0" class="panel__playlist-list">
+                  <a
+                    v-for="pl in spotifyStatus.playlists"
+                    :key="pl.id"
+                    :href="pl.spotifyPlaylistUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="panel__playlist-item"
+                  >
+                    <Icon name="lucide:list-music" size="12" />
+                    <span>{{ pl.name }}</span>
+                    <Icon name="lucide:external-link" size="10" class="panel__playlist-ext" />
+                  </a>
+                </div>
+
+                <!-- Quota error fallback -->
+                <div v-if="playlistError === 'quota'" class="panel__quota-fallback">
+                  <p class="panel__quota-msg">
+                    <Icon name="lucide:info" size="12" />
+                    {{ t('editor.spotify.quotaMessage') }}
+                  </p>
+                  <AppButton variant="outline" size="sm" @click="copyTrackList">
+                    <Icon name="lucide:copy" size="12" />
+                    {{ t('editor.spotify.copyTrackList') }}
+                  </AppButton>
+                </div>
+
+                <!-- Create new playlist -->
+                <div v-if="playlistError !== 'quota'" class="panel__create-playlist">
+                  <input
+                    v-model="playlistName"
+                    type="text"
+                    class="panel__playlist-input"
+                    :placeholder="t('editor.spotify.playlistNamePlaceholder')"
+                  />
+                  <AppButton
+                    variant="outline"
+                    size="sm"
+                    :disabled="!playlistName.trim() || creatingPlaylist"
+                    @click="onCreatePlaylist"
+                  >
+                    <Icon name="lucide:plus" size="12" />
+                    {{ t('editor.spotify.createPlaylist') }}
+                  </AppButton>
+                </div>
+              </div>
+
+              <!-- Filter tabs -->
+              <div v-if="musicRequests.length > 0" class="panel__music-filters">
+                <button
+                  v-for="f in ['all', 'pending', 'approved', 'rejected']"
+                  :key="f"
+                  type="button"
+                  class="panel__music-filter"
+                  :class="{ 'panel__music-filter--active': musicFilter === f }"
+                  @click="musicFilter = f"
+                >
+                  {{ t(`editor.musicRequest.filter.${f}`) }}
+                  <span class="panel__music-filter-count">{{ musicCounts[f] }}</span>
+                </button>
+              </div>
+
+              <!-- Request list -->
+              <div v-if="filteredMusicRequests.length > 0" class="panel__music-list">
                 <MusicRequestCard
-                  v-for="request in musicRequests"
+                  v-for="request in filteredMusicRequests"
                   :key="request.id"
                   :request="request"
-                  :can-vote="!canEdit"
+                  :can-vote="false"
+                  :show-status="true"
+                  :show-actions="canEdit"
+                  :spotify-connected="spotifyStatus?.connected || false"
+                  :playlists="spotifyStatus?.playlists || []"
+                  @approve="onApproveMusic"
+                  @reject="onRejectMusic"
+                  @queue="onQueueMusic"
                   @upvote="onUpvoteMusic"
+                  @add-to-playlist="(reqId, plId) => onAddToPlaylist(plId, reqId)"
                 />
               </div>
-              <div v-else class="panel__empty">
+              <div v-else-if="musicRequests.length === 0" class="panel__empty">
                 <Icon name="lucide:music" size="24" />
                 <span>{{ t('editor.musicRequest.none') }}</span>
               </div>
+              <div v-else class="panel__empty">
+                <span>{{ t('editor.musicRequest.noResults') }}</span>
+              </div>
+
+              <!-- Refresh -->
+              <button type="button" class="panel__refresh-btn" @click="fetchMusicRequests">
+                <Icon name="lucide:refresh-cw" size="12" />
+                {{ t('editor.musicRequest.refresh') }}
+              </button>
             </div>
 
             <!-- Activity: Details tab -->
@@ -713,6 +934,246 @@ onUnmounted(() => {
 .panel__plus-one-guest {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+.panel__spotify-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+}
+
+.panel__spotify-connected {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.panel__spotify-icon {
+  color: #1db954;
+}
+
+.panel__spotify-name {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.panel__spotify-disconnect {
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.panel__spotify-disconnect:hover {
+  color: #ef4444;
+}
+
+.panel__spotify-playlist-link {
+  padding-top: var(--space-1);
+}
+
+.panel__spotify-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 10px;
+  color: #1db954;
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.panel__spotify-link:hover {
+  text-decoration: underline;
+}
+
+.panel__spotify-connect {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  border-radius: var(--radius-md);
+  background: rgba(29, 185, 84, 0.08);
+  color: #1db954;
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.panel__spotify-connect:hover {
+  background: rgba(29, 185, 84, 0.15);
+  border-color: rgba(29, 185, 84, 0.5);
+}
+
+.panel__playlist-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel__playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.panel__playlist-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.panel__playlist-item:hover {
+  background: var(--color-border-light);
+}
+
+.panel__playlist-item span {
+  flex: 1;
+}
+
+.panel__playlist-ext {
+  color: var(--color-text-muted);
+}
+
+.panel__quota-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.panel__quota-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: var(--radius-md);
+  line-height: var(--line-height-relaxed);
+}
+
+.panel__quota-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.panel__playlist-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.panel__create-playlist {
+  display: flex;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.panel__playlist-input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.panel__playlist-input:focus {
+  border-color: var(--panel-accent);
+}
+
+.panel__music-filters {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.panel__music-filter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: none;
+  border-right: 1px solid var(--color-border-light);
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.panel__music-filter:last-child {
+  border-right: none;
+}
+
+.panel__music-filter:hover {
+  background: var(--color-surface);
+}
+
+.panel__music-filter--active {
+  background: var(--color-surface);
+  color: var(--panel-accent);
+}
+
+.panel__music-filter-count {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-light);
+  color: var(--color-text-muted);
+}
+
+.panel__music-filter--active .panel__music-filter-count {
+  background: color-mix(in srgb, var(--panel-accent) 15%, transparent);
+  color: var(--panel-accent);
+}
+
+.panel__refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: 10px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: color var(--transition-fast);
+}
+
+.panel__refresh-btn:hover {
+  color: var(--panel-accent);
 }
 
 .panel__music-list {

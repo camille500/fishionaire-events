@@ -10,6 +10,33 @@ const { data, error } = await useFetch(`/api/invite/${token}`)
 const eventData = computed(() => data.value?.event || null)
 const invitation = computed(() => data.value?.invitation || null)
 const subEvents = computed(() => data.value?.subEvents || [])
+const subEventRsvps = ref(data.value?.subEventRsvps || {})
+
+// OG Meta tags for social sharing
+const ogTitle = computed(() => eventData.value?.title || 'Event Invitation')
+const ogDescription = computed(() => {
+  const parts = []
+  if (formattedDate.value) parts.push(formattedDate.value)
+  if (eventData.value?.location) parts.push(eventData.value.location)
+  if (eventData.value?.description) parts.push(eventData.value.description.slice(0, 120))
+  return parts.join(' \u2022 ') || t('invite.welcome')
+})
+
+useSeoMeta({
+  title: ogTitle,
+  ogTitle: ogTitle,
+  ogDescription: ogDescription,
+  ogImage: () => eventData.value?.coverImageUrl || undefined,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: ogTitle,
+  twitterDescription: ogDescription,
+  twitterImage: () => eventData.value?.coverImageUrl || undefined,
+})
+
+useHead({
+  title: ogTitle,
+})
 
 const rsvpLoading = ref(false)
 const rsvpStatus = ref(invitation.value?.status || 'pending')
@@ -40,7 +67,7 @@ const formattedTime = computed(() => {
   return d.toLocaleTimeString(locale.value === 'nl' ? 'nl-NL' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
 })
 
-const hasPoll = computed(() => eventData.value?.features?.datePolling)
+const hasPoll = computed(() => eventData.value?.features?.datePolling && !eventData.value?.eventDate)
 const hasWishlist = computed(() => eventData.value?.features?.wishlist)
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
@@ -113,6 +140,16 @@ function handleChangeResponse() {
   rsvpStatus.value = 'pending'
 }
 
+async function handleSubEventRsvp(subEventId, status) {
+  try {
+    await $fetch(`/api/invite/${token}/sub-event-rsvp`, {
+      method: 'POST',
+      body: { subEventId, status },
+    })
+    subEventRsvps.value = { ...subEventRsvps.value, [subEventId]: status }
+  } catch {}
+}
+
 watch(invitation, (inv) => {
   if (inv) rsvpStatus.value = inv.status
 }, { immediate: true })
@@ -137,13 +174,11 @@ async function submitDietary(subEventId, dietaryData) {
 }
 
 // Music requests
-const musicForms = reactive({})
 const musicLists = reactive({})
 
 watch(subEvents, (subs) => {
   for (const se of subs) {
-    if (se.type === 'party' && !musicForms[se.id]) {
-      musicForms[se.id] = { songTitle: '', artist: '' }
+    if (se.type === 'party' && !musicLists[se.id]) {
       fetchMusicRequests(se.id)
     }
   }
@@ -157,20 +192,22 @@ async function fetchMusicRequests(subEventId) {
   }
 }
 
-async function submitMusicRequest(subEventId) {
-  const form = musicForms[subEventId]
-  if (!form?.songTitle?.trim()) return
+async function submitMusicRequest(subEventId, track) {
+  if (!track?.songTitle?.trim()) return
   try {
     await $fetch(`/api/invite/${token}/music-request`, {
       method: 'POST',
       body: {
         subEventId,
-        songTitle: form.songTitle.trim(),
-        artist: form.artist?.trim() || null,
+        songTitle: track.songTitle,
+        artist: track.artist || null,
+        spotifyTrackId: track.spotifyTrackId || null,
+        spotifyUri: track.spotifyUri || null,
+        albumArtUrl: track.albumArtUrl || null,
+        previewUrl: track.previewUrl || null,
+        durationMs: track.durationMs || null,
       },
     })
-    form.songTitle = ''
-    form.artist = ''
     await fetchMusicRequests(subEventId)
   } catch {}
 }
@@ -218,8 +255,11 @@ async function upvoteMusic(subEventId, requestId) {
         :invited-by-name="invitedByName"
         :rsvp-status="rsvpStatus"
         :rsvp-loading="rsvpLoading"
+        :sub-events="subEvents"
+        :sub-event-rsvps="subEventRsvps"
         @rsvp="rsvp"
         @change-response="handleChangeResponse"
+        @sub-event-rsvp="handleSubEventRsvp"
       />
 
       <!-- 3. Content sections -->
@@ -244,6 +284,25 @@ async function upvoteMusic(subEventId, requestId) {
           </div>
         </section>
 
+        <!-- Location map -->
+        <section
+          v-if="eventData.locationLat && eventData.locationLon"
+          class="invite-section invite-section--reveal"
+          style="animation-delay: 150ms"
+        >
+          <div class="invite-section__inner">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:map-pin" size="22" />
+              {{ t('invite.location.title') }}
+            </h2>
+            <StaticLocationMap
+              :lat="eventData.locationLat"
+              :lon="eventData.locationLon"
+              :label="eventData.location"
+            />
+          </div>
+        </section>
+
         <!-- Programme timeline -->
         <section
           v-if="subEvents.length > 0"
@@ -259,7 +318,7 @@ async function upvoteMusic(subEventId, requestId) {
               :sub-events="subEvents"
               :invitation="invitation"
               :event-data="eventData"
-              :music-forms="musicForms"
+              :token="token"
               :music-lists="musicLists"
               :dietary-saving="dietarySaving"
               @submit-dietary="submitDietary"

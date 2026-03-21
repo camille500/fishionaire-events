@@ -16,6 +16,8 @@ interface SubEventCreateData {
   startTime?: Date | string | null
   endTime?: Date | string | null
   location?: string | null
+  locationLat?: number | null
+  locationLon?: number | null
   sortOrder?: number
 }
 
@@ -38,6 +40,8 @@ export default class SubEventRepository {
         startTime: data.startTime,
         endTime: data.endTime,
         location: data.location,
+        locationLat: data.locationLat,
+        locationLon: data.locationLon,
         sortOrder: data.sortOrder,
       },
     })
@@ -103,6 +107,8 @@ export default class SubEventRepository {
         startTime: data.startTime,
         endTime: data.endTime,
         location: data.location,
+        locationLat: data.locationLat,
+        locationLon: data.locationLon,
         sortOrder: data.sortOrder,
         updatedAt: new Date(),
       },
@@ -113,6 +119,11 @@ export default class SubEventRepository {
   static async delete(id: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.subEvent.delete({ where: { id: Number(id) } })
+  }
+
+  static async bulkDelete(ids: number[]): Promise<void> {
+    const prisma = usePrisma()
+    await prisma.subEvent.deleteMany({ where: { id: { in: ids } } })
   }
 
   static async reorder(eventId: string, orderedIds: string[]): Promise<void> {
@@ -146,6 +157,8 @@ export default class SubEventRepository {
             startTime: se.startTime,
             endTime: se.endTime,
             location: se.location,
+            locationLat: se.locationLat,
+            locationLon: se.locationLon,
             sortOrder: se.sortOrder,
           },
         })

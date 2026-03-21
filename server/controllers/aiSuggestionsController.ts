@@ -38,6 +38,21 @@ interface BuildEventParams {
   eventId?: string
 }
 
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+interface ChatBuildEventParams {
+  messages: ChatMessage[]
+  language?: Language
+  clerkId?: string
+}
+
+type ChatBuildEventResponse =
+  | { type: 'question', message: string }
+  | { type: 'result', message: string, event: BuildEventResult }
+
 interface TitleSuggestions {
   suggestions: string[]
 }
@@ -78,8 +93,9 @@ interface BuildEventResult {
   eventType: string
   title: string
   description: string
-  dateSuggestion: { dayOfWeek: string, timeOfDay: string, suggestedTime: string } | null
+  dateSuggestion: { dayOfWeek: string, timeOfDay: string, suggestedTime: string, isoDate?: string } | null
   activities: Array<{ title: string, durationMinutes: number }>
+  location?: string | null
 }
 
 export default class AiSuggestionsController {
@@ -306,6 +322,109 @@ export default class AiSuggestionsController {
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
       return { suggestions: result.suggestions || [] }
+    } catch (err: any) {
+      if (err.status === 401) {
+        throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
+      }
+      if (err.status === 429) {
+        throw createError({ statusCode: 429, statusMessage: 'AI service is busy, please try again later' })
+      }
+      throw createError({ statusCode: 502, statusMessage: 'AI service unavailable' })
+    }
+  }
+
+  static async chatBuildEvent({ messages, language = 'en', clerkId }: ChatBuildEventParams): Promise<ChatBuildEventResponse> {
+    const client = this.#getClient()
+    const extraContext = await this.#resolveExtraContext(clerkId)
+
+    const languageInstruction = language === 'en'
+      ? 'Write entirely in English.'
+      : 'Write entirely in Dutch (Nederlands).'
+
+    const eventTypes = 'birthday, wedding, baby_shower, dinner, corporate, other'
+
+    const systemPrompt = [
+      'You are a friendly, conversational event planning assistant for Fishionaire Events.',
+      'Your job is to interview the user about the event they want to plan.',
+      'Ask follow-up questions to gather the information you need.',
+      languageInstruction,
+      '',
+      'Information to gather (in rough order of importance):',
+      '- What kind of event is it? (type)',
+      '- When is it? (date and time)',
+      '- Where is it? (location)',
+      '- How many guests?',
+      '- Does the user want specific activities or a program? Only include activities the user explicitly mentions or confirms. Do NOT invent activities.',
+      '- Any special preferences or requirements?',
+      '',
+      'Rules:',
+      '- Ask ONE concise, natural follow-up question per turn. You may combine 1-2 related topics in one question.',
+      '- Be warm and conversational, not robotic or form-like.',
+      '- If the user already provided some info in their first message, acknowledge it and ask about what is missing.',
+      '- When you have enough information (at minimum: event type and approximate date), generate the final event.',
+      '- If the user says "that\'s enough", "just build it", "klaar", or similar, generate immediately with what you have.',
+      '- Activities/sub-events are OPTIONAL. If the user did not mention any activities or said they don\'t want a program, return an empty activities array.',
+      '',
+      'Always respond with valid JSON in one of these two formats:',
+      '',
+      'When asking a follow-up question:',
+      '{ "type": "question", "message": "your question here" }',
+      '',
+      'When generating the final event:',
+      '{',
+      '  "type": "result",',
+      '  "message": "a brief friendly summary of what you created",',
+      '  "event": {',
+      `    "eventType": one of [${eventTypes}],`,
+      '    "title": "a catchy, creative event title",',
+      '    "description": "a 2-3 sentence event description",',
+      '    "dateSuggestion": { "dayOfWeek": string, "timeOfDay": "morning"|"afternoon"|"evening"|"night", "suggestedTime": "HH:MM", "isoDate": "YYYY-MM-DDTHH:MM" } or null,',
+      '    "activities": [{ "title": string, "durationMinutes": number }] — ONLY activities the user mentioned. Empty array if none discussed.',
+      '    "location": string or null,',
+      '    "guestCount": number or null',
+      '  }',
+      '}',
+      '',
+      'Today\'s date is ' + new Date().toISOString().split('T')[0] + '. Calculate relative dates (e.g. "next Saturday") from today.',
+      extraContext ? `Additional instructions from the user: ${extraContext}` : '',
+      'Only return valid JSON, nothing else.',
+    ].filter(Boolean).join('\n')
+
+    const openaiMessages: Array<{ role: 'system' | 'user' | 'assistant', content: string }> = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+    ]
+
+    try {
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: openaiMessages,
+        response_format: { type: 'json_object' },
+        max_tokens: 800,
+        temperature: 0.7,
+      })
+
+      const result = JSON.parse(response.choices[0].message.content || '{}')
+
+      if (result.type === 'result' && result.event) {
+        return {
+          type: 'result',
+          message: result.message || '',
+          event: {
+            eventType: result.event.eventType || 'other',
+            title: result.event.title || '',
+            description: result.event.description || '',
+            dateSuggestion: result.event.dateSuggestion || null,
+            activities: result.event.activities || [],
+            location: result.event.location || null,
+          },
+        }
+      }
+
+      return {
+        type: 'question',
+        message: result.message || '',
+      }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })

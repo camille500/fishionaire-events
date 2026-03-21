@@ -1,8 +1,40 @@
 <script setup>
+import { gsap } from 'gsap'
+
 const { t } = useI18n()
 const { form, eventData, eventTypes, errors, touched, markTouched } = useEventEditor()
 const { icon } = useEventTheme(computed(() => form.eventType))
 const { staggerIn } = useEditorAnimations()
+const typeGridRef = ref(null)
+
+let lastSelectedLocation = ''
+
+function onLocationSelect(result) {
+  form.locationLat = parseFloat(result.lat)
+  form.locationLon = parseFloat(result.lon)
+  lastSelectedLocation = result.displayName
+}
+
+function onLocationInput() {
+  if (form.location !== lastSelectedLocation) {
+    form.locationLat = null
+    form.locationLon = null
+  }
+}
+
+function selectType(type, event) {
+  const isDeselect = form.eventType === type
+  form.eventType = isDeselect ? '' : type
+
+  const card = event.currentTarget
+  gsap.fromTo(card, { scale: 0.92 }, { scale: 1, duration: 0.4, ease: 'back.out(2)' })
+
+  // Brief glow pulse on the grid (only on selection)
+  if (!isDeselect && typeGridRef.value) {
+    typeGridRef.value.classList.add('editor-details__type-grid--glow')
+    setTimeout(() => typeGridRef.value?.classList.remove('editor-details__type-grid--glow'), 600)
+  }
+}
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
 const hasDatePolling = computed(() => !!eventData.value?.features?.datePolling)
@@ -150,7 +182,7 @@ onMounted(() => {
       >
         <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.eventTypeLabel') }}</h3>
       </OnboardingTooltip>
-      <div class="editor-details__type-grid">
+      <div ref="typeGridRef" class="editor-details__type-grid">
         <button
           v-for="(type, index) in eventTypes"
           :key="type"
@@ -159,7 +191,7 @@ onMounted(() => {
           :class="{ 'editor-details__type-card--active': form.eventType === type }"
           :data-event-type="type"
           :style="{ animationDelay: `${index * 50}ms` }"
-          @click="form.eventType = form.eventType === type ? '' : type"
+          @click="selectType(type, $event)"
         >
           <Icon :name="useEventTheme(type).icon.value" size="20" />
           <span>{{ t(`dashboard.eventEditor.eventTypes.${type}`) }}</span>
@@ -241,12 +273,11 @@ onMounted(() => {
         </div>
 
         <EditorPropertyRow :label="t('dashboard.eventEditor.locationLabel')" icon="lucide:map-pin">
-          <input
+          <AddressAutocompleteInput
             v-model="form.location"
-            type="text"
-            class="editor-details__prop-value"
             :placeholder="t('dashboard.eventEditor.locationPlaceholder')"
-            @blur="markTouched('location')"
+            @select="onLocationSelect"
+            @update:model-value="onLocationInput"
           />
         </EditorPropertyRow>
       </div>
@@ -372,6 +403,23 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: var(--space-2);
+  position: relative;
+}
+
+.editor-details__type-grid::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: var(--radius-xl);
+  background: radial-gradient(ellipse at center, var(--color-accent-dim), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.editor-details__type-grid--glow::after {
+  opacity: 1;
 }
 
 .editor-details__type-card {
@@ -380,15 +428,21 @@ onMounted(() => {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-2);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 15%, var(--color-border-light));
+  border-bottom: 2px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
   border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  background: color-mix(in srgb, var(--color-accent) 3%, var(--color-surface));
   color: var(--color-text-secondary);
   font-family: var(--font-family);
   font-size: var(--text-xs);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-spring);
+}
+
+.editor-details__type-card :deep(.iconify) {
+  color: var(--color-accent);
+  transition: color var(--transition-fast);
 }
 
 .editor-details__type-card:hover {
@@ -400,9 +454,11 @@ onMounted(() => {
 
 .editor-details__type-card--active {
   border-color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
   color: var(--color-accent);
   background: var(--color-accent-bg);
-  box-shadow: 0 0 0 2px var(--color-accent-dim);
+  box-shadow: 0 0 0 2px var(--color-accent-dim), var(--shadow-accent-sm, 0 4px 12px rgba(0,0,0,0.05));
+  transform: translateY(-2px);
 }
 
 /* Date polling toggle card */
@@ -540,6 +596,23 @@ onMounted(() => {
 .editor-details__prop-value::placeholder {
   color: var(--color-text-muted);
   opacity: 0.5;
+}
+
+/* Address autocomplete inside property row — match Notion-style inline look */
+.editor-details__props :deep(.address-input__wrapper) {
+  border-color: transparent;
+  background: transparent;
+  padding: var(--space-2) var(--space-3);
+}
+
+.editor-details__props :deep(.address-input__wrapper:hover) {
+  background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
+}
+
+.editor-details__props :deep(.address-input__wrapper:focus-within) {
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  border-color: transparent;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 /* Transitions */

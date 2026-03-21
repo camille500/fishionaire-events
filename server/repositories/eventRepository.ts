@@ -13,6 +13,8 @@ export default class EventRepository {
         eventDate: data.eventDate,
         eventEndDate: data.eventEndDate,
         location: data.location,
+        locationLat: data.locationLat,
+        locationLon: data.locationLon,
         shareToken: data.shareToken,
         isPrivate: data.isPrivate,
         tier: data.tier,
@@ -23,6 +25,8 @@ export default class EventRepository {
         aiTone: data.aiTone,
         aiToneCustom: data.aiToneCustom,
         aiExtraContext: data.aiExtraContext,
+        rsvpEnabled: data.rsvpEnabled,
+        rsvpDeadline: data.rsvpDeadline,
       },
     })
     return Event.fromJSON(row)
@@ -94,6 +98,8 @@ export default class EventRepository {
         eventDate: data.eventDate,
         eventEndDate: data.eventEndDate,
         location: data.location,
+        locationLat: data.locationLat,
+        locationLon: data.locationLon,
         shareToken: data.shareToken,
         isPrivate: data.isPrivate,
         tier: data.tier,
@@ -103,6 +109,8 @@ export default class EventRepository {
         aiTone: data.aiTone,
         aiToneCustom: data.aiToneCustom,
         aiExtraContext: data.aiExtraContext,
+        rsvpEnabled: data.rsvpEnabled,
+        rsvpDeadline: data.rsvpDeadline,
         updatedAt: new Date(),
       },
     })

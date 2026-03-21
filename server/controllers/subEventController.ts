@@ -19,6 +19,8 @@ interface CreateSubEventParams {
   startTime?: string | null
   endTime?: string | null
   location?: string | null
+  locationLat?: number | null
+  locationLon?: number | null
 }
 
 interface UpdateSubEventParams {
@@ -34,6 +36,8 @@ interface UpdateSubEventParams {
   startTime?: string | null
   endTime?: string | null
   location?: string | null
+  locationLat?: number | null
+  locationLon?: number | null
 }
 
 export default class SubEventController {
@@ -89,6 +93,8 @@ export default class SubEventController {
       startTime: params.startTime ? new Date(params.startTime) : null,
       endTime: params.endTime ? new Date(params.endTime) : null,
       location: params.location || null,
+      locationLat: params.locationLat ?? null,
+      locationLon: params.locationLon ?? null,
       sortOrder,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -123,6 +129,8 @@ export default class SubEventController {
     if (updates.startTime !== undefined) subEvent.startTime = updates.startTime ? new Date(updates.startTime) : null
     if (updates.endTime !== undefined) subEvent.endTime = updates.endTime ? new Date(updates.endTime) : null
     if (updates.location !== undefined) subEvent.location = updates.location || null
+    if (updates.locationLat !== undefined) subEvent.locationLat = updates.locationLat ?? null
+    if (updates.locationLon !== undefined) subEvent.locationLon = updates.locationLon ?? null
 
     const saved = await SubEventRepository.update(subEvent)
     return saved.toJSON()
@@ -183,6 +191,24 @@ export default class SubEventController {
 
     await this.#verifyAccess(subEvent.eventId, clerkId, null, true)
     await SubEventRepository.delete(subEventId)
+  }
+
+  static async bulkDeleteSubEvents(eventId: number, clerkId: string, subEventIds: number[]): Promise<void> {
+    await this.#verifyAccess(eventId, clerkId, null, true)
+
+    if (!Array.isArray(subEventIds) || subEventIds.length === 0) {
+      throw createError({ statusCode: 400, statusMessage: 'Sub-event IDs array is required' })
+    }
+
+    // Verify all sub-events belong to this event
+    const subEvents = await SubEventRepository.findByEventId(eventId)
+    const eventSubEventIds = new Set(subEvents.map((se) => se.id))
+    const invalidIds = subEventIds.filter((id) => !eventSubEventIds.has(id))
+    if (invalidIds.length > 0) {
+      throw createError({ statusCode: 400, statusMessage: 'Some sub-events do not belong to this event' })
+    }
+
+    await SubEventRepository.bulkDelete(subEventIds)
   }
 
   static async reorderSubEvents(eventId: number, clerkId: string, orderedIds: number[]): Promise<Record<string, unknown>[]> {

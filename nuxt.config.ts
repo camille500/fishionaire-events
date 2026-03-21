@@ -3,6 +3,7 @@ import { resolve } from 'path'
 export default defineNuxtConfig({
   compatibilityDate: '2025-03-11',
   devtools: { enabled: true },
+  devServer: { host: '0.0.0.0' },
 
   modules: [
     '@nuxt/ui',
@@ -98,6 +99,8 @@ export default defineNuxtConfig({
     stripeProYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID || '',
     stripeEventStandardPriceId: process.env.STRIPE_EVENT_STANDARD_PRICE_ID || '',
     stripeEventProPriceId: process.env.STRIPE_EVENT_PRO_PRICE_ID || '',
+    spotifyClientId: process.env.SPOTIFY_CLIENT_ID || '',
+    spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET || '',
     public: {
       appUrl: process.env.APP_URL || 'http://localhost:3000',
     },

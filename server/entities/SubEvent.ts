@@ -15,6 +15,8 @@ export interface SubEventData {
   startTime: string | Date | null
   endTime: string | Date | null
   location: string | null
+  locationLat: number | null
+  locationLon: number | null
   sortOrder: number
   createdAt: Date | string
   updatedAt: Date | string
@@ -43,6 +45,10 @@ export interface SubEventJSON {
   endTime?: string | Date | null
   end_time?: string | Date | null
   location?: string | null
+  locationLat?: number | null
+  location_lat?: number | null
+  locationLon?: number | null
+  location_lon?: number | null
   sortOrder?: number
   sort_order?: number
   createdAt?: Date | string
@@ -74,6 +80,8 @@ export default class SubEvent {
   startTime: string | Date | null
   endTime: string | Date | null
   location: string | null
+  locationLat: number | null
+  locationLon: number | null
   sortOrder: number
   createdAt: Date | string
   updatedAt: Date | string
@@ -93,6 +101,8 @@ export default class SubEvent {
     this.startTime = data.startTime || null
     this.endTime = data.endTime || null
     this.location = data.location || null
+    this.locationLat = data.locationLat ?? null
+    this.locationLon = data.locationLon ?? null
     this.sortOrder = data.sortOrder ?? 0
     this.createdAt = data.createdAt || new Date()
     this.updatedAt = data.updatedAt || new Date()
@@ -114,6 +124,8 @@ export default class SubEvent {
       startTime: data.startTime || data.start_time || null,
       endTime: data.endTime || data.end_time || null,
       location: data.location ?? null,
+      locationLat: data.locationLat ?? data.location_lat ?? null,
+      locationLon: data.locationLon ?? data.location_lon ?? null,
       sortOrder: data.sortOrder ?? data.sort_order ?? 0,
       createdAt: data.createdAt || data.created_at || new Date(),
       updatedAt: data.updatedAt || data.updated_at || new Date(),
@@ -136,6 +148,8 @@ export default class SubEvent {
       startTime: this.startTime,
       endTime: this.endTime,
       location: this.location,
+      locationLat: this.locationLat,
+      locationLon: this.locationLon,
       sortOrder: this.sortOrder,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

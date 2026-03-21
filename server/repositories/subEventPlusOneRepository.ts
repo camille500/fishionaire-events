@@ -14,6 +14,15 @@ export default class SubEventPlusOneRepository {
     return SubEventPlusOne.fromJSON(row)
   }
 
+  static async findAllByEventId(eventId: string): Promise<SubEventPlusOne[]> {
+    const prisma = usePrisma()
+    const rows = await prisma.subEventPlusOne.findMany({
+      where: { subEvent: { eventId: Number(eventId) } },
+      orderBy: { createdAt: 'asc' },
+    })
+    return rows.map((row) => SubEventPlusOne.fromJSON(row))
+  }
+
   static async findBySubEventId(subEventId: string): Promise<SubEventPlusOne[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventPlusOne.findMany({

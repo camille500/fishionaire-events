@@ -18,13 +18,13 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 
 ## RSVP System
 
-- [ ] Enable/disable RSVP per event
+- [~] Enable/disable RSVP per event
 - [x] Per-sub-event RSVP (guests choose which parts they attend)
-- [ ] Plus-one management — configurable max additional guests
-- [ ] Dietary preferences collection for dinner sub-events
-- [ ] RSVP deadlines with automatic reminders
-- [ ] RSVP overview dashboard for organizers
-- [ ] Export guest list as CSV
+- [x] Plus-one management — configurable max additional guests
+- [x] Dietary preferences collection for dinner sub-events
+- [~] RSVP deadlines with automatic reminders
+- [~] RSVP overview dashboard for organizers
+- [~] Export guest list as CSV
 
 ## Date Polling / Co-Planning
 
@@ -35,11 +35,30 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 
 ## Wishlists & Gift Splitting
 
-- [ ] Add/remove wishlist items with links and images
-- [ ] Guest item claiming (host sees claimed status, not who)
+- [x] Add/remove wishlist items with links and images
+- [x] Guest item claiming (host sees claimed status, not who)
 - [ ] Gift splitting — group purchasing for expensive items
 - [ ] Price tracking and contribution progress
-- [ ] Wishlist sharing via link
+- [x] Wishlist sharing via link
+
+## Music & Entertainment
+
+- [x] Song request system with guest submissions
+- [x] Community upvoting on song requests
+- [~] Spotify playlist integration (search, approval, playlist creation, live queue)
+- [ ] Apple Music playlist integration
+- [ ] DJ mode — live queue display
+
+## AI Features
+
+- [x] AI event description generator
+- [x] AI title suggestions
+- [x] AI sub-event co-creation
+- [x] AI timeline suggestions
+- [x] AI full event builder from prompt
+- [x] AI wishlist suggestions
+- [ ] AI event summary emails for organizers
+- [ ] AI thank-you note drafting
 
 ## Secret Chat
 
@@ -77,6 +96,7 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 - [ ] Table assignments per guest
 - [ ] Guest group/preference handling
 - [ ] Print-ready seating chart export
+- [ ] Smart seating suggestions (AI-powered based on guest relationships)
 
 ## Custom Invitations & Themes
 
@@ -92,6 +112,10 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 - [ ] Weather forecast integration for outdoor events
 - [ ] Vendor/service provider directory
 - [ ] Notification system (in-app + email)
+- [ ] Guest message board / guestbook
+- [ ] Event countdown widget (embeddable)
+- [ ] Shared expense splitting (Tikkie-style)
+- [ ] Guest check-in timeline (live activity feed)
 - [x] Mobile-responsive dashboard
 - [x] Multi-language support (NL/EN)
 
@@ -100,8 +124,8 @@ Status: `[ ] Planned` · `[~] In Progress` · `[x] Done`
 ## Infrastructure & Platform
 
 - [x] Subscription tiers: Free, Standard, Pro
-- [ ] Payment integration
+- [x] Payment integration (Stripe)
 - [x] User authentication (Clerk)
 - [x] Internationalization (i18n)
 - [x] Dashboard with sidebar navigation
-- [ ] Settings page (profile, notifications, language)
+- [x] Settings page (profile, notifications, language)

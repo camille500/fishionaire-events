@@ -17,10 +17,15 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
   }
 
-  const { subEventId, songTitle, artist } = await readBody<{
+  const { subEventId, songTitle, artist, spotifyTrackId, spotifyUri, albumArtUrl, previewUrl, durationMs } = await readBody<{
     subEventId: number
     songTitle: string
     artist?: string
+    spotifyTrackId?: string
+    spotifyUri?: string
+    albumArtUrl?: string
+    previewUrl?: string
+    durationMs?: number
   }>(event)
 
   if (!subEventId) {
@@ -30,6 +35,11 @@ export default defineEventHandler(async (event: H3Event) => {
   const result = await SubEventInteractionController.submitMusicRequest(subEventId, invitation.inviteeEmail, {
     songTitle,
     artist,
+    spotifyTrackId,
+    spotifyUri,
+    albumArtUrl,
+    previewUrl,
+    durationMs,
   })
 
   resetRateLimit(ip, 'invite-music')
