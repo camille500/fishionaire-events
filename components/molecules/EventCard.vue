@@ -154,12 +154,13 @@ function onArchiveConfirm() {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-light);
   overflow: hidden;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .event-card:hover {
   border-color: var(--color-border);
   box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .event-card__link {

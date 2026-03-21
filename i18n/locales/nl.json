@@ -468,11 +468,13 @@
     },
     "sidebar": {
       "home": "Home",
+      "profile": "Profiel",
       "events": "Evenementen",
       "invitations": "Uitnodigingen",
       "settings": "Instellingen",
       "billing": "Facturering",
-      "signOut": "Uitloggen"
+      "signOut": "Uitloggen",
+      "viewProfile": "Bekijk profiel"
     },
     "emptyState": {
       "noEvents": {
@@ -492,9 +494,30 @@
     "settings": {
       "language": "Taal",
       "profile": "Profiel",
-      "profilePlaceholder": "Profielinstellingen komen binnenkort",
+      "editProfile": "Bewerk je profiel",
       "notifications": "Meldingen",
       "notificationsPlaceholder": "Meldingsvoorkeuren komen binnenkort"
+    },
+    "profile": {
+      "title": "Profiel",
+      "displayName": "Weergavenaam",
+      "displayNamePlaceholder": "Hoe moeten anderen je zien?",
+      "bio": "Bio",
+      "bioPlaceholder": "Vertel anderen iets over jezelf...",
+      "socialLinks": "Sociale links",
+      "instagram": "Instagram gebruikersnaam",
+      "twitter": "X / Twitter gebruikersnaam",
+      "linkedin": "LinkedIn profiel-URL",
+      "website": "Website-URL",
+      "visibility": "Profiel zichtbaar",
+      "visibilityDescription": "Sta andere gebruikers toe je profielinformatie te bekijken",
+      "save": "Profiel opslaan",
+      "saved": "Opgeslagen!",
+      "avatar": {
+        "change": "Foto wijzigen",
+        "remove": "Foto verwijderen",
+        "cropTitle": "Foto bijsnijden"
+      }
     },
     "aiSettings": {
       "title": "AI-instellingen",
@@ -926,6 +949,20 @@
       "startTime": "Begintijd",
       "endTime": "Eindtijd",
       "removeOption": "Datum verwijderen",
+      "addDates": "Data toevoegen",
+      "addDateCount": "Voeg {count} datum toe aan stemming | Voeg {count} data toe aan stemming",
+      "stagedDates": "Toe te voegen data",
+      "orPickFromCalendar": "of kies uit de kalender",
+      "addSelectedDates": "Voeg {count} geselecteerde toe | Voeg {count} geselecteerde toe",
+      "quickPatterns": "Snel toevoegen",
+      "weekends": "Weekenden",
+      "everySaturday": "Elke zaterdag",
+      "everySunday": "Elke zondag",
+      "everyFriday": "Elke vrijdag",
+      "sameTimeForAll": "Dezelfde tijd voor alles",
+      "startTimeLabel": "Begin",
+      "endTimeLabel": "Einde",
+      "dateAlreadyAdded": "Deze datum zit al in de stemming",
       "locked": {
         "title": "Datumstemming",
         "description": "Stel meerdere data voor en laat gasten stemmen wanneer zij beschikbaar zijn. De beste datum wordt automatisch gemarkeerd.",
@@ -1358,6 +1395,7 @@
     "price25to50": "€25 - €50",
     "price50to100": "€50 - €100",
     "priceOver100": "> €100",
+    "claimedBy": "Geclaimd door",
     "stats": {
       "items": "items",
       "claimed": "geclaimd"
@@ -1398,6 +1436,37 @@
       "save": "Opslaan",
       "add": "Toevoegen"
     },
+    "chat": {
+      "title": "Overleggen",
+      "placeholder": "Schrijf een bericht...",
+      "send": "Verstuur",
+      "contributors": "Deelnemers",
+      "joinIn": "Meedoen",
+      "empty": "Begin een gesprek over dit cadeau",
+      "participantCount": "{count} gasten doen mee",
+      "messageBadge": "{count} berichten",
+      "you": "Jij",
+      "justNow": "Zojuist",
+      "minutesAgo": "{count} min geleden",
+      "hoursAgo": "{count} uur geleden",
+      "splitEqual": "Gelijk verdelen",
+      "splitHalf": "De helft",
+      "splitRest": "De rest betalen",
+      "remaining": "{amount} te gaan",
+      "ofTarget": "{current} van {target}",
+      "enterAmount": "Of voer een bedrag in",
+      "confirm": "Bevestigen",
+      "update": "Bijwerken",
+      "cancel": "Annuleren",
+      "adjustAmount": "Aanpassen",
+      "almostThere": "Bijna! Nog {amount} te gaan",
+      "coverTheRest": "De rest betalen?",
+      "beFirst": "Doe als eerste mee!",
+      "suggestedSplit": "Voorstel: {amount} per persoon",
+      "yourContribution": "Jouw bijdrage: {amount}",
+      "amountRequired": "Voer een bedrag in",
+      "amountExceeds": "Bedrag is hoger dan wat nog nodig is"
+    },
     "ai": {
       "title": "AI Cadeau-ideeën",
       "placeholder": "Beschrijf de persoon en gelegenheid, bijv. 'buitenmens, 30e verjaardag, budget €50'...",
@@ -1405,6 +1474,24 @@
       "addToList": "Toevoegen",
       "error": "Er ging iets mis bij het genereren van ideeën"
     }
+  },
+  "toast": {
+    "error": "Er ging iets mis",
+    "rsvpSuccess": "RSVP verstuurd",
+    "rsvpError": "Kon RSVP niet versturen",
+    "itemClaimed": "Item geclaimd",
+    "itemUnclaimed": "Claim verwijderd",
+    "itemPurchased": "Gemarkeerd als gekocht",
+    "itemCreated": "Item toegevoegd aan verlanglijst",
+    "itemUpdated": "Item bijgewerkt",
+    "itemDeleted": "Item verwijderd",
+    "bulkDeleted": "Items verwijderd",
+    "guestRemoved": "Gast verwijderd",
+    "linkCopied": "Link gekopieerd",
+    "exportSuccess": "Export gedownload",
+    "plusOneRemoved": "Plus-one verwijderd",
+    "emailSent": "Uitnodiging verstuurd",
+    "emailsSent": "Alle uitnodigingen verstuurd"
   },
   "footer": {
     "product": "Product",

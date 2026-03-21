@@ -3,8 +3,10 @@ import EventMemberRepository from '../repositories/eventMemberRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
 import WishlistItemRepository from '../repositories/wishlistItemRepository'
 import WishlistClaimRepository from '../repositories/wishlistClaimRepository'
+import WishlistItemMessageRepository from '../repositories/wishlistItemMessageRepository'
 import WishlistItem from '../entities/WishlistItem'
 import { getProductSearchProvider } from '../utils/productSearch'
+import ActivityLogController from './activityLogController'
 
 interface CreateItemParams {
   title: string
@@ -74,10 +76,16 @@ export default class WishlistController {
     this.#checkWishlistFeature(event)
 
     const rows = await WishlistItemRepository.findByEventIdWithClaims(eventId)
-    return rows.map(({ item, claimCount, pooledCents }) => ({
+    return rows.map(({ item, claimCount, pooledCents, claims }) => ({
       ...item.toJSON(),
       claimCount,
       pooledCents,
+      claims: claims.map((c) => ({
+        guestName: c.guestName,
+        amountCents: c.amountCents,
+        status: c.status,
+        createdAt: c.createdAt,
+      })),
     }))
   }
 
@@ -202,12 +210,17 @@ export default class WishlistController {
 
     const myClaimMap = new Map(myClaims.map((c) => [c.wishlistItemId, c]))
 
+    // Batch-fetch message counts for all items
+    const itemIds = rows.map(({ item }) => item.id!).filter(Boolean)
+    const messageCounts = await WishlistItemMessageRepository.countByItemIds(itemIds)
+
     const items = rows.map(({ item, claimCount, pooledCents }) => {
       const myClaim = myClaimMap.get(item.id!)
       return {
         ...item.toJSON(),
         claimCount,
         pooledCents,
+        messageCount: messageCounts[item.id!] || 0,
         isClaimed: !item.isPoolable && claimCount > 0,
         isFullyFunded: item.isPoolable && item.poolTargetCents ? pooledCents >= item.poolTargetCents : false,
         myClaim: myClaim ? {
@@ -256,6 +269,11 @@ export default class WishlistController {
       status: 'claimed',
     })
 
+    ActivityLogController.log(invitation.eventId, 'claim', invitation.inviteeName || invitation.inviteeEmail, invitation.inviteeEmail, {
+      itemTitle: itemData.item.title,
+      amountCents: data?.amountCents,
+    })
+
     return claim.toJSON()
   }
 
@@ -278,9 +296,76 @@ export default class WishlistController {
       throw createError({ statusCode: 404, statusMessage: 'You have not claimed this item' })
     }
 
+    const item = await WishlistItemRepository.findById(itemId)
     const updated = await WishlistClaimRepository.upsert(itemId, invitation.inviteeEmail, {
       status: 'purchased',
     })
+
+    ActivityLogController.log(invitation.eventId, 'purchase', invitation.inviteeName || invitation.inviteeEmail, invitation.inviteeEmail, {
+      itemTitle: item?.title,
+    })
+
     return updated.toJSON()
+  }
+
+  // --- Guest chat methods ---
+
+  static async getItemChat(accessToken: string, itemId: number): Promise<Record<string, unknown>> {
+    const invitation = await this.#resolveGuestFromToken(accessToken)
+    const itemData = await WishlistItemRepository.findByIdWithClaims(itemId)
+    if (!itemData) {
+      throw createError({ statusCode: 404, statusMessage: 'Wishlist item not found' })
+    }
+    if (itemData.item.eventId !== invitation.eventId) {
+      throw createError({ statusCode: 403, statusMessage: 'This item does not belong to your event' })
+    }
+
+    const messages = await WishlistItemMessageRepository.findByItemId(itemId)
+    const contributors = itemData.claims.map((c) => ({
+      guestName: c.guestName,
+      amountCents: c.amountCents,
+      isMe: c.guestEmail === invitation.inviteeEmail,
+    }))
+
+    return {
+      messages: messages.map((m) => ({
+        ...m.toJSON(),
+        isMe: m.guestEmail === invitation.inviteeEmail,
+        guestEmail: undefined,
+      })),
+      contributors,
+    }
+  }
+
+  static async sendItemMessage(accessToken: string, itemId: number, content: string): Promise<Record<string, unknown>> {
+    const invitation = await this.#resolveGuestFromToken(accessToken)
+    const item = await WishlistItemRepository.findById(itemId)
+    if (!item) {
+      throw createError({ statusCode: 404, statusMessage: 'Wishlist item not found' })
+    }
+    if (item.eventId !== invitation.eventId) {
+      throw createError({ statusCode: 403, statusMessage: 'This item does not belong to your event' })
+    }
+
+    const trimmed = (content || '').trim()
+    if (!trimmed) {
+      throw createError({ statusCode: 400, statusMessage: 'Message content is required' })
+    }
+    if (trimmed.length > 500) {
+      throw createError({ statusCode: 400, statusMessage: 'Message must be 500 characters or less' })
+    }
+
+    const message = await WishlistItemMessageRepository.create(
+      itemId,
+      invitation.inviteeEmail,
+      invitation.inviteeName || null,
+      trimmed,
+    )
+
+    return {
+      ...message.toJSON(),
+      isMe: true,
+      guestEmail: undefined,
+    }
   }
 }

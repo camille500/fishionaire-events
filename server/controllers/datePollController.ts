@@ -97,6 +97,36 @@ export default class DatePollController {
     return this.#serializePoll(updated!)
   }
 
+  static async addOptions(eventId: number, clerkId: string, options: DateOptionInput[]): Promise<Record<string, unknown>> {
+    await this.#verifyEdit(eventId, clerkId)
+
+    const poll = await DatePollRepository.findByEventId(eventId)
+    if (!poll) throw createError({ statusCode: 404, statusMessage: 'No date poll found for this event' })
+    if (!poll.isActive) throw createError({ statusCode: 400, statusMessage: 'This poll is closed' })
+
+    if (!Array.isArray(options) || options.length === 0) {
+      throw createError({ statusCode: 400, statusMessage: 'At least one date option is required' })
+    }
+
+    for (const o of options) {
+      if (!o.date) throw createError({ statusCode: 400, statusMessage: 'Each option must have a date' })
+    }
+
+    const startOrder = poll.options.length
+    await DatePollOptionRepository.bulkCreate(
+      options.map((o, i) => ({
+        datePollId: poll.id!,
+        date: o.date,
+        startTime: o.startTime || null,
+        endTime: o.endTime || null,
+        sortOrder: startOrder + i,
+      }))
+    )
+
+    const updated = await DatePollRepository.findByEventId(eventId)
+    return this.#serializePoll(updated!)
+  }
+
   static async removeOption(eventId: number, clerkId: string, optionId: number): Promise<Record<string, unknown>> {
     await this.#verifyEdit(eventId, clerkId)
 

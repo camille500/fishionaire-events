@@ -52,7 +52,6 @@ export default function useGuestWishlist(token: string) {
         method: 'POST',
         body: data || {},
       })
-      // Update local state
       const idx = items.value.findIndex((i) => i.id === itemId)
       if (idx !== -1) {
         const item = items.value[idx]
@@ -61,6 +60,8 @@ export default function useGuestWishlist(token: string) {
         if (!item.isPoolable) item.isClaimed = true
       }
       return claim
+    } catch (err) {
+      throw err
     } finally {
       claiming.value = null
     }
@@ -77,20 +78,26 @@ export default function useGuestWishlist(token: string) {
         item.claimCount = Math.max(0, ((item.claimCount as number) || 1) - 1)
         if (!item.isPoolable) item.isClaimed = (item.claimCount as number) > 0
       }
+    } catch (err) {
+      throw err
     } finally {
       claiming.value = null
     }
   }
 
   async function markPurchased(itemId: string | number) {
-    const result = await $fetch(`/api/invite/${token}/wishlist/${itemId}/purchased`, {
-      method: 'PUT',
-    })
-    const idx = items.value.findIndex((i) => i.id === itemId)
-    if (idx !== -1) {
-      items.value[idx].myClaim = result
+    try {
+      const result = await $fetch(`/api/invite/${token}/wishlist/${itemId}/purchased`, {
+        method: 'PUT',
+      })
+      const idx = items.value.findIndex((i) => i.id === itemId)
+      if (idx !== -1) {
+        items.value[idx].myClaim = result
+      }
+      return result
+    } catch (err) {
+      throw err
     }
-    return result
   }
 
   return {

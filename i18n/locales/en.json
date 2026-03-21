@@ -468,11 +468,13 @@
     },
     "sidebar": {
       "home": "Home",
+      "profile": "Profile",
       "events": "Events",
       "invitations": "Invitations",
       "settings": "Settings",
       "billing": "Billing",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "viewProfile": "View profile"
     },
     "emptyState": {
       "noEvents": {
@@ -492,9 +494,30 @@
     "settings": {
       "language": "Language",
       "profile": "Profile",
-      "profilePlaceholder": "Profile settings coming soon",
+      "editProfile": "Edit your profile",
       "notifications": "Notifications",
       "notificationsPlaceholder": "Notification preferences coming soon"
+    },
+    "profile": {
+      "title": "Profile",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "How should others see you?",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell others a bit about yourself...",
+      "socialLinks": "Social links",
+      "instagram": "Instagram handle",
+      "twitter": "X / Twitter handle",
+      "linkedin": "LinkedIn profile URL",
+      "website": "Website URL",
+      "visibility": "Profile visible",
+      "visibilityDescription": "Allow other users to see your profile information",
+      "save": "Save profile",
+      "saved": "Saved!",
+      "avatar": {
+        "change": "Change photo",
+        "remove": "Remove photo",
+        "cropTitle": "Crop your photo"
+      }
     },
     "aiSettings": {
       "title": "AI Settings",
@@ -926,6 +949,20 @@
       "startTime": "Start time",
       "endTime": "End time",
       "removeOption": "Remove date",
+      "addDates": "Add dates",
+      "addDateCount": "Add {count} date to poll | Add {count} dates to poll",
+      "stagedDates": "Dates to add",
+      "orPickFromCalendar": "or pick from calendar",
+      "addSelectedDates": "Add {count} selected | Add {count} selected",
+      "quickPatterns": "Quick add",
+      "weekends": "Weekends",
+      "everySaturday": "Every Saturday",
+      "everySunday": "Every Sunday",
+      "everyFriday": "Every Friday",
+      "sameTimeForAll": "Same time for all",
+      "startTimeLabel": "Start",
+      "endTimeLabel": "End",
+      "dateAlreadyAdded": "This date is already in the poll",
       "locked": {
         "title": "Date Polling",
         "description": "Propose multiple dates and let your guests vote for when they're available. The best date is highlighted automatically.",
@@ -1358,6 +1395,7 @@
     "price25to50": "€25 - €50",
     "price50to100": "€50 - €100",
     "priceOver100": "> €100",
+    "claimedBy": "Claimed by",
     "stats": {
       "items": "items",
       "claimed": "claimed"
@@ -1398,6 +1436,37 @@
       "save": "Save",
       "add": "Add"
     },
+    "chat": {
+      "title": "Discuss",
+      "placeholder": "Write a message...",
+      "send": "Send",
+      "contributors": "Contributors",
+      "joinIn": "Join in",
+      "empty": "Start a conversation about this gift",
+      "participantCount": "{count} guests participating",
+      "messageBadge": "{count} messages",
+      "you": "You",
+      "justNow": "Just now",
+      "minutesAgo": "{count} min ago",
+      "hoursAgo": "{count}h ago",
+      "splitEqual": "Equal split",
+      "splitHalf": "Half",
+      "splitRest": "Cover the rest",
+      "remaining": "{amount} remaining",
+      "ofTarget": "{current} of {target}",
+      "enterAmount": "Or enter a custom amount",
+      "confirm": "Confirm",
+      "update": "Update",
+      "cancel": "Cancel",
+      "adjustAmount": "Adjust",
+      "almostThere": "Almost there! Only {amount} to go",
+      "coverTheRest": "Cover the rest?",
+      "beFirst": "Be the first to chip in!",
+      "suggestedSplit": "Suggested: {amount} per person",
+      "yourContribution": "You're contributing {amount}",
+      "amountRequired": "Please enter an amount",
+      "amountExceeds": "Amount exceeds what's remaining"
+    },
     "ai": {
       "title": "AI Gift Ideas",
       "placeholder": "Describe the person and occasion, e.g. 'outdoor lover, 30th birthday, budget €50'...",
@@ -1405,6 +1474,24 @@
       "addToList": "Add to list",
       "error": "Something went wrong generating ideas"
     }
+  },
+  "toast": {
+    "error": "Something went wrong",
+    "rsvpSuccess": "RSVP submitted",
+    "rsvpError": "Could not submit RSVP",
+    "itemClaimed": "Item claimed",
+    "itemUnclaimed": "Claim removed",
+    "itemPurchased": "Marked as purchased",
+    "itemCreated": "Item added to wishlist",
+    "itemUpdated": "Item updated",
+    "itemDeleted": "Item removed",
+    "bulkDeleted": "Items removed",
+    "guestRemoved": "Guest removed",
+    "linkCopied": "Link copied",
+    "exportSuccess": "Export downloaded",
+    "plusOneRemoved": "Plus-one removed",
+    "emailSent": "Invitation sent",
+    "emailsSent": "All invitations sent"
   },
   "footer": {
     "product": "Product",

@@ -100,10 +100,21 @@ export default class EventInvitationRepository {
     return EventInvitation.fromJSON(mapRow(row))
   }
 
+  static async findById(id: number): Promise<EventInvitation | null> {
+    const prisma = usePrisma()
+    const row = await prisma.eventInvitation.findUnique({
+      where: { id },
+      include: FULL_INCLUDE,
+    })
+    if (!row) return null
+    return EventInvitation.fromJSON(mapRow(row))
+  }
+
   static async update(id: number, data: {
     inviteeName?: string | null
     plusOnes?: number
     status?: string
+    emailSentAt?: Date
     subEventInvites?: { subEventId: number, plusOnes: number }[]
   }): Promise<EventInvitation> {
     const prisma = usePrisma()
@@ -127,6 +138,7 @@ export default class EventInvitationRepository {
         ...(data.inviteeName !== undefined ? { inviteeName: data.inviteeName } : {}),
         ...(data.plusOnes !== undefined ? { plusOnes: data.plusOnes } : {}),
         ...(data.status !== undefined ? { status: data.status } : {}),
+        ...(data.emailSentAt !== undefined ? { emailSentAt: data.emailSentAt } : {}),
       },
       include: FULL_INCLUDE,
     })

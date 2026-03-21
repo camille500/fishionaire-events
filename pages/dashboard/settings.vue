@@ -2,6 +2,7 @@
 definePageMeta({ layout: 'dashboard' })
 
 const { t, locale, setLocale } = useI18n()
+const localePath = useLocalePath()
 
 const currentLanguage = computed({
   get: () => locale.value,
@@ -58,7 +59,10 @@ onMounted(() => {
 
     <div class="settings-page__section">
       <h2 class="settings-page__section-title">{{ t('dashboard.settings.profile') }}</h2>
-      <p class="settings-page__placeholder">{{ t('dashboard.settings.profilePlaceholder') }}</p>
+      <NuxtLink :to="localePath('dashboard') + '/profile'" class="settings-page__link">
+        {{ t('dashboard.settings.editProfile') }}
+        <Icon name="lucide:arrow-right" size="16" />
+      </NuxtLink>
     </div>
 
     <div class="settings-page__section">
@@ -127,6 +131,21 @@ onMounted(() => {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin: 0;
+}
+
+.settings-page__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: gap var(--transition-fast);
+}
+
+.settings-page__link:hover {
+  gap: var(--space-3);
 }
 
 .settings-page__error {

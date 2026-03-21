@@ -7,6 +7,7 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
+const toast = useToast()
 const { items, loading, saving, stats, fetchItems, fetchStats, createItem, updateItem, deleteItem, bulkDeleteItems } = useWishlist(props.eventId)
 
 const showForm = ref(false)
@@ -21,17 +22,27 @@ onMounted(async () => {
 })
 
 async function handleCreate(data) {
-  await createItem(data)
-  showForm.value = false
-  editingItem.value = null
-  await fetchStats()
+  try {
+    await createItem(data)
+    showForm.value = false
+    editingItem.value = null
+    await fetchStats()
+    toast.add({ title: t('toast.itemCreated'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 async function handleUpdate(data) {
   if (!editingItem.value) return
-  await updateItem(editingItem.value.id, data)
-  showForm.value = false
-  editingItem.value = null
+  try {
+    await updateItem(editingItem.value.id, data)
+    showForm.value = false
+    editingItem.value = null
+    toast.add({ title: t('toast.itemUpdated'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 function startEdit(item) {
@@ -40,16 +51,26 @@ function startEdit(item) {
 }
 
 async function handleDelete(id) {
-  await deleteItem(id)
-  confirmDeleteId.value = null
-  await fetchStats()
+  try {
+    await deleteItem(id)
+    confirmDeleteId.value = null
+    await fetchStats()
+    toast.add({ title: t('toast.itemDeleted'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 async function handleBulkDelete() {
   if (selectedIds.value.length === 0) return
-  await bulkDeleteItems(selectedIds.value)
-  selectedIds.value = []
-  await fetchStats()
+  try {
+    await bulkDeleteItems(selectedIds.value)
+    selectedIds.value = []
+    await fetchStats()
+    toast.add({ title: t('toast.bulkDeleted'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 function toggleSelect(id) {
@@ -59,13 +80,23 @@ function toggleSelect(id) {
 }
 
 async function handleSearchAdd(productData) {
-  await createItem(productData)
-  await fetchStats()
+  try {
+    await createItem(productData)
+    await fetchStats()
+    toast.add({ title: t('toast.itemCreated'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 async function handleAiAdd(suggestionData) {
-  await createItem(suggestionData)
-  await fetchStats()
+  try {
+    await createItem(suggestionData)
+    await fetchStats()
+    toast.add({ title: t('toast.itemCreated'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 function cancelForm() {

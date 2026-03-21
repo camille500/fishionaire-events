@@ -1,5 +1,6 @@
 <script setup>
 const { t } = useI18n()
+const toast = useToast()
 const { form, eventData, canEdit } = useEventEditor()
 const { staggerIn } = useEditorAnimations()
 
@@ -39,6 +40,9 @@ async function exportCsv() {
     a.download = `guest-list-${eventData.value.id}.csv`
     a.click()
     URL.revokeObjectURL(url)
+    toast.add({ title: t('toast.exportSuccess'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   } finally {
     exporting.value = false
   }

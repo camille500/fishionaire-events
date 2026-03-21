@@ -100,16 +100,21 @@ const addingToPlaylist = ref(false)
 const playlistName = ref('')
 const selectedPlaylistId = ref(null)
 
+function effectiveStatus(status) {
+  return status === 'queued' ? 'approved' : status
+}
+
 const filteredMusicRequests = computed(() => {
   if (musicFilter.value === 'all') return musicRequests.value
-  return musicRequests.value.filter((r) => r.status === musicFilter.value)
+  return musicRequests.value.filter((r) => effectiveStatus(r.status) === musicFilter.value)
 })
 
 const musicCounts = computed(() => {
   const counts = { all: 0, pending: 0, approved: 0, rejected: 0 }
   for (const r of musicRequests.value) {
     counts.all++
-    if (counts[r.status] !== undefined) counts[r.status]++
+    const s = effectiveStatus(r.status)
+    if (counts[s] !== undefined) counts[s]++
   }
   return counts
 })
@@ -164,6 +169,7 @@ async function onCreatePlaylist() {
       body: { name: playlistName.value.trim(), subEventId: props.subEvent.id },
     })
     await fetchSpotifyStatus()
+    await fetchMusicRequests()
     playlistName.value = ''
   } catch (err) {
     if (err?.statusCode === 403) {

@@ -12,12 +12,13 @@ const emit = defineEmits(['upgrade'])
 const poll = ref(null)
 const loading = ref(false)
 const saving = ref(false)
-const showAddForm = ref(false)
-const newDate = ref('')
-const newStartTime = ref('')
-const newEndTime = ref('')
+const showDateAdder = ref(false)
 const settingDate = ref(false)
 const copySuccess = ref(false)
+
+const existingDates = computed(() =>
+  (poll.value?.options || []).map(o => o.date)
+)
 
 const bestOptionId = computed(() => poll.value?.bestOptionId || null)
 const totalVoters = computed(() => {
@@ -65,25 +66,8 @@ async function deletePoll() {
   }
 }
 
-async function addOption() {
-  if (!newDate.value) return
-  saving.value = true
-  try {
-    poll.value = await $fetch(`/api/events/${props.eventId}/date-poll/options`, {
-      method: 'POST',
-      body: {
-        date: newDate.value,
-        startTime: newStartTime.value || null,
-        endTime: newEndTime.value || null,
-      },
-    })
-    newDate.value = ''
-    newStartTime.value = ''
-    newEndTime.value = ''
-    showAddForm.value = false
-  } finally {
-    saving.value = false
-  }
+function onDatesAdded(updatedPoll) {
+  poll.value = updatedPoll
 }
 
 async function removeOption(optionId) {
@@ -224,44 +208,24 @@ onMounted(fetchPoll)
           <AppText size="sm" muted>{{ t('editor.datePoll.noOptions') }}</AppText>
         </div>
 
-        <!-- Add date form -->
-        <div v-if="editable && poll.isActive && showAddForm" class="date-poll-editor__add-form">
-          <input
-            v-model="newDate"
-            type="date"
-            class="date-poll-editor__input"
-          />
-          <input
-            v-model="newStartTime"
-            type="time"
-            class="date-poll-editor__input date-poll-editor__input--time"
-            :placeholder="t('editor.datePoll.startTime')"
-          />
-          <input
-            v-model="newEndTime"
-            type="time"
-            class="date-poll-editor__input date-poll-editor__input--time"
-            :placeholder="t('editor.datePoll.endTime')"
-          />
-          <div class="date-poll-editor__add-actions">
-            <AppButton variant="primary" size="sm" :loading="saving" :disabled="!newDate" @click="addOption">
-              {{ t('common.add') }}
-            </AppButton>
-            <AppButton variant="ghost" size="sm" @click="showAddForm = false">
-              {{ t('common.cancel') }}
-            </AppButton>
-          </div>
-        </div>
+        <!-- Date adder panel -->
+        <DatePollDateAdder
+          v-if="editable && poll.isActive && showDateAdder"
+          :event-id="eventId"
+          :existing-dates="existingDates"
+          @dates-added="onDatesAdded"
+          @cancel="showDateAdder = false"
+        />
 
         <AppButton
-          v-if="editable && poll.isActive && !showAddForm"
+          v-if="editable && poll.isActive && !showDateAdder"
           variant="ghost"
           size="sm"
           class="date-poll-editor__add-btn"
-          @click="showAddForm = true"
+          @click="showDateAdder = true"
         >
           <Icon name="lucide:plus" size="14" />
-          {{ t('editor.datePoll.addDate') }}
+          {{ t('editor.datePoll.addDates') }}
         </AppButton>
       </div>
 
@@ -369,41 +333,6 @@ onMounted(fetchPoll)
   text-align: center;
   border: 1.5px dashed var(--color-border-light);
   border-radius: var(--radius-lg);
-}
-
-.date-poll-editor__add-form {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  flex-wrap: wrap;
-}
-
-.date-poll-editor__input {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.date-poll-editor__input:focus {
-  border-color: var(--color-accent);
-}
-
-.date-poll-editor__input--time {
-  width: 120px;
-}
-
-.date-poll-editor__add-actions {
-  display: flex;
-  gap: var(--space-2);
 }
 
 .date-poll-editor__add-btn {

@@ -4,6 +4,7 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
+const toast = useToast()
 const {
   filteredItems,
   loading,
@@ -21,22 +22,39 @@ const {
 } = useGuestWishlist(props.token)
 
 const noteError = ref('')
+const chatItemId = ref(null)
+
+const chatItem = computed(() => {
+  if (!chatItemId.value) return null
+  return items.value.find((i) => i.id === chatItemId.value) || null
+})
+
+function openChat(itemId) {
+  chatItemId.value = itemId
+}
+
+function closeChat() {
+  chatItemId.value = null
+}
 
 onMounted(() => fetchWishlist())
 
-async function handleClaim(itemId) {
+async function handleClaim(itemId, amountCents) {
   try {
-    await claimItem(itemId)
+    await claimItem(itemId, amountCents ? { amountCents } : undefined)
+    toast.add({ title: t('toast.itemClaimed'), icon: 'i-lucide-check', color: 'green' })
   } catch (e) {
     if (e.data?.statusCode === 409) {
       await fetchWishlist()
     }
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   }
 }
 
 async function handleUnclaim(itemId) {
   try {
     await unclaimItem(itemId)
+    toast.add({ title: t('toast.itemUnclaimed'), icon: 'i-lucide-check', color: 'green' })
   } catch (e) {
     noteError.value = e.data?.statusMessage || t('wishlist.noteError')
     setTimeout(() => { noteError.value = '' }, 3000)
@@ -44,7 +62,12 @@ async function handleUnclaim(itemId) {
 }
 
 async function handlePurchased(itemId) {
-  await markPurchased(itemId)
+  try {
+    await markPurchased(itemId)
+    toast.add({ title: t('toast.itemPurchased'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 async function handleAddNote(itemId, message) {
@@ -99,6 +122,16 @@ async function handleAddNote(itemId, message) {
       @unclaim="handleUnclaim"
       @purchased="handlePurchased"
       @add-note="handleAddNote"
+      @open-chat="openChat"
+    />
+
+    <!-- Chat panel -->
+    <WishlistItemChatPanel
+      v-if="chatItem"
+      :item="chatItem"
+      :token="token"
+      @close="closeChat"
+      @claim="(id, amountCents) => { closeChat(); handleClaim(id, amountCents) }"
     />
   </div>
 </template>

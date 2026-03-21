@@ -116,6 +116,7 @@
   --radius-lg: 10px;
   --radius-xl: 12px;
   --radius-2xl: 16px;
+  --radius-3xl: 20px;
   --radius-full: 9999px;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.06);
@@ -136,6 +137,7 @@
   --glass-dark-border: rgba(255, 255, 255, 0.06);
 
   /* Transitions */
+  --transition-micro: 100ms ease;
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
@@ -154,6 +156,16 @@
   --color-event-baby-shower: #4caf50;
   --color-event-corporate: #2196f3;
   --color-event-default: #6c7a89;
+
+  /* Status */
+  --color-online: #22c55e;
+  --color-away: #f59e0b;
+
+  /* Surface elevated */
+  --color-surface-elevated: #ffffff;
+
+  /* Profile gradient */
+  --gradient-profile: linear-gradient(135deg, var(--color-accent), var(--color-accent-violet));
 
   /* Skeleton */
   --color-skeleton: #e8eaef;
@@ -240,4 +252,7 @@
   --shadow-accent: 0 0 20px rgba(0, 212, 170, 0.2);
   --shadow-accent-lg: 0 12px 40px rgba(0, 212, 170, 0.3);
   --shadow-accent-sm: 0 4px 12px rgba(0, 212, 170, 0.15);
+
+  /* Surface elevated */
+  --color-surface-elevated: rgba(20, 20, 32, 0.9);
 }

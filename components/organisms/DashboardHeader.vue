@@ -7,6 +7,12 @@ defineProps({
 })
 
 const emit = defineEmits(['toggle-sidebar'])
+
+const { user } = useUser()
+const localePath = useLocalePath()
+
+const avatarUrl = computed(() => user.value?.imageUrl || null)
+const displayName = computed(() => user.value?.firstName || user.value?.fullName || '')
 </script>
 
 <template>
@@ -20,6 +26,15 @@ const emit = defineEmits(['toggle-sidebar'])
     <div class="dashboard-header__right">
       <UColorModeButton />
       <slot />
+      <NuxtLink :to="localePath('dashboard') + '/profile'" class="dashboard-header__avatar-link">
+        <AvatarCircle
+          :src="avatarUrl"
+          :name="displayName"
+          size="sm"
+          ring
+          interactive
+        />
+      </NuxtLink>
     </div>
   </header>
 </template>
@@ -69,7 +84,12 @@ const emit = defineEmits(['toggle-sidebar'])
 .dashboard-header__right {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
+}
+
+.dashboard-header__avatar-link {
+  text-decoration: none;
+  line-height: 0;
 }
 
 @media (max-width: 768px) {

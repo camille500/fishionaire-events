@@ -40,6 +40,8 @@ export default function useWishlist(eventId: string | number) {
       items.value.push(created)
       stats.value.totalItems++
       return created
+    } catch (err) {
+      throw err
     } finally {
       saving.value = false
     }
@@ -55,31 +57,45 @@ export default function useWishlist(eventId: string | number) {
       const idx = items.value.findIndex((i) => i.id === itemId)
       if (idx !== -1) items.value[idx] = { ...items.value[idx], ...updated }
       return updated
+    } catch (err) {
+      throw err
     } finally {
       saving.value = false
     }
   }
 
   async function deleteItem(itemId: string | number) {
-    await $fetch(`/api/events/${eventId}/wishlist/${itemId}`, { method: 'DELETE' })
-    items.value = items.value.filter((i) => i.id !== itemId)
-    stats.value.totalItems = Math.max(0, stats.value.totalItems - 1)
+    try {
+      await $fetch(`/api/events/${eventId}/wishlist/${itemId}`, { method: 'DELETE' })
+      items.value = items.value.filter((i) => i.id !== itemId)
+      stats.value.totalItems = Math.max(0, stats.value.totalItems - 1)
+    } catch (err) {
+      throw err
+    }
   }
 
   async function reorderItems(orderedIds: (string | number)[]) {
-    await $fetch(`/api/events/${eventId}/wishlist/reorder`, {
-      method: 'PUT',
-      body: { orderedIds },
-    })
+    try {
+      await $fetch(`/api/events/${eventId}/wishlist/reorder`, {
+        method: 'PUT',
+        body: { orderedIds },
+      })
+    } catch (err) {
+      throw err
+    }
   }
 
   async function bulkDeleteItems(ids: (string | number)[]) {
-    await $fetch(`/api/events/${eventId}/wishlist/bulk-delete`, {
-      method: 'POST',
-      body: { ids },
-    })
-    items.value = items.value.filter((i) => !ids.includes(i.id as string | number))
-    stats.value.totalItems = Math.max(0, stats.value.totalItems - ids.length)
+    try {
+      await $fetch(`/api/events/${eventId}/wishlist/bulk-delete`, {
+        method: 'POST',
+        body: { ids },
+      })
+      items.value = items.value.filter((i) => !ids.includes(i.id as string | number))
+      stats.value.totalItems = Math.max(0, stats.value.totalItems - ids.length)
+    } catch (err) {
+      throw err
+    }
   }
 
   async function aiSuggest(params: { prompt: string, eventType?: string, eventTitle?: string, language?: string }) {

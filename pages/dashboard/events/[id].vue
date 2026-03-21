@@ -91,6 +91,55 @@ onMounted(() => {
   $fetch(`/api/events/${route.params.id}/views`, { method: 'POST' }).catch(() => {})
 })
 
+// Activity feed
+const { data: activityData } = useFetch(() => `/api/events/${route.params.id}/activity`, { lazy: true })
+
+const activityTypeConfig = {
+  rsvp: { icon: 'check-circle', color: 'var(--color-success)' },
+  claim: { icon: 'gift', color: 'var(--color-accent)' },
+  purchase: { icon: 'shopping-bag', color: 'var(--color-success)' },
+  music_request: { icon: 'music', color: 'var(--color-event-party)' },
+  dietary: { icon: 'utensils', color: 'var(--color-event-dinner)' },
+  plus_one: { icon: 'user-plus', color: 'var(--color-event-birthday)' },
+}
+
+function formatTimeAgo(date) {
+  const diff = Date.now() - new Date(date).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return t('wishlist.chat.justNow')
+  if (mins < 60) return t('wishlist.chat.minutesAgo', { count: mins })
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return t('wishlist.chat.hoursAgo', { count: hours })
+  return new Date(date).toLocaleDateString()
+}
+
+function formatActivityMessage(log) {
+  const name = log.actorName || log.actorEmail
+  const meta = log.metadata || {}
+  switch (log.type) {
+    case 'rsvp': return `${name} ${meta.status === 'accepted' ? 'accepted' : 'declined'} ${meta.subEventTitle || ''}`
+    case 'claim': return `${name} claimed ${meta.itemTitle || 'an item'}`
+    case 'purchase': return `${name} purchased ${meta.itemTitle || 'an item'}`
+    case 'music_request': return `${name} requested "${meta.songTitle || ''}"${meta.artist ? ` by ${meta.artist}` : ''}`
+    case 'dietary': return `${name} submitted dietary preferences`
+    case 'plus_one': return `${name} was added as a plus-one`
+    default: return `${name} performed an action`
+  }
+}
+
+const formattedActivities = computed(() => {
+  if (!activityData.value) return []
+  return activityData.value.map((log) => {
+    const config = activityTypeConfig[log.type] || { icon: 'activity', color: 'var(--color-text-muted)' }
+    return {
+      icon: config.icon,
+      color: config.color,
+      message: formatActivityMessage(log),
+      timestamp: formatTimeAgo(log.createdAt),
+    }
+  })
+})
+
 // Tab change animations
 const { animateTabChange } = useEditorAnimations()
 const previousTab = ref(0)
@@ -203,6 +252,9 @@ function onTabChange(index) {
           </div>
         </template>
       </AppTabs>
+
+      <!-- Activity feed -->
+      <ActivityFeed :activities="formattedActivities" />
 
       <!-- AI Assistant FAB (paid users only) -->
       <AiAssistantFab

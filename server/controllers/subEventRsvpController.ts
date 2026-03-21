@@ -5,6 +5,7 @@ import SubEventPlusOneRepository from '../repositories/subEventPlusOneRepository
 import EventRepository from '../repositories/eventRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
+import ActivityLogController from './activityLogController'
 
 type RsvpStatus = 'accepted' | 'declined'
 
@@ -42,6 +43,12 @@ export default class SubEventRsvpController {
     }
 
     const rsvp = await SubEventRsvpRepository.upsert(subEventId, guestEmail.toLowerCase(), status)
+
+    ActivityLogController.log(eventId, 'rsvp', invitation.inviteeName || guestEmail, guestEmail, {
+      subEventTitle: subEvent.title,
+      status,
+    })
+
     return rsvp.toJSON()
   }
 

@@ -6,6 +6,7 @@ import EventInvitationRepository from '../repositories/eventInvitationRepository
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import SpotifyConnectionRepository from '../repositories/spotifyConnectionRepository'
 import { getValidToken, addTracksToPlaylist } from '../utils/spotifyClient'
+import ActivityLogController from './activityLogController'
 
 export default class SubEventInteractionController {
   static async #verifyGuestAccess(subEventId: number, email: string) {
@@ -53,6 +54,11 @@ export default class SubEventInteractionController {
       restrictions: data.restrictions.trim(),
       notes: data.notes || null,
     })
+
+    ActivityLogController.log(subEvent.eventId, 'dietary', data.guestName || email, email, {
+      subEventTitle: subEvent.title,
+    })
+
     return dietary.toJSON()
   }
 
@@ -110,6 +116,11 @@ export default class SubEventInteractionController {
       guestEmail: email.toLowerCase(),
       plusOneName: plusOneName.trim(),
     })
+
+    ActivityLogController.log(subEvent.eventId, 'plus_one', plusOneName.trim(), email, {
+      subEventTitle: subEvent.title,
+    })
+
     return plusOne.toJSON()
   }
 
@@ -161,6 +172,11 @@ export default class SubEventInteractionController {
       albumArtUrl: data.albumArtUrl || null,
       previewUrl: data.previewUrl || null,
       durationMs: data.durationMs || null,
+    })
+
+    ActivityLogController.log(subEvent.eventId, 'music_request', email, email, {
+      songTitle: data.songTitle.trim(),
+      artist: data.artist,
     })
 
     // Auto-add to playlist if auto-approved and exactly one playlist exists

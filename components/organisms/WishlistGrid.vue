@@ -6,7 +6,7 @@ defineProps({
   claimingId: { type: [String, Number], default: null },
 })
 
-const emit = defineEmits(['edit', 'delete', 'claim', 'unclaim', 'purchased', 'select', 'add-note'])
+const emit = defineEmits(['edit', 'delete', 'claim', 'unclaim', 'purchased', 'select', 'add-note', 'open-chat'])
 </script>
 
 <template>
@@ -26,6 +26,7 @@ const emit = defineEmits(['edit', 'delete', 'claim', 'unclaim', 'purchased', 'se
         @purchased="emit('purchased', $event)"
         @select="emit('select', $event)"
         @add-note="(id, msg) => emit('add-note', id, msg)"
+        @open-chat="emit('open-chat', $event)"
       />
     </TransitionGroup>
   </div>

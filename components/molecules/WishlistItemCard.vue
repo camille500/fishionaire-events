@@ -6,11 +6,12 @@ const props = defineProps({
   claiming: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['edit', 'delete', 'claim', 'unclaim', 'purchased', 'select', 'add-note'])
+const emit = defineEmits(['edit', 'delete', 'claim', 'unclaim', 'purchased', 'select', 'add-note', 'open-chat'])
 
 const { t } = useI18n()
 const showNote = ref(false)
 const noteText = ref('')
+const showClaims = ref(false)
 
 const itemStatus = computed(() => {
   if (props.item.myClaim?.status === 'purchased') return 'purchased'
@@ -121,6 +122,16 @@ function submitNote() {
         class="wishlist-card__pool"
       />
 
+      <!-- Chat / participant info for guest mode -->
+      <button
+        v-if="mode === 'guest' && item.messageCount > 0"
+        class="wishlist-card__chat-link"
+        @click.stop="emit('open-chat', item.id)"
+      >
+        <Icon name="lucide:message-circle" />
+        {{ t('wishlist.chat.messageBadge', { count: item.messageCount }) }}
+      </button>
+
       <!-- External link -->
       <a
         v-if="item.externalUrl"
@@ -144,10 +155,14 @@ function submitNote() {
         <button class="wishlist-card__action-btn wishlist-card__action-btn--danger" @click="emit('delete', item.id)">
           <Icon name="lucide:trash-2" />
         </button>
-        <span v-if="item.claimCount > 0" class="wishlist-card__claim-count">
-          <Icon name="lucide:users" />
+        <button
+          v-if="item.claimCount > 0"
+          class="wishlist-card__claim-count wishlist-card__claim-count--clickable"
+          @click="showClaims = !showClaims"
+        >
+          <Icon :name="showClaims ? 'lucide:chevron-up' : 'lucide:users'" />
           {{ item.claimCount }}
-        </span>
+        </button>
       </template>
 
       <!-- Guest actions -->
@@ -185,7 +200,40 @@ function submitNote() {
           <Icon name="lucide:check-circle" />
           {{ t('wishlist.purchased') }}
         </div>
+
+        <!-- Chat button for all guest items -->
+        <button
+          class="wishlist-card__chat-btn"
+          @click.stop="emit('open-chat', item.id)"
+        >
+          <Icon name="lucide:message-circle" />
+          {{ t('wishlist.chat.title') }}
+        </button>
       </template>
+    </div>
+
+    <!-- Organizer claim details (expandable) -->
+    <div v-if="showClaims && mode === 'organizer' && item.claims?.length" class="wishlist-card__claims">
+      <div class="wishlist-card__claims-header">
+        <Icon name="lucide:users" size="14" />
+        {{ t('wishlist.claimedBy') }}
+      </div>
+      <div
+        v-for="(claim, i) in item.claims"
+        :key="i"
+        class="wishlist-card__claim-row"
+      >
+        <span class="wishlist-card__claim-name">{{ claim.guestName || t('wishlist.chat.you') }}</span>
+        <span v-if="claim.amountCents" class="wishlist-card__claim-amount">
+          {{ (claim.amountCents / 100).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' }) }}
+        </span>
+        <span
+          class="wishlist-card__claim-status"
+          :class="{ 'wishlist-card__claim-status--purchased': claim.status === 'purchased' }"
+        >
+          {{ claim.status === 'purchased' ? t('wishlist.purchased') : t('wishlist.claimedLabel') }}
+        </span>
+      </div>
     </div>
 
     <!-- Inline note input (appears after claiming) -->
@@ -424,6 +472,76 @@ function submitNote() {
   color: var(--color-text-secondary);
 }
 
+.wishlist-card__claim-count--clickable {
+  background: none;
+  border: 1px solid var(--color-border-light);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.wishlist-card__claim-count--clickable:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.wishlist-card__claims {
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wishlist-card__claims-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wishlist-card__claim-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  padding: var(--space-1) 0;
+}
+
+.wishlist-card__claim-name {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wishlist-card__claim-amount {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.wishlist-card__claim-status {
+  font-size: 10px;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
+}
+
+.wishlist-card__claim-status--purchased {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+}
+
 .wishlist-card__my-claim {
   display: flex;
   align-items: center;
@@ -503,5 +621,42 @@ function submitNote() {
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
+}
+
+.wishlist-card__chat-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.wishlist-card__chat-link:hover {
+  text-decoration: underline;
+}
+
+.wishlist-card__chat-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--color-border-light);
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: all var(--transition-fast);
+}
+
+.wishlist-card__chat-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
 </style>

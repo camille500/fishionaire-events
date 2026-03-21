@@ -68,10 +68,111 @@ export function useNaturalDateParse() {
     }
   }
 
+  /**
+   * Parse text that may contain multiple dates.
+   * Uses chrono-node's parse() which returns an array of results.
+   * Falls back to splitting on commas/and/en and parsing each segment.
+   * Examples: "March 28, 29 and April 4", "28, 29 maart en 4 april"
+   */
+  /**
+   * Expand a date range (start → end) into individual day entries,
+   * preserving the time from the start date on each day.
+   */
+  function expandRange(start: Date, end: Date): Date[] {
+    const dates: Date[] = []
+    const current = new Date(start)
+    // Cap at 31 days to prevent runaway loops
+    const maxDays = 31
+    let count = 0
+    while (current <= end && count < maxDays) {
+      dates.push(new Date(current))
+      current.setDate(current.getDate() + 1)
+      count++
+    }
+    return dates
+  }
+
+  function parseMultiple(text: string): Array<{ date: Date, preview: string, localString: string }> {
+    if (!text.trim()) return []
+
+    try {
+      const results = getParser().parse(text, new Date(), { forwardDate: true })
+
+      // Check for date ranges (e.g. "between May 5 and May 8", "5 tot 8 mei")
+      // chrono-node sets result.end when it detects a range
+      if (results.length === 1 && results[0] && results[0].end) {
+        const start = results[0].start.date()
+        const end = results[0].end.date()
+        if (end > start) {
+          const expanded = expandRange(start, end)
+          return expanded.map(date => ({
+            date,
+            preview: formatPreview(date),
+            localString: dateToLocalString(date),
+          }))
+        }
+      }
+
+      if (results.length > 1) {
+        const all: Array<{ date: Date, preview: string, localString: string }> = []
+        for (const r of results) {
+          if (r.end) {
+            // This result is itself a range — expand it
+            const expanded = expandRange(r.start.date(), r.end.date())
+            for (const date of expanded) {
+              all.push({ date, preview: formatPreview(date), localString: dateToLocalString(date) })
+            }
+          } else {
+            const date = r.start.date()
+            all.push({ date, preview: formatPreview(date), localString: dateToLocalString(date) })
+          }
+        }
+        return all
+      }
+
+      // If chrono only found 0-1 results, try splitting on separators
+      const separators = locale.value === 'nl'
+        ? /[,;]\s*|\s+en\s+/gi
+        : /[,;]\s*|\s+and\s+/gi
+
+      const segments = text.split(separators).map(s => s.trim()).filter(Boolean)
+
+      if (segments.length > 1) {
+        const parsed: Array<{ date: Date, preview: string, localString: string }> = []
+        for (const segment of segments) {
+          const date = getParser().parseDate(segment, new Date(), { forwardDate: true })
+          if (date) {
+            parsed.push({
+              date,
+              preview: formatPreview(date),
+              localString: dateToLocalString(date),
+            })
+          }
+        }
+        if (parsed.length > 0) return parsed
+      }
+
+      // Fall back to single parse
+      if (results.length === 1 && results[0]) {
+        const date = results[0].start.date()
+        return [{
+          date,
+          preview: formatPreview(date),
+          localString: dateToLocalString(date),
+        }]
+      }
+
+      return []
+    } catch {
+      return []
+    }
+  }
+
   return {
     parseNaturalDate,
     dateToLocalString,
     formatPreview,
     parseWithPreview,
+    parseMultiple,
   }
 }

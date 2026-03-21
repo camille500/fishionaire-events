@@ -95,9 +95,11 @@ export default class SpotifyController {
       name,
     })
 
-    // Try to add approved tracks that aren't already in a playlist
+    // Try to add approved/queued tracks that aren't already in a playlist
     const approvedRequests = await SubEventMusicRequestRepository.findBySubEventIdAndStatus(subEventId, 'approved')
-    const unassigned = approvedRequests.filter((r) => r.spotifyUri && !r.playlistId)
+    const queuedRequests = await SubEventMusicRequestRepository.findBySubEventIdAndStatus(subEventId, 'queued')
+    const allApproved = [...approvedRequests, ...queuedRequests]
+    const unassigned = allApproved.filter((r) => r.spotifyUri && !r.playlistId)
     const trackUris = unassigned.map((r) => r.spotifyUri!)
 
     if (trackUris.length > 0) {
@@ -170,6 +172,5 @@ export default class SpotifyController {
 
     const accessToken = await getValidToken(connection)
     await addToQueue(accessToken, request.spotifyUri)
-    await SubEventMusicRequestRepository.updateStatus(requestId, 'queued')
   }
 }

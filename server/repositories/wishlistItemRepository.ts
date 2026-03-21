@@ -40,7 +40,7 @@ export default class WishlistItemRepository {
     return rows.map((row) => WishlistItem.fromJSON(row))
   }
 
-  static async findByEventIdWithClaims(eventId: string | number): Promise<{ item: WishlistItem, claimCount: number, pooledCents: number }[]> {
+  static async findByEventIdWithClaims(eventId: string | number): Promise<{ item: WishlistItem, claimCount: number, pooledCents: number, claims: Array<{ guestName: string | null, amountCents: number | null, status: string, createdAt: Date }> }[]> {
     const prisma = usePrisma()
     const rows = await prisma.wishlistItem.findMany({
       where: { eventId: toInt(eventId) },
@@ -49,9 +49,12 @@ export default class WishlistItemRepository {
         claims: {
           select: {
             id: true,
+            guestName: true,
             amountCents: true,
             status: true,
+            createdAt: true,
           },
+          orderBy: { createdAt: 'asc' },
         },
       },
     })
@@ -59,6 +62,12 @@ export default class WishlistItemRepository {
       item: WishlistItem.fromJSON(row),
       claimCount: row.claims.length,
       pooledCents: row.claims.reduce((sum, c) => sum + (c.amountCents || 0), 0),
+      claims: row.claims.map((c) => ({
+        guestName: c.guestName,
+        amountCents: c.amountCents,
+        status: c.status,
+        createdAt: c.createdAt,
+      })),
     }))
   }
 

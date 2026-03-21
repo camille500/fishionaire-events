@@ -6,7 +6,10 @@ defineProps({
   },
 })
 
+const { t } = useI18n()
+const localePath = useLocalePath()
 const { user } = useUser()
+const { profile } = useProfile()
 const menuOpen = ref(false)
 const menuRef = ref(null)
 
@@ -24,7 +27,13 @@ const email = computed(() => {
 })
 
 const avatarUrl = computed(() => {
-  return user.value?.imageUrl || null
+  return profile.value?.avatarUrl || user.value?.imageUrl || null
+})
+
+const bioSnippet = computed(() => {
+  const bio = profile.value?.bio
+  if (!bio) return null
+  return bio.length > 60 ? bio.slice(0, 60) + '...' : bio
 })
 </script>
 
@@ -38,6 +47,7 @@ const avatarUrl = computed(() => {
         :src="avatarUrl"
         :name="displayName"
         size="sm"
+        ring
       />
       <div v-show="!collapsed" class="user-menu__info">
         <span class="user-menu__name">{{ displayName }}</span>
@@ -54,14 +64,19 @@ const avatarUrl = computed(() => {
     <Transition name="menu-dropdown">
       <div v-if="menuOpen" class="user-menu__dropdown">
         <div class="user-menu__dropdown-header">
-          <AvatarCircle :src="avatarUrl" :name="displayName" size="md" />
+          <AvatarCircle :src="avatarUrl" :name="displayName" size="md" ring />
           <div class="user-menu__dropdown-info">
             <span class="user-menu__dropdown-name">{{ displayName }}</span>
             <span class="user-menu__dropdown-email">{{ email }}</span>
+            <span v-if="bioSnippet" class="user-menu__dropdown-bio">{{ bioSnippet }}</span>
           </div>
         </div>
         <div class="user-menu__dropdown-divider" />
         <div class="user-menu__dropdown-items">
+          <NuxtLink :to="localePath('dashboard') + '/profile'" class="user-menu__dropdown-link" @click="menuOpen = false">
+            <Icon name="lucide:user" size="16" />
+            <span>{{ t('dashboard.sidebar.viewProfile') }}</span>
+          </NuxtLink>
           <slot />
         </div>
       </div>
@@ -139,7 +154,7 @@ const avatarUrl = computed(() => {
   left: 0;
   right: 0;
   min-width: 220px;
-  background: var(--color-surface);
+  background: var(--color-surface-elevated, var(--color-surface));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -149,7 +164,7 @@ const avatarUrl = computed(() => {
 
 .user-menu__dropdown-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-4);
 }
@@ -175,6 +190,14 @@ const avatarUrl = computed(() => {
   white-space: nowrap;
 }
 
+.user-menu__dropdown-bio {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+  line-height: var(--line-height-normal);
+}
+
 .user-menu__dropdown-divider {
   height: 1px;
   background: var(--color-border);
@@ -182,6 +205,23 @@ const avatarUrl = computed(() => {
 
 .user-menu__dropdown-items {
   padding: var(--space-2);
+}
+
+.user-menu__dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.user-menu__dropdown-link:hover {
+  background: var(--color-background);
+  color: var(--color-text-primary);
 }
 
 .menu-dropdown-enter-active,

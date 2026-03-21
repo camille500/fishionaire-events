@@ -116,6 +116,15 @@ model User {
   firstName String?  @map("first_name")
   lastName  String?  @map("last_name")
   role      UserRole @default(user)
+  displayName     String?  @map("display_name")
+  bio             String?
+  avatarUrl       String?  @map("avatar_url")
+  avatarKey       String?  @map("avatar_key")
+  website         String?
+  socialInstagram String?  @map("social_instagram")
+  socialTwitter   String?  @map("social_twitter")
+  socialLinkedin  String?  @map("social_linkedin")
+  profileVisible  Boolean  @default(true) @map("profile_visible")
   aiTone         String?  @map("ai_tone")
   aiToneCustom   String?  @map("ai_tone_custom")
   aiExtraContext String?  @map("ai_extra_context")
@@ -186,6 +195,7 @@ model Event {
   datePoll           DatePoll?
   wishlistItems      WishlistItem[]
   spotifyConnection  SpotifyConnection?
+  activityLogs       ActivityLog[]
 
   @@map("events")
 }
@@ -260,6 +270,7 @@ model EventInvitation {
   plusOnes       Int              @default(0) @map("plus_ones")
   accessToken    String           @unique @map("access_token")
   invitedById    Int?             @map("invited_by_id")
+  emailSentAt    DateTime?        @map("email_sent_at")
   createdAt      DateTime         @default(now()) @map("created_at")
 
   event           Event                @relation(fields: [eventId], references: [id])
@@ -462,8 +473,9 @@ model WishlistItem {
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @map("updated_at")
 
-  event  Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  claims WishlistClaim[]
+  event    Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  claims   WishlistClaim[]
+  messages WishlistItemMessage[]
 
   @@map("wishlist_items")
 }
@@ -518,4 +530,33 @@ model WishlistClaim {
 
   @@unique([wishlistItemId, guestEmail])
   @@map("wishlist_claims")
+}
+
+model WishlistItemMessage {
+  id             Int      @id @default(autoincrement())
+  wishlistItemId Int      @map("wishlist_item_id")
+  guestEmail     String   @map("guest_email")
+  guestName      String?  @map("guest_name")
+  content        String
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  wishlistItem WishlistItem @relation(fields: [wishlistItemId], references: [id], onDelete: Cascade)
+
+  @@index([wishlistItemId, createdAt])
+  @@map("wishlist_item_messages")
+}
+
+model ActivityLog {
+  id         Int      @id @default(autoincrement())
+  eventId    Int      @map("event_id")
+  type       String   // rsvp, claim, purchase, music_request, dietary, plus_one
+  actorName  String   @map("actor_name")
+  actorEmail String   @map("actor_email")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, createdAt])
+  @@map("activity_logs")
 }

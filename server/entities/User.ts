@@ -4,6 +4,15 @@ export interface UserData {
   firstName: string | null
   lastName: string | null
   role: string
+  displayName?: string | null
+  bio?: string | null
+  avatarUrl?: string | null
+  avatarKey?: string | null
+  website?: string | null
+  socialInstagram?: string | null
+  socialTwitter?: string | null
+  socialLinkedin?: string | null
+  profileVisible?: boolean
   aiTone?: string | null
   aiToneCustom?: string | null
   aiExtraContext?: string | null
@@ -20,6 +29,22 @@ export interface UserJSON {
   lastName?: string | null
   last_name?: string | null
   role?: string
+  displayName?: string | null
+  display_name?: string | null
+  bio?: string | null
+  avatarUrl?: string | null
+  avatar_url?: string | null
+  avatarKey?: string | null
+  avatar_key?: string | null
+  website?: string | null
+  socialInstagram?: string | null
+  social_instagram?: string | null
+  socialTwitter?: string | null
+  social_twitter?: string | null
+  socialLinkedin?: string | null
+  social_linkedin?: string | null
+  profileVisible?: boolean
+  profile_visible?: boolean
   aiTone?: string | null
   ai_tone?: string | null
   aiToneCustom?: string | null
@@ -38,18 +63,36 @@ export default class User {
   firstName: string | null
   lastName: string | null
   role: string
+  displayName: string | null
+  bio: string | null
+  avatarUrl: string | null
+  avatarKey: string | null
+  website: string | null
+  socialInstagram: string | null
+  socialTwitter: string | null
+  socialLinkedin: string | null
+  profileVisible: boolean
   aiTone: string | null
   aiToneCustom: string | null
   aiExtraContext: string | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ clerkId, email, firstName, lastName, role, aiTone, aiToneCustom, aiExtraContext, createdAt, updatedAt }: UserData) {
+  constructor({ clerkId, email, firstName, lastName, role, displayName, bio, avatarUrl, avatarKey, website, socialInstagram, socialTwitter, socialLinkedin, profileVisible, aiTone, aiToneCustom, aiExtraContext, createdAt, updatedAt }: UserData) {
     this.clerkId = clerkId
     this.email = email
     this.firstName = firstName || null
     this.lastName = lastName || null
     this.role = role || 'user'
+    this.displayName = displayName || null
+    this.bio = bio || null
+    this.avatarUrl = avatarUrl || null
+    this.avatarKey = avatarKey || null
+    this.website = website || null
+    this.socialInstagram = socialInstagram || null
+    this.socialTwitter = socialTwitter || null
+    this.socialLinkedin = socialLinkedin || null
+    this.profileVisible = profileVisible ?? true
     this.aiTone = aiTone || null
     this.aiToneCustom = aiToneCustom || null
     this.aiExtraContext = aiExtraContext || null
@@ -61,6 +104,10 @@ export default class User {
     return this.role === 'admin'
   }
 
+  get fullDisplayName(): string {
+    return this.displayName || [this.firstName, this.lastName].filter(Boolean).join(' ') || this.email
+  }
+
   static fromJSON(data: UserJSON): User {
     return new User({
       clerkId: (data.clerkId || data.clerk_id)!,
@@ -68,6 +115,15 @@ export default class User {
       firstName: data.firstName || data.first_name || null,
       lastName: data.lastName || data.last_name || null,
       role: data.role || 'user',
+      displayName: data.displayName ?? data.display_name ?? null,
+      bio: data.bio ?? null,
+      avatarUrl: data.avatarUrl ?? data.avatar_url ?? null,
+      avatarKey: data.avatarKey ?? data.avatar_key ?? null,
+      website: data.website ?? null,
+      socialInstagram: data.socialInstagram ?? data.social_instagram ?? null,
+      socialTwitter: data.socialTwitter ?? data.social_twitter ?? null,
+      socialLinkedin: data.socialLinkedin ?? data.social_linkedin ?? null,
+      profileVisible: data.profileVisible ?? data.profile_visible ?? true,
       aiTone: data.aiTone ?? data.ai_tone ?? null,
       aiToneCustom: data.aiToneCustom ?? data.ai_tone_custom ?? null,
       aiExtraContext: data.aiExtraContext ?? data.ai_extra_context ?? null,
@@ -83,6 +139,15 @@ export default class User {
       firstName: this.firstName,
       lastName: this.lastName,
       role: this.role,
+      displayName: this.displayName,
+      bio: this.bio,
+      avatarUrl: this.avatarUrl,
+      avatarKey: this.avatarKey,
+      website: this.website,
+      socialInstagram: this.socialInstagram,
+      socialTwitter: this.socialTwitter,
+      socialLinkedin: this.socialLinkedin,
+      profileVisible: this.profileVisible,
       aiTone: this.aiTone,
       aiToneCustom: this.aiToneCustom,
       aiExtraContext: this.aiExtraContext,

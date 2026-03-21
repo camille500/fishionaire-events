@@ -4,6 +4,7 @@ definePageMeta({ layout: false })
 const { t, locale } = useI18n()
 const route = useRoute()
 const token = String(route.params.token)
+const toast = useToast()
 
 const { data, error } = await useFetch(`/api/invite/${token}`)
 
@@ -119,7 +120,10 @@ async function removePlusOne(plusOneId) {
     await $fetch(`/api/invite/${token}/plus-one/${plusOneId}`, { method: 'DELETE' })
     const refreshed = await $fetch(`/api/invite/${token}`)
     data.value = refreshed
-  } catch {}
+    toast.add({ title: t('toast.plusOneRemoved'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 // RSVP
@@ -131,6 +135,9 @@ async function rsvp(status) {
       body: { status },
     })
     rsvpStatus.value = result.status
+    toast.add({ title: t('toast.rsvpSuccess'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.rsvpError'), icon: 'i-lucide-alert-circle', color: 'red' })
   } finally {
     rsvpLoading.value = false
   }
@@ -147,7 +154,9 @@ async function handleSubEventRsvp(subEventId, status) {
       body: { subEventId, status },
     })
     subEventRsvps.value = { ...subEventRsvps.value, [subEventId]: status }
-  } catch {}
+  } catch {
+    toast.add({ title: t('toast.rsvpError'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 watch(invitation, (inv) => {
@@ -167,8 +176,9 @@ async function submitDietary(subEventId, dietaryData) {
         ...dietaryData,
       },
     })
-  } catch {}
-  finally {
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
     dietarySaving.value[subEventId] = false
   }
 }
@@ -209,7 +219,9 @@ async function submitMusicRequest(subEventId, track) {
       },
     })
     await fetchMusicRequests(subEventId)
-  } catch {}
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 async function upvoteMusic(subEventId, requestId) {
@@ -218,7 +230,9 @@ async function upvoteMusic(subEventId, requestId) {
       method: 'POST',
     })
     await fetchMusicRequests(subEventId)
-  } catch {}
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 </script>
 

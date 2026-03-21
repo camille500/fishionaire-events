@@ -101,6 +101,8 @@ export default defineNuxtConfig({
     stripeEventProPriceId: process.env.STRIPE_EVENT_PRO_PRICE_ID || '',
     spotifyClientId: process.env.SPOTIFY_CLIENT_ID || '',
     spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET || '',
+    awsSesFromEmail: process.env.AWS_SES_FROM_EMAIL || 'noreply@fishionaire.com',
+    awsSesFromName: process.env.AWS_SES_FROM_NAME || 'Fishionaire Events',
     public: {
       appUrl: process.env.APP_URL || 'http://localhost:3000',
     },

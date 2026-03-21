@@ -11,6 +11,8 @@ import TimelineItemRepository from '../repositories/timelineItemRepository'
 import SubscriptionController from './subscriptionController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
 import { uploadImage, deleteImage } from '../utils/s3'
+import { sendEmail } from '../utils/email'
+import { renderInviteEmail } from '../utils/emailTemplates'
 
 type EventType = 'birthday' | 'wedding' | 'baby_shower' | 'dinner' | 'corporate' | 'other'
 type Tier = 'free' | 'standard' | 'pro'
@@ -632,5 +634,97 @@ export default class EventController {
 
     const saved = await EventRepository.update(event)
     return { coverImageUrl: null }
+  }
+
+  // --- Email invitation methods ---
+
+  static async sendInviteEmail(eventId: number, invitationId: number, clerkId: string): Promise<Record<string, unknown>> {
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission' })
+    }
+
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    const invitation = await EventInvitationRepository.findById(invitationId)
+    if (!invitation || Number(invitation.eventId) !== eventId) {
+      throw createError({ statusCode: 404, statusMessage: 'Invitation not found' })
+    }
+
+    const config = useRuntimeConfig()
+    const appUrl = config.public.appUrl as string
+    const inviteLink = `${appUrl}/invite/${invitation.accessToken}`
+
+    const html = renderInviteEmail({
+      eventTitle: event.title,
+      eventDate: event.eventDate ? String(event.eventDate) : null,
+      eventLocation: event.location,
+      coverImageUrl: event.coverImageUrl,
+      inviteeName: invitation.inviteeName,
+      inviteLink,
+    })
+
+    await sendEmail(
+      invitation.inviteeEmail,
+      `You're invited to ${event.title}`,
+      html,
+    )
+
+    await EventInvitationRepository.update(Number(invitation.id), {
+      emailSentAt: new Date(),
+    })
+
+    return { emailSentAt: new Date() }
+  }
+
+  static async sendAllPendingEmails(eventId: number, clerkId: string): Promise<{ sent: number }> {
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission' })
+    }
+
+    const event = await EventRepository.findById(eventId)
+    if (!event) {
+      throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    const invitations = await EventInvitationRepository.findPrimaryByEventId(eventId)
+    const unsent = invitations.filter((inv) => !inv.emailSentAt)
+
+    const config = useRuntimeConfig()
+    const appUrl = config.public.appUrl as string
+    let sent = 0
+
+    for (const invitation of unsent) {
+      try {
+        const inviteLink = `${appUrl}/invite/${invitation.accessToken}`
+        const html = renderInviteEmail({
+          eventTitle: event.title,
+          eventDate: event.eventDate ? String(event.eventDate) : null,
+          eventLocation: event.location,
+          coverImageUrl: event.coverImageUrl,
+          inviteeName: invitation.inviteeName,
+          inviteLink,
+        })
+
+        await sendEmail(
+          invitation.inviteeEmail,
+          `You're invited to ${event.title}`,
+          html,
+        )
+
+        await EventInvitationRepository.update(Number(invitation.id), {
+          emailSentAt: new Date(),
+        })
+        sent++
+      } catch {
+        // Skip failed sends, continue with others
+      }
+    }
+
+    return { sent }
   }
 }

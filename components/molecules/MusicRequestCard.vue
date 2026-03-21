@@ -55,11 +55,15 @@ onUnmounted(() => {
   }
 })
 
+const displayStatus = computed(() => {
+  // Treat 'queued' as 'approved' — queuing is a transient playback action, not a status
+  return props.request.status === 'queued' ? 'approved' : props.request.status
+})
+
 const statusColor = computed(() => {
-  switch (props.request.status) {
+  switch (displayStatus.value) {
     case 'approved': return '#22c55e'
     case 'rejected': return '#ef4444'
-    case 'queued': return '#8b5cf6'
     default: return '#f59e0b'
   }
 })
@@ -94,7 +98,7 @@ const statusColor = computed(() => {
 
     <!-- Status badge -->
     <span v-if="showStatus && request.status" class="music-card__status" :style="{ '--status-color': statusColor }">
-      {{ t(`editor.musicRequest.${request.status}`) }}
+      {{ t(`editor.musicRequest.${displayStatus}`) }}
     </span>
 
     <!-- Actions for organizer -->
@@ -107,15 +111,24 @@ const statusColor = computed(() => {
           <Icon name="lucide:x" size="12" />
         </button>
       </template>
-      <template v-if="request.status === 'approved' && spotifyConnected && request.spotifyUri">
+      <template v-if="(request.status === 'approved' || request.status === 'queued') && spotifyConnected && request.spotifyUri">
         <select
-          v-if="playlists.length > 0 && !request.playlistId"
+          v-if="playlists.length > 1 && !request.playlistId"
           class="music-card__playlist-select"
           @change="(e) => { if (e.target.value) emit('addToPlaylist', request.id, Number(e.target.value)); e.target.value = '' }"
         >
           <option value="">{{ t('editor.spotify.addToPlaylist') }}</option>
           <option v-for="pl in playlists" :key="pl.id" :value="pl.id">{{ pl.name }}</option>
         </select>
+        <button
+          v-else-if="playlists.length === 1 && !request.playlistId"
+          type="button"
+          class="music-card__action music-card__action--add"
+          :title="playlists[0].name"
+          @click="emit('addToPlaylist', request.id, playlists[0].id)"
+        >
+          <Icon name="lucide:list-plus" size="12" />
+        </button>
         <span v-else-if="request.playlistId" class="music-card__in-playlist">
           <Icon name="lucide:check" size="10" />
         </span>
@@ -298,6 +311,15 @@ const statusColor = computed(() => {
 .music-card__action--queue:hover {
   background: rgba(139, 92, 246, 0.1);
   border-color: rgba(139, 92, 246, 0.3);
+}
+
+.music-card__action--add {
+  color: #1db954;
+}
+
+.music-card__action--add:hover {
+  background: rgba(29, 185, 84, 0.1);
+  border-color: rgba(29, 185, 84, 0.3);
 }
 
 .music-card__playlist-select {
