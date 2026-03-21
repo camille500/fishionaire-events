@@ -56,6 +56,15 @@ export default class EventMemberRepository {
     }))
   }
 
+  static async findByUserId(clerkId: string): Promise<EventMember[]> {
+    const prisma = usePrisma()
+    const rows = await prisma.eventMember.findMany({
+      where: { userClerkId: clerkId },
+      include: { user: true },
+    })
+    return rows.map((row) => EventMember.fromJSON(row))
+  }
+
   static async delete(eventId: string, userClerkId: string): Promise<void> {
     const prisma = usePrisma()
     await prisma.eventMember.delete({

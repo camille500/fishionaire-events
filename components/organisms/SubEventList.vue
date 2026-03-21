@@ -107,27 +107,36 @@ async function onUpdateSubEvent(data) {
   }
 }
 
-async function onDeleteSubEvent(subEvent) {
-  if (!confirm(t('dashboard.eventEditor.confirmDeleteSubEvent'))) return
-  // Remove from UI immediately
+const confirmDeleteSubEvent = ref(null)
+const confirmBulkDelete = ref(false)
+
+function onDeleteSubEvent(subEvent) {
+  confirmDeleteSubEvent.value = subEvent
+}
+
+async function doDeleteSubEvent() {
+  if (!confirmDeleteSubEvent.value) return
+  const subEvent = confirmDeleteSubEvent.value
+  confirmDeleteSubEvent.value = null
   subEvents.value = subEvents.value.filter((se) => se.id !== subEvent.id)
   try {
     await $fetch(`/api/events/${props.eventId}/sub-events/${subEvent.id}`, {
       method: 'DELETE',
     })
   } catch {
-    // Restore on failure
     await fetchSubEvents()
   }
 }
 
-async function onBulkDelete() {
+function onBulkDelete() {
   const count = selectedIds.value.size
   if (count === 0) return
-  if (!confirm(t('dashboard.eventEditor.confirmBulkDelete', { count }))) return
+  confirmBulkDelete.value = true
+}
 
+async function doBulkDelete() {
+  confirmBulkDelete.value = false
   const idsToDelete = [...selectedIds.value]
-  // Remove from UI immediately
   subEvents.value = subEvents.value.filter((se) => !selectedIds.value.has(se.id))
   selectedIds.value = new Set()
   selectionMode.value = false
@@ -300,6 +309,24 @@ defineExpose({ fetchSubEvents, subEvents })
         @cancel="onCancelEdit"
       />
     </Transition>
+
+    <ConfirmModal
+      v-if="confirmDeleteSubEvent"
+      :title="t('dashboard.eventEditor.confirmDeleteSubEvent')"
+      :message="confirmDeleteSubEvent.title || ''"
+      variant="danger"
+      @confirm="doDeleteSubEvent"
+      @close="confirmDeleteSubEvent = null"
+    />
+
+    <ConfirmModal
+      v-if="confirmBulkDelete"
+      :title="t('dashboard.eventEditor.confirmBulkDelete', { count: selectedIds.size })"
+      :message="t('dashboard.eventEditor.confirmBulkDelete', { count: selectedIds.size })"
+      variant="danger"
+      @confirm="doBulkDelete"
+      @close="confirmBulkDelete = false"
+    />
   </div>
 </template>
 

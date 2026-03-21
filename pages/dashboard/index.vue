@@ -78,6 +78,56 @@ const inlineStats = computed(() => {
 function openCreateWizard() {
   navigateTo('/dashboard/events/create')
 }
+
+// Activity feed
+const { data: recentActivity } = useFetch('/api/activity/recent', { lazy: true })
+
+const activityTypeConfig = {
+  rsvp: { icon: 'check-circle', color: 'var(--color-success)' },
+  claim: { icon: 'gift', color: 'var(--color-accent)' },
+  purchase: { icon: 'shopping-bag', color: 'var(--color-success)' },
+  music_request: { icon: 'music', color: 'var(--color-event-party)' },
+  dietary: { icon: 'utensils', color: 'var(--color-event-dinner)' },
+  plus_one: { icon: 'user-plus', color: 'var(--color-event-birthday)' },
+}
+
+function formatTimeAgo(date) {
+  const diff = Date.now() - new Date(date).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return t('wishlist.chat.justNow')
+  if (mins < 60) return t('wishlist.chat.minutesAgo', { count: mins })
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return t('wishlist.chat.hoursAgo', { count: hours })
+  return new Date(date).toLocaleDateString()
+}
+
+function formatActivityMessage(log) {
+  const name = log.actorName || log.actorEmail
+  const meta = log.metadata || {}
+  const eventLabel = meta.eventTitle ? ` (${meta.eventTitle})` : ''
+  switch (log.type) {
+    case 'rsvp': return `${name} ${meta.status === 'accepted' ? 'accepted' : 'declined'}${eventLabel}`
+    case 'claim': return `${name} claimed ${meta.itemTitle || 'an item'}${eventLabel}`
+    case 'purchase': return `${name} purchased ${meta.itemTitle || 'an item'}${eventLabel}`
+    case 'music_request': return `${name} requested "${meta.songTitle || ''}"${eventLabel}`
+    case 'dietary': return `${name} submitted dietary preferences${eventLabel}`
+    case 'plus_one': return `${name} was added as plus-one${eventLabel}`
+    default: return `${name} performed an action${eventLabel}`
+  }
+}
+
+const formattedActivities = computed(() => {
+  if (!recentActivity.value) return []
+  return recentActivity.value.map((log) => {
+    const config = activityTypeConfig[log.type] || { icon: 'activity', color: 'var(--color-text-muted)' }
+    return {
+      icon: config.icon,
+      color: config.color,
+      message: formatActivityMessage(log),
+      timestamp: formatTimeAgo(log.createdAt),
+    }
+  })
+})
 </script>
 
 <template>
@@ -252,6 +302,11 @@ function openCreateWizard() {
             :description="t('dashboard.emptyState.noInvitations.description')"
           />
         </section>
+
+        <!-- Activity feed -->
+        <section v-if="formattedActivities.length > 0" class="bento-activity">
+          <ActivityFeed :activities="formattedActivities" />
+        </section>
       </div>
     </template>
   </div>
@@ -274,7 +329,8 @@ function openCreateWizard() {
     "next-event next-event next-event"
     "events events events"
     "past-events past-events past-events"
-    "co-org co-org invitations";
+    "co-org co-org invitations"
+    "activity activity activity";
   gap: var(--space-4);
 }
 
@@ -296,6 +352,10 @@ function openCreateWizard() {
 
 .bento-invitations {
   grid-area: invitations;
+}
+
+.bento-activity {
+  grid-area: activity;
 }
 
 .bento-next-event {

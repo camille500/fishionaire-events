@@ -1,5 +1,6 @@
 <script setup>
 const { t } = useI18n()
+const toast = useToast()
 
 const props = defineProps({
   eventId: { type: Number, required: true },
@@ -76,8 +77,8 @@ async function addGuest() {
     selectedSubEventIds.value = []
     showAddForm.value = false
     await fetchGuests()
-  } catch (e) {
-    // Error handled silently — could add toast
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   } finally {
     saving.value = false
   }
@@ -90,14 +91,49 @@ async function updateGuest(invitationId, data) {
       body: data,
     })
     await fetchGuests()
-  } catch {}
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 
 async function removeGuest(invitationId) {
   try {
     await $fetch(`/api/events/${props.eventId}/guests/${invitationId}`, { method: 'DELETE' })
     await fetchGuests()
-  } catch {}
+    toast.add({ title: t('toast.guestRemoved'), icon: 'i-lucide-check', color: 'green' })
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
+}
+
+// Email sending
+const sendingAll = ref(false)
+
+const unsentCount = computed(() => {
+  return guests.value.filter((g) => !g.emailSentAt && !g.invitedById).length
+})
+
+async function sendInviteEmail(invitationId) {
+  try {
+    await $fetch(`/api/events/${props.eventId}/guests/${invitationId}/send-email`, { method: 'POST' })
+    toast.add({ title: t('toast.emailSent'), icon: 'i-lucide-check', color: 'green' })
+    await fetchGuests()
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
+}
+
+async function sendAllEmails() {
+  sendingAll.value = true
+  try {
+    const result = await $fetch(`/api/events/${props.eventId}/guests/send-all-emails`, { method: 'POST' })
+    toast.add({ title: t('toast.emailsSent'), icon: 'i-lucide-check', color: 'green' })
+    await fetchGuests()
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    sendingAll.value = false
+  }
 }
 
 // Share link
@@ -172,6 +208,7 @@ function toggleSubEvent(id) {
         :sub-events="subEvents"
         @update="updateGuest"
         @remove="removeGuest"
+        @send-email="sendInviteEmail"
       />
     </TransitionGroup>
 
@@ -267,6 +304,18 @@ function toggleSubEvent(id) {
       >
         <Icon name="lucide:user-plus" size="14" />
         {{ t('editor.guests.addGuest') }}
+      </AppButton>
+
+      <AppButton
+        v-if="unsentCount > 0"
+        variant="primary"
+        size="sm"
+        :loading="sendingAll"
+        @click="sendAllEmails"
+      >
+        <Icon name="lucide:send" size="14" />
+        {{ t('editor.guests.sendAll') }}
+        <span class="guest-manager__unsent-badge">{{ unsentCount }}</span>
       </AppButton>
 
       <AppButton
@@ -503,6 +552,19 @@ function toggleSubEvent(id) {
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+}
+
+.guest-manager__unsent-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
 }
 
 /* Transitions */

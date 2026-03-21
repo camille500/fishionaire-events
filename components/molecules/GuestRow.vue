@@ -6,9 +6,10 @@ const props = defineProps({
   subEvents: { type: Array, default: () => [] },
 })
 
-const emit = defineEmits(['remove', 'update'])
+const emit = defineEmits(['remove', 'update', 'send-email'])
 
 const copySuccess = ref(false)
+const sendingEmail = ref(false)
 const editing = ref(false)
 const editName = ref('')
 const editEmail = ref('')
@@ -68,6 +69,13 @@ async function copyLink() {
     copySuccess.value = true
     setTimeout(() => { copySuccess.value = false }, 2000)
   } catch {}
+}
+
+async function handleSendEmail() {
+  sendingEmail.value = true
+  emit('send-email', props.invitation.id)
+  // Parent will handle the actual API call and reset state
+  setTimeout(() => { sendingEmail.value = false }, 3000)
 }
 </script>
 
@@ -144,6 +152,17 @@ async function copyLink() {
 
       <!-- Actions -->
       <div v-if="!editing" class="guest-row__actions">
+        <span v-if="invitation.emailSentAt" class="guest-row__sent-badge" :title="t('editor.guests.emailSent')">
+          <Icon name="lucide:mail-check" size="12" />
+        </span>
+        <button
+          class="guest-row__action-btn guest-row__action-btn--send"
+          :title="invitation.emailSentAt ? t('editor.guests.resendInvite') : t('editor.guests.sendInvite')"
+          :disabled="sendingEmail"
+          @click="handleSendEmail"
+        >
+          <Icon :name="sendingEmail ? 'lucide:loader' : 'lucide:send'" size="14" :class="{ 'guest-row__spin': sendingEmail }" />
+        </button>
         <button class="guest-row__action-btn" :title="t('editor.guests.editGuest')" @click="startEdit">
           <Icon name="lucide:pencil" size="14" />
         </button>
@@ -409,6 +428,27 @@ async function copyLink() {
 .guest-row__action-btn--danger:hover {
   color: var(--color-error);
   background: color-mix(in srgb, var(--color-error) 8%, transparent);
+}
+
+.guest-row__action-btn--send:hover {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 8%, transparent);
+}
+
+.guest-row__sent-badge {
+  display: flex;
+  align-items: center;
+  color: var(--color-success);
+  font-size: var(--text-xs);
+}
+
+.guest-row__spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Plus-one nested list */

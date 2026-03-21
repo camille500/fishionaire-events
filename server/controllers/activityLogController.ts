@@ -27,12 +27,12 @@ export default class ActivityLogController {
   }
 
   static async getByEventId(eventId: number, clerkId: string): Promise<Record<string, unknown>[]> {
-    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    const member = await EventMemberRepository.findByEventIdAndUserId(String(eventId), clerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission to view this event' })
     }
 
     const logs = await ActivityLogRepository.findByEventId(eventId)
-    return logs.map((log) => log.toJSON())
+    return logs.map((log) => log.toJSON() as unknown as Record<string, unknown>)
   }
 }

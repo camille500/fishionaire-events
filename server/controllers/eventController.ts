@@ -12,7 +12,7 @@ import SubscriptionController from './subscriptionController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
 import { uploadImage, deleteImage } from '../utils/s3'
 import { sendEmail } from '../utils/email'
-import { renderInviteEmail } from '../utils/emailTemplates'
+import { renderInviteEmail, renderRsvpConfirmationEmail, renderEventUpdateEmail } from '../utils/emailTemplates'
 
 type EventType = 'birthday' | 'wedding' | 'baby_shower' | 'dinner' | 'corporate' | 'other'
 type Tier = 'free' | 'standard' | 'pro'
@@ -199,6 +199,10 @@ export default class EventController {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission to edit this event' })
     }
 
+    // Capture originals for change detection
+    const originalDate = event.eventDate ? String(event.eventDate) : null
+    const originalLocation = event.location || null
+
     if (title !== undefined) {
       if (!title || !title.trim()) {
         throw createError({ statusCode: 400, statusMessage: 'Title is required' })
@@ -254,6 +258,36 @@ export default class EventController {
     }
 
     const saved = await EventRepository.update(event)
+
+    // Detect date/location changes and notify guests (fire-and-forget)
+    const newDate = event.eventDate ? String(event.eventDate) : null
+    const newLocation = event.location || null
+    const dateChanged = originalDate !== newDate
+    const locationChanged = originalLocation !== newLocation
+
+    if (dateChanged || locationChanged) {
+      const changes: Array<{ field: string, oldValue?: string | null, newValue?: string | null }> = []
+      if (dateChanged) changes.push({ field: 'date', oldValue: originalDate, newValue: newDate })
+      if (locationChanged) changes.push({ field: 'location', oldValue: originalLocation, newValue: newLocation })
+
+      EventInvitationRepository.findPrimaryByEventId(String(eventId)).then((guests) => {
+        const appUrl = useRuntimeConfig().public.appUrl as string
+        for (const guest of guests) {
+          const inviteLink = `${appUrl}/invite/${guest.accessToken}`
+          sendEmail(
+            guest.inviteeEmail,
+            `${event.title} has been updated`,
+            renderEventUpdateEmail({
+              eventTitle: event.title,
+              guestName: guest.inviteeName,
+              changes,
+              inviteLink,
+            }),
+          ).catch(() => {})
+        }
+      }).catch(() => {})
+    }
+
     return saved.toJSON()
   }
 
@@ -490,6 +524,25 @@ export default class EventController {
     }
 
     const updated = await EventInvitationRepository.update(parseInt(invitation.id!), { status })
+
+    // Send RSVP confirmation email (fire-and-forget)
+    if (event) {
+      const appUrl = useRuntimeConfig().public.appUrl as string
+      const inviteLink = `${appUrl}/invite/${invitation.accessToken}`
+      sendEmail(
+        invitation.inviteeEmail,
+        status === 'accepted' ? `You're going to ${event.title}!` : `RSVP updated for ${event.title}`,
+        renderRsvpConfirmationEmail({
+          eventTitle: event.title,
+          guestName: invitation.inviteeName,
+          rsvpStatus: status as 'accepted' | 'declined',
+          eventDate: event.eventDate ? String(event.eventDate) : null,
+          eventLocation: event.location,
+          inviteLink,
+        }),
+      ).catch(() => {})
+    }
+
     return updated.toJSON()
   }
 
@@ -639,12 +692,12 @@ export default class EventController {
   // --- Email invitation methods ---
 
   static async sendInviteEmail(eventId: number, invitationId: number, clerkId: string): Promise<Record<string, unknown>> {
-    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    const member = await EventMemberRepository.findByEventIdAndUserId(String(eventId), clerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission' })
     }
 
-    const event = await EventRepository.findById(eventId)
+    const event = await EventRepository.findById(String(eventId))
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
@@ -681,17 +734,17 @@ export default class EventController {
   }
 
   static async sendAllPendingEmails(eventId: number, clerkId: string): Promise<{ sent: number }> {
-    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    const member = await EventMemberRepository.findByEventIdAndUserId(String(eventId), clerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission' })
     }
 
-    const event = await EventRepository.findById(eventId)
+    const event = await EventRepository.findById(String(eventId))
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
 
-    const invitations = await EventInvitationRepository.findPrimaryByEventId(eventId)
+    const invitations = await EventInvitationRepository.findPrimaryByEventId(String(eventId))
     const unsent = invitations.filter((inv) => !inv.emailSentAt)
 
     const config = useRuntimeConfig()

@@ -182,21 +182,28 @@ onMounted(() => {
       >
         <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.eventTypeLabel') }}</h3>
       </OnboardingTooltip>
-      <div ref="typeGridRef" class="editor-details__type-grid">
-        <button
-          v-for="(type, index) in eventTypes"
-          :key="type"
-          type="button"
-          class="editor-details__type-card"
-          :class="{ 'editor-details__type-card--active': form.eventType === type }"
-          :data-event-type="type"
-          :style="{ animationDelay: `${index * 50}ms` }"
-          @click="selectType(type, $event)"
-        >
-          <Icon :name="useEventTheme(type).icon.value" size="20" />
-          <span>{{ t(`dashboard.eventEditor.eventTypes.${type}`) }}</span>
-        </button>
-      </div>
+      <ClientOnly>
+        <div ref="typeGridRef" class="editor-details__type-grid">
+          <button
+            v-for="(type, index) in eventTypes"
+            :key="type"
+            type="button"
+            class="editor-details__type-card"
+            :class="{ 'editor-details__type-card--active': form.eventType === type }"
+            :data-event-type="type"
+            :style="{ animationDelay: `${index * 50}ms` }"
+            @click="selectType(type, $event)"
+          >
+            <Icon :name="useEventTheme(type).icon.value" size="20" />
+            <span>{{ t(`dashboard.eventEditor.eventTypes.${type}`) }}</span>
+          </button>
+        </div>
+        <template #fallback>
+          <div class="editor-details__type-grid">
+            <div v-for="i in 6" :key="i" class="editor-details__type-card" style="opacity: 0.3;" />
+          </div>
+        </template>
+      </ClientOnly>
     </section>
 
     <!-- Date & Location -->
@@ -241,26 +248,28 @@ onMounted(() => {
 
         <!-- Fixed date pickers (when polling is OFF) -->
         <template v-if="!datePollingActive">
-          <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
-            <EditorDatePicker
-              v-model="form.eventDate"
-              :placeholder="t('editor.datePicker.selectDate')"
-              :error="errors.eventDate"
-              :touched="touched.eventDate"
-              @blur="markTouched('eventDate')"
-            />
-          </EditorPropertyRow>
+          <ClientOnly>
+            <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
+              <EditorDatePicker
+                v-model="form.eventDate"
+                :placeholder="t('editor.datePicker.selectDate')"
+                :error="errors.eventDate"
+                :touched="touched.eventDate"
+                @blur="markTouched('eventDate')"
+              />
+            </EditorPropertyRow>
 
-          <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
-            <EditorDatePicker
-              v-model="form.eventEndDate"
-              :placeholder="t('editor.datePicker.selectEndDate')"
-              :min-date="form.eventDate"
-              :error="errors.eventEndDate"
-              :touched="touched.eventEndDate"
-              @blur="markTouched('eventEndDate')"
-            />
-          </EditorPropertyRow>
+            <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
+              <EditorDatePicker
+                v-model="form.eventEndDate"
+                :placeholder="t('editor.datePicker.selectEndDate')"
+                :min-date="form.eventDate"
+                :error="errors.eventEndDate"
+                :touched="touched.eventEndDate"
+                @blur="markTouched('eventEndDate')"
+              />
+            </EditorPropertyRow>
+          </ClientOnly>
         </template>
 
         <!-- Date poll editor (when polling is ON) -->
@@ -272,14 +281,16 @@ onMounted(() => {
           />
         </div>
 
-        <EditorPropertyRow :label="t('dashboard.eventEditor.locationLabel')" icon="lucide:map-pin">
-          <AddressAutocompleteInput
-            v-model="form.location"
-            :placeholder="t('dashboard.eventEditor.locationPlaceholder')"
-            @select="onLocationSelect"
-            @update:model-value="onLocationInput"
-          />
-        </EditorPropertyRow>
+        <ClientOnly>
+          <EditorPropertyRow :label="t('dashboard.eventEditor.locationLabel')" icon="lucide:map-pin">
+            <AddressAutocompleteInput
+              v-model="form.location"
+              :placeholder="t('dashboard.eventEditor.locationPlaceholder')"
+              @select="onLocationSelect"
+              @update:model-value="onLocationInput"
+            />
+          </EditorPropertyRow>
+        </ClientOnly>
       </div>
     </section>
   </div>

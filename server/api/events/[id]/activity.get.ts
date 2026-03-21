@@ -7,7 +7,7 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const eventId = parseInt(getRouterParam(event, 'id'))
+  const eventId = parseInt(getRouterParam(event, 'id')!)
   if (isNaN(eventId)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }

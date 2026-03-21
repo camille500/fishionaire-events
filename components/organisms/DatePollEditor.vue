@@ -154,9 +154,10 @@ onMounted(fetchPoll)
     <template v-else>
       <!-- Status bar -->
       <div class="date-poll-editor__status">
-        <AppBadge :color="poll.isActive ? 'green' : 'gray'">
-          {{ poll.isActive ? t('editor.datePoll.open') : t('editor.datePoll.closed') }}
-        </AppBadge>
+        <AppBadge
+          :variant="poll.isActive ? 'success' : 'default'"
+          :label="poll.isActive ? t('editor.datePoll.open') : t('editor.datePoll.closed')"
+        />
         <AppText size="xs" muted>
           {{ totalVoters }} {{ t('editor.datePoll.voters') }}
         </AppText>

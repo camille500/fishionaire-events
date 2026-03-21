@@ -13,6 +13,7 @@ const props = defineProps({
 })
 
 const members = ref([])
+const confirmRemoveMember = ref(null)
 
 async function fetchMembers() {
   try {
@@ -22,8 +23,14 @@ async function fetchMembers() {
   }
 }
 
-async function onRemove(member) {
-  if (!confirm(t('dashboard.eventEditor.confirmRemoveCoOrganizer'))) return
+function onRemove(member) {
+  confirmRemoveMember.value = member
+}
+
+async function doRemove() {
+  if (!confirmRemoveMember.value) return
+  const member = confirmRemoveMember.value
+  confirmRemoveMember.value = null
   await $fetch(`/api/events/${props.eventId}/co-organizers/${member.userClerkId}`, {
     method: 'DELETE',
   })
@@ -58,6 +65,15 @@ onMounted(fetchMembers)
       v-if="isOwner"
       :event-id="eventId"
       @invited="fetchMembers"
+    />
+
+    <ConfirmModal
+      v-if="confirmRemoveMember"
+      :title="t('dashboard.eventEditor.confirmRemoveCoOrganizer')"
+      :message="confirmRemoveMember.invitedEmail || ''"
+      variant="danger"
+      @confirm="doRemove"
+      @close="confirmRemoveMember = null"
     />
   </div>
 </template>

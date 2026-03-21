@@ -15,21 +15,23 @@ onMounted(() => {
     <section class="editor-guests__section">
       <h3 class="editor-guests__section-label">{{ t('dashboard.eventEditor.guestSettingsSection') }}</h3>
 
-      <div
-        class="editor-guests__toggle-card"
-        :class="{ 'editor-guests__toggle-card--active': form.isPrivate }"
-      >
-        <div class="editor-guests__toggle-left">
-          <div class="editor-guests__toggle-icon">
-            <Icon :name="form.isPrivate ? 'lucide:lock' : 'lucide:globe'" size="16" />
+      <ClientOnly>
+        <div
+          class="editor-guests__toggle-card"
+          :class="{ 'editor-guests__toggle-card--active': form.isPrivate }"
+        >
+          <div class="editor-guests__toggle-left">
+            <div class="editor-guests__toggle-icon">
+              <Icon :name="form.isPrivate ? 'lucide:lock' : 'lucide:globe'" size="16" />
+            </div>
+            <div class="editor-guests__toggle-text">
+              <span class="editor-guests__toggle-title">{{ t('dashboard.eventEditor.isPrivateLabel') }}</span>
+              <span class="editor-guests__toggle-desc">{{ t('dashboard.eventEditor.isPrivateDescription') }}</span>
+            </div>
           </div>
-          <div class="editor-guests__toggle-text">
-            <span class="editor-guests__toggle-title">{{ t('dashboard.eventEditor.isPrivateLabel') }}</span>
-            <span class="editor-guests__toggle-desc">{{ t('dashboard.eventEditor.isPrivateDescription') }}</span>
-          </div>
+          <AppSwitch v-model="form.isPrivate" />
         </div>
-        <AppSwitch v-model="form.isPrivate" />
-      </div>
+      </ClientOnly>
     </section>
 
     <!-- Guest management -->

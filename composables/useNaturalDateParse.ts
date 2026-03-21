@@ -92,11 +92,25 @@ export function useNaturalDateParse() {
     return dates
   }
 
+  /**
+   * Normalize Dutch range expressions so chrono-node recognizes them.
+   * chrono-node NL only understands "tot" and "-" as range connectors,
+   * so we convert "tot en met", "t/m", "t.e.m." to "tot".
+   */
+  function normalizeDutchRange(text: string): string {
+    if (locale.value !== 'nl') return text
+    return text
+      .replace(/\bt\/m\b/gi, 'tot')
+      .replace(/\bt\.e\.m\.?\b/gi, 'tot')
+      .replace(/\btot\s+en\s+met\b/gi, 'tot')
+  }
+
   function parseMultiple(text: string): Array<{ date: Date, preview: string, localString: string }> {
     if (!text.trim()) return []
 
     try {
-      const results = getParser().parse(text, new Date(), { forwardDate: true })
+      const normalized = normalizeDutchRange(text)
+      const results = getParser().parse(normalized, new Date(), { forwardDate: true })
 
       // Check for date ranges (e.g. "between May 5 and May 8", "5 tot 8 mei")
       // chrono-node sets result.end when it detects a range
@@ -135,7 +149,7 @@ export function useNaturalDateParse() {
         ? /[,;]\s*|\s+en\s+/gi
         : /[,;]\s*|\s+and\s+/gi
 
-      const segments = text.split(separators).map(s => s.trim()).filter(Boolean)
+      const segments = normalized.split(separators).map(s => s.trim()).filter(Boolean)
 
       if (segments.length > 1) {
         const parsed: Array<{ date: Date, preview: string, localString: string }> = []

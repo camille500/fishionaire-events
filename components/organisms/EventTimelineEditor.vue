@@ -68,8 +68,16 @@ async function onUpdateItem(data) {
   }
 }
 
-async function onDeleteItem(item) {
-  if (!confirm(t('dashboard.eventEditor.timelineItemDeleted') + '?')) return
+const confirmDeleteItem = ref(null)
+
+function onDeleteItem(item) {
+  confirmDeleteItem.value = item
+}
+
+async function doDeleteItem() {
+  if (!confirmDeleteItem.value) return
+  const item = confirmDeleteItem.value
+  confirmDeleteItem.value = null
   await $fetch(`/api/events/${props.eventId}/timeline/${item.id}`, {
     method: 'DELETE',
   })
@@ -172,6 +180,15 @@ onMounted(() => {
         @cancel="onCancelEdit"
       />
     </template>
+
+    <ConfirmModal
+      v-if="confirmDeleteItem"
+      :title="t('dashboard.eventEditor.timelineItemDeleted')"
+      :message="confirmDeleteItem.title || ''"
+      variant="danger"
+      @confirm="doDeleteItem"
+      @close="confirmDeleteItem = null"
+    />
   </div>
 </template>
 

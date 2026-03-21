@@ -5,6 +5,7 @@ const emit = defineEmits(['select', 'skip'])
 
 const templates = ref({ system: [], user: [] })
 const activeTab = ref('system')
+const confirmDeleteTemplate = ref(null)
 
 async function fetchTemplates() {
   try {
@@ -14,8 +15,14 @@ async function fetchTemplates() {
   }
 }
 
-async function onDeleteTemplate(template) {
-  if (!confirm(t('dashboard.templates.confirmDeleteTemplate'))) return
+function onDeleteTemplate(template) {
+  confirmDeleteTemplate.value = template
+}
+
+async function doDeleteTemplate() {
+  if (!confirmDeleteTemplate.value) return
+  const template = confirmDeleteTemplate.value
+  confirmDeleteTemplate.value = null
   await $fetch(`/api/templates/${template.id}`, { method: 'DELETE' })
   await fetchTemplates()
 }
@@ -76,6 +83,15 @@ onMounted(fetchTemplates)
         {{ t('dashboard.templates.startFromScratch') }}
       </AppButton>
     </div>
+
+    <ConfirmModal
+      v-if="confirmDeleteTemplate"
+      :title="t('dashboard.templates.confirmDeleteTemplate')"
+      :message="confirmDeleteTemplate.name || ''"
+      variant="danger"
+      @confirm="doDeleteTemplate"
+      @close="confirmDeleteTemplate = null"
+    />
   </div>
 </template>
 
