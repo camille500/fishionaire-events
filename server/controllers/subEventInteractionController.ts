@@ -149,18 +149,41 @@ export default class SubEventInteractionController {
       throw createError({ statusCode: 400, statusMessage: 'Song title is required' })
     }
 
+    const status = config.autoApproveRequests ? 'approved' : 'pending'
     const request = await SubEventMusicRequestRepository.create({
       subEventId,
       guestEmail: email.toLowerCase(),
       songTitle: data.songTitle.trim(),
       artist: data.artist || null,
-      status: config.autoApproveRequests ? 'approved' : 'pending',
+      status,
       spotifyTrackId: data.spotifyTrackId || null,
       spotifyUri: data.spotifyUri || null,
       albumArtUrl: data.albumArtUrl || null,
       previewUrl: data.previewUrl || null,
       durationMs: data.durationMs || null,
     })
+
+    // Auto-add to playlist if auto-approved and exactly one playlist exists
+    if (status === 'approved' && data.spotifyUri) {
+      try {
+        const connection = await SpotifyConnectionRepository.findByEventId(subEvent.eventId)
+        if (connection) {
+          const playlists = await SpotifyConnectionRepository.findPlaylists(Number(connection.id))
+          if (playlists.length === 1) {
+            const playlist = playlists[0]
+            const accessToken = await getValidToken(connection)
+            await addTracksToPlaylist(accessToken, playlist.spotifyPlaylistId, [data.spotifyUri])
+            await SubEventMusicRequestRepository.assignToPlaylist([Number(request.id)], playlist.id)
+            const result = request.toJSON()
+            result.playlistId = playlist.id
+            return result
+          }
+        }
+      } catch (err) {
+        console.error('[Spotify] Auto-add to playlist on submit failed:', err)
+      }
+    }
+
     return request.toJSON()
   }
 
