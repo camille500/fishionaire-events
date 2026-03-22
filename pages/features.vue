@@ -1,6 +1,15 @@
 <script setup>
 const { t, tm, rt } = useI18n()
 
+useSeoMeta({
+  title: () => t('seo.features.title'),
+  ogTitle: () => t('seo.features.title'),
+  description: () => t('seo.features.description'),
+  ogDescription: () => t('seo.features.description'),
+})
+
+useHead({ title: () => t('seo.features.title') })
+
 const featureItems = computed(() =>
   tm('features.items').map((item) => ({
     icon: rt(item.icon),

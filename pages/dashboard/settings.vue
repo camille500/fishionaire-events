@@ -67,7 +67,7 @@ onMounted(() => {
 
     <div class="settings-page__section">
       <h2 class="settings-page__section-title">{{ t('dashboard.settings.notifications') }}</h2>
-      <p class="settings-page__placeholder">{{ t('dashboard.settings.notificationsPlaceholder') }}</p>
+      <NotificationPreferences />
     </div>
   </div>
 </template>

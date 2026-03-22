@@ -1,6 +1,7 @@
 import EventMember from '../entities/EventMember'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import EventRepository from '../repositories/eventRepository'
+import NotificationController from './notificationController'
 import { usePrisma } from '../database'
 
 export default class EventMemberController {
@@ -42,6 +43,18 @@ export default class EventMemberController {
     })
 
     const saved = await EventMemberRepository.create(member)
+
+    const event = await EventRepository.findById(eventId)
+    NotificationController.notify({
+      eventId,
+      type: 'co_organizer_added',
+      title: 'You were added as co-organizer',
+      body: `You were added as a co-organizer for "${event?.title || 'an event'}"`,
+      linkUrl: `/dashboard/events/${eventId}`,
+      recipientClerkIds: [user.clerkId],
+      eventTier: event?.tier,
+    })
+
     return saved.toJSON()
   }
 

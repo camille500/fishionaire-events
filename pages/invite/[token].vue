@@ -68,7 +68,7 @@ const formattedTime = computed(() => {
   return d.toLocaleTimeString(locale.value === 'nl' ? 'nl-NL' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
 })
 
-const hasPoll = computed(() => eventData.value?.features?.datePolling && !eventData.value?.eventDate)
+const hasPoll = computed(() => !!eventData.value?.hasActivePoll)
 const hasWishlist = computed(() => eventData.value?.features?.wishlist)
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
@@ -298,11 +298,33 @@ async function upvoteMusic(subEventId, requestId) {
           </div>
         </section>
 
+        <!-- Date poll -->
+        <section
+          v-if="hasPoll"
+          class="invite-section invite-section--tinted invite-section--reveal"
+          style="animation-delay: 150ms"
+        >
+          <div class="invite-section__inner">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:bar-chart-3" size="22" />
+              {{ t('invite.poll.title') }}
+            </h2>
+            <p class="invite-section__subtitle">{{ t('invite.poll.subtitle') }}</p>
+            <DatePollVotingForm
+              :event-id="parseInt(eventData.id)"
+              :initial-email="invitation?.inviteeEmail || ''"
+              :initial-name="invitation?.inviteeName || ''"
+              :token="token"
+              :event-title="eventData.title"
+            />
+          </div>
+        </section>
+
         <!-- Location map -->
         <section
           v-if="eventData.locationLat && eventData.locationLon"
           class="invite-section invite-section--reveal"
-          style="animation-delay: 150ms"
+          style="animation-delay: 200ms"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
@@ -321,7 +343,7 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="subEvents.length > 0"
           class="invite-section invite-section--reveal"
-          style="animation-delay: 200ms"
+          style="animation-delay: 250ms"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
@@ -342,43 +364,19 @@ async function upvoteMusic(subEventId, requestId) {
           </div>
         </section>
 
-        <!-- Wishlist + Date poll -->
+        <!-- Wishlist -->
         <section
-          v-if="hasWishlist || hasPoll"
+          v-if="hasWishlist"
           class="invite-section invite-section--tinted invite-section--reveal"
           style="animation-delay: 300ms"
         >
-          <div class="invite-section__inner invite-section__inner--wide">
-            <div
-              class="invite-duo-grid"
-              :class="{ 'invite-duo-grid--single': !(hasWishlist && hasPoll) }"
-            >
-              <!-- Wishlist -->
-              <div v-if="hasWishlist" class="invite-duo-grid__card">
-                <h2 class="invite-section__title">
-                  <Icon name="lucide:gift" size="20" />
-                  {{ t('invite.wishlist.title') }}
-                </h2>
-                <p class="invite-section__subtitle">{{ t('invite.wishlist.subtitle') }}</p>
-                <WishlistGuestView :token="token" />
-              </div>
-
-              <!-- Date poll -->
-              <div v-if="hasPoll" class="invite-duo-grid__card">
-                <h2 class="invite-section__title">
-                  <Icon name="lucide:bar-chart-3" size="20" />
-                  {{ t('invite.poll.title') }}
-                </h2>
-                <p class="invite-section__subtitle">{{ t('invite.poll.subtitle') }}</p>
-                <DatePollVotingForm
-                  :event-id="parseInt(eventData.id)"
-                  :initial-email="invitation?.inviteeEmail || ''"
-                  :initial-name="invitation?.inviteeName || ''"
-                  :token="token"
-                  :event-title="eventData.title"
-                />
-              </div>
-            </div>
+          <div class="invite-section__inner">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:gift" size="22" />
+              {{ t('invite.wishlist.title') }}
+            </h2>
+            <p class="invite-section__subtitle">{{ t('invite.wishlist.subtitle') }}</p>
+            <WishlistGuestView :token="token" />
           </div>
         </section>
       </main>
@@ -442,10 +440,6 @@ async function upvoteMusic(subEventId, requestId) {
   width: 100%;
 }
 
-.invite-section__inner--wide {
-  max-width: 960px;
-}
-
 .invite-section__title {
   display: flex;
   align-items: center;
@@ -468,34 +462,6 @@ async function upvoteMusic(subEventId, requestId) {
   color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
   margin: 0 0 var(--space-6) 0;
-}
-
-/* ── Duo grid (wishlist + poll side-by-side) ── */
-.invite-duo-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-8);
-}
-
-.invite-duo-grid__card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.invite-duo-grid__card .invite-section__subtitle {
-  margin-bottom: var(--space-4);
-}
-
-@media (min-width: 769px) {
-  .invite-duo-grid:not(.invite-duo-grid--single) {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 /* ── Error state ─────────────────────── */
@@ -547,9 +513,5 @@ async function upvoteMusic(subEventId, requestId) {
     padding-top: var(--space-8);
   }
 
-  .invite-duo-grid__card {
-    padding: var(--space-4);
-    border-radius: var(--radius-xl);
-  }
 }
 </style>

@@ -6,6 +6,7 @@ import EventRepository from '../repositories/eventRepository'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import EventInvitationRepository from '../repositories/eventInvitationRepository'
 import ActivityLogController from './activityLogController'
+import NotificationController from './notificationController'
 
 type RsvpStatus = 'accepted' | 'declined'
 
@@ -47,6 +48,17 @@ export default class SubEventRsvpController {
     ActivityLogController.log(eventId, 'rsvp', invitation.inviteeName || guestEmail, guestEmail, {
       subEventTitle: subEvent.title,
       status,
+    })
+
+    NotificationController.notify({
+      eventId,
+      type: 'rsvp_update',
+      title: `${invitation.inviteeName || guestEmail} ${status} the RSVP`,
+      body: `${invitation.inviteeName || guestEmail} ${status} the RSVP for ${subEvent.title}`,
+      linkUrl: `/dashboard/events/${eventId}`,
+      metadata: { subEventTitle: subEvent.title, status },
+      recipientRole: 'all_organizers',
+      eventTier: event?.tier,
     })
 
     return rsvp.toJSON()

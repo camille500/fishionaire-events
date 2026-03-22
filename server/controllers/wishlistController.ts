@@ -7,6 +7,7 @@ import WishlistItemMessageRepository from '../repositories/wishlistItemMessageRe
 import WishlistItem from '../entities/WishlistItem'
 import { getProductSearchProvider } from '../utils/productSearch'
 import ActivityLogController from './activityLogController'
+import NotificationController from './notificationController'
 
 interface CreateItemParams {
   title: string
@@ -274,6 +275,16 @@ export default class WishlistController {
       amountCents: data?.amountCents,
     })
 
+    NotificationController.notify({
+      eventId: invitation.eventId,
+      type: 'wishlist_claim',
+      title: `${invitation.inviteeName || invitation.inviteeEmail} claimed a wishlist item`,
+      body: `${invitation.inviteeName || invitation.inviteeEmail} claimed "${itemData.item.title}"`,
+      linkUrl: `/dashboard/events/${invitation.eventId}`,
+      metadata: { itemTitle: itemData.item.title },
+      recipientRole: 'all_organizers',
+    })
+
     return claim.toJSON()
   }
 
@@ -303,6 +314,16 @@ export default class WishlistController {
 
     ActivityLogController.log(invitation.eventId, 'purchase', invitation.inviteeName || invitation.inviteeEmail, invitation.inviteeEmail, {
       itemTitle: item?.title,
+    })
+
+    NotificationController.notify({
+      eventId: invitation.eventId,
+      type: 'wishlist_purchase',
+      title: `${invitation.inviteeName || invitation.inviteeEmail} purchased a wishlist item`,
+      body: `${invitation.inviteeName || invitation.inviteeEmail} purchased "${item?.title}"`,
+      linkUrl: `/dashboard/events/${invitation.eventId}`,
+      metadata: { itemTitle: item?.title },
+      recipientRole: 'all_organizers',
     })
 
     return updated.toJSON()

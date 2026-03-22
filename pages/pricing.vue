@@ -3,6 +3,15 @@ const { t, tm, rt } = useI18n()
 const { isSignedIn } = useAuth()
 const { checkout } = useSubscription()
 
+useSeoMeta({
+  title: () => t('seo.pricing.title'),
+  ogTitle: () => t('seo.pricing.title'),
+  description: () => t('seo.pricing.description'),
+  ogDescription: () => t('seo.pricing.description'),
+})
+
+useHead({ title: () => t('seo.pricing.title') })
+
 const subscribing = ref(false)
 
 const plans = computed(() =>

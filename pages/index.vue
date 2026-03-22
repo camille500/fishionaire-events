@@ -2,6 +2,15 @@
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
 
+useSeoMeta({
+  title: () => t('seo.home.title'),
+  ogTitle: () => t('seo.home.title'),
+  description: () => t('seo.home.description'),
+  ogDescription: () => t('seo.home.description'),
+})
+
+useHead({ title: () => t('seo.home.title') })
+
 const features = computed(() =>
   tm('home.features.items').map((item) => ({
     icon: rt(item.icon),

@@ -12,6 +12,9 @@ interface TierFeatureSet {
   customTheme: boolean
   aiAssistant: boolean
   analytics: boolean
+  emailNotifications: boolean
+  advancedReminders: boolean
+  digestEmails: boolean
 }
 
 export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
@@ -27,6 +30,9 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     customTheme: false,
     aiAssistant: false,
     analytics: false,
+    emailNotifications: false,
+    advancedReminders: false,
+    digestEmails: false,
   },
   standard: {
     rsvp: true,
@@ -40,6 +46,9 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     customTheme: false,
     aiAssistant: true,
     analytics: true,
+    emailNotifications: true,
+    advancedReminders: false,
+    digestEmails: false,
   },
   pro: {
     rsvp: true,
@@ -53,6 +62,9 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     customTheme: true,
     aiAssistant: true,
     analytics: true,
+    emailNotifications: true,
+    advancedReminders: true,
+    digestEmails: true,
   },
 }
 

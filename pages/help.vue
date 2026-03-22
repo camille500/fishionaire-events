@@ -1,6 +1,15 @@
 <script setup>
 const { t, tm, rt } = useI18n()
 
+useSeoMeta({
+  title: () => t('seo.help.title'),
+  ogTitle: () => t('seo.help.title'),
+  description: () => t('seo.help.description'),
+  ogDescription: () => t('seo.help.description'),
+})
+
+useHead({ title: () => t('seo.help.title') })
+
 const categories = computed(() =>
   tm('help.categories').map((item) => ({
     icon: rt(item.icon),

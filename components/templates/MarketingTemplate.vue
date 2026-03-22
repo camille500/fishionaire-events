@@ -28,8 +28,9 @@ if (import.meta.client) {
       class="marketing-template__progress"
       :style="{ width: scrollProgress + '%' }"
     />
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <MarketingNav />
-    <main class="marketing-template__content">
+    <main id="main-content" class="marketing-template__content">
       <slot />
     </main>
     <MarketingFooter />

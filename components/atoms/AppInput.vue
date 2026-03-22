@@ -75,6 +75,8 @@ function onInput(e) {
       :placeholder="placeholder"
       :disabled="disabled"
       :autofocus="autofocus"
+      :aria-invalid="!!error || undefined"
+      :aria-describedby="error && typeof error === 'string' && id ? `${id}-error` : undefined"
       class="app-input__field"
       @input="onInput"
       @blur="emit('blur', $event)"

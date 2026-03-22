@@ -2,6 +2,8 @@
 definePageMeta({ layout: 'dashboard' })
 
 const { t } = useI18n()
+
+useHead({ title: () => t('seo.profile.title') })
 </script>
 
 <template>

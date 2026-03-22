@@ -7,6 +7,7 @@ import EventMemberRepository from '../repositories/eventMemberRepository'
 import SpotifyConnectionRepository from '../repositories/spotifyConnectionRepository'
 import { getValidToken, addTracksToPlaylist } from '../utils/spotifyClient'
 import ActivityLogController from './activityLogController'
+import NotificationController from './notificationController'
 
 export default class SubEventInteractionController {
   static async #verifyGuestAccess(subEventId: number, email: string) {
@@ -57,6 +58,16 @@ export default class SubEventInteractionController {
 
     ActivityLogController.log(subEvent.eventId, 'dietary', data.guestName || email, email, {
       subEventTitle: subEvent.title,
+    })
+
+    NotificationController.notify({
+      eventId: subEvent.eventId,
+      type: 'dietary',
+      title: `${data.guestName || email} submitted dietary preferences`,
+      body: `${data.guestName || email} submitted dietary preferences for ${subEvent.title}`,
+      linkUrl: `/dashboard/events/${subEvent.eventId}`,
+      metadata: { subEventTitle: subEvent.title },
+      recipientRole: 'all_organizers',
     })
 
     return dietary.toJSON()
@@ -121,6 +132,16 @@ export default class SubEventInteractionController {
       subEventTitle: subEvent.title,
     })
 
+    NotificationController.notify({
+      eventId: subEvent.eventId,
+      type: 'plus_one',
+      title: `${plusOneName.trim()} added as plus-one`,
+      body: `${email} added ${plusOneName.trim()} as a plus-one for ${subEvent.title}`,
+      linkUrl: `/dashboard/events/${subEvent.eventId}`,
+      metadata: { subEventTitle: subEvent.title, plusOneName: plusOneName.trim() },
+      recipientRole: 'all_organizers',
+    })
+
     return plusOne.toJSON()
   }
 
@@ -177,6 +198,16 @@ export default class SubEventInteractionController {
     ActivityLogController.log(subEvent.eventId, 'music_request', email, email, {
       songTitle: data.songTitle.trim(),
       artist: data.artist,
+    })
+
+    NotificationController.notify({
+      eventId: subEvent.eventId,
+      type: 'music_request',
+      title: `${email} requested a song`,
+      body: `${email} requested "${data.songTitle.trim()}"${data.artist ? ` by ${data.artist}` : ''} for ${subEvent.title}`,
+      linkUrl: `/dashboard/events/${subEvent.eventId}`,
+      metadata: { subEventTitle: subEvent.title, songTitle: data.songTitle.trim(), artist: data.artist },
+      recipientRole: 'all_organizers',
     })
 
     // Auto-add to playlist if auto-approved and exactly one playlist exists

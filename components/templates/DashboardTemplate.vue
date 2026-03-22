@@ -23,7 +23,8 @@ const { collapsed, mobileOpen, toggle, closeMobile } = useSidebar()
         <slot name="header-actions" />
       </DashboardHeader>
 
-      <main class="dashboard-template__content">
+      <a href="#main-content" class="skip-link">Skip to content</a>
+      <main id="main-content" class="dashboard-template__content">
         <slot />
       </main>
     </div>

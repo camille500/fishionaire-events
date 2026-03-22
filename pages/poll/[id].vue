@@ -10,6 +10,15 @@ const initialEmail = computed(() => route.query.email ? String(route.query.email
 
 // Fetch event info for context
 const { data: eventData } = await useFetch(`/api/events/${eventId}`)
+
+useSeoMeta({
+  title: () => t('seo.poll.title'),
+  ogTitle: () => t('seo.poll.title'),
+  description: () => t('seo.poll.description'),
+  ogDescription: () => t('seo.poll.description'),
+})
+
+useHead({ title: () => t('seo.poll.title') })
 </script>
 
 <template>

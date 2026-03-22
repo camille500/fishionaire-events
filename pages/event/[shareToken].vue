@@ -26,6 +26,29 @@ const formattedDate = computed(() => {
   const loc = locale.value === 'nl' ? 'nl-NL' : 'en-GB'
   return d.toLocaleDateString(loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 })
+
+const ogTitle = computed(() => eventData.value?.title || 'Fishionaire Events')
+const ogDescription = computed(() => {
+  const parts = []
+  if (formattedDate.value) parts.push(formattedDate.value)
+  if (eventData.value?.location) parts.push(eventData.value.location)
+  if (eventData.value?.description) parts.push(eventData.value.description.slice(0, 120))
+  return parts.join(' \u2022 ') || t('seo.home.description')
+})
+
+useSeoMeta({
+  title: ogTitle,
+  ogTitle: ogTitle,
+  ogDescription: ogDescription,
+  ogImage: () => eventData.value?.coverImageUrl || undefined,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: ogTitle,
+  twitterDescription: ogDescription,
+  twitterImage: () => eventData.value?.coverImageUrl || undefined,
+})
+
+useHead({ title: ogTitle })
 </script>
 
 <template>

@@ -491,12 +491,64 @@
         "description": "Probeer een andere zoekterm"
       }
     },
+    "notifications": {
+      "title": "Meldingen",
+      "markAllRead": "Alles als gelezen markeren",
+      "empty": "Nog geen meldingen",
+      "emptyDescription": "We laten het je weten zodra er iets gebeurt met je evenementen",
+      "loadError": "Kan meldingen niet laden",
+      "types": {
+        "rsvp_update": "RSVP-update",
+        "wishlist_claim": "Verlanglijst geclaimd",
+        "wishlist_purchase": "Verlanglijst gekocht",
+        "date_poll_vote": "Datumpeiling stem",
+        "music_request": "Muziekverzoek",
+        "dietary": "Dieetvoorkeuren",
+        "plus_one": "Plus-one toegevoegd",
+        "co_organizer_added": "Mede-organisator toegevoegd",
+        "event_update": "Evenement bijgewerkt",
+        "event_reminder": "Evenementherinning",
+        "rsvp_nudge": "RSVP-herinnering",
+        "system": "Systeem"
+      }
+    },
     "settings": {
       "language": "Taal",
       "profile": "Profiel",
       "editProfile": "Bewerk je profiel",
       "notifications": "Meldingen",
-      "notificationsPlaceholder": "Meldingsvoorkeuren komen binnenkort"
+      "notificationsDescription": "Kies hoe je op de hoogte gehouden wilt worden van activiteit op je evenementen",
+      "emailLabel": "E-mail",
+      "categories": {
+        "event_reminders": {
+          "label": "Evenementherinneringen",
+          "description": "Herinneringen voor je aankomende evenementen"
+        },
+        "rsvp_updates": {
+          "label": "RSVP-updates",
+          "description": "Wanneer gasten reageren op je evenementen"
+        },
+        "wishlist_activity": {
+          "label": "Verlanglijst-activiteit",
+          "description": "Wanneer gasten items claimen of kopen"
+        },
+        "guest_activity": {
+          "label": "Gastactiviteit",
+          "description": "Muziekverzoeken, dieetvoorkeuren, plus-ones"
+        },
+        "system_announcements": {
+          "label": "Systeemaankondigingen",
+          "description": "Productupdates en nieuwe functies"
+        }
+      },
+      "reminderSchedule": "Herinneringsschema",
+      "reminderScheduleDescription": "Wanneer herinneringen ontvangen voor evenementen",
+      "reminder_24h": "24 uur van tevoren",
+      "reminder_3d": "3 dagen van tevoren",
+      "reminder_1w": "1 week van tevoren",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "preferencesSaved": "Voorkeuren opgeslagen"
     },
     "profile": {
       "title": "Profiel",
@@ -1510,5 +1562,43 @@
     "terms": "Algemene voorwaarden",
     "copyright": "© 2026 Fishionaire Events. Alle rechten voorbehouden.",
     "tagline": "Maak elk evenement onvergetelijk"
+  },
+  "seo": {
+    "home": {
+      "title": "Fishionaire Events — Plan onvergetelijke evenementen",
+      "description": "Van bruiloften tot babyshowers, van verjaardagen tot diners — plan, nodig uit en vier samen met de mensen die ertoe doen."
+    },
+    "features": {
+      "title": "Functies — Fishionaire Events",
+      "description": "Ontdek alle functies: RSVP-systeem, verlanglijsten, datum prikken, tafelschikking en meer."
+    },
+    "pricing": {
+      "title": "Prijzen — Fishionaire Events",
+      "description": "Eenvoudige, transparante prijzen. Begin gratis en upgrade wanneer je wilt."
+    },
+    "help": {
+      "title": "Hulp — Fishionaire Events",
+      "description": "Vind antwoorden op veelgestelde vragen over evenementen plannen, RSVP's en meer."
+    },
+    "dashboard": {
+      "title": "Dashboard — Fishionaire Events"
+    },
+    "profile": {
+      "title": "Profiel — Fishionaire Events"
+    },
+    "eventEditor": {
+      "title": "Evenement bewerken — Fishionaire Events"
+    },
+    "poll": {
+      "title": "Datum prikken — Fishionaire Events",
+      "description": "Stem op de beste datum voor dit evenement."
+    }
+  },
+  "error": {
+    "notFound": "Pagina niet gevonden",
+    "notFoundDescription": "De pagina die je zoekt bestaat niet of is verplaatst.",
+    "generic": "Er is iets misgegaan",
+    "genericDescription": "Er is een onverwachte fout opgetreden. Probeer het later opnieuw.",
+    "backHome": "Terug naar home"
   }
 }

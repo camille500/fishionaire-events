@@ -24,6 +24,7 @@ const displayName = computed(() => user.value?.firstName || user.value?.fullName
       <h2 v-if="title" class="dashboard-header__title">{{ title }}</h2>
     </div>
     <div class="dashboard-header__right">
+      <NotificationPanel />
       <UColorModeButton />
       <slot />
       <NuxtLink :to="localePath('dashboard') + '/profile'" class="dashboard-header__avatar-link">

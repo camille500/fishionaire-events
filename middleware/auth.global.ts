@@ -14,7 +14,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
       if (data.value?.role !== 'admin') {
         return navigateTo('/dashboard')
       }
-    } catch {
+    } catch (error) {
+      console.error('[auth middleware] Failed to verify admin role:', error)
       return navigateTo('/dashboard')
     }
   }

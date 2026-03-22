@@ -7,8 +7,10 @@ import EventInvitationRepository from '../repositories/eventInvitationRepository
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import SubEventRepository from '../repositories/subEventRepository'
 import SubEventRsvpRepository from '../repositories/subEventRsvpRepository'
+import DatePollRepository from '../repositories/datePollRepository'
 import TimelineItemRepository from '../repositories/timelineItemRepository'
 import SubscriptionController from './subscriptionController'
+import NotificationController from './notificationController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
 import { uploadImage, deleteImage } from '../utils/s3'
 import { sendEmail } from '../utils/email'
@@ -159,6 +161,11 @@ export default class EventController {
       }
     }
 
+    // Schedule reminders if event has a date
+    if (saved.eventDate) {
+      NotificationController.scheduleReminders(saved.id!, new Date(saved.eventDate))
+    }
+
     return { ...saved.toJSON(), requiresPayment, priceCents }
   }
 
@@ -286,6 +293,11 @@ export default class EventController {
           ).catch(() => {})
         }
       }).catch(() => {})
+
+      // Reschedule reminders if date changed
+      if (dateChanged && event.eventDate) {
+        NotificationController.scheduleReminders(eventId, new Date(event.eventDate))
+      }
     }
 
     return saved.toJSON()
@@ -467,6 +479,10 @@ export default class EventController {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
 
+    // Check if there is an active date poll
+    const datePoll = await DatePollRepository.findByEventId(event.id)
+    const hasActivePoll = !!(datePoll && datePoll.isActive && datePoll.options.length > 0)
+
     // Get sub-events the guest is invited to
     const allSubEvents = await SubEventRepository.findByEventId(event.id)
     const invitedSubEventIds = invitation.subEventInvites.map((s) => s.subEventId)
@@ -496,6 +512,7 @@ export default class EventController {
         features: event.features,
         rsvpEnabled: event.rsvpEnabled,
         rsvpDeadline: event.rsvpDeadline,
+        hasActivePoll,
       },
       invitation: invitation.toJSON(),
       subEvents: subEvents.map((se) => se.toJSON()),

@@ -26,6 +26,8 @@ const {
 
 const { dataAttr } = useEventTheme(computed(() => form.eventType))
 
+useHead({ title: () => form.title ? `${form.title} — Fishionaire Events` : t('seo.eventEditor.title') })
+
 // Tabs
 const tabs = computed(() => {
   const base = [

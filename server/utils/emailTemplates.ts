@@ -136,6 +136,72 @@ export function renderEventUpdateEmail(data: EventUpdateEmailData): string {
   `, baseUrl)
 }
 
+// --- Event Reminder Email ---
+
+interface EventReminderEmailData {
+  eventTitle: string
+  eventDate?: string | null
+  eventLocation?: string | null
+  timeframe: string
+  dashboardLink: string
+}
+
+export function renderEventReminderEmail(data: EventReminderEmailData): string {
+  const dateSection = data.eventDate
+    ? `<p style="margin:0 0 4px;color:#666;font-size:14px;">📅 ${escapeHtml(formatDate(data.eventDate))}</p>`
+    : ''
+  const locationSection = data.eventLocation
+    ? `<p style="margin:0 0 4px;color:#666;font-size:14px;">📍 ${escapeHtml(data.eventLocation)}</p>`
+    : ''
+  const baseUrl = data.dashboardLink.split('/dashboard')[0] || data.dashboardLink
+
+  return wrapEmail(`
+    <p style="margin:0 0 8px;font-size:20px;color:#333;line-height:1.4;">⏰ Your event is coming up!</p>
+    <p style="margin:0 0 24px;font-size:16px;color:#333;line-height:1.5;"><strong>${escapeHtml(data.eventTitle)}</strong> is in <strong>${escapeHtml(data.timeframe)}</strong>.</p>
+    ${dateSection}
+    ${locationSection}
+    ${(dateSection || locationSection) ? '<div style="height:24px;"></div>' : ''}
+    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+      <tr><td style="background:#00b894;border-radius:8px;">
+        <a href="${escapeHtml(data.dashboardLink)}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;">View event dashboard</a>
+      </td></tr>
+    </table>
+  `, baseUrl)
+}
+
+// --- RSVP Nudge Email ---
+
+interface RsvpNudgeEmailData {
+  eventTitle: string
+  pendingCount: number
+  totalInvited: number
+  guestNames: string[]
+  dashboardLink: string
+}
+
+export function renderRsvpNudgeEmail(data: RsvpNudgeEmailData): string {
+  const baseUrl = data.dashboardLink.split('/dashboard')[0] || data.dashboardLink
+  const guestList = data.guestNames.map((name) =>
+    `<li style="margin:0 0 4px;font-size:14px;color:#666;">${escapeHtml(name)}</li>`
+  ).join('')
+  const moreCount = data.pendingCount - data.guestNames.length
+  const moreText = moreCount > 0 ? `<li style="margin:0 0 4px;font-size:14px;color:#999;">and ${moreCount} more...</li>` : ''
+
+  return wrapEmail(`
+    <p style="margin:0 0 8px;font-size:20px;color:#333;line-height:1.4;">📋 RSVP reminder</p>
+    <p style="margin:0 0 16px;font-size:16px;color:#333;line-height:1.5;"><strong>${data.pendingCount}</strong> of ${data.totalInvited} guests haven't responded to <strong>${escapeHtml(data.eventTitle)}</strong> yet.</p>
+    <ul style="margin:0 0 24px;padding-left:20px;">
+      ${guestList}
+      ${moreText}
+    </ul>
+    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+      <tr><td style="background:#00b894;border-radius:8px;">
+        <a href="${escapeHtml(data.dashboardLink)}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;">View guest list</a>
+      </td></tr>
+    </table>
+  `, baseUrl)
+}
+
 // --- Shared wrapper ---
 
 function wrapEmail(bodyContent: string, baseUrl: string): string {

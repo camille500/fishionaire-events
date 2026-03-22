@@ -9,6 +9,8 @@ const { data: user } = await useFetch('/api/users/me')
 const { data: events, error: eventsError, refresh: refreshEvents } = await useFetch('/api/events')
 const { subscription } = useSubscription()
 
+useHead({ title: () => t('seo.dashboard.title') })
+
 const showConfetti = ref(false)
 
 const displayName = computed(() => user.value?.firstName || 'User')

@@ -491,12 +491,64 @@
         "description": "Try a different search term"
       }
     },
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "empty": "No notifications yet",
+      "emptyDescription": "We'll notify you when something happens with your events",
+      "loadError": "Failed to load notifications",
+      "types": {
+        "rsvp_update": "RSVP update",
+        "wishlist_claim": "Wishlist claimed",
+        "wishlist_purchase": "Wishlist purchased",
+        "date_poll_vote": "Date poll vote",
+        "music_request": "Music request",
+        "dietary": "Dietary preferences",
+        "plus_one": "Plus-one added",
+        "co_organizer_added": "Co-organizer added",
+        "event_update": "Event update",
+        "event_reminder": "Event reminder",
+        "rsvp_nudge": "RSVP reminder",
+        "system": "System"
+      }
+    },
     "settings": {
       "language": "Language",
       "profile": "Profile",
       "editProfile": "Edit your profile",
       "notifications": "Notifications",
-      "notificationsPlaceholder": "Notification preferences coming soon"
+      "notificationsDescription": "Choose how you want to be notified about activity on your events",
+      "emailLabel": "Email",
+      "categories": {
+        "event_reminders": {
+          "label": "Event reminders",
+          "description": "Reminders before your upcoming events"
+        },
+        "rsvp_updates": {
+          "label": "RSVP updates",
+          "description": "When guests respond to your events"
+        },
+        "wishlist_activity": {
+          "label": "Wishlist activity",
+          "description": "When guests claim or purchase wishlist items"
+        },
+        "guest_activity": {
+          "label": "Guest activity",
+          "description": "Music requests, dietary preferences, plus-ones"
+        },
+        "system_announcements": {
+          "label": "System announcements",
+          "description": "Product updates and new features"
+        }
+      },
+      "reminderSchedule": "Reminder schedule",
+      "reminderScheduleDescription": "When to receive reminders before events",
+      "reminder_24h": "24 hours before",
+      "reminder_3d": "3 days before",
+      "reminder_1w": "1 week before",
+      "save": "Save",
+      "saving": "Saving...",
+      "preferencesSaved": "Preferences saved"
     },
     "profile": {
       "title": "Profile",
@@ -1510,5 +1562,43 @@
     "terms": "Terms & conditions",
     "copyright": "© 2026 Fishionaire Events. All rights reserved.",
     "tagline": "Make every event unforgettable"
+  },
+  "seo": {
+    "home": {
+      "title": "Fishionaire Events — Plan unforgettable events",
+      "description": "From weddings to baby showers, from birthdays to dinners — plan, invite and celebrate together with the people who matter."
+    },
+    "features": {
+      "title": "Features — Fishionaire Events",
+      "description": "Discover all features: RSVP system, wishlists, date polling, seating charts and more."
+    },
+    "pricing": {
+      "title": "Pricing — Fishionaire Events",
+      "description": "Simple, transparent pricing. Start free and upgrade whenever you want."
+    },
+    "help": {
+      "title": "Help — Fishionaire Events",
+      "description": "Find answers to frequently asked questions about planning events, RSVPs and more."
+    },
+    "dashboard": {
+      "title": "Dashboard — Fishionaire Events"
+    },
+    "profile": {
+      "title": "Profile — Fishionaire Events"
+    },
+    "eventEditor": {
+      "title": "Edit event — Fishionaire Events"
+    },
+    "poll": {
+      "title": "Date polling — Fishionaire Events",
+      "description": "Vote for the best date for this event."
+    }
+  },
+  "error": {
+    "notFound": "Page not found",
+    "notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
+    "generic": "Something went wrong",
+    "genericDescription": "An unexpected error occurred. Please try again later.",
+    "backHome": "Back to home"
   }
 }

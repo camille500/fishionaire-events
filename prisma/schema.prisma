@@ -131,13 +131,15 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
-  subscription       Subscription?
-  events             Event[]
-  eventPurchases     EventPurchase[]
-  eventInvitations   EventInvitation[]
-  eventMembers       EventMember[]
-  templates          EventTemplate[]
-  spotifyConnections SpotifyConnection[]
+  subscription           Subscription?
+  events                 Event[]
+  eventPurchases         EventPurchase[]
+  eventInvitations       EventInvitation[]
+  eventMembers           EventMember[]
+  templates              EventTemplate[]
+  spotifyConnections     SpotifyConnection[]
+  notifications          Notification[]
+  notificationPreference NotificationPreference?
 
   @@map("users")
 }
@@ -196,6 +198,8 @@ model Event {
   wishlistItems      WishlistItem[]
   spotifyConnection  SpotifyConnection?
   activityLogs       ActivityLog[]
+  notifications      Notification[]
+  scheduledReminders ScheduledReminder[]
 
   @@map("events")
 }
@@ -559,4 +563,54 @@ model ActivityLog {
 
   @@index([eventId, createdAt])
   @@map("activity_logs")
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  userClerkId String   @map("user_clerk_id")
+  eventId     Int?     @map("event_id")
+  type        String
+  title       String
+  body        String
+  linkUrl     String?  @map("link_url")
+  metadata    Json?
+  isRead      Boolean  @default(false) @map("is_read")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user  User   @relation(fields: [userClerkId], references: [clerkId], onDelete: Cascade)
+  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([userClerkId, isRead, createdAt])
+  @@index([eventId])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id               Int      @id @default(autoincrement())
+  userClerkId      String   @unique @map("user_clerk_id")
+  preferences      Json     @default("{}")
+  reminderSchedule Json     @default("[]") @map("reminder_schedule")
+  digestEnabled    Boolean  @default(false) @map("digest_enabled")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userClerkId], references: [clerkId], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+model ScheduledReminder {
+  id           Int       @id @default(autoincrement())
+  eventId      Int       @map("event_id")
+  type         String
+  scheduledFor DateTime  @map("scheduled_for")
+  sentAt       DateTime? @map("sent_at")
+  metadata     Json?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, type, scheduledFor])
+  @@index([scheduledFor, sentAt])
+  @@map("scheduled_reminders")
 }

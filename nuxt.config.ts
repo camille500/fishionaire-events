@@ -2,7 +2,7 @@ import { resolve } from 'path'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-03-11',
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
   devServer: { host: '0.0.0.0' },
 
   modules: [
@@ -21,11 +21,22 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '/**': {
+      headers: {
+        'X-Frame-Options': 'DENY',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      },
+    },
+  },
+
   alias: {
     '#prisma/client': resolve(__dirname, 'prisma/generated/client/client.ts'),
   },
 
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', 'leaflet/dist/leaflet.css'],
 
   clerk: {
     signInForceRedirectUrl: '/dashboard',
@@ -103,6 +114,7 @@ export default defineNuxtConfig({
     spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET || '',
     awsSesFromEmail: process.env.AWS_SES_FROM_EMAIL || 'noreply@fishionaire.com',
     awsSesFromName: process.env.AWS_SES_FROM_NAME || 'Fishionaire Events',
+    cronSecret: process.env.CRON_SECRET || '',
     public: {
       appUrl: process.env.APP_URL || 'http://localhost:3000',
     },
@@ -113,6 +125,19 @@ export default defineNuxtConfig({
   },
 
   app: {
+    head: {
+      title: 'Fishionaire Events',
+      meta: [
+        { name: 'description', content: 'Plan onvergetelijke evenementen samen — van bruiloften tot verjaardagen, van babyshowers tot diners.' },
+        { property: 'og:site_name', content: 'Fishionaire Events' },
+        { property: 'og:type', content: 'website' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+      ],
+      htmlAttrs: { lang: 'nl' },
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+    },
     pageTransition: { name: 'page', mode: 'out-in' },
   },
 })

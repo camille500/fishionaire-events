@@ -1,4 +1,6 @@
 <script setup>
+import DOMPurify from 'isomorphic-dompurify'
+
 const { t } = useI18n()
 const { getType, getLabel } = useSubEventTypes()
 
@@ -354,7 +356,7 @@ onUnmounted(() => {
 
             <!-- Ceremony: Content tab -->
             <div v-if="activeTab === 'content'" class="panel__section">
-              <div v-if="subEvent.richContent" class="panel__rich-content" v-html="subEvent.richContent" />
+              <div v-if="subEvent.richContent" class="panel__rich-content" v-html="DOMPurify.sanitize(subEvent.richContent)" />
               <div v-else class="panel__empty">
                 <Icon name="lucide:file-text" size="24" />
                 <span>{{ t('editor.ceremony.noContent') }}</span>
