@@ -881,6 +881,7 @@
       "wishlist": "Wishlist",
       "rsvp": "RSVP",
       "photos": "Photos",
+      "budget": "Budget",
       "settings": "Settings"
     },
     "autoSave": {
@@ -1410,6 +1411,14 @@
       "title": "Wishlist",
       "subtitle": "Claim a gift to prevent duplicates"
     },
+    "gallery": {
+      "title": "Photo Gallery",
+      "subtitle": "Share your favourite moments from the event.",
+      "upload": "Upload a photo",
+      "uploading": "Uploading...",
+      "empty": "No photos yet — be the first to share!",
+      "uploadSuccess": "Photo uploaded!"
+    },
     "calendar": {
       "addToCalendar": "Add to calendar",
       "downloadIcs": "Download .ics file"
@@ -1425,6 +1434,83 @@
     "footer": {
       "poweredBy": "Powered by"
     }
+  },
+  "gallery": {
+    "title": "Photo Gallery",
+    "empty": "No photos yet",
+    "emptyDescription": "Upload photos to create a shared gallery for your event.",
+    "upload": "Upload photos",
+    "uploading": "Uploading...",
+    "dropzone": "Drag & drop photos here or click to browse",
+    "hint": "JPEG, PNG, WebP or GIF — max 10MB each",
+    "invalidType": "Invalid file type. Allowed: JPEG, PNG, WebP, GIF.",
+    "tooLarge": "File too large. Maximum 10MB.",
+    "uploadError": "Failed to upload photo.",
+    "deleteConfirm": "Delete this photo?",
+    "deleted": "Photo deleted",
+    "bulkDeleted": "Photos deleted",
+    "caption": "Caption",
+    "captionPlaceholder": "Add a caption...",
+    "captionSaved": "Caption saved",
+    "setAsCover": "Set as cover",
+    "coverSet": "Photo set as event cover",
+    "guestUploads": "Allow guests to upload photos",
+    "guestUploadsDescription": "When enabled, guests can add their own photos to the gallery from their invite page.",
+    "uploadedBy": "Uploaded by {name}",
+    "photoCount": "{count} photo | {count} photos",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "deleteSelected": "Delete selected"
+  },
+  "budget": {
+    "addExpense": "Add expense",
+    "editExpense": "Edit expense",
+    "emptyTitle": "No expenses yet",
+    "emptyDescription": "Start tracking your event budget by adding expenses.",
+    "deleteConfirmTitle": "Delete expense",
+    "deleteConfirmMessage": "Are you sure you want to delete this expense?",
+    "setBudget": "Set budget",
+    "editBudget": "Edit budget",
+    "budgetTarget": "Total budget",
+    "totalSpent": "Total spent",
+    "remaining": "Remaining",
+    "overBudget": "Over budget",
+    "noBudgetSet": "No budget set",
+    "stats": {
+      "entries": "Expenses",
+      "budget": "Budget",
+      "spent": "Spent",
+      "remaining": "Remaining"
+    },
+    "status": {
+      "under": "Under budget",
+      "approaching": "Approaching limit",
+      "over": "Over budget"
+    },
+    "form": {
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Venue deposit",
+      "amount": "Amount (€)",
+      "category": "Category",
+      "date": "Date paid",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Any extra details...",
+      "save": "Save",
+      "add": "Add"
+    },
+    "categories": {
+      "venue": "Venue",
+      "catering": "Catering",
+      "decoration": "Decoration",
+      "entertainment": "Entertainment",
+      "photography": "Photography",
+      "attire": "Attire",
+      "transport": "Transport",
+      "other": "Other",
+      "custom": "Custom..."
+    },
+    "categoryBreakdown": "Spending by category",
+    "largestCategory": "Largest expense"
   },
   "wishlist": {
     "addItem": "Add item",
@@ -1659,6 +1745,30 @@
       "date": "Date",
       "created": "Created",
       "searchPlaceholder": "Search by event title..."
+    },
+    "userDetail": {
+      "backToUsers": "Back to users",
+      "joined": "Joined",
+      "profile": "Profile",
+      "bio": "Bio",
+      "website": "Website",
+      "noProfile": "No profile information.",
+      "subscription": "Subscription",
+      "noSubscription": "No subscription.",
+      "events": "Events",
+      "noEvents": "No events created.",
+      "purchases": "Purchases",
+      "noPurchases": "No purchases.",
+      "eventId": "Event",
+      "amount": "Amount"
+    },
+    "analytics": {
+      "userEventGrowth": "User & Event Growth",
+      "users": "Users",
+      "events": "Events",
+      "subscriptionDistribution": "Subscription Distribution",
+      "revenueTrend": "Revenue Trend",
+      "pageViews": "Page Views"
     },
     "confirm": "Confirm",
     "cancel": "Cancel",

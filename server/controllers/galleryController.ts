@@ -9,18 +9,18 @@ import { uploadImage, deleteImage } from '../utils/s3'
 
 export default class GalleryController {
   static async #verifyOrganizerAccess(eventId: number, clerkId: string) {
-    const event = await EventRepository.findById(eventId)
+    const event = await EventRepository.findById(eventId as any)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
-    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
+    const member = await EventMemberRepository.findByEventIdAndUserId(String(eventId), clerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission to manage this event' })
     }
     return event
   }
 
-  static #checkGalleryFeature(event: { features: Record<string, unknown> }) {
+  static #checkGalleryFeature(event: any) {
     if (!event.features?.photoGallery) {
       throw createError({ statusCode: 403, statusMessage: 'Photo gallery is not available for this event tier' })
     }
@@ -36,7 +36,7 @@ export default class GalleryController {
 
   // --- Organizer methods ---
 
-  static async listPhotos(eventId: number, clerkId: string): Promise<Record<string, unknown>[]> {
+  static async listPhotos(eventId: number, clerkId: string) {
     const event = await this.#verifyOrganizerAccess(eventId, clerkId)
     this.#checkGalleryFeature(event)
     const photos = await GalleryPhotoRepository.findByEventId(eventId)
@@ -49,7 +49,7 @@ export default class GalleryController {
     buffer: Buffer,
     contentType: string,
     caption?: string,
-  ): Promise<Record<string, unknown>> {
+  ) {
     const event = await this.#verifyOrganizerAccess(eventId, clerkId)
     this.#checkGalleryFeature(event)
 
@@ -94,7 +94,7 @@ export default class GalleryController {
     await GalleryPhotoRepository.bulkDelete(ids)
   }
 
-  static async updateCaption(photoId: number, clerkId: string, caption: string | null): Promise<Record<string, unknown>> {
+  static async updateCaption(photoId: number, clerkId: string, caption: string | null) {
     const photo = await GalleryPhotoRepository.findById(photoId)
     if (!photo) {
       throw createError({ statusCode: 404, statusMessage: 'Photo not found' })
@@ -104,7 +104,7 @@ export default class GalleryController {
     return updated.toJSON()
   }
 
-  static async setAsCover(photoId: number, clerkId: string): Promise<Record<string, unknown>> {
+  static async setAsCover(photoId: number, clerkId: string) {
     const photo = await GalleryPhotoRepository.findById(photoId)
     if (!photo) {
       throw createError({ statusCode: 404, statusMessage: 'Photo not found' })
@@ -116,7 +116,7 @@ export default class GalleryController {
     return { coverImageUrl: photo.imageUrl }
   }
 
-  static async reorderPhotos(eventId: number, clerkId: string, orderedIds: number[]): Promise<Record<string, unknown>[]> {
+  static async reorderPhotos(eventId: number, clerkId: string, orderedIds: number[]) {
     const event = await this.#verifyOrganizerAccess(eventId, clerkId)
     this.#checkGalleryFeature(event)
     await GalleryPhotoRepository.reorder(eventId, orderedIds)
@@ -126,9 +126,9 @@ export default class GalleryController {
 
   // --- Guest methods ---
 
-  static async getGuestGallery(accessToken: string): Promise<Record<string, unknown>> {
+  static async getGuestGallery(accessToken: string) {
     const invitation = await this.#resolveGuestFromToken(accessToken)
-    const event = await EventRepository.findById(invitation.eventId)
+    const event = await EventRepository.findById(invitation.eventId as any)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
@@ -137,7 +137,7 @@ export default class GalleryController {
       return { photos: [], guestUploadsEnabled: false }
     }
 
-    const photos = await GalleryPhotoRepository.findByEventId(invitation.eventId)
+    const photos = await GalleryPhotoRepository.findByEventId(Number(invitation.eventId))
     return {
       photos: photos.map((p) => p.toJSON()),
       guestUploadsEnabled: event.guestUploadsEnabled,
@@ -149,9 +149,9 @@ export default class GalleryController {
     buffer: Buffer,
     contentType: string,
     caption?: string,
-  ): Promise<Record<string, unknown>> {
+  ) {
     const invitation = await this.#resolveGuestFromToken(accessToken)
-    const event = await EventRepository.findById(invitation.eventId)
+    const event = await EventRepository.findById(invitation.eventId as any)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
@@ -163,12 +163,13 @@ export default class GalleryController {
       throw createError({ statusCode: 403, statusMessage: 'Guest photo uploads are not enabled for this event' })
     }
 
-    const count = await GalleryPhotoRepository.countByEventId(invitation.eventId)
-    const { key, url } = await uploadImage(buffer, contentType, `events/${invitation.eventId}/gallery`)
+    const eventId = Number(invitation.eventId)
+    const count = await GalleryPhotoRepository.countByEventId(eventId)
+    const { key, url } = await uploadImage(buffer, contentType, `events/${eventId}/gallery`)
 
     const photo = new GalleryPhoto({
       id: null,
-      eventId: invitation.eventId,
+      eventId,
       imageUrl: url,
       imageKey: key,
       caption: caption || null,
@@ -182,16 +183,16 @@ export default class GalleryController {
     const saved = await GalleryPhotoRepository.create(photo)
 
     const name = invitation.inviteeName || invitation.inviteeEmail
-    ActivityLogController.log(invitation.eventId, 'photo_upload', name, invitation.inviteeEmail, {
+    ActivityLogController.log(eventId, 'photo_upload', name, invitation.inviteeEmail, {
       caption: caption || null,
     })
 
     NotificationController.notify({
-      eventId: invitation.eventId,
+      eventId,
       type: 'photo_upload',
       title: `${name} uploaded a photo`,
       body: `${name} added a photo to the gallery`,
-      linkUrl: `/dashboard/events/${invitation.eventId}`,
+      linkUrl: `/dashboard/events/${eventId}`,
       metadata: { caption: caption || null },
       recipientRole: 'all_organizers',
       eventTier: event.tier,

@@ -166,4 +166,19 @@ export default class EventRepository {
     const prisma = usePrisma()
     return prisma.event.count()
   }
+
+  static async countGroupedByDate(days: number = 30): Promise<{ date: string, count: number }[]> {
+    const prisma = usePrisma()
+    const since = new Date()
+    since.setDate(since.getDate() - days)
+
+    const rows = await prisma.$queryRaw`
+      SELECT DATE(created_at) as date, COUNT(*)::int as count
+      FROM events
+      WHERE created_at >= ${since}
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `
+    return (rows as { date: string, count: number }[]).map((r) => ({ date: r.date, count: r.count }))
+  }
 }

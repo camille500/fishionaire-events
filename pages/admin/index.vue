@@ -3,7 +3,8 @@ definePageMeta({ layout: 'admin' })
 
 const { t } = useI18n()
 
-const { data: stats, pending } = await useFetch('/api/admin/stats')
+const { data: stats } = await useFetch('/api/admin/stats')
+const { data: analytics } = await useFetch('/api/admin/analytics', { query: { days: 30 } })
 
 const statCards = computed(() => {
   if (!stats.value) return []
@@ -15,17 +16,76 @@ const statCards = computed(() => {
   ]
 })
 
-const tierBreakdown = computed(() => {
-  if (!stats.value?.subscriptions) return []
+// Doughnut chart data
+const tierLabels = ['Free', 'Standard', 'Pro']
+const tierData = computed(() => {
+  if (!stats.value?.subscriptions) return [0, 0, 0]
   return [
-    { label: 'Free', count: stats.value.subscriptions.free || 0, color: 'var(--color-text-muted)' },
-    { label: 'Standard', count: stats.value.subscriptions.standard || 0, color: 'var(--color-warning)' },
-    { label: 'Pro', count: stats.value.subscriptions.pro || 0, color: 'var(--color-accent)' },
+    stats.value.subscriptions.free || 0,
+    stats.value.subscriptions.standard || 0,
+    stats.value.subscriptions.pro || 0,
   ]
 })
+const tierColors = ['#787890', '#ff9f43', '#00b894']
+
+// Line chart helpers
+function buildDateLabels(data) {
+  if (!data?.length) return []
+  return data.map((d) => {
+    const date = new Date(d.date)
+    return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+  })
+}
+
+function mergeDateSeries(series1, series2) {
+  const allDates = new Set([
+    ...(series1 || []).map((d) => d.date),
+    ...(series2 || []).map((d) => d.date),
+  ])
+  const sorted = [...allDates].sort()
+  const map1 = Object.fromEntries((series1 || []).map((d) => [d.date, d.count]))
+  const map2 = Object.fromEntries((series2 || []).map((d) => [d.date, d.count]))
+
+  return {
+    labels: sorted.map((d) => {
+      const date = new Date(d)
+      return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+    }),
+    data1: sorted.map((d) => map1[d] || 0),
+    data2: sorted.map((d) => map2[d] || 0),
+  }
+}
+
+const growthChart = computed(() => {
+  if (!analytics.value) return { labels: [], data1: [], data2: [] }
+  return mergeDateSeries(analytics.value.userGrowth, analytics.value.eventGrowth)
+})
+
+const growthDatasets = computed(() => [
+  { label: t('admin.analytics.users'), data: growthChart.value.data1, color: '#00b894' },
+  { label: t('admin.analytics.events'), data: growthChart.value.data2, color: '#61aeee' },
+])
+
+const revenueLabels = computed(() => buildDateLabels(analytics.value?.revenueOverTime))
+const revenueDatasets = computed(() => [{
+  label: t('admin.analytics.revenueTrend'),
+  data: (analytics.value?.revenueOverTime || []).map((d) => d.totalCents / 100),
+  color: '#00b894',
+}])
+
+const viewsLabels = computed(() => buildDateLabels(analytics.value?.viewsOverTime))
+const viewsDatasets = computed(() => [{
+  label: t('admin.analytics.pageViews'),
+  data: (analytics.value?.viewsOverTime || []).map((d) => d.count),
+  color: '#61aeee',
+}])
 
 function formatCurrency(cents) {
   return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+}
+
+function formatEur(value) {
+  return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value)
 }
 </script>
 
@@ -34,6 +94,7 @@ function formatCurrency(cents) {
     <AppHeading :level="1">{{ t('admin.overview.title') }}</AppHeading>
     <AppText color="muted">{{ t('admin.overview.subtitle') }}</AppText>
 
+    <!-- Stat cards -->
     <div class="admin-overview__stats">
       <StatCard
         v-for="card in statCards"
@@ -45,27 +106,69 @@ function formatCurrency(cents) {
       />
     </div>
 
-    <div class="admin-overview__section">
-      <AppHeading :level="3">{{ t('admin.overview.subscriptionBreakdown') }}</AppHeading>
-      <div class="tier-breakdown">
-        <div v-for="tier in tierBreakdown" :key="tier.label" class="tier-breakdown__item">
-          <div class="tier-breakdown__bar">
-            <div
-              class="tier-breakdown__fill"
-              :style="{
-                width: stats?.users ? Math.max((tier.count / stats.users) * 100, 2) + '%' : '2%',
-                background: tier.color,
-              }"
-            />
+    <!-- Charts row 1: Growth + Subscription distribution -->
+    <div class="admin-overview__charts-row">
+      <div class="admin-overview__chart-card">
+        <AppHeading :level="3">{{ t('admin.analytics.userEventGrowth') }}</AppHeading>
+        <ClientOnly>
+          <ChartLine
+            v-if="growthChart.labels.length"
+            :labels="growthChart.labels"
+            :datasets="growthDatasets"
+          />
+          <div v-else class="admin-overview__chart-empty">
+            <AppText size="sm" color="muted">No data yet</AppText>
           </div>
-          <div class="tier-breakdown__info">
-            <AppText size="sm" weight="semibold">{{ tier.label }}</AppText>
-            <AppText size="sm" color="muted">{{ tier.count }}</AppText>
+        </ClientOnly>
+      </div>
+      <div class="admin-overview__chart-card admin-overview__chart-card--narrow">
+        <AppHeading :level="3">{{ t('admin.analytics.subscriptionDistribution') }}</AppHeading>
+        <ClientOnly>
+          <ChartDoughnut
+            v-if="tierData.some((v) => v > 0)"
+            :labels="tierLabels"
+            :data="tierData"
+            :colors="tierColors"
+          />
+          <div v-else class="admin-overview__chart-empty">
+            <AppText size="sm" color="muted">No data yet</AppText>
           </div>
-        </div>
+        </ClientOnly>
       </div>
     </div>
 
+    <!-- Charts row 2: Revenue + Page views -->
+    <div class="admin-overview__charts-row">
+      <div class="admin-overview__chart-card">
+        <AppHeading :level="3">{{ t('admin.analytics.revenueTrend') }}</AppHeading>
+        <ClientOnly>
+          <ChartLine
+            v-if="revenueLabels.length"
+            :labels="revenueLabels"
+            :datasets="revenueDatasets"
+            :y-format="formatEur"
+          />
+          <div v-else class="admin-overview__chart-empty">
+            <AppText size="sm" color="muted">No data yet</AppText>
+          </div>
+        </ClientOnly>
+      </div>
+      <div class="admin-overview__chart-card">
+        <AppHeading :level="3">{{ t('admin.analytics.pageViews') }}</AppHeading>
+        <ClientOnly>
+          <ChartLine
+            v-if="viewsLabels.length"
+            :labels="viewsLabels"
+            :datasets="viewsDatasets"
+          />
+          <div v-else class="admin-overview__chart-empty">
+            <AppText size="sm" color="muted">No data yet</AppText>
+          </div>
+        </ClientOnly>
+      </div>
+    </div>
+
+    <!-- Quick links -->
     <div class="admin-overview__quick-links">
       <AppHeading :level="3">{{ t('admin.overview.quickLinks') }}</AppHeading>
       <div class="quick-links-grid">
@@ -102,47 +205,31 @@ function formatCurrency(cents) {
   gap: var(--space-4);
 }
 
-.admin-overview__section {
-  display: flex;
-  flex-direction: column;
+.admin-overview__charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
 }
 
-.tier-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+.admin-overview__chart-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-}
-
-.tier-breakdown__item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-4);
 }
 
-.tier-breakdown__bar {
-  flex: 1;
-  height: 8px;
-  background: var(--color-background);
-  border-radius: var(--radius-full);
-  overflow: hidden;
+.admin-overview__chart-card--narrow {
+  max-width: 100%;
 }
 
-.tier-breakdown__fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
-}
-
-.tier-breakdown__info {
+.admin-overview__chart-empty {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  min-width: 120px;
+  justify-content: center;
+  min-height: 200px;
 }
 
 .quick-links-grid {
@@ -186,6 +273,10 @@ function formatCurrency(cents) {
 @media (max-width: 1024px) {
   .admin-overview__stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-overview__charts-row {
+    grid-template-columns: 1fr;
   }
 }
 

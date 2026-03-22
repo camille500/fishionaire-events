@@ -40,6 +40,7 @@
     "@vueuse/core": "^14.2.1",
     "@vueuse/nuxt": "^14.2.1",
     "canvas-confetti": "^1.9.4",
+    "chart.js": "^4.5.1",
     "chrono-node": "^2.9.0",
     "gsap": "^3.14.2",
     "isomorphic-dompurify": "^3.6.0",
@@ -50,6 +51,7 @@
     "stripe": "^20.4.1",
     "vue": "^3.5.30",
     "vue-advanced-cropper": "^2.8.9",
+    "vue-chartjs": "^5.3.3",
     "vue-draggable-plus": "^0.6.1",
     "vue-router": "^5.0.3"
   },

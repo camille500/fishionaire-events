@@ -38,6 +38,8 @@ export interface EventData {
   rsvpEnabled: boolean
   rsvpDeadline: string | Date | null
   guestUploadsEnabled: boolean
+  budgetTargetCents: number | null
+  budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
@@ -84,6 +86,10 @@ export interface EventJSON {
   rsvp_deadline?: string | Date | null
   guestUploadsEnabled?: boolean
   guest_uploads_enabled?: boolean
+  budgetTargetCents?: number | null
+  budget_target_cents?: number | null
+  budgetCurrency?: string
+  budget_currency?: string
   archivedAt?: string | Date | null
   archived_at?: string | Date | null
   createdAt?: Date | string
@@ -116,11 +122,13 @@ export default class Event {
   rsvpEnabled: boolean
   rsvpDeadline: string | Date | null
   guestUploadsEnabled: boolean
+  budgetTargetCents: number | null
+  budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, budgetTargetCents, budgetCurrency, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -144,6 +152,8 @@ export default class Event {
     this.rsvpEnabled = rsvpEnabled ?? true
     this.rsvpDeadline = rsvpDeadline || null
     this.guestUploadsEnabled = guestUploadsEnabled ?? true
+    this.budgetTargetCents = budgetTargetCents ?? null
+    this.budgetCurrency = budgetCurrency || 'EUR'
     this.archivedAt = archivedAt || null
     this.createdAt = createdAt || new Date()
     this.updatedAt = updatedAt || new Date()
@@ -174,6 +184,8 @@ export default class Event {
       rsvpEnabled: data.rsvpEnabled ?? data.rsvp_enabled ?? true,
       rsvpDeadline: data.rsvpDeadline || data.rsvp_deadline || null,
       guestUploadsEnabled: data.guestUploadsEnabled ?? data.guest_uploads_enabled ?? true,
+      budgetTargetCents: data.budgetTargetCents ?? data.budget_target_cents ?? null,
+      budgetCurrency: data.budgetCurrency || data.budget_currency || 'EUR',
       archivedAt: data.archivedAt || data.archived_at || null,
       createdAt: data.createdAt || data.created_at || new Date(),
       updatedAt: data.updatedAt || data.updated_at || new Date(),
@@ -205,6 +217,8 @@ export default class Event {
       rsvpEnabled: this.rsvpEnabled,
       rsvpDeadline: this.rsvpDeadline,
       guestUploadsEnabled: this.guestUploadsEnabled,
+      budgetTargetCents: this.budgetTargetCents,
+      budgetCurrency: this.budgetCurrency,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

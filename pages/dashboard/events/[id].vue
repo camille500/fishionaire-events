@@ -44,6 +44,9 @@ const tabs = computed(() => {
   if (eventData.value?.features?.photoGallery) {
     base.push({ label: t('editor.tabs.photos'), icon: 'i-lucide-camera', slot: 'photos' })
   }
+  if (eventData.value?.features?.budgetTracker) {
+    base.push({ label: t('editor.tabs.budget'), icon: 'i-lucide-wallet', slot: 'budget' })
+  }
   base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
   return base
 })
@@ -107,6 +110,7 @@ const activityTypeConfig = {
   dietary: { icon: 'utensils', color: 'var(--color-event-dinner)' },
   plus_one: { icon: 'user-plus', color: 'var(--color-event-birthday)' },
   photo_upload: { icon: 'camera', color: 'var(--color-event-birthday)' },
+  budget_expense: { icon: 'wallet', color: 'var(--color-accent)' },
 }
 
 function formatTimeAgo(date) {
@@ -130,6 +134,7 @@ function formatActivityMessage(log) {
     case 'dietary': return `${name} submitted dietary preferences`
     case 'plus_one': return `${name} was added as a plus-one`
     case 'photo_upload': return `${name} uploaded a photo`
+    case 'budget_expense': return `${name} added an expense`
     default: return `${name} performed an action`
   }
 }
@@ -256,6 +261,15 @@ function onTabChange(index) {
         <template v-if="eventData?.features?.photoGallery" #photos>
           <div class="event-editor__tab-content">
             <EditorPhotosTab
+              :event-id="eventData.id"
+              :features="eventData.features"
+            />
+          </div>
+        </template>
+
+        <template v-if="eventData?.features?.budgetTracker" #budget>
+          <div class="event-editor__tab-content">
+            <EditorBudgetTab
               :event-id="eventData.id"
               :features="eventData.features"
             />

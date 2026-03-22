@@ -880,6 +880,8 @@
       "guests": "Gasten",
       "wishlist": "Verlanglijst",
       "rsvp": "RSVP",
+      "photos": "Foto's",
+      "budget": "Budget",
       "settings": "Instellingen"
     },
     "autoSave": {
@@ -1409,6 +1411,14 @@
       "title": "Verlanglijst",
       "subtitle": "Claim een cadeau om dubbele geschenken te voorkomen"
     },
+    "gallery": {
+      "title": "Fotogalerij",
+      "subtitle": "Deel je mooiste momenten van het evenement.",
+      "upload": "Upload een foto",
+      "uploading": "Uploaden...",
+      "empty": "Nog geen foto's — wees de eerste die deelt!",
+      "uploadSuccess": "Foto geüpload!"
+    },
     "calendar": {
       "addToCalendar": "Toevoegen aan agenda",
       "downloadIcs": "Download .ics bestand"
@@ -1424,6 +1434,83 @@
     "footer": {
       "poweredBy": "Powered by"
     }
+  },
+  "gallery": {
+    "title": "Fotogalerij",
+    "empty": "Nog geen foto's",
+    "emptyDescription": "Upload foto's om een gedeelde galerij voor je evenement te maken.",
+    "upload": "Foto's uploaden",
+    "uploading": "Uploaden...",
+    "dropzone": "Sleep foto's hierheen of klik om te bladeren",
+    "hint": "JPEG, PNG, WebP of GIF — max 10MB per foto",
+    "invalidType": "Ongeldig bestandstype. Toegestaan: JPEG, PNG, WebP, GIF.",
+    "tooLarge": "Bestand te groot. Maximaal 10MB.",
+    "uploadError": "Foto uploaden mislukt.",
+    "deleteConfirm": "Deze foto verwijderen?",
+    "deleted": "Foto verwijderd",
+    "bulkDeleted": "Foto's verwijderd",
+    "caption": "Bijschrift",
+    "captionPlaceholder": "Voeg een bijschrift toe...",
+    "captionSaved": "Bijschrift opgeslagen",
+    "setAsCover": "Instellen als omslag",
+    "coverSet": "Foto ingesteld als omslagfoto",
+    "guestUploads": "Gasten toestaan foto's te uploaden",
+    "guestUploadsDescription": "Indien ingeschakeld, kunnen gasten hun eigen foto's toevoegen aan de galerij via hun uitnodigingspagina.",
+    "uploadedBy": "Geüpload door {name}",
+    "photoCount": "{count} foto | {count} foto's",
+    "selectAll": "Alles selecteren",
+    "deselectAll": "Selectie opheffen",
+    "deleteSelected": "Geselecteerde verwijderen"
+  },
+  "budget": {
+    "addExpense": "Uitgave toevoegen",
+    "editExpense": "Uitgave bewerken",
+    "emptyTitle": "Nog geen uitgaven",
+    "emptyDescription": "Begin met het bijhouden van je evenementbudget door uitgaven toe te voegen.",
+    "deleteConfirmTitle": "Uitgave verwijderen",
+    "deleteConfirmMessage": "Weet je zeker dat je deze uitgave wilt verwijderen?",
+    "setBudget": "Budget instellen",
+    "editBudget": "Budget bewerken",
+    "budgetTarget": "Totaal budget",
+    "totalSpent": "Totaal uitgegeven",
+    "remaining": "Resterend",
+    "overBudget": "Over budget",
+    "noBudgetSet": "Geen budget ingesteld",
+    "stats": {
+      "entries": "Uitgaven",
+      "budget": "Budget",
+      "spent": "Uitgegeven",
+      "remaining": "Resterend"
+    },
+    "status": {
+      "under": "Binnen budget",
+      "approaching": "Nadert limiet",
+      "over": "Over budget"
+    },
+    "form": {
+      "description": "Omschrijving",
+      "descriptionPlaceholder": "bijv. Aanbetaling locatie",
+      "amount": "Bedrag (€)",
+      "category": "Categorie",
+      "date": "Betaaldatum",
+      "notes": "Notities (optioneel)",
+      "notesPlaceholder": "Eventuele details...",
+      "save": "Opslaan",
+      "add": "Toevoegen"
+    },
+    "categories": {
+      "venue": "Locatie",
+      "catering": "Catering",
+      "decoration": "Decoratie",
+      "entertainment": "Entertainment",
+      "photography": "Fotografie",
+      "attire": "Kleding",
+      "transport": "Vervoer",
+      "other": "Overig",
+      "custom": "Aangepast..."
+    },
+    "categoryBreakdown": "Uitgaven per categorie",
+    "largestCategory": "Grootste uitgave"
   },
   "wishlist": {
     "addItem": "Item toevoegen",
@@ -1658,6 +1745,30 @@
       "date": "Datum",
       "created": "Aangemaakt",
       "searchPlaceholder": "Zoek op evenementtitel..."
+    },
+    "userDetail": {
+      "backToUsers": "Terug naar gebruikers",
+      "joined": "Geregistreerd",
+      "profile": "Profiel",
+      "bio": "Bio",
+      "website": "Website",
+      "noProfile": "Geen profielinformatie.",
+      "subscription": "Abonnement",
+      "noSubscription": "Geen abonnement.",
+      "events": "Evenementen",
+      "noEvents": "Geen evenementen aangemaakt.",
+      "purchases": "Aankopen",
+      "noPurchases": "Geen aankopen.",
+      "eventId": "Evenement",
+      "amount": "Bedrag"
+    },
+    "analytics": {
+      "userEventGrowth": "Gebruikers- & Evenementengroei",
+      "users": "Gebruikers",
+      "events": "Evenementen",
+      "subscriptionDistribution": "Abonnementsverdeling",
+      "revenueTrend": "Omzettrend",
+      "pageViews": "Paginaweergaven"
     },
     "confirm": "Bevestigen",
     "cancel": "Annuleren",

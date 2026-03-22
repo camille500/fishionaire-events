@@ -96,14 +96,14 @@ function cancelRoleChange() {
 
     <AdminDataTable :columns="columns" :rows="data?.data || []" :loading="pending">
       <template #cell-name="{ row }">
-        <div class="admin-users__name-cell">
+        <NuxtLink :to="'/admin/users/' + row.clerkId" class="admin-users__name-cell">
           <AvatarCircle
             :src="row.avatarUrl"
             :name="getUserName(row)"
             size="sm"
           />
           <span>{{ getUserName(row) }}</span>
-        </div>
+        </NuxtLink>
       </template>
 
       <template #cell-email="{ row }">
@@ -190,6 +190,13 @@ function cancelRoleChange() {
   align-items: center;
   gap: var(--space-3);
   font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  transition: color var(--transition-fast);
+}
+
+.admin-users__name-cell:hover {
+  color: var(--color-accent);
 }
 
 .admin-users__actions {

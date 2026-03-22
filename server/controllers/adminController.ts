@@ -2,6 +2,7 @@ import UserRepository from '../repositories/userRepository'
 import SubscriptionRepository from '../repositories/subscriptionRepository'
 import EventRepository from '../repositories/eventRepository'
 import EventPurchaseRepository from '../repositories/eventPurchaseRepository'
+import EventViewRepository from '../repositories/eventViewRepository'
 
 interface ListOptions {
   search?: string
@@ -45,11 +46,17 @@ export default class AdminController {
       throw createError({ statusCode: 404, statusMessage: 'User not found' })
     }
 
-    const subscription = await SubscriptionRepository.findByUserClerkId(clerkId)
+    const [subscription, events, purchases] = await Promise.all([
+      SubscriptionRepository.findByUserClerkId(clerkId),
+      EventRepository.findByOwner(clerkId),
+      EventPurchaseRepository.findByBuyer(clerkId),
+    ])
 
     return {
       user: user.toJSON(),
       subscription: subscription ? subscription.toJSON() : null,
+      events: events.map((e) => e.toJSON()),
+      purchases: purchases.map((p) => p.toJSON()),
     }
   }
 
@@ -94,6 +101,22 @@ export default class AdminController {
       total,
       page: Math.floor(options.offset / options.limit),
       limit: options.limit,
+    }
+  }
+
+  static async getAnalytics(days: number = 30) {
+    const [userGrowth, eventGrowth, revenueOverTime, viewsOverTime] = await Promise.all([
+      UserRepository.countGroupedByDate(days),
+      EventRepository.countGroupedByDate(days),
+      EventPurchaseRepository.revenueGroupedByDate(days),
+      EventViewRepository.countAllGroupedByDate(days),
+    ])
+
+    return {
+      userGrowth,
+      eventGrowth,
+      revenueOverTime,
+      viewsOverTime,
     }
   }
 }

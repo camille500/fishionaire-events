@@ -185,6 +185,8 @@ model Event {
   rsvpEnabled         Boolean    @default(true) @map("rsvp_enabled")
   rsvpDeadline        DateTime?  @map("rsvp_deadline")
   guestUploadsEnabled Boolean    @default(true) @map("guest_uploads_enabled")
+  budgetTargetCents   Int?       @map("budget_target_cents")
+  budgetCurrency      String     @default("EUR") @map("budget_currency")
   archivedAt          DateTime?  @map("archived_at")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @default(now()) @map("updated_at")
@@ -203,6 +205,7 @@ model Event {
   notifications      Notification[]
   scheduledReminders ScheduledReminder[]
   galleryPhotos      GalleryPhoto[]
+  budgetEntries      BudgetEntry[]
 
   @@map("events")
 }
@@ -634,4 +637,22 @@ model GalleryPhoto {
 
   @@index([eventId, sortOrder])
   @@map("gallery_photos")
+}
+
+model BudgetEntry {
+  id          Int      @id @default(autoincrement())
+  eventId     Int      @map("event_id")
+  description String
+  amountCents Int      @map("amount_cents")
+  currency    String   @default("EUR")
+  category    String
+  paidAt      DateTime @map("paid_at")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, category])
+  @@map("budget_entries")
 }
