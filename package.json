@@ -31,6 +31,7 @@
     "@nuxt/icon": "^1.15.0",
     "@nuxt/ui": "^4.5.1",
     "@nuxtjs/i18n": "^10.2.3",
+    "@nuxtjs/sitemap": "^7.6.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@tiptap/pm": "^3.20.3",

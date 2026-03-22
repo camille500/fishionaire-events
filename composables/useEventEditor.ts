@@ -10,6 +10,7 @@ interface EventForm {
   isPrivate: boolean
   rsvpEnabled: boolean
   rsvpDeadline: string
+  themeColor: string
 }
 
 interface CompletionItem {
@@ -51,6 +52,7 @@ export function useEventEditorProvider(eventId: string) {
       isPrivate: data?.isPrivate ?? true,
       rsvpEnabled: data?.rsvpEnabled ?? true,
       rsvpDeadline: toLocalDatetime(data?.rsvpDeadline),
+      themeColor: data?.themeColor || '',
     }
   }
 
@@ -101,6 +103,7 @@ export function useEventEditorProvider(eventId: string) {
         isPrivate: form.isPrivate,
         rsvpEnabled: form.rsvpEnabled,
         rsvpDeadline: form.rsvpDeadline || null,
+        themeColor: form.themeColor || null,
       }
 
       await $fetch(`/api/events/${eventId}`, {

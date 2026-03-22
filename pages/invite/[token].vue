@@ -52,7 +52,13 @@ const eventTypeColorMap = {
 }
 
 const accentColor = computed(() => {
+  if (eventData.value?.themeColor) return eventData.value.themeColor
   return eventTypeColorMap[eventData.value?.eventType] || 'var(--color-accent)'
+})
+
+const customThemeStyles = computed(() => {
+  if (!eventData.value?.themeColor) return {}
+  return deriveAccentVariants(eventData.value.themeColor)
 })
 
 const formattedDate = computed(() => {
@@ -70,6 +76,7 @@ const formattedTime = computed(() => {
 
 const hasPoll = computed(() => !!eventData.value?.hasActivePoll)
 const hasWishlist = computed(() => eventData.value?.features?.wishlist)
+const hasGallery = computed(() => eventData.value?.features?.photoGallery)
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
 const showPlusOnes = computed(() => !isPlusOne.value && invitation.value?.plusOnes > 0)
@@ -237,7 +244,7 @@ async function upvoteMusic(subEventId, requestId) {
 </script>
 
 <template>
-  <div class="invite-page" :style="{ '--event-accent': accentColor }">
+  <div class="invite-page" :style="{ '--event-accent': accentColor, ...customThemeStyles }">
     <!-- Error state -->
     <div v-if="error" class="invite-page__error">
       <div class="invite-page__error-card">
@@ -377,6 +384,22 @@ async function upvoteMusic(subEventId, requestId) {
             </h2>
             <p class="invite-section__subtitle">{{ t('invite.wishlist.subtitle') }}</p>
             <WishlistGuestView :token="token" />
+          </div>
+        </section>
+
+        <!-- Gallery -->
+        <section
+          v-if="hasGallery"
+          class="invite-section invite-section--reveal"
+          style="animation-delay: 350ms"
+        >
+          <div class="invite-section__inner">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:camera" size="22" />
+              {{ t('invite.gallery.title') }}
+            </h2>
+            <p class="invite-section__subtitle">{{ t('invite.gallery.subtitle') }}</p>
+            <InviteGallerySection :token="token" :event-data="eventData" />
           </div>
         </section>
       </main>

@@ -13,7 +13,16 @@ export default defineNuxtConfig({
     'motion-v/nuxt',
     '@nuxt/icon',
     '@nuxt/fonts',
+    '@nuxtjs/sitemap',
   ],
+
+  site: {
+    url: process.env.APP_URL || 'https://fishionaire.com',
+  },
+
+  sitemap: {
+    exclude: ['/dashboard/**', '/admin/**', '/sign-in', '/sign-up', '/api/**', '/billing/**', '/facturering/**'],
+  },
 
   nitro: {
     alias: {
@@ -28,6 +37,17 @@ export default defineNuxtConfig({
         'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        'Content-Security-Policy-Report-Only': [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "img-src 'self' data: blob: https://*.cloudfront.net https://img.clerk.com",
+          "font-src 'self' https://fonts.gstatic.com",
+          "connect-src 'self' https://*.clerk.accounts.dev https://api.stripe.com https://api.spotify.com https://accounts.spotify.com",
+          "frame-src https://*.clerk.accounts.dev https://js.stripe.com https://challenges.cloudflare.com",
+          "worker-src 'self' blob:",
+        ].join('; '),
       },
     },
   },
@@ -132,10 +152,12 @@ export default defineNuxtConfig({
         { property: 'og:site_name', content: 'Fishionaire Events' },
         { property: 'og:type', content: 'website' },
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'theme-color', content: '#1a1a2e' },
       ],
       htmlAttrs: { lang: 'nl' },
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
     },
     pageTransition: { name: 'page', mode: 'out-in' },

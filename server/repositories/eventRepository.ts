@@ -19,6 +19,7 @@ export default class EventRepository {
         isPrivate: data.isPrivate,
         tier: data.tier,
         features: data.features,
+        themeColor: data.themeColor,
         coverImageUrl: data.coverImageUrl,
         coverImageKey: data.coverImageKey,
         ownerClerkId: data.ownerClerkId,
@@ -104,6 +105,7 @@ export default class EventRepository {
         isPrivate: data.isPrivate,
         tier: data.tier,
         features: data.features,
+        themeColor: data.themeColor,
         coverImageUrl: data.coverImageUrl,
         coverImageKey: data.coverImageKey,
         aiTone: data.aiTone,
@@ -136,5 +138,32 @@ export default class EventRepository {
   static async getInvitationCount(eventId: string): Promise<number> {
     const prisma = usePrisma()
     return prisma.eventInvitation.count({ where: { eventId: Number(eventId) } })
+  }
+
+  static async findAllAdmin(options: { search?: string, offset: number, limit: number }): Promise<{ events: Event[], total: number }> {
+    const prisma = usePrisma()
+    const where: Record<string, unknown> = {}
+
+    if (options.search) {
+      where.title = { contains: options.search, mode: 'insensitive' }
+    }
+
+    const [rows, total] = await Promise.all([
+      prisma.event.findMany({
+        where,
+        include: { owner: { select: { email: true, firstName: true, lastName: true } } },
+        orderBy: { createdAt: 'desc' },
+        skip: options.offset,
+        take: options.limit,
+      }),
+      prisma.event.count({ where }),
+    ])
+
+    return { events: rows.map((row: any) => Event.fromJSON(row)), total }
+  }
+
+  static async countAll(): Promise<number> {
+    const prisma = usePrisma()
+    return prisma.event.count()
   }
 }

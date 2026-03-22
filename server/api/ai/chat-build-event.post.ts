@@ -7,6 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
+  checkAiRateLimit(userId)
+
   const { messages, language } = await readBody<{
     messages: Array<{ role: 'user' | 'assistant', content: string }>
     language?: string
@@ -18,6 +20,10 @@ export default defineEventHandler(async (event: H3Event) => {
 
   if (messages.length > 30) {
     throw createError({ statusCode: 400, statusMessage: 'Too many messages' })
+  }
+
+  if (messages.some(m => m.content && m.content.length > 2000)) {
+    throw createError({ statusCode: 400, statusMessage: 'Message too long (max 2000 characters)' })
   }
 
   return await AiSuggestionsController.chatBuildEvent({

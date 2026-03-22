@@ -41,6 +41,8 @@ interface UpdateEventParams {
   isPrivate?: boolean
   rsvpEnabled?: boolean
   rsvpDeadline?: string | null
+  guestUploadsEnabled?: boolean
+  themeColor?: string | null
   features?: Record<string, boolean>
 }
 
@@ -191,7 +193,7 @@ export default class EventController {
   }
 
   static async updateEvent(eventId: number, clerkId: string, {
-    title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, rsvpEnabled, rsvpDeadline, features
+    title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, themeColor, features
   }: UpdateEventParams): Promise<Record<string, unknown>> {
     const validEventTypes: EventType[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
@@ -258,6 +260,17 @@ export default class EventController {
 
     if (rsvpDeadline !== undefined) {
       event.rsvpDeadline = rsvpDeadline ? new Date(rsvpDeadline) : null
+    }
+
+    if (guestUploadsEnabled !== undefined) {
+      event.guestUploadsEnabled = Boolean(guestUploadsEnabled)
+    }
+
+    if (themeColor !== undefined) {
+      if (themeColor !== null && !/^#[0-9a-fA-F]{6}$/.test(themeColor)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid color format' })
+      }
+      event.themeColor = themeColor
     }
 
     if (features !== undefined) {
@@ -464,6 +477,7 @@ export default class EventController {
       locationLat: event.locationLat,
       locationLon: event.locationLon,
       coverImageUrl: event.coverImageUrl,
+      themeColor: event.themeColor,
       features: event.features,
     }
   }
@@ -509,6 +523,7 @@ export default class EventController {
         locationLat: event.locationLat,
         locationLon: event.locationLon,
         coverImageUrl: event.coverImageUrl,
+        themeColor: event.themeColor,
         features: event.features,
         rsvpEnabled: event.rsvpEnabled,
         rsvpDeadline: event.rsvpDeadline,
@@ -612,6 +627,7 @@ export default class EventController {
       shareToken: crypto.randomBytes(16).toString('hex'),
       tier: event.tier,
       features: event.features,
+      themeColor: event.themeColor,
       ownerClerkId: clerkId,
     })
 

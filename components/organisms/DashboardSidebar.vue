@@ -15,13 +15,21 @@ const emit = defineEmits(['toggle', 'close-mobile'])
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const navItems = computed(() => [
-  { icon: 'home', label: t('dashboard.sidebar.home'), to: localePath('dashboard'), exact: true },
-  { icon: 'user', label: t('dashboard.sidebar.profile'), to: localePath('dashboard') + '/profile' },
-  { icon: 'calendar', label: t('dashboard.sidebar.events'), to: localePath('dashboard') + '/events' },
-  { icon: 'inbox', label: t('dashboard.sidebar.invitations'), to: localePath('dashboard') + '/invitations' },
-  { icon: 'settings', label: t('dashboard.sidebar.settings'), to: localePath('dashboard') + '/settings' },
-])
+const { data: currentUser } = await useFetch('/api/users/me')
+
+const navItems = computed(() => {
+  const items = [
+    { icon: 'home', label: t('dashboard.sidebar.home'), to: localePath('dashboard'), exact: true },
+    { icon: 'user', label: t('dashboard.sidebar.profile'), to: localePath('dashboard') + '/profile' },
+    { icon: 'calendar', label: t('dashboard.sidebar.events'), to: localePath('dashboard') + '/events' },
+    { icon: 'inbox', label: t('dashboard.sidebar.invitations'), to: localePath('dashboard') + '/invitations' },
+    { icon: 'settings', label: t('dashboard.sidebar.settings'), to: localePath('dashboard') + '/settings' },
+  ]
+  if (currentUser.value?.role === 'admin') {
+    items.push({ icon: 'shield', label: t('admin.sidebar.title'), to: '/admin' })
+  }
+  return items
+})
 
 const sidebarHovered = ref(false)
 </script>

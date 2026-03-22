@@ -7,6 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
+  checkAiRateLimit(userId)
+
   const { eventType, eventDate, subEvents, language, eventId } = await readBody<{
     eventType?: string
     eventDate?: string

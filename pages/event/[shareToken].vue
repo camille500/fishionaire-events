@@ -17,7 +17,13 @@ const eventTypeColorMap = {
 }
 
 const accentColor = computed(() => {
+  if (eventData.value?.themeColor) return eventData.value.themeColor
   return eventTypeColorMap[eventData.value?.eventType] || 'var(--color-accent)'
+})
+
+const customThemeStyles = computed(() => {
+  if (!eventData.value?.themeColor) return {}
+  return deriveAccentVariants(eventData.value.themeColor)
 })
 
 const formattedDate = computed(() => {
@@ -52,7 +58,7 @@ useHead({ title: ogTitle })
 </script>
 
 <template>
-  <div class="event-public" :style="{ '--event-accent': accentColor }">
+  <div class="event-public" :style="{ '--event-accent': accentColor, ...customThemeStyles }">
     <!-- Error -->
     <div v-if="error" class="event-public__center">
       <div class="event-public__error-card">

@@ -18,6 +18,7 @@ const NOTIFICATION_TYPE_CATEGORY: Record<string, string> = {
   dietary: 'guest_activity',
   plus_one: 'guest_activity',
   co_organizer_added: 'rsvp_updates',
+  photo_upload: 'guest_activity',
   event_update: 'event_reminders',
   event_reminder: 'event_reminders',
   rsvp_nudge: 'event_reminders',
@@ -35,6 +36,7 @@ const NOTIFICATION_TIER_REQUIRED: Record<string, string> = {
   dietary: 'standard',
   plus_one: 'standard',
   co_organizer_added: 'standard',
+  photo_upload: 'standard',
   event_reminder: 'standard',
   rsvp_nudge: 'pro',
 }

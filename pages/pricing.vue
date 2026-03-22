@@ -2,6 +2,7 @@
 const { t, tm, rt } = useI18n()
 const { isSignedIn } = useAuth()
 const { checkout } = useSubscription()
+const toast = useToast()
 
 useSeoMeta({
   title: () => t('seo.pricing.title'),
@@ -45,7 +46,7 @@ async function onPlanSelect(tier) {
     await checkout(tier)
     navigateTo('/dashboard')
   } catch {
-    // Phase 2: handle Stripe redirect
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   } finally {
     subscribing.value = false
   }

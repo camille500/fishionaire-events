@@ -7,6 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
+  checkAiRateLimit(userId)
+
   const { eventType, eventTitle, description, eventDate, existingSubEvents, language, eventId } = await readBody<{
     eventType?: string
     eventTitle?: string
@@ -16,6 +18,10 @@ export default defineEventHandler(async (event: H3Event) => {
     language?: string
     eventId?: string
   }>(event)
+
+  if (description && description.length > 2000) {
+    throw createError({ statusCode: 400, statusMessage: 'Description too long (max 2000 characters)' })
+  }
 
   return await AiSuggestionsController.suggestSubEvents({
     eventType: eventType || null,

@@ -175,15 +175,17 @@ model Event {
   shareToken     String?    @unique @map("share_token")
   tier           EventTier  @default(free)
   features       Json       @default("{}")
+  themeColor     String?    @map("theme_color")
   coverImageUrl  String?    @map("cover_image_url")
   coverImageKey  String?    @map("cover_image_key")
   ownerClerkId   String     @map("owner_clerk_id")
   aiTone         String?    @map("ai_tone")
   aiToneCustom   String?    @map("ai_tone_custom")
   aiExtraContext String?    @map("ai_extra_context")
-  rsvpEnabled    Boolean    @default(true) @map("rsvp_enabled")
-  rsvpDeadline   DateTime?  @map("rsvp_deadline")
-  archivedAt     DateTime?  @map("archived_at")
+  rsvpEnabled         Boolean    @default(true) @map("rsvp_enabled")
+  rsvpDeadline        DateTime?  @map("rsvp_deadline")
+  guestUploadsEnabled Boolean    @default(true) @map("guest_uploads_enabled")
+  archivedAt          DateTime?  @map("archived_at")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @default(now()) @map("updated_at")
 
@@ -200,6 +202,7 @@ model Event {
   activityLogs       ActivityLog[]
   notifications      Notification[]
   scheduledReminders ScheduledReminder[]
+  galleryPhotos      GalleryPhoto[]
 
   @@map("events")
 }
@@ -613,4 +616,22 @@ model ScheduledReminder {
   @@unique([eventId, type, scheduledFor])
   @@index([scheduledFor, sentAt])
   @@map("scheduled_reminders")
+}
+
+model GalleryPhoto {
+  id            Int      @id @default(autoincrement())
+  eventId       Int      @map("event_id")
+  imageUrl      String   @map("image_url")
+  imageKey      String   @map("image_key")
+  caption       String?
+  uploaderEmail String?  @map("uploader_email")
+  uploaderName  String?  @map("uploader_name")
+  uploadedBy    String   @default("organizer") @map("uploaded_by")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, sortOrder])
+  @@map("gallery_photos")
 }

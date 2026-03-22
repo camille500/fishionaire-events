@@ -1,4 +1,5 @@
 import type { MaybeRefOrGetter } from 'vue'
+import { deriveAccentVariants } from '~/utils/accentVariants'
 
 interface EventTheme {
   icon: string
@@ -39,21 +40,31 @@ const EVENT_THEMES: Record<string, EventTheme> = {
   },
 }
 
-export function useEventTheme(eventType: MaybeRefOrGetter<string>) {
+export function useEventTheme(eventType: MaybeRefOrGetter<string>, customColor?: MaybeRefOrGetter<string | null>) {
   const type = computed(() => toValue(eventType) || 'other')
 
   const theme = computed(() => EVENT_THEMES[type.value] || EVENT_THEMES.other)
 
   const icon = computed(() => theme.value.icon)
-  const accentColor = computed(() => theme.value.accentColor)
+  const accentColor = computed(() => {
+    const custom = customColor ? toValue(customColor) : null
+    return custom || theme.value.accentColor
+  })
   const gradient = computed(() => theme.value.gradient)
   const dataAttr = computed(() => type.value && type.value !== 'other' ? type.value : undefined)
+
+  const styleOverrides = computed(() => {
+    const custom = customColor ? toValue(customColor) : null
+    if (!custom) return {}
+    return deriveAccentVariants(custom)
+  })
 
   return {
     icon,
     accentColor,
     gradient,
     dataAttr,
+    styleOverrides,
     allThemes: EVENT_THEMES,
   }
 }

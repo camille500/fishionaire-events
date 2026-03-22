@@ -89,4 +89,48 @@ export default class UserRepository {
     })
     return User.fromJSON(row)
   }
+
+  static async findAll(options: { search?: string, role?: string, offset: number, limit: number }): Promise<{ users: User[], total: number }> {
+    const prisma = usePrisma()
+    const where: Record<string, unknown> = {}
+
+    if (options.search) {
+      where.OR = [
+        { email: { contains: options.search, mode: 'insensitive' } },
+        { firstName: { contains: options.search, mode: 'insensitive' } },
+        { lastName: { contains: options.search, mode: 'insensitive' } },
+        { displayName: { contains: options.search, mode: 'insensitive' } },
+      ]
+    }
+
+    if (options.role) {
+      where.role = options.role
+    }
+
+    const [rows, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: options.offset,
+        take: options.limit,
+      }),
+      prisma.user.count({ where }),
+    ])
+
+    return { users: rows.map((row: any) => User.fromJSON(row)), total }
+  }
+
+  static async updateRole(clerkId: string, role: string): Promise<User> {
+    const prisma = usePrisma()
+    const row = await prisma.user.update({
+      where: { clerkId },
+      data: { role: role as any, updatedAt: new Date() },
+    })
+    return User.fromJSON(row)
+  }
+
+  static async countAll(): Promise<number> {
+    const prisma = usePrisma()
+    return prisma.user.count()
+  }
 }

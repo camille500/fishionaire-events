@@ -206,6 +206,13 @@ onMounted(() => {
       </ClientOnly>
     </section>
 
+    <!-- Custom Theme Color (Pro) -->
+    <section v-if="eventData?.features?.customTheme" class="editor-details__section">
+      <h3 class="editor-details__section-label">{{ t('editor.details.customColor') }}</h3>
+      <p class="editor-details__section-desc">{{ t('editor.details.customColorDesc') }}</p>
+      <ColorPicker v-model="form.themeColor" />
+    </section>
+
     <!-- Date & Location -->
     <section class="editor-details__section">
       <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.detailsSection') }}</h3>
@@ -406,6 +413,12 @@ onMounted(() => {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-accent);
+  margin: 0;
+}
+
+.editor-details__section-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
   margin: 0;
 }
 

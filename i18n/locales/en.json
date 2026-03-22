@@ -880,6 +880,7 @@
       "guests": "Guests",
       "wishlist": "Wishlist",
       "rsvp": "RSVP",
+      "photos": "Photos",
       "settings": "Settings"
     },
     "autoSave": {
@@ -953,7 +954,10 @@
     "details": {
       "datePollingToggle": "Date polling",
       "datePollingToggleDesc": "Let guests vote on the best date",
-      "datePollingUpsell": "Upgrade to Standard to let guests vote on the best date"
+      "datePollingUpsell": "Upgrade to Standard to let guests vote on the best date",
+      "customColor": "Accent color",
+      "customColorDesc": "Choose a custom color for your event",
+      "customHex": "Custom color"
     },
     "guests": {
       "addGuest": "Add guest",
@@ -1334,7 +1338,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "errorGeneric": "Something went wrong. Please try again."
+    "errorGeneric": "Something went wrong. Please try again.",
+    "clear": "Clear"
   },
   "invite": {
     "welcome": "You're invited!",
@@ -1600,5 +1605,64 @@
     "generic": "Something went wrong",
     "genericDescription": "An unexpected error occurred. Please try again later.",
     "backHome": "Back to home"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Admin",
+      "overview": "Overview",
+      "users": "Users",
+      "subscriptions": "Subscriptions",
+      "events": "Events",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "overview": {
+      "title": "Admin Overview",
+      "subtitle": "Platform statistics and management at a glance.",
+      "subscriptionBreakdown": "Subscription Breakdown",
+      "quickLinks": "Quick Links"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "totalEvents": "Total Events",
+      "paidSubscriptions": "Paid Subscriptions",
+      "revenue": "Revenue"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage all registered users.",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "joined": "Joined",
+      "searchPlaceholder": "Search by name or email...",
+      "allRoles": "All roles",
+      "promote": "Make admin",
+      "demote": "Remove admin"
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "subtitle": "Manage user subscriptions and tiers.",
+      "user": "User",
+      "tier": "Tier",
+      "status": "Status",
+      "periodEnd": "Period End",
+      "allTiers": "All tiers",
+      "allStatuses": "All statuses"
+    },
+    "events": {
+      "title": "Events",
+      "subtitle": "Browse all events on the platform.",
+      "eventTitle": "Title",
+      "owner": "Owner",
+      "type": "Type",
+      "tier": "Tier",
+      "date": "Date",
+      "created": "Created",
+      "searchPlaceholder": "Search by event title..."
+    },
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit"
   }
 }

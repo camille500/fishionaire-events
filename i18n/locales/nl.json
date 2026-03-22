@@ -953,7 +953,10 @@
     "details": {
       "datePollingToggle": "Datumpeiling",
       "datePollingToggleDesc": "Laat gasten stemmen op de beste datum",
-      "datePollingUpsell": "Upgrade naar Standard om gasten te laten stemmen op de beste datum"
+      "datePollingUpsell": "Upgrade naar Standard om gasten te laten stemmen op de beste datum",
+      "customColor": "Accentkleur",
+      "customColorDesc": "Kies een kleur voor jouw evenement",
+      "customHex": "Aangepaste kleur"
     },
     "guests": {
       "addGuest": "Gast toevoegen",
@@ -1334,7 +1337,8 @@
     "cancel": "Annuleren",
     "save": "Opslaan",
     "delete": "Verwijderen",
-    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw.",
+    "clear": "Wissen"
   },
   "invite": {
     "welcome": "Je bent uitgenodigd!",
@@ -1600,5 +1604,64 @@
     "generic": "Er is iets misgegaan",
     "genericDescription": "Er is een onverwachte fout opgetreden. Probeer het later opnieuw.",
     "backHome": "Terug naar home"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Admin",
+      "overview": "Overzicht",
+      "users": "Gebruikers",
+      "subscriptions": "Abonnementen",
+      "events": "Evenementen",
+      "backToDashboard": "Terug naar Dashboard"
+    },
+    "overview": {
+      "title": "Admin Overzicht",
+      "subtitle": "Platformstatistieken en beheer in een oogopslag.",
+      "subscriptionBreakdown": "Abonnementen Overzicht",
+      "quickLinks": "Snelle Links"
+    },
+    "stats": {
+      "totalUsers": "Totaal Gebruikers",
+      "totalEvents": "Totaal Evenementen",
+      "paidSubscriptions": "Betaalde Abonnementen",
+      "revenue": "Omzet"
+    },
+    "users": {
+      "title": "Gebruikers",
+      "subtitle": "Beheer alle geregistreerde gebruikers.",
+      "name": "Naam",
+      "email": "E-mail",
+      "role": "Rol",
+      "joined": "Geregistreerd",
+      "searchPlaceholder": "Zoek op naam of e-mail...",
+      "allRoles": "Alle rollen",
+      "promote": "Admin maken",
+      "demote": "Admin verwijderen"
+    },
+    "subscriptions": {
+      "title": "Abonnementen",
+      "subtitle": "Beheer gebruikersabonnementen en tiers.",
+      "user": "Gebruiker",
+      "tier": "Tier",
+      "status": "Status",
+      "periodEnd": "Periode Einde",
+      "allTiers": "Alle tiers",
+      "allStatuses": "Alle statussen"
+    },
+    "events": {
+      "title": "Evenementen",
+      "subtitle": "Bekijk alle evenementen op het platform.",
+      "eventTitle": "Titel",
+      "owner": "Eigenaar",
+      "type": "Type",
+      "tier": "Tier",
+      "date": "Datum",
+      "created": "Aangemaakt",
+      "searchPlaceholder": "Zoek op evenementtitel..."
+    },
+    "confirm": "Bevestigen",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "edit": "Bewerken"
   }
 }

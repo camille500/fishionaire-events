@@ -28,6 +28,7 @@ export interface EventData {
   shareToken: string | null
   tier: string
   features: EventFeatures
+  themeColor: string | null
   coverImageUrl: string | null
   coverImageKey: string | null
   ownerClerkId: string
@@ -36,6 +37,7 @@ export interface EventData {
   aiExtraContext?: string | null
   rsvpEnabled: boolean
   rsvpDeadline: string | Date | null
+  guestUploadsEnabled: boolean
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
@@ -62,6 +64,8 @@ export interface EventJSON {
   share_token?: string | null
   tier?: string
   features?: Partial<EventFeatures>
+  themeColor?: string | null
+  theme_color?: string | null
   coverImageUrl?: string | null
   cover_image_url?: string | null
   coverImageKey?: string | null
@@ -78,6 +82,8 @@ export interface EventJSON {
   rsvp_enabled?: boolean
   rsvpDeadline?: string | Date | null
   rsvp_deadline?: string | Date | null
+  guestUploadsEnabled?: boolean
+  guest_uploads_enabled?: boolean
   archivedAt?: string | Date | null
   archived_at?: string | Date | null
   createdAt?: Date | string
@@ -100,6 +106,7 @@ export default class Event {
   shareToken: string | null
   tier: string
   features: EventFeatures
+  themeColor: string | null
   coverImageUrl: string | null
   coverImageKey: string | null
   ownerClerkId: string
@@ -108,11 +115,12 @@ export default class Event {
   aiExtraContext: string | null
   rsvpEnabled: boolean
   rsvpDeadline: string | Date | null
+  guestUploadsEnabled: boolean
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -126,6 +134,7 @@ export default class Event {
     this.shareToken = shareToken || null
     this.tier = tier || 'free'
     this.features = { ...getFeaturesForTier(this.tier), ...(features || {}) }
+    this.themeColor = themeColor || null
     this.coverImageUrl = coverImageUrl || null
     this.coverImageKey = coverImageKey || null
     this.ownerClerkId = ownerClerkId
@@ -134,6 +143,7 @@ export default class Event {
     this.aiExtraContext = aiExtraContext || null
     this.rsvpEnabled = rsvpEnabled ?? true
     this.rsvpDeadline = rsvpDeadline || null
+    this.guestUploadsEnabled = guestUploadsEnabled ?? true
     this.archivedAt = archivedAt || null
     this.createdAt = createdAt || new Date()
     this.updatedAt = updatedAt || new Date()
@@ -154,6 +164,7 @@ export default class Event {
       shareToken: data.shareToken || data.share_token || null,
       tier: data.tier || 'free',
       features: (data.features || {}) as EventFeatures,
+      themeColor: data.themeColor || data.theme_color || null,
       coverImageUrl: data.coverImageUrl || data.cover_image_url || null,
       coverImageKey: data.coverImageKey || data.cover_image_key || null,
       ownerClerkId: (data.ownerClerkId || data.owner_clerk_id)!,
@@ -162,6 +173,7 @@ export default class Event {
       aiExtraContext: data.aiExtraContext ?? data.ai_extra_context ?? null,
       rsvpEnabled: data.rsvpEnabled ?? data.rsvp_enabled ?? true,
       rsvpDeadline: data.rsvpDeadline || data.rsvp_deadline || null,
+      guestUploadsEnabled: data.guestUploadsEnabled ?? data.guest_uploads_enabled ?? true,
       archivedAt: data.archivedAt || data.archived_at || null,
       createdAt: data.createdAt || data.created_at || new Date(),
       updatedAt: data.updatedAt || data.updated_at || new Date(),
@@ -183,6 +195,7 @@ export default class Event {
       shareToken: this.shareToken,
       tier: this.tier,
       features: this.features,
+      themeColor: this.themeColor,
       coverImageUrl: this.coverImageUrl,
       coverImageKey: this.coverImageKey,
       ownerClerkId: this.ownerClerkId,
@@ -191,6 +204,7 @@ export default class Event {
       aiExtraContext: this.aiExtraContext,
       rsvpEnabled: this.rsvpEnabled,
       rsvpDeadline: this.rsvpDeadline,
+      guestUploadsEnabled: this.guestUploadsEnabled,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

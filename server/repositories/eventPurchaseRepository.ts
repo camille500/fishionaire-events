@@ -59,4 +59,17 @@ export default class EventPurchaseRepository {
     })
     return rows.map((row) => EventPurchase.fromJSON(row))
   }
+
+  static async getRevenueStats(): Promise<{ totalRevenueCents: number, purchaseCount: number }> {
+    const prisma = usePrisma()
+    const result = await prisma.eventPurchase.aggregate({
+      where: { status: 'completed' },
+      _sum: { amountCents: true },
+      _count: true,
+    })
+    return {
+      totalRevenueCents: result._sum.amountCents || 0,
+      purchaseCount: result._count,
+    }
+  }
 }

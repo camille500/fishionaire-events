@@ -7,6 +7,8 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
+  checkAiRateLimit(userId)
+
   const { eventType, eventTitle, userPrompt, existingSubEvents, language, eventId } = await readBody<{
     eventType?: string
     eventTitle?: string
@@ -18,6 +20,10 @@ export default defineEventHandler(async (event: H3Event) => {
 
   if (!userPrompt || !userPrompt.trim()) {
     throw createError({ statusCode: 400, statusMessage: 'A description is required' })
+  }
+
+  if (userPrompt.length > 2000) {
+    throw createError({ statusCode: 400, statusMessage: 'Prompt too long (max 2000 characters)' })
   }
 
   return await AiSuggestionsController.coCreateSubEvents({

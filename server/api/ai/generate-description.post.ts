@@ -20,7 +20,17 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
+  checkAiRateLimit(userId)
+
   const { prompt, tone, language, length, eventType, includeEmojis, refineInstruction, previousText, eventId } = await readBody<GenerateDescriptionBody>(event)
+
+  if (prompt && prompt.length > 2000) {
+    throw createError({ statusCode: 400, statusMessage: 'Prompt too long (max 2000 characters)' })
+  }
+
+  if (previousText && previousText.length > 5000) {
+    throw createError({ statusCode: 400, statusMessage: 'Previous text too long (max 5000 characters)' })
+  }
 
   const stream = AiController.generateDescriptionStream({
     prompt,

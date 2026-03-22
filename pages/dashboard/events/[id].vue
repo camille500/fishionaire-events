@@ -24,7 +24,7 @@ const {
   completionItems,
 } = useEventEditorProvider(route.params.id)
 
-const { dataAttr } = useEventTheme(computed(() => form.eventType))
+const { dataAttr, styleOverrides } = useEventTheme(computed(() => form.eventType), computed(() => form.themeColor || null))
 
 useHead({ title: () => form.title ? `${form.title} — Fishionaire Events` : t('seo.eventEditor.title') })
 
@@ -40,6 +40,9 @@ const tabs = computed(() => {
   }
   if (eventData.value?.features?.wishlist) {
     base.push({ label: t('editor.tabs.wishlist'), icon: 'i-lucide-gift', slot: 'wishlist' })
+  }
+  if (eventData.value?.features?.photoGallery) {
+    base.push({ label: t('editor.tabs.photos'), icon: 'i-lucide-camera', slot: 'photos' })
   }
   base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
   return base
@@ -103,6 +106,7 @@ const activityTypeConfig = {
   music_request: { icon: 'music', color: 'var(--color-event-party)' },
   dietary: { icon: 'utensils', color: 'var(--color-event-dinner)' },
   plus_one: { icon: 'user-plus', color: 'var(--color-event-birthday)' },
+  photo_upload: { icon: 'camera', color: 'var(--color-event-birthday)' },
 }
 
 function formatTimeAgo(date) {
@@ -125,6 +129,7 @@ function formatActivityMessage(log) {
     case 'music_request': return `${name} requested "${meta.songTitle || ''}"${meta.artist ? ` by ${meta.artist}` : ''}`
     case 'dietary': return `${name} submitted dietary preferences`
     case 'plus_one': return `${name} was added as a plus-one`
+    case 'photo_upload': return `${name} uploaded a photo`
     default: return `${name} performed an action`
   }
 }
@@ -157,7 +162,7 @@ function onTabChange(index) {
 </script>
 
 <template>
-  <div class="event-editor" :data-event-type="dataAttr">
+  <div class="event-editor" :data-event-type="dataAttr" :style="styleOverrides">
     <ConfettiExplosion :trigger="showConfetti" />
 
     <!-- Error state -->
@@ -243,6 +248,15 @@ function onTabChange(index) {
               :event-id="eventData.id"
               :event-type="form.eventType"
               :event-title="form.title"
+              :features="eventData.features"
+            />
+          </div>
+        </template>
+
+        <template v-if="eventData?.features?.photoGallery" #photos>
+          <div class="event-editor__tab-content">
+            <EditorPhotosTab
+              :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>

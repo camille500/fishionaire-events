@@ -30,6 +30,22 @@ export default defineEventHandler(async (event: H3Event) => {
     coverImageKey?: string
     subEvents?: Array<{ title: string, description?: string }>
   }>(event)
+  if (!title || !title.trim()) {
+    throw createError({ statusCode: 400, statusMessage: 'Title is required' })
+  }
+
+  if (title.length > 200) {
+    throw createError({ statusCode: 400, statusMessage: 'Title too long (max 200 characters)' })
+  }
+
+  if (description && description.length > 5000) {
+    throw createError({ statusCode: 400, statusMessage: 'Description too long (max 5000 characters)' })
+  }
+
+  if (location && location.length > 500) {
+    throw createError({ statusCode: 400, statusMessage: 'Location too long (max 500 characters)' })
+  }
+
   const result = await EventController.createEvent(userId, title, tier, templateId || null, {
     eventType: eventType || null,
     eventDate: eventDate || null,
