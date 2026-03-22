@@ -42,6 +42,23 @@ useHead({
 const rsvpLoading = ref(false)
 const rsvpStatus = ref(invitation.value?.status || 'pending')
 
+// Sticky RSVP bar visibility (mobile)
+const rsvpSectionRef = ref(null)
+const rsvpSectionVisible = ref(true)
+
+onMounted(() => {
+  if (typeof IntersectionObserver === 'undefined') return
+  const observer = new IntersectionObserver(
+    ([entry]) => { rsvpSectionVisible.value = entry.isIntersecting },
+    { threshold: 0.1 },
+  )
+  watch(rsvpSectionRef, (el) => {
+    if (el?.$el) observer.observe(el.$el)
+    else if (el) observer.observe(el)
+  }, { immediate: true })
+  onUnmounted(() => observer.disconnect())
+})
+
 const eventTypeColorMap = {
   birthday: '#9b59b6',
   wedding: '#e91e63',
@@ -77,6 +94,7 @@ const formattedTime = computed(() => {
 const hasPoll = computed(() => !!eventData.value?.hasActivePoll)
 const hasWishlist = computed(() => eventData.value?.features?.wishlist)
 const hasGallery = computed(() => eventData.value?.features?.photoGallery)
+const hasSocialWall = computed(() => eventData.value?.features?.socialWall)
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
 const showPlusOnes = computed(() => !isPlusOne.value && invitation.value?.plusOnes > 0)
@@ -87,6 +105,52 @@ const remainingPlusOnes = computed(() => {
   return Math.max(0, (inv.plusOnes || 0) - filled)
 })
 const plusOneInvites = computed(() => invitation.value?.plusOneInvites || [])
+
+// Section navigation
+const navSections = computed(() => {
+  const sections = []
+  if (showPlusOnes.value) sections.push({ id: 'section-plus-ones', label: t('invite.nav.plusOnes'), icon: 'lucide:user-plus' })
+  if (hasPoll.value) sections.push({ id: 'section-poll', label: t('invite.nav.datePoll'), icon: 'lucide:bar-chart-3' })
+  if (eventData.value?.locationLat && eventData.value?.locationLon) sections.push({ id: 'section-location', label: t('invite.nav.location'), icon: 'lucide:map-pin' })
+  if (subEvents.value.length > 0) sections.push({ id: 'section-programme', label: t('invite.nav.programme'), icon: 'lucide:calendar-range' })
+  if (hasWishlist.value) sections.push({ id: 'section-wishlist', label: t('invite.nav.wishlist'), icon: 'lucide:gift' })
+  if (hasGallery.value) sections.push({ id: 'section-gallery', label: t('invite.nav.gallery'), icon: 'lucide:camera' })
+  if (hasSocialWall.value) sections.push({ id: 'section-social-wall', label: t('invite.nav.socialWall'), icon: 'lucide:message-circle-heart' })
+  return sections
+})
+
+// Guest progress tracking
+const progressSteps = computed(() => {
+  const steps = []
+  // RSVP
+  steps.push({
+    id: 'rsvp',
+    label: t('invite.progress.rsvp'),
+    icon: 'lucide:check-circle',
+    completed: rsvpStatus.value !== 'pending',
+  })
+  // Dietary (if any dinner sub-events exist)
+  const hasDinner = subEvents.value.some(se => se.type === 'dinner')
+  if (hasDinner) {
+    steps.push({
+      id: 'dietary',
+      label: t('invite.progress.dietary'),
+      icon: 'lucide:heart-pulse',
+      completed: Object.keys(dietarySaving.value).length > 0 || false, // best-effort; actual state comes from server
+    })
+  }
+  // Music (if any party sub-events exist)
+  const hasParty = subEvents.value.some(se => se.type === 'party')
+  if (hasParty) {
+    steps.push({
+      id: 'music',
+      label: t('invite.progress.music'),
+      icon: 'lucide:music',
+      completed: false,
+    })
+  }
+  return steps
+})
 
 // Plus-one management
 const plusOneSaving = ref(false)
@@ -183,6 +247,7 @@ async function submitDietary(subEventId, dietaryData) {
         ...dietaryData,
       },
     })
+    toast.add({ title: t('toast.dietarySaved'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   } finally {
@@ -226,6 +291,7 @@ async function submitMusicRequest(subEventId, track) {
       },
     })
     await fetchMusicRequests(subEventId)
+    toast.add({ title: t('toast.musicRequested'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   }
@@ -270,6 +336,7 @@ async function upvoteMusic(subEventId, requestId) {
 
       <!-- 2. Welcome + RSVP (overlaps hero) -->
       <InviteWelcomeRsvp
+        ref="rsvpSectionRef"
         :event-data="eventData"
         :invitation="invitation"
         :is-plus-one="isPlusOne"
@@ -283,11 +350,18 @@ async function upvoteMusic(subEventId, requestId) {
         @sub-event-rsvp="handleSubEventRsvp"
       />
 
-      <!-- 3. Content sections -->
+      <!-- 3. Section navigation + progress -->
+      <div class="invite-nav-bar">
+        <InviteSectionNav :sections="navSections" />
+        <InviteProgressDots :steps="progressSteps" />
+      </div>
+
+      <!-- 4. Content sections -->
       <main class="invite-body">
         <!-- Plus-ones -->
         <section
           v-if="showPlusOnes"
+          id="section-plus-ones"
           class="invite-section invite-section--tinted invite-section--reveal"
           style="animation-delay: 100ms"
         >
@@ -308,6 +382,7 @@ async function upvoteMusic(subEventId, requestId) {
         <!-- Date poll -->
         <section
           v-if="hasPoll"
+          id="section-poll"
           class="invite-section invite-section--tinted invite-section--reveal"
           style="animation-delay: 150ms"
         >
@@ -330,6 +405,7 @@ async function upvoteMusic(subEventId, requestId) {
         <!-- Location map -->
         <section
           v-if="eventData.locationLat && eventData.locationLon"
+          id="section-location"
           class="invite-section invite-section--reveal"
           style="animation-delay: 200ms"
         >
@@ -349,6 +425,7 @@ async function upvoteMusic(subEventId, requestId) {
         <!-- Programme timeline -->
         <section
           v-if="subEvents.length > 0"
+          id="section-programme"
           class="invite-section invite-section--reveal"
           style="animation-delay: 250ms"
         >
@@ -374,6 +451,7 @@ async function upvoteMusic(subEventId, requestId) {
         <!-- Wishlist -->
         <section
           v-if="hasWishlist"
+          id="section-wishlist"
           class="invite-section invite-section--tinted invite-section--reveal"
           style="animation-delay: 300ms"
         >
@@ -390,6 +468,7 @@ async function upvoteMusic(subEventId, requestId) {
         <!-- Gallery -->
         <section
           v-if="hasGallery"
+          id="section-gallery"
           class="invite-section invite-section--reveal"
           style="animation-delay: 350ms"
         >
@@ -402,7 +481,34 @@ async function upvoteMusic(subEventId, requestId) {
             <InviteGallerySection :token="token" :event-data="eventData" />
           </div>
         </section>
+
+        <!-- Social Wall -->
+        <section
+          v-if="hasSocialWall"
+          id="section-social-wall"
+          class="invite-section invite-section--reveal"
+          style="animation-delay: 400ms"
+        >
+          <div class="invite-section__inner">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:message-circle-heart" size="22" />
+              {{ t('invite.socialWall.title') }}
+            </h2>
+            <p class="invite-section__subtitle">{{ t('invite.socialWall.subtitle') }}</p>
+            <InviteSocialWallSection :token="token" :event-data="eventData" />
+          </div>
+        </section>
       </main>
+
+      <!-- Sticky RSVP bar (mobile) -->
+      <StickyRsvpBar
+        :rsvp-status="rsvpStatus"
+        :rsvp-loading="rsvpLoading"
+        :rsvp-closed="!eventData.rsvpEnabled"
+        :visible="!rsvpSectionVisible"
+        @rsvp="rsvp"
+        @change-response="handleChangeResponse"
+      />
 
       <!-- Footer -->
       <footer class="invite-page__footer">
@@ -420,6 +526,21 @@ async function upvoteMusic(subEventId, requestId) {
   display: flex;
   flex-direction: column;
   background: var(--color-bg, var(--color-background));
+}
+
+/* ── Nav bar ─────────────────────────── */
+.invite-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--color-bg, var(--color-background)) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: var(--space-3) var(--space-4);
 }
 
 /* ── Body ────────────────────────────── */

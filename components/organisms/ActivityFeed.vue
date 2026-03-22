@@ -3,12 +3,23 @@ import { vAutoAnimate } from '@formkit/auto-animate'
 
 const { t } = useI18n()
 
-defineProps({
+const props = defineProps({
   activities: {
     type: Array,
     default: () => [],
   },
 })
+
+const emit = defineEmits(['loadMore'])
+
+const displayLimit = ref(5)
+const hasMore = computed(() => props.activities.length > displayLimit.value)
+const visibleActivities = computed(() => props.activities.slice(0, displayLimit.value))
+
+function showMore() {
+  displayLimit.value += 5
+  emit('loadMore', displayLimit.value)
+}
 </script>
 
 <template>
@@ -26,7 +37,7 @@ defineProps({
     </div>
     <div v-if="activities.length" v-auto-animate class="activity-feed__list">
       <ActivityItem
-        v-for="(activity, index) in activities.slice(0, 5)"
+        v-for="(activity, index) in visibleActivities"
         :key="index"
         :icon="activity.icon"
         :message="activity.message"
@@ -38,6 +49,9 @@ defineProps({
       <Icon name="lucide:clock" size="16" />
       <span>{{ t('dashboard.activity.empty') }}</span>
     </div>
+    <button v-if="hasMore" class="activity-feed__show-more" @click="showMore">
+      {{ t('dashboard.activity.showMore') }}
+    </button>
   </div>
 </template>
 
@@ -77,5 +91,24 @@ defineProps({
   justify-content: center;
   color: var(--color-text-muted);
   font-size: var(--text-sm);
+}
+
+.activity-feed__show-more {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--space-3) 0 0;
+  text-align: center;
+  transition: opacity var(--transition-fast);
+}
+
+.activity-feed__show-more:hover {
+  opacity: 0.7;
 }
 </style>

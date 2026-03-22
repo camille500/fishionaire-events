@@ -20,6 +20,8 @@ export function useGuestGallery(token: string) {
   const photos = ref<GalleryPhotoItem[]>([])
   const loading = ref(false)
   const uploading = ref(false)
+  const uploadProgress = ref(0)
+  const uploadError = ref<string | null>(null)
   const guestUploadsEnabled = ref(false)
 
   async function fetchGallery() {
@@ -33,28 +35,58 @@ export function useGuestGallery(token: string) {
     }
   }
 
-  async function uploadPhoto(file: File, caption?: string) {
+  function uploadPhoto(file: File, caption?: string): Promise<GalleryPhotoItem> {
     uploading.value = true
-    try {
+    uploadProgress.value = 0
+    uploadError.value = null
+
+    return new Promise((resolve, reject) => {
       const formData = new FormData()
       formData.append('image', file)
       if (caption) formData.append('caption', caption)
 
-      const photo = await $fetch<GalleryPhotoItem>(`/api/invite/${token}/gallery`, {
-        method: 'POST',
-        body: formData,
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', `/api/invite/${token}/gallery`)
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          uploadProgress.value = Math.round((e.loaded / e.total) * 100)
+        }
       })
-      photos.value.push(photo)
-      return photo
-    } finally {
-      uploading.value = false
-    }
+
+      xhr.addEventListener('load', () => {
+        uploading.value = false
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const photo = JSON.parse(xhr.responseText) as GalleryPhotoItem
+            photos.value.push(photo)
+            resolve(photo)
+          } catch {
+            uploadError.value = 'Upload failed'
+            reject(new Error('Upload failed'))
+          }
+        } else {
+          uploadError.value = 'Upload failed'
+          reject(new Error(`Upload failed: ${xhr.status}`))
+        }
+      })
+
+      xhr.addEventListener('error', () => {
+        uploading.value = false
+        uploadError.value = 'Upload failed'
+        reject(new Error('Upload failed'))
+      })
+
+      xhr.send(formData)
+    })
   }
 
   return {
     photos,
     loading,
     uploading,
+    uploadProgress,
+    uploadError,
     guestUploadsEnabled,
     fetchGallery,
     uploadPhoto,

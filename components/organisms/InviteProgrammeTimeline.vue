@@ -11,6 +11,19 @@ defineProps({
 })
 
 const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
+
+const MUSIC_INITIAL_LIMIT = 5
+const expandedMusicLists = reactive({})
+
+function visibleMusicRequests(subEventId) {
+  const list = props.musicLists[subEventId] || []
+  if (expandedMusicLists[subEventId]) return list
+  return list.slice(0, MUSIC_INITIAL_LIMIT)
+}
+
+function toggleMusicList(subEventId) {
+  expandedMusicLists[subEventId] = !expandedMusicLists[subEventId]
+}
 </script>
 
 <template>
@@ -90,11 +103,22 @@ const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
           />
           <div v-if="musicLists[se.id]?.length > 0" class="invite-timeline__music-list">
             <MusicRequestCard
-              v-for="req in musicLists[se.id]"
+              v-for="req in visibleMusicRequests(se.id)"
               :key="req.id"
               :request="req"
               @upvote="(id) => $emit('upvoteMusic', se.id, id)"
             />
+            <button
+              v-if="musicLists[se.id].length > MUSIC_INITIAL_LIMIT"
+              type="button"
+              class="invite-timeline__show-more"
+              @click="toggleMusicList(se.id)"
+            >
+              {{ expandedMusicLists[se.id]
+                ? t('invite.programme.showLessMusic')
+                : t('invite.programme.showAllMusic', { count: musicLists[se.id].length })
+              }}
+            </button>
           </div>
         </div>
       </div>
@@ -249,6 +273,23 @@ const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.invite-timeline__show-more {
+  border: none;
+  background: none;
+  color: var(--event-accent, var(--color-accent));
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  text-align: center;
+  transition: opacity var(--transition-fast);
+}
+
+.invite-timeline__show-more:hover {
+  opacity: 0.7;
 }
 
 /* Responsive */

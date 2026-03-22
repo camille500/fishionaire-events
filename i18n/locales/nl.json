@@ -458,7 +458,20 @@
     "activity": {
       "title": "Recente activiteit",
       "empty": "Nog geen recente activiteit",
-      "eventCreated": "Evenement \"{name}\" is aangemaakt"
+      "eventCreated": "Evenement \"{name}\" is aangemaakt",
+      "showMore": "Meer tonen",
+      "filterAll": "Alles"
+    },
+    "analytics": {
+      "title": "Jouw inzichten",
+      "empty": "Analyses verschijnen zodra je evenementen activiteit krijgen",
+      "rsvpRate": "RSVP-percentage",
+      "views": "Paginaweergaven",
+      "accepted": "geaccepteerd",
+      "pending": "in afwachting",
+      "declined": "afgemeld",
+      "wishlistClaimed": "Verlanglijst geclaimd",
+      "budgetSpent": "Budget besteed"
     },
     "timeline": {
       "title": "Aankomende evenementen",
@@ -882,6 +895,7 @@
       "rsvp": "RSVP",
       "photos": "Foto's",
       "budget": "Budget",
+      "socialWall": "Prikbord",
       "settings": "Instellingen"
     },
     "autoSave": {
@@ -1375,7 +1389,9 @@
       "addSong": "Toevoegen",
       "spotifySearchPlaceholder": "Zoek een nummer op Spotify...",
       "spotifySearch": "Zoek op Spotify",
-      "manualEntry": "Handmatig invoeren"
+      "manualEntry": "Handmatig invoeren",
+      "showAllMusic": "Toon alles ({count})",
+      "showLessMusic": "Toon minder"
     },
     "location": {
       "title": "Locatie",
@@ -1419,6 +1435,10 @@
       "empty": "Nog geen foto's — wees de eerste die deelt!",
       "uploadSuccess": "Foto geüpload!"
     },
+    "socialWall": {
+      "title": "Prikbord",
+      "subtitle": "Deel je gedachten en herinneringen met iedereen."
+    },
     "calendar": {
       "addToCalendar": "Toevoegen aan agenda",
       "downloadIcs": "Download .ics bestand"
@@ -1430,6 +1450,20 @@
       "eventStarted": "Het evenement is begonnen!",
       "eventPassed": "Bedankt voor je komst!",
       "rsvpClosesIn": "RSVP sluit over {time}"
+    },
+    "nav": {
+      "plusOnes": "Gasten",
+      "datePoll": "Datumpoll",
+      "location": "Locatie",
+      "programme": "Programma",
+      "wishlist": "Verlanglijst",
+      "gallery": "Foto's",
+      "socialWall": "Prikbord"
+    },
+    "progress": {
+      "rsvp": "RSVP",
+      "dietary": "Dieet",
+      "music": "Muziek"
     },
     "footer": {
       "poweredBy": "Powered by"
@@ -1511,6 +1545,41 @@
     },
     "categoryBreakdown": "Uitgaven per categorie",
     "largestCategory": "Grootste uitgave"
+  },
+  "socialWall": {
+    "placeholder": "Deel een moment...",
+    "addPhoto": "Foto toevoegen",
+    "post": "Plaatsen",
+    "posting": "Plaatsen...",
+    "postSubmitted": "Je bericht is ingediend!",
+    "empty": "Nog geen berichten — wees de eerste!",
+    "emptyTitle": "Nog geen berichten",
+    "emptyDescription": "Gasten kunnen berichten en foto's delen op het prikbord.",
+    "postImage": "Berichtfoto",
+    "justNow": "Zojuist",
+    "minutesAgo": "{count}m geleden",
+    "hoursAgo": "{count}u geleden",
+    "daysAgo": "{count}d geleden",
+    "approve": "Goedkeuren",
+    "reject": "Afwijzen",
+    "autoApprove": "Berichten automatisch goedkeuren",
+    "autoApproveDescription": "Wanneer ingeschakeld verschijnen nieuwe berichten van gasten direct zonder moderatie.",
+    "deleteConfirmTitle": "Bericht verwijderen",
+    "deleteConfirmMessage": "Weet je zeker dat je dit bericht wilt verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "filterAll": "Alle",
+    "filterPending": "Wachtend",
+    "filterApproved": "Goedgekeurd",
+    "filterRejected": "Afgewezen",
+    "status": {
+      "pending": "Wachtend",
+      "approved": "Goedgekeurd",
+      "rejected": "Afgewezen"
+    },
+    "stats": {
+      "total": "Totaal",
+      "pending": "Wachtend",
+      "approved": "Goedgekeurd"
+    }
   },
   "wishlist": {
     "addItem": "Item toevoegen",
@@ -1639,7 +1708,10 @@
     "exportSuccess": "Export gedownload",
     "plusOneRemoved": "Plus-one verwijderd",
     "emailSent": "Uitnodiging verstuurd",
-    "emailsSent": "Alle uitnodigingen verstuurd"
+    "emailsSent": "Alle uitnodigingen verstuurd",
+    "dietarySaved": "Dieetvoorkeuren opgeslagen",
+    "musicRequested": "Muziekverzoek toegevoegd",
+    "uploadFailed": "Upload mislukt — probeer het opnieuw"
   },
   "footer": {
     "product": "Product",

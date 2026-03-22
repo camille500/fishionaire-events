@@ -7,7 +7,7 @@ import ScheduledReminder from '../entities/ScheduledReminder'
 import type { NotificationData } from '../entities/Notification'
 import type { NotificationPreferenceData, CategoryPreference } from '../entities/NotificationPreference'
 import { sendEmail } from '../utils/email'
-import { renderEventReminderEmail, renderRsvpNudgeEmail } from '../utils/emailTemplates'
+import { renderEventReminderEmail, renderRsvpNudgeEmail, renderNotificationEmail } from '../utils/emailTemplates'
 
 const NOTIFICATION_TYPE_CATEGORY: Record<string, string> = {
   rsvp_update: 'rsvp_updates',
@@ -19,6 +19,7 @@ const NOTIFICATION_TYPE_CATEGORY: Record<string, string> = {
   plus_one: 'guest_activity',
   co_organizer_added: 'rsvp_updates',
   photo_upload: 'guest_activity',
+  social_wall_post: 'guest_activity',
   event_update: 'event_reminders',
   event_reminder: 'event_reminders',
   rsvp_nudge: 'event_reminders',
@@ -37,6 +38,7 @@ const NOTIFICATION_TIER_REQUIRED: Record<string, string> = {
   plus_one: 'standard',
   co_organizer_added: 'standard',
   photo_upload: 'standard',
+  social_wall_post: 'standard',
   event_reminder: 'standard',
   rsvp_nudge: 'pro',
 }
@@ -164,11 +166,21 @@ export default class NotificationController {
 
         if (categoryPrefs.email && (TIER_ORDER[tier] ?? 0) >= (TIER_ORDER['standard'] ?? 1)) {
           // Email sending is fire-and-forget to avoid blocking
-          const userPrefs = prefs?.toJSON()
-          if (userPrefs) {
-            // Email will be sent based on the notification type
-            // For now, in-app is the primary channel; email templates
-            // are handled by specific flows (reminders, RSVP confirmations)
+          try {
+            const { clerkClient } = await import('@clerk/nuxt/server')
+            const user = await clerkClient.users.getUser(clerkId)
+            const email = user?.emailAddresses?.[0]?.emailAddress
+            if (email) {
+              const html = renderNotificationEmail({
+                title,
+                body,
+                linkUrl: linkUrl || null,
+                recipientName: user.firstName || null,
+              })
+              sendEmail(email, title, html).catch(() => {})
+            }
+          } catch {
+            // Email failure should never block
           }
         }
       }

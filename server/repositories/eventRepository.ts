@@ -113,6 +113,8 @@ export default class EventRepository {
         aiExtraContext: data.aiExtraContext,
         rsvpEnabled: data.rsvpEnabled,
         rsvpDeadline: data.rsvpDeadline,
+        guestUploadsEnabled: data.guestUploadsEnabled,
+        socialWallAutoApprove: data.socialWallAutoApprove,
         updatedAt: new Date(),
       },
     })

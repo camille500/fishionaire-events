@@ -12,7 +12,9 @@ const props = defineProps({
   },
 })
 
-const { photos, loading, uploading, guestUploadsEnabled, fetchGallery, uploadPhoto } = useGuestGallery(props.token)
+const toast = useToast()
+const { t } = useI18n()
+const { photos, loading, uploading, uploadProgress, uploadError, guestUploadsEnabled, fetchGallery, uploadPhoto } = useGuestGallery(props.token)
 
 const lightboxOpen = ref(false)
 const lightboxIndex = ref(0)
@@ -29,9 +31,13 @@ function openLightbox(photo) {
 }
 
 async function handleFileUploaded(file) {
-  await uploadPhoto(file)
-  uploadSuccess.value = true
-  setTimeout(() => { uploadSuccess.value = false }, 3000)
+  try {
+    await uploadPhoto(file)
+    uploadSuccess.value = true
+    setTimeout(() => { uploadSuccess.value = false }, 3000)
+  } catch {
+    toast.add({ title: t('toast.uploadFailed'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 </script>
 
@@ -56,7 +62,7 @@ async function handleFileUploaded(file) {
       </div>
 
       <div v-if="guestUploadsEnabled" class="invite-gallery__upload">
-        <GalleryUploader @uploaded="handleFileUploaded" />
+        <GalleryUploader :is-uploading="uploading" :progress="uploadProgress" @uploaded="handleFileUploaded" />
         <p v-if="uploadSuccess" class="invite-gallery__success">
           <Icon name="lucide:check" size="14" />
           {{ t('invite.gallery.uploadSuccess') }}

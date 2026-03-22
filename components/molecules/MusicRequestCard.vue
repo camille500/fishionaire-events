@@ -376,4 +376,22 @@ const statusColor = computed(() => {
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
+
+@media (max-width: 640px) {
+  .music-card__action {
+    width: 36px;
+    height: 36px;
+  }
+
+  .music-card__vote {
+    padding: var(--space-2) var(--space-3);
+    min-height: 44px;
+  }
+
+  .music-card__art,
+  .music-card__art-placeholder {
+    width: 44px;
+    height: 44px;
+  }
+}
 </style>

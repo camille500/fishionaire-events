@@ -30,13 +30,16 @@ export default class ActivityLogRepository {
     return rows.map((row) => ActivityLog.fromJSON(row as any))
   }
 
-  static async findByEventIds(eventIds: number[], limit: number = 10): Promise<ActivityLog[]> {
+  static async findByEventIds(eventIds: number[], limit: number = 10, offset: number = 0, type?: string): Promise<ActivityLog[]> {
     if (eventIds.length === 0) return []
     const prisma = usePrisma()
+    const where: any = { eventId: { in: eventIds } }
+    if (type) where.type = type
     const rows = await prisma.activityLog.findMany({
-      where: { eventId: { in: eventIds } },
+      where,
       orderBy: { createdAt: 'desc' },
       take: limit,
+      skip: offset,
       include: { event: { select: { title: true } } },
     })
     return rows.map((row) => {

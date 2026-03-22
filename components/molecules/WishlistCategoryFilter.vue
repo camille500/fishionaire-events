@@ -90,4 +90,17 @@ const categoryIcons = {
   width: 14px;
   height: 14px;
 }
+
+@media (max-width: 640px) {
+  .category-filter__pill {
+    padding: var(--space-2) var(--space-3);
+    min-height: 44px;
+    font-size: var(--text-sm);
+  }
+
+  .category-filter__icon {
+    width: 16px;
+    height: 16px;
+  }
+}
 </style>

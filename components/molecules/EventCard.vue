@@ -35,6 +35,26 @@ const formattedDate = computed(() => {
 
 const isPaidEvent = computed(() => props.event.tier && props.event.tier !== 'free')
 
+// Completion indicator for owners
+const completionPercent = computed(() => {
+  if (!props.isOwner) return null
+  const e = props.event
+  let filled = 0
+  let total = 4
+  if (e.title) filled++
+  if (e.eventDate) filled++
+  if (e.location) filled++
+  if (e.invitationCount > 0) filled++
+  return Math.round((filled / total) * 100)
+})
+const completionColor = computed(() => {
+  const p = completionPercent.value
+  if (p === null) return ''
+  if (p >= 100) return 'var(--color-success)'
+  if (p >= 50) return 'var(--color-warning, #f59e0b)'
+  return 'var(--color-error)'
+})
+
 const dropdownItems = computed(() => {
   const group1 = []
   const group2 = []
@@ -103,6 +123,12 @@ function onArchiveConfirm() {
             <Icon name="lucide:users" size="12" />
             {{ event.invitationCount }} {{ t('dashboard.invited') }}
           </span>
+        </div>
+        <!-- Completion bar -->
+        <div v-if="completionPercent !== null && completionPercent < 100" class="event-card__completion" :title="t('dashboard.eventCard.completionHint')">
+          <div class="event-card__completion-bar">
+            <div class="event-card__completion-fill" :style="{ width: completionPercent + '%', background: completionColor }" />
+          </div>
         </div>
       </div>
     </NuxtLink>

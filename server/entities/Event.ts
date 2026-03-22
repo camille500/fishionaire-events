@@ -12,6 +12,7 @@ export interface EventFeatures {
   customTheme: boolean
   aiAssistant: boolean
   analytics: boolean
+  socialWall: boolean
 }
 
 export interface EventData {
@@ -38,6 +39,7 @@ export interface EventData {
   rsvpEnabled: boolean
   rsvpDeadline: string | Date | null
   guestUploadsEnabled: boolean
+  socialWallAutoApprove: boolean
   budgetTargetCents: number | null
   budgetCurrency: string
   archivedAt: string | Date | null
@@ -86,6 +88,8 @@ export interface EventJSON {
   rsvp_deadline?: string | Date | null
   guestUploadsEnabled?: boolean
   guest_uploads_enabled?: boolean
+  socialWallAutoApprove?: boolean
+  social_wall_auto_approve?: boolean
   budgetTargetCents?: number | null
   budget_target_cents?: number | null
   budgetCurrency?: string
@@ -122,13 +126,14 @@ export default class Event {
   rsvpEnabled: boolean
   rsvpDeadline: string | Date | null
   guestUploadsEnabled: boolean
+  socialWallAutoApprove: boolean
   budgetTargetCents: number | null
   budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, budgetTargetCents, budgetCurrency, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -152,6 +157,7 @@ export default class Event {
     this.rsvpEnabled = rsvpEnabled ?? true
     this.rsvpDeadline = rsvpDeadline || null
     this.guestUploadsEnabled = guestUploadsEnabled ?? true
+    this.socialWallAutoApprove = socialWallAutoApprove ?? false
     this.budgetTargetCents = budgetTargetCents ?? null
     this.budgetCurrency = budgetCurrency || 'EUR'
     this.archivedAt = archivedAt || null
@@ -184,6 +190,7 @@ export default class Event {
       rsvpEnabled: data.rsvpEnabled ?? data.rsvp_enabled ?? true,
       rsvpDeadline: data.rsvpDeadline || data.rsvp_deadline || null,
       guestUploadsEnabled: data.guestUploadsEnabled ?? data.guest_uploads_enabled ?? true,
+      socialWallAutoApprove: data.socialWallAutoApprove ?? data.social_wall_auto_approve ?? false,
       budgetTargetCents: data.budgetTargetCents ?? data.budget_target_cents ?? null,
       budgetCurrency: data.budgetCurrency || data.budget_currency || 'EUR',
       archivedAt: data.archivedAt || data.archived_at || null,
@@ -217,6 +224,7 @@ export default class Event {
       rsvpEnabled: this.rsvpEnabled,
       rsvpDeadline: this.rsvpDeadline,
       guestUploadsEnabled: this.guestUploadsEnabled,
+      socialWallAutoApprove: this.socialWallAutoApprove,
       budgetTargetCents: this.budgetTargetCents,
       budgetCurrency: this.budgetCurrency,
       archivedAt: this.archivedAt,

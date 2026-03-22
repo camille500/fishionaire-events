@@ -6,6 +6,14 @@ const props = defineProps({
     type: Number,
     default: 10 * 1024 * 1024,
   },
+  progress: {
+    type: Number,
+    default: 0,
+  },
+  isUploading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['uploaded'])
@@ -90,9 +98,12 @@ function onFileChange(e) {
       @change="onFileChange"
     />
 
-    <div v-if="uploading" class="gallery-uploader__status">
+    <div v-if="uploading || isUploading" class="gallery-uploader__status">
       <Icon name="lucide:loader-2" size="24" class="gallery-uploader__spinner" />
       <span>{{ t('gallery.uploading') }}</span>
+      <div v-if="progress > 0" class="gallery-uploader__progress">
+        <div class="gallery-uploader__progress-bar" :style="{ width: progress + '%' }" />
+      </div>
     </div>
     <div v-else class="gallery-uploader__content">
       <Icon name="lucide:upload-cloud" size="28" class="gallery-uploader__icon" />
@@ -176,6 +187,22 @@ function onFileChange(e) {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.gallery-uploader__progress {
+  width: 100%;
+  max-width: 200px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border-light);
+  overflow: hidden;
+}
+
+.gallery-uploader__progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-accent);
+  transition: width 200ms ease;
 }
 
 .gallery-uploader__error {

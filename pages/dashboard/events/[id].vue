@@ -47,6 +47,9 @@ const tabs = computed(() => {
   if (eventData.value?.features?.budgetTracker) {
     base.push({ label: t('editor.tabs.budget'), icon: 'i-lucide-wallet', slot: 'budget' })
   }
+  if (eventData.value?.features?.socialWall) {
+    base.push({ label: t('editor.tabs.socialWall'), icon: 'i-lucide-message-circle-heart', slot: 'socialWall' })
+  }
   base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
   return base
 })
@@ -111,6 +114,7 @@ const activityTypeConfig = {
   plus_one: { icon: 'user-plus', color: 'var(--color-event-birthday)' },
   photo_upload: { icon: 'camera', color: 'var(--color-event-birthday)' },
   budget_expense: { icon: 'wallet', color: 'var(--color-accent)' },
+  social_wall_post: { icon: 'message-circle', color: 'var(--color-event-birthday)' },
 }
 
 function formatTimeAgo(date) {
@@ -135,6 +139,7 @@ function formatActivityMessage(log) {
     case 'plus_one': return `${name} was added as a plus-one`
     case 'photo_upload': return `${name} uploaded a photo`
     case 'budget_expense': return `${name} added an expense`
+    case 'social_wall_post': return `${name} posted on the Social Wall`
     default: return `${name} performed an action`
   }
 }
@@ -272,6 +277,16 @@ function onTabChange(index) {
             <EditorBudgetTab
               :event-id="eventData.id"
               :features="eventData.features"
+            />
+          </div>
+        </template>
+
+        <template v-if="eventData?.features?.socialWall" #socialWall>
+          <div class="event-editor__tab-content">
+            <EditorSocialWallTab
+              :event-id="eventData.id"
+              :features="eventData.features"
+              :auto-approve="eventData.socialWallAutoApprove"
             />
           </div>
         </template>

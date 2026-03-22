@@ -305,6 +305,11 @@ const formattedActivities = computed(() => {
           />
         </section>
 
+        <!-- Analytics summary -->
+        <section class="bento-analytics">
+          <DashboardAnalyticsSummary />
+        </section>
+
         <!-- Activity feed -->
         <section v-if="formattedActivities.length > 0" class="bento-activity">
           <ActivityFeed :activities="formattedActivities" />
@@ -332,6 +337,7 @@ const formattedActivities = computed(() => {
     "events events events"
     "past-events past-events past-events"
     "co-org co-org invitations"
+    "analytics analytics analytics"
     "activity activity activity";
   gap: var(--space-4);
 }
@@ -354,6 +360,10 @@ const formattedActivities = computed(() => {
 
 .bento-invitations {
   grid-area: invitations;
+}
+
+.bento-analytics {
+  grid-area: analytics;
 }
 
 .bento-activity {

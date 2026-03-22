@@ -202,6 +202,34 @@ export function renderRsvpNudgeEmail(data: RsvpNudgeEmailData): string {
   `, baseUrl)
 }
 
+// --- Generic Notification Email ---
+
+interface NotificationEmailData {
+  title: string
+  body: string
+  linkUrl?: string | null
+  recipientName?: string | null
+}
+
+export function renderNotificationEmail(data: NotificationEmailData): string {
+  const greeting = data.recipientName ? `Hi ${escapeHtml(data.recipientName)},` : 'Hi,'
+  const linkButton = data.linkUrl
+    ? `<table cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
+      <tr><td style="background:#00b894;border-radius:8px;">
+        <a href="${escapeHtml(data.linkUrl)}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;">View details</a>
+      </td></tr>
+    </table>`
+    : ''
+  const baseUrl = data.linkUrl?.split('/dashboard')[0] || data.linkUrl?.split('/invite')[0] || ''
+
+  return wrapEmail(`
+    <p style="margin:0 0 16px;font-size:15px;color:#666;line-height:1.5;">${greeting}</p>
+    <p style="margin:0 0 8px;font-size:18px;font-weight:600;color:#333;line-height:1.4;">${escapeHtml(data.title)}</p>
+    <p style="margin:0 0 8px;font-size:15px;color:#555;line-height:1.5;">${escapeHtml(data.body)}</p>
+    ${linkButton}
+  `, baseUrl)
+}
+
 // --- Shared wrapper ---
 
 function wrapEmail(bodyContent: string, baseUrl: string): string {

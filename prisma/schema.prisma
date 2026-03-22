@@ -110,6 +110,14 @@ enum MusicRequestStatus {
   @@map("music_request_status")
 }
 
+enum SocialWallPostStatus {
+  pending
+  approved
+  rejected
+
+  @@map("social_wall_post_status")
+}
+
 model User {
   clerkId   String   @id @map("clerk_id")
   email     String
@@ -184,7 +192,8 @@ model Event {
   aiExtraContext String?    @map("ai_extra_context")
   rsvpEnabled         Boolean    @default(true) @map("rsvp_enabled")
   rsvpDeadline        DateTime?  @map("rsvp_deadline")
-  guestUploadsEnabled Boolean    @default(true) @map("guest_uploads_enabled")
+  guestUploadsEnabled       Boolean    @default(true) @map("guest_uploads_enabled")
+  socialWallAutoApprove     Boolean    @default(false) @map("social_wall_auto_approve")
   budgetTargetCents   Int?       @map("budget_target_cents")
   budgetCurrency      String     @default("EUR") @map("budget_currency")
   archivedAt          DateTime?  @map("archived_at")
@@ -206,6 +215,7 @@ model Event {
   scheduledReminders ScheduledReminder[]
   galleryPhotos      GalleryPhoto[]
   budgetEntries      BudgetEntry[]
+  socialWallPosts    SocialWallPost[]
 
   @@map("events")
 }
@@ -655,4 +665,23 @@ model BudgetEntry {
 
   @@index([eventId, category])
   @@map("budget_entries")
+}
+
+model SocialWallPost {
+  id            Int                   @id @default(autoincrement())
+  eventId       Int                   @map("event_id")
+  guestEmail    String                @map("guest_email")
+  guestName     String?               @map("guest_name")
+  content       String
+  imageUrl      String?               @map("image_url")
+  imageKey      String?               @map("image_key")
+  status        SocialWallPostStatus  @default(pending)
+  hearts        Int                   @default(0)
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @default(now()) @map("updated_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, status, createdAt])
+  @@map("social_wall_posts")
 }
