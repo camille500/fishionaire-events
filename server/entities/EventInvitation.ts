@@ -23,6 +23,7 @@ export interface EventInvitationData {
   invitedById: number | null
   invitedByName: string | null
   emailSentAt: Date | string | null
+  checkedInAt: Date | string | null
   subEventInvites: SubEventInvite[]
   plusOneInvites: PlusOneInvite[]
   createdAt: Date | string
@@ -49,6 +50,8 @@ export interface EventInvitationJSON {
   invited_by?: { inviteeName?: string | null, invitee_name?: string | null } | null
   emailSentAt?: Date | string | null
   email_sent_at?: Date | string | null
+  checkedInAt?: Date | string | null
+  checked_in_at?: Date | string | null
   subEventInvites?: SubEventInvite[]
   sub_event_invites?: SubEventInvite[]
   plusOneInvites?: any[]
@@ -69,11 +72,12 @@ export default class EventInvitation {
   invitedById: number | null
   invitedByName: string | null
   emailSentAt: Date | string | null
+  checkedInAt: Date | string | null
   subEventInvites: SubEventInvite[]
   plusOneInvites: PlusOneInvite[]
   createdAt: Date | string
 
-  constructor({ id, eventId, inviteeEmail, inviteeName, inviterClerkId, status, plusOnes, accessToken, invitedById, invitedByName, emailSentAt, subEventInvites, plusOneInvites, createdAt }: EventInvitationData) {
+  constructor({ id, eventId, inviteeEmail, inviteeName, inviterClerkId, status, plusOnes, accessToken, invitedById, invitedByName, emailSentAt, checkedInAt, subEventInvites, plusOneInvites, createdAt }: EventInvitationData) {
     this.id = id || null
     this.eventId = eventId
     this.inviteeEmail = inviteeEmail
@@ -85,6 +89,7 @@ export default class EventInvitation {
     this.invitedById = invitedById || null
     this.invitedByName = invitedByName || null
     this.emailSentAt = emailSentAt || null
+    this.checkedInAt = checkedInAt || null
     this.subEventInvites = subEventInvites || []
     this.plusOneInvites = plusOneInvites || []
     this.createdAt = createdAt || new Date()
@@ -100,6 +105,10 @@ export default class EventInvitation {
 
   get isDeclined(): boolean {
     return this.status === 'declined'
+  }
+
+  get isCheckedIn(): boolean {
+    return this.checkedInAt !== null
   }
 
   get isPlusOne(): boolean {
@@ -133,6 +142,7 @@ export default class EventInvitation {
       invitedById: data.invitedById ?? data.invited_by_id ?? null,
       invitedByName,
       emailSentAt: data.emailSentAt ?? data.email_sent_at ?? null,
+      checkedInAt: data.checkedInAt ?? data.checked_in_at ?? null,
       subEventInvites: subEventInvites.map((s: any) => ({
         subEventId: s.subEventId ?? s.sub_event_id ?? s.subEventId,
         plusOnes: s.plusOnes ?? s.plus_ones ?? 0,
@@ -161,6 +171,7 @@ export default class EventInvitation {
       invitedById: this.invitedById,
       invitedByName: this.invitedByName,
       emailSentAt: this.emailSentAt,
+      checkedInAt: this.checkedInAt,
       subEventInvites: this.subEventInvites,
       plusOneInvites: this.plusOneInvites,
       createdAt: this.createdAt,

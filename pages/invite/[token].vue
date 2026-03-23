@@ -95,6 +95,22 @@ const hasPoll = computed(() => !!eventData.value?.hasActivePoll)
 const hasWishlist = computed(() => eventData.value?.features?.wishlist)
 const hasGallery = computed(() => eventData.value?.features?.photoGallery)
 const hasSocialWall = computed(() => eventData.value?.features?.socialWall)
+const hasCheckIn = computed(() => eventData.value?.features?.checkIn)
+
+// QR Code generation for accepted guests
+const qrCodeDataUrl = ref(null)
+
+watch(rsvpStatus, async (status) => {
+  if (status === 'accepted' && hasCheckIn.value && typeof window !== 'undefined') {
+    const QRCode = await import('qrcode')
+    const inviteUrl = `${window.location.origin}/invite/${token}`
+    qrCodeDataUrl.value = await QRCode.toDataURL(inviteUrl, {
+      width: 200,
+      margin: 2,
+      color: { dark: '#1a1a2e' },
+    })
+  }
+}, { immediate: true })
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
 const invitedByName = computed(() => invitation.value?.invitedByName || '')
 const showPlusOnes = computed(() => !isPlusOne.value && invitation.value?.plusOnes > 0)
@@ -136,7 +152,7 @@ const progressSteps = computed(() => {
       id: 'dietary',
       label: t('invite.progress.dietary'),
       icon: 'lucide:heart-pulse',
-      completed: Object.keys(dietarySaving.value).length > 0 || false, // best-effort; actual state comes from server
+      completed: dietaryCompleted.value,
     })
   }
   // Music (if any party sub-events exist)
@@ -146,7 +162,7 @@ const progressSteps = computed(() => {
       id: 'music',
       label: t('invite.progress.music'),
       icon: 'lucide:music',
-      completed: false,
+      completed: musicCompleted.value,
     })
   }
   return steps
@@ -225,6 +241,7 @@ async function handleSubEventRsvp(subEventId, status) {
       body: { subEventId, status },
     })
     subEventRsvps.value = { ...subEventRsvps.value, [subEventId]: status }
+    toast.add({ title: t('toast.subEventRsvpSuccess'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.rsvpError'), icon: 'i-lucide-alert-circle', color: 'red' })
   }
@@ -236,6 +253,7 @@ watch(invitation, (inv) => {
 
 // Dietary preferences
 const dietarySaving = ref({})
+const dietaryCompleted = ref(false)
 
 async function submitDietary(subEventId, dietaryData) {
   dietarySaving.value[subEventId] = true
@@ -247,6 +265,7 @@ async function submitDietary(subEventId, dietaryData) {
         ...dietaryData,
       },
     })
+    dietaryCompleted.value = true
     toast.add({ title: t('toast.dietarySaved'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
@@ -257,6 +276,7 @@ async function submitDietary(subEventId, dietaryData) {
 
 // Music requests
 const musicLists = reactive({})
+const musicCompleted = ref(false)
 
 watch(subEvents, (subs) => {
   for (const se of subs) {
@@ -265,6 +285,19 @@ watch(subEvents, (subs) => {
     }
   }
 }, { immediate: true })
+
+// Initialize music progress dot from existing requests
+watch(() => ({ ...musicLists }), (lists) => {
+  if (musicCompleted.value) return
+  const guestEmail = invitation.value?.inviteeEmail
+  if (!guestEmail) return
+  for (const seId in lists) {
+    if (lists[seId]?.some(r => r.guestEmail === guestEmail)) {
+      musicCompleted.value = true
+      return
+    }
+  }
+}, { deep: true })
 
 async function fetchMusicRequests(subEventId) {
   try {
@@ -291,6 +324,7 @@ async function submitMusicRequest(subEventId, track) {
       },
     })
     await fetchMusicRequests(subEventId)
+    musicCompleted.value = true
     toast.add({ title: t('toast.musicRequested'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
@@ -303,6 +337,7 @@ async function upvoteMusic(subEventId, requestId) {
       method: 'POST',
     })
     await fetchMusicRequests(subEventId)
+    toast.add({ title: t('toast.musicUpvoted'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   }
@@ -498,6 +533,28 @@ async function upvoteMusic(subEventId, requestId) {
             <InviteSocialWallSection :token="token" :event-data="eventData" />
           </div>
         </section>
+
+        <!-- QR Code check-in -->
+        <section
+          v-if="hasCheckIn && rsvpStatus === 'accepted' && qrCodeDataUrl"
+          class="invite-section invite-section--reveal"
+          style="animation-delay: 500ms"
+        >
+          <div class="invite-section__inner invite-qr-code">
+            <h2 class="invite-section__title">
+              <Icon name="lucide:scan-line" size="22" />
+              {{ t('invite.qrCode.title') }}
+            </h2>
+            <p class="invite-section__subtitle">{{ t('invite.qrCode.description') }}</p>
+            <div class="invite-qr-code__image-wrapper">
+              <img
+                :src="qrCodeDataUrl"
+                :alt="t('invite.qrCode.alt')"
+                class="invite-qr-code__image"
+              />
+            </div>
+          </div>
+        </section>
       </main>
 
       <!-- Sticky RSVP bar (mobile) -->
@@ -657,5 +714,23 @@ async function upvoteMusic(subEventId, requestId) {
     padding-top: var(--space-8);
   }
 
+}
+
+/* ── QR Code check-in ─────────────── */
+.invite-qr-code {
+  text-align: center;
+}
+
+.invite-qr-code__image-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.invite-qr-code__image {
+  width: 200px;
+  height: 200px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
 }
 </style>

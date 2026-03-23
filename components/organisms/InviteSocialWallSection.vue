@@ -12,18 +12,24 @@ const props = defineProps({
   },
 })
 
+const toast = useToast()
 const { posts, loading, posting, fetchPosts, createPost, heartPost } = useGuestSocialWall(props.token)
-
-const postSubmitted = ref(false)
 
 onMounted(() => {
   fetchPosts()
 })
 
 async function handleSubmit({ content, file }) {
-  const result = await createPost(content, file)
-  postSubmitted.value = true
-  setTimeout(() => { postSubmitted.value = false }, 3000)
+  try {
+    const result = await createPost(content, file)
+    if (result.status === 'approved') {
+      toast.add({ title: t('toast.socialWallPostApproved'), icon: 'i-lucide-check', color: 'green' })
+    } else {
+      toast.add({ title: t('toast.socialWallPostPending'), icon: 'i-lucide-clock', color: 'blue' })
+    }
+  } catch {
+    toast.add({ title: t('toast.socialWallPostError'), icon: 'i-lucide-alert-circle', color: 'red' })
+  }
 }
 </script>
 
@@ -33,13 +39,6 @@ async function handleSubmit({ content, file }) {
       :posting="posting"
       @submit="handleSubmit"
     />
-
-    <Transition name="fade">
-      <div v-if="postSubmitted" class="social-wall-guest__success">
-        <Icon name="lucide:check-circle" size="16" />
-        {{ t('socialWall.postSubmitted') }}
-      </div>
-    </Transition>
 
     <div v-if="loading" class="social-wall-guest__loading">
       <Icon name="lucide:loader-2" size="24" class="social-wall-guest__spinner" />
@@ -66,18 +65,6 @@ async function handleSubmit({ content, file }) {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-
-.social-wall-guest__success {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-success, #27ae60) 10%, transparent);
-  color: var(--color-success, #27ae60);
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
 }
 
 .social-wall-guest__loading {
@@ -115,13 +102,4 @@ async function handleSubmit({ content, file }) {
   gap: var(--space-3);
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity var(--transition-base);
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>

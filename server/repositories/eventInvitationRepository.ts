@@ -115,6 +115,7 @@ export default class EventInvitationRepository {
     plusOnes?: number
     status?: string
     emailSentAt?: Date
+    checkedInAt?: Date | null
     subEventInvites?: { subEventId: number, plusOnes: number }[]
   }): Promise<EventInvitation> {
     const prisma = usePrisma()
@@ -139,6 +140,7 @@ export default class EventInvitationRepository {
         ...(data.plusOnes !== undefined ? { plusOnes: data.plusOnes } : {}),
         ...(data.status !== undefined ? { status: data.status } : {}),
         ...(data.emailSentAt !== undefined ? { emailSentAt: data.emailSentAt } : {}),
+        ...(data.checkedInAt !== undefined ? { checkedInAt: data.checkedInAt } : {}),
       },
       include: FULL_INCLUDE,
     })
@@ -148,6 +150,25 @@ export default class EventInvitationRepository {
   static async delete(id: number): Promise<void> {
     const prisma = usePrisma()
     await prisma.eventInvitation.delete({ where: { id } })
+  }
+
+  static async getCheckInStats(eventId: string): Promise<{ total: number, checkedIn: number }> {
+    const prisma = usePrisma()
+    const [total, checkedIn] = await Promise.all([
+      prisma.eventInvitation.count({ where: { eventId: Number(eventId), status: 'accepted' } }),
+      prisma.eventInvitation.count({ where: { eventId: Number(eventId), checkedInAt: { not: null } } }),
+    ])
+    return { total, checkedIn }
+  }
+
+  static async findCheckedInByEventId(eventId: string): Promise<EventInvitation[]> {
+    const prisma = usePrisma()
+    const rows = await prisma.eventInvitation.findMany({
+      where: { eventId: Number(eventId), checkedInAt: { not: null } },
+      include: FULL_INCLUDE,
+      orderBy: { checkedInAt: 'desc' },
+    })
+    return rows.map((row) => EventInvitation.fromJSON(mapRow(row)))
   }
 
   static async countGuests(eventId: string): Promise<{ invited: number, plusOnes: number, total: number }> {

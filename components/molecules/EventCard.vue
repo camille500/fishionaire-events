@@ -361,4 +361,23 @@ function onArchiveConfirm() {
 .modal-leave-to .invite-modal {
   transform: scale(0.96);
 }
+
+/* Completion bar */
+.event-card__completion {
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.event-card__completion-bar {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-border-light);
+  overflow: hidden;
+}
+
+.event-card__completion-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
 </style>

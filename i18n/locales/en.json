@@ -473,6 +473,9 @@
       "wishlistClaimed": "Wishlist claimed",
       "budgetSpent": "Budget spent"
     },
+    "eventCard": {
+      "completionHint": "Add more details to complete your event setup"
+    },
     "timeline": {
       "title": "Upcoming events",
       "empty": "No upcoming events",
@@ -896,6 +899,7 @@
       "photos": "Photos",
       "budget": "Budget",
       "socialWall": "Social Wall",
+      "checkIn": "Check-in",
       "settings": "Settings"
     },
     "autoSave": {
@@ -1439,6 +1443,11 @@
       "title": "Social Wall",
       "subtitle": "Share your thoughts and memories with everyone."
     },
+    "qrCode": {
+      "title": "Your Check-in QR Code",
+      "description": "Show this code at the event for quick check-in.",
+      "alt": "Check-in QR code"
+    },
     "calendar": {
       "addToCalendar": "Add to calendar",
       "downloadIcs": "Download .ics file"
@@ -1581,6 +1590,37 @@
       "approved": "Approved"
     }
   },
+  "checkIn": {
+    "title": "Guest Check-in",
+    "subtitle": "Scan guest QR codes to check them in on event day",
+    "stats": {
+      "checkedIn": "{count} of {total} checked in",
+      "checkedInLabel": "Checked in",
+      "expectedLabel": "Expected",
+      "arrivedLabel": "Arrived"
+    },
+    "scanner": {
+      "title": "QR Scanner",
+      "start": "Start Scanner",
+      "stop": "Stop Scanner",
+      "scanning": "Point camera at guest's QR code...",
+      "cameraError": "Could not access camera. Please allow camera permissions."
+    },
+    "result": {
+      "success": "{name} checked in!",
+      "alreadyCheckedIn": "Already checked in",
+      "invalidQr": "This QR code is not a valid invitation",
+      "notAccepted": "Guest has not accepted their invitation",
+      "wrongEvent": "This invitation is for a different event",
+      "error": "Could not check in guest"
+    },
+    "guests": {
+      "title": "Recent Arrivals",
+      "empty": "No guests checked in yet",
+      "undo": "Undo",
+      "undone": "Check-in undone"
+    }
+  },
   "wishlist": {
     "addItem": "Add item",
     "editItem": "Edit item",
@@ -1711,7 +1751,13 @@
     "emailsSent": "All invitations sent",
     "dietarySaved": "Dietary preferences saved",
     "musicRequested": "Song request added",
-    "uploadFailed": "Upload failed — please try again"
+    "uploadFailed": "Upload failed — please try again",
+    "subEventRsvpSuccess": "Response saved",
+    "musicUpvoted": "Vote added",
+    "photoUploaded": "Photo uploaded!",
+    "socialWallPostApproved": "Your post is live!",
+    "socialWallPostPending": "Post submitted — awaiting approval",
+    "socialWallPostError": "Could not submit post"
   },
   "footer": {
     "product": "Product",

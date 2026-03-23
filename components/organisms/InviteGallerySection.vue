@@ -1,5 +1,6 @@
 <script setup>
 const { t } = useI18n()
+const toast = useToast()
 
 const props = defineProps({
   token: {
@@ -12,13 +13,10 @@ const props = defineProps({
   },
 })
 
-const toast = useToast()
-const { t } = useI18n()
 const { photos, loading, uploading, uploadProgress, uploadError, guestUploadsEnabled, fetchGallery, uploadPhoto } = useGuestGallery(props.token)
 
 const lightboxOpen = ref(false)
 const lightboxIndex = ref(0)
-const uploadSuccess = ref(false)
 
 onMounted(() => {
   fetchGallery()
@@ -33,8 +31,7 @@ function openLightbox(photo) {
 async function handleFileUploaded(file) {
   try {
     await uploadPhoto(file)
-    uploadSuccess.value = true
-    setTimeout(() => { uploadSuccess.value = false }, 3000)
+    toast.add({ title: t('toast.photoUploaded'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.uploadFailed'), icon: 'i-lucide-alert-circle', color: 'red' })
   }
@@ -63,10 +60,6 @@ async function handleFileUploaded(file) {
 
       <div v-if="guestUploadsEnabled" class="invite-gallery__upload">
         <GalleryUploader :is-uploading="uploading" :progress="uploadProgress" @uploaded="handleFileUploaded" />
-        <p v-if="uploadSuccess" class="invite-gallery__success">
-          <Icon name="lucide:check" size="14" />
-          {{ t('invite.gallery.uploadSuccess') }}
-        </p>
       </div>
     </template>
 
@@ -116,16 +109,6 @@ async function handleFileUploaded(file) {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-}
-
-.invite-gallery__success {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-sm);
-  color: var(--color-success, var(--color-accent));
-  font-weight: var(--font-weight-medium);
-  margin: 0;
 }
 
 @media (max-width: 768px) {

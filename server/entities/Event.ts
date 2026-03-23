@@ -13,6 +13,7 @@ export interface EventFeatures {
   aiAssistant: boolean
   analytics: boolean
   socialWall: boolean
+  checkIn: boolean
 }
 
 export interface EventData {

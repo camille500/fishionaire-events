@@ -473,6 +473,9 @@
       "wishlistClaimed": "Verlanglijst geclaimd",
       "budgetSpent": "Budget besteed"
     },
+    "eventCard": {
+      "completionHint": "Voeg meer details toe om je evenement compleet te maken"
+    },
     "timeline": {
       "title": "Aankomende evenementen",
       "empty": "Geen aankomende evenementen",
@@ -896,6 +899,7 @@
       "photos": "Foto's",
       "budget": "Budget",
       "socialWall": "Prikbord",
+      "checkIn": "Inchecken",
       "settings": "Instellingen"
     },
     "autoSave": {
@@ -1439,6 +1443,11 @@
       "title": "Prikbord",
       "subtitle": "Deel je gedachten en herinneringen met iedereen."
     },
+    "qrCode": {
+      "title": "Je incheck QR-code",
+      "description": "Laat deze code zien bij het evenement om snel in te checken.",
+      "alt": "Incheck QR-code"
+    },
     "calendar": {
       "addToCalendar": "Toevoegen aan agenda",
       "downloadIcs": "Download .ics bestand"
@@ -1581,6 +1590,37 @@
       "approved": "Goedgekeurd"
     }
   },
+  "checkIn": {
+    "title": "Gasten inchecken",
+    "subtitle": "Scan de QR-codes van gasten om ze in te checken op de dag van het evenement",
+    "stats": {
+      "checkedIn": "{count} van {total} ingecheckt",
+      "checkedInLabel": "Ingecheckt",
+      "expectedLabel": "Verwacht",
+      "arrivedLabel": "Gearriveerd"
+    },
+    "scanner": {
+      "title": "QR-scanner",
+      "start": "Scanner starten",
+      "stop": "Scanner stoppen",
+      "scanning": "Richt de camera op de QR-code van de gast...",
+      "cameraError": "Kan camera niet openen. Geef toestemming voor cameratoegang."
+    },
+    "result": {
+      "success": "{name} is ingecheckt!",
+      "alreadyCheckedIn": "Al ingecheckt",
+      "invalidQr": "Deze QR-code is geen geldige uitnodiging",
+      "notAccepted": "Gast heeft de uitnodiging niet geaccepteerd",
+      "wrongEvent": "Deze uitnodiging hoort bij een ander evenement",
+      "error": "Kon gast niet inchecken"
+    },
+    "guests": {
+      "title": "Recente aankomsten",
+      "empty": "Nog geen gasten ingecheckt",
+      "undo": "Ongedaan maken",
+      "undone": "Inchecken ongedaan gemaakt"
+    }
+  },
   "wishlist": {
     "addItem": "Item toevoegen",
     "editItem": "Item bewerken",
@@ -1711,7 +1751,13 @@
     "emailsSent": "Alle uitnodigingen verstuurd",
     "dietarySaved": "Dieetvoorkeuren opgeslagen",
     "musicRequested": "Muziekverzoek toegevoegd",
-    "uploadFailed": "Upload mislukt — probeer het opnieuw"
+    "uploadFailed": "Upload mislukt — probeer het opnieuw",
+    "subEventRsvpSuccess": "Reactie opgeslagen",
+    "musicUpvoted": "Stem toegevoegd",
+    "photoUploaded": "Foto geüpload!",
+    "socialWallPostApproved": "Je bericht is zichtbaar!",
+    "socialWallPostPending": "Bericht verstuurd — wacht op goedkeuring",
+    "socialWallPostError": "Kon bericht niet versturen"
   },
   "footer": {
     "product": "Product",

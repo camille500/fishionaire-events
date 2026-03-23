@@ -50,6 +50,9 @@ const tabs = computed(() => {
   if (eventData.value?.features?.socialWall) {
     base.push({ label: t('editor.tabs.socialWall'), icon: 'i-lucide-message-circle-heart', slot: 'socialWall' })
   }
+  if (eventData.value?.features?.checkIn) {
+    base.push({ label: t('editor.tabs.checkIn'), icon: 'i-lucide-scan-line', slot: 'checkIn' })
+  }
   base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
   return base
 })
@@ -115,6 +118,7 @@ const activityTypeConfig = {
   photo_upload: { icon: 'camera', color: 'var(--color-event-birthday)' },
   budget_expense: { icon: 'wallet', color: 'var(--color-accent)' },
   social_wall_post: { icon: 'message-circle', color: 'var(--color-event-birthday)' },
+  check_in: { icon: 'scan-line', color: 'var(--color-success)' },
 }
 
 function formatTimeAgo(date) {
@@ -140,6 +144,7 @@ function formatActivityMessage(log) {
     case 'photo_upload': return `${name} uploaded a photo`
     case 'budget_expense': return `${name} added an expense`
     case 'social_wall_post': return `${name} posted on the Social Wall`
+    case 'check_in': return `${name} checked in`
     default: return `${name} performed an action`
   }
 }
@@ -287,6 +292,15 @@ function onTabChange(index) {
               :event-id="eventData.id"
               :features="eventData.features"
               :auto-approve="eventData.socialWallAutoApprove"
+            />
+          </div>
+        </template>
+
+        <template v-if="eventData?.features?.checkIn" #checkIn>
+          <div class="event-editor__tab-content">
+            <EditorCheckInTab
+              :event-id="eventData.id"
+              :features="eventData.features"
             />
           </div>
         </template>

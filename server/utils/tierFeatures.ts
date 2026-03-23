@@ -16,6 +16,7 @@ interface TierFeatureSet {
   advancedReminders: boolean
   digestEmails: boolean
   socialWall: boolean
+  checkIn: boolean
 }
 
 export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
@@ -35,6 +36,7 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     advancedReminders: false,
     digestEmails: false,
     socialWall: false,
+    checkIn: false,
   },
   standard: {
     rsvp: true,
@@ -52,6 +54,7 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     advancedReminders: false,
     digestEmails: false,
     socialWall: true,
+    checkIn: true,
   },
   pro: {
     rsvp: true,
@@ -69,6 +72,7 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     advancedReminders: true,
     digestEmails: true,
     socialWall: true,
+    checkIn: true,
   },
 }
 
