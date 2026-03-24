@@ -43,6 +43,17 @@ interface UpdateEventParams {
   rsvpDeadline?: string | null
   guestUploadsEnabled?: boolean
   themeColor?: string | null
+  themeColorSecondary?: string | null
+  gradientAngle?: number
+  fontPairing?: string | null
+  cardStyle?: string
+  welcomeMessage?: string | null
+  heroAnimation?: string
+  backgroundPattern?: string | null
+  colorMode?: string
+  customLogoUrl?: string | null
+  customLogoKey?: string | null
+  hideBranding?: boolean
   features?: Record<string, boolean>
 }
 
@@ -197,7 +208,7 @@ export default class EventController {
   }
 
   static async updateEvent(eventId: number, clerkId: string, {
-    title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, themeColor, features
+    title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, themeColor, themeColorSecondary, gradientAngle, fontPairing, cardStyle, welcomeMessage, heroAnimation, backgroundPattern, colorMode, customLogoUrl, customLogoKey, hideBranding, features
   }: UpdateEventParams): Promise<Record<string, unknown>> {
     const validEventTypes: EventType[] = ['birthday', 'wedding', 'baby_shower', 'dinner', 'corporate', 'other']
 
@@ -275,6 +286,73 @@ export default class EventController {
         throw createError({ statusCode: 400, statusMessage: 'Invalid color format' })
       }
       event.themeColor = themeColor
+    }
+
+    if (themeColorSecondary !== undefined) {
+      if (themeColorSecondary !== null && !/^#[0-9a-fA-F]{6}$/.test(themeColorSecondary)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid color format' })
+      }
+      event.themeColorSecondary = themeColorSecondary
+    }
+
+    if (gradientAngle !== undefined) {
+      event.gradientAngle = Math.max(0, Math.min(360, Number(gradientAngle) || 135))
+    }
+
+    if (fontPairing !== undefined) {
+      const validPairings = [null, 'playfair-inter', 'poppins-dmsans', 'cormorant-lora', 'space-inter', 'abril-worksans']
+      if (!validPairings.includes(fontPairing)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid font pairing' })
+      }
+      event.fontPairing = fontPairing
+    }
+
+    if (cardStyle !== undefined) {
+      const validStyles = ['glass', 'solid', 'outlined']
+      if (!validStyles.includes(cardStyle)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid card style' })
+      }
+      event.cardStyle = cardStyle
+    }
+
+    if (welcomeMessage !== undefined) {
+      event.welcomeMessage = welcomeMessage
+    }
+
+    if (heroAnimation !== undefined) {
+      const validAnimations = ['fadeUp', 'typewriter', 'cinematic', 'slide']
+      if (!validAnimations.includes(heroAnimation)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid animation' })
+      }
+      event.heroAnimation = heroAnimation
+    }
+
+    if (backgroundPattern !== undefined) {
+      const validPatterns = [null, 'dots', 'crosshatch', 'confetti', 'botanical', 'geometric']
+      if (!validPatterns.includes(backgroundPattern)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid pattern' })
+      }
+      event.backgroundPattern = backgroundPattern
+    }
+
+    if (colorMode !== undefined) {
+      const validModes = ['auto', 'light', 'dark']
+      if (!validModes.includes(colorMode)) {
+        throw createError({ statusCode: 400, statusMessage: 'Invalid color mode' })
+      }
+      event.colorMode = colorMode
+    }
+
+    if (customLogoUrl !== undefined) {
+      event.customLogoUrl = customLogoUrl
+    }
+
+    if (customLogoKey !== undefined) {
+      event.customLogoKey = customLogoKey
+    }
+
+    if (hideBranding !== undefined) {
+      event.hideBranding = Boolean(hideBranding)
     }
 
     if (features !== undefined) {

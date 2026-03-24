@@ -154,11 +154,11 @@ export default class AnalyticsController {
       }),
       // Budget stats
       prisma.event.findMany({
-        where: { id: { in: ownedEventIds }, budgetTarget: { not: null } },
-        select: { budgetTarget: true },
+        where: { id: { in: ownedEventIds }, budgetTargetCents: { not: null } },
+        select: { budgetTargetCents: true },
       }).then(async (events) => {
         if (events.length === 0) return null
-        const totalTarget = events.reduce((sum, e) => sum + (e.budgetTarget || 0), 0)
+        const totalTarget = events.reduce((sum, e) => sum + (e.budgetTargetCents || 0), 0)
         const totalSpent = await prisma.budgetEntry.aggregate({
           where: { eventId: { in: ownedEventIds } },
           _sum: { amountCents: true },

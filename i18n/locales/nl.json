@@ -622,6 +622,9 @@
       "saved": "Wijzigingen opgeslagen",
       "allSaved": "Alle wijzigingen opgeslagen",
       "unsavedChanges": "Niet-opgeslagen wijzigingen",
+      "unsavedMessage": "Je hebt niet-opgeslagen wijzigingen. Wil je opslaan voordat je weggaat?",
+      "leaveWithout": "Verlaten zonder opslaan",
+      "saveAndLeave": "Opslaan & verlaten",
       "errorSaving": "Er ging iets mis bij het opslaan",
       "notFound": "Evenement niet gevonden",
       "noAccess": "Je hebt geen toegang tot dit evenement",
@@ -901,6 +904,7 @@
       "budget": "Budget",
       "socialWall": "Prikbord",
       "checkIn": "Inchecken",
+      "theme": "Thema",
       "settings": "Instellingen"
     },
     "autoSave": {
@@ -978,6 +982,33 @@
       "customColor": "Accentkleur",
       "customColorDesc": "Kies een kleur voor jouw evenement",
       "customHex": "Aangepaste kleur"
+    },
+    "theme": {
+      "title": "Thema aanpassen",
+      "description": "Maak je uitnodiging uniek",
+      "primaryColor": "Primaire kleur",
+      "secondaryColor": "Secundaire kleur",
+      "gradientAngle": "Verlooprichting",
+      "fontPairing": "Lettertypestijl",
+      "cardStyle": "Kaartstijl",
+      "cardStyles": {
+        "glass": "Glas",
+        "solid": "Solide",
+        "outlined": "Omlijnd"
+      },
+      "welcomeMessage": "Welkomstbericht",
+      "welcomeMessageHint": "Gebruik {'{{'}name{'}}'}  om de naam van de gast in te voegen",
+      "welcomeMessagePlaceholder": "Beste {'{{'}name{'}}'}, wat leuk dat je er bij bent...",
+      "heroAnimation": "Introductie-animatie",
+      "backgroundPattern": "Achtergrondpatroon",
+      "colorMode": "Kleurmodus",
+      "colorModes": {
+        "auto": "Automatisch",
+        "light": "Licht",
+        "dark": "Donker"
+      },
+      "hideBranding": "Branding verwijderen",
+      "hideBrandingDesc": "Verberg de 'Powered by Fishionaire' voettekst"
     },
     "guests": {
       "addGuest": "Gast toevoegen",
@@ -1772,7 +1803,16 @@
     "photoUploaded": "Foto geüpload!",
     "socialWallPostApproved": "Je bericht is zichtbaar!",
     "socialWallPostPending": "Bericht verstuurd — wacht op goedkeuring",
-    "socialWallPostError": "Kon bericht niet versturen"
+    "socialWallPostError": "Kon bericht niet versturen",
+    "eventArchived": "Evenement gearchiveerd",
+    "eventRestored": "Evenement hersteld",
+    "eventDuplicated": "Evenement gedupliceerd",
+    "archiveError": "Kon evenement niet archiveren",
+    "restoreError": "Kon evenement niet herstellen",
+    "duplicateError": "Kon evenement niet dupliceren",
+    "roleUpdated": "Rol bijgewerkt",
+    "subscriptionUpdated": "Abonnement bijgewerkt",
+    "savedChanges": "Wijzigingen opgeslagen"
   },
   "footer": {
     "product": "Product",

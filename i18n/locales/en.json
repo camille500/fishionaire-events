@@ -622,6 +622,9 @@
       "saved": "Changes saved",
       "allSaved": "All changes saved",
       "unsavedChanges": "Unsaved changes",
+      "unsavedMessage": "You have unsaved changes. Would you like to save before leaving?",
+      "leaveWithout": "Leave without saving",
+      "saveAndLeave": "Save & leave",
       "errorSaving": "Something went wrong while saving",
       "notFound": "Event not found",
       "noAccess": "You don't have access to this event",
@@ -901,6 +904,7 @@
       "budget": "Budget",
       "socialWall": "Social Wall",
       "checkIn": "Check-in",
+      "theme": "Theme",
       "settings": "Settings"
     },
     "autoSave": {
@@ -978,6 +982,33 @@
       "customColor": "Accent color",
       "customColorDesc": "Choose a custom color for your event",
       "customHex": "Custom color"
+    },
+    "theme": {
+      "title": "Theme customization",
+      "description": "Make your invite uniquely yours",
+      "primaryColor": "Primary color",
+      "secondaryColor": "Secondary color",
+      "gradientAngle": "Gradient direction",
+      "fontPairing": "Font style",
+      "cardStyle": "Card style",
+      "cardStyles": {
+        "glass": "Glass",
+        "solid": "Solid",
+        "outlined": "Outlined"
+      },
+      "welcomeMessage": "Welcome message",
+      "welcomeMessageHint": "Use {'{{'}name{'}}'}  to include the guest's name",
+      "welcomeMessagePlaceholder": "Dear {'{{'}name{'}}'}, we're thrilled to have you...",
+      "heroAnimation": "Entrance animation",
+      "backgroundPattern": "Background pattern",
+      "colorMode": "Color mode",
+      "colorModes": {
+        "auto": "Auto",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "hideBranding": "Remove branding",
+      "hideBrandingDesc": "Hide the 'Powered by Fishionaire' footer"
     },
     "guests": {
       "addGuest": "Add guest",
@@ -1772,7 +1803,16 @@
     "photoUploaded": "Photo uploaded!",
     "socialWallPostApproved": "Your post is live!",
     "socialWallPostPending": "Post submitted — awaiting approval",
-    "socialWallPostError": "Could not submit post"
+    "socialWallPostError": "Could not submit post",
+    "eventArchived": "Event archived",
+    "eventRestored": "Event restored",
+    "eventDuplicated": "Event duplicated",
+    "archiveError": "Could not archive event",
+    "restoreError": "Could not restore event",
+    "duplicateError": "Could not duplicate event",
+    "roleUpdated": "Role updated",
+    "subscriptionUpdated": "Subscription updated",
+    "savedChanges": "Changes saved"
   },
   "footer": {
     "product": "Product",

@@ -28,10 +28,14 @@ async function sendMessage(text) {
   if (!message) return
   if (props.wizardAi.chatComplete.value) return
 
+  const previousInput = userInput.value
   userInput.value = ''
   hasStarted.value = true
 
-  await props.wizardAi.sendChatMessage(message)
+  const result = await props.wizardAi.sendChatMessage(message)
+  if (result === null && props.wizardAi.chatMessages.value.length === 0) {
+    userInput.value = previousInput
+  }
   await nextTick()
   scrollToBottom()
 }
@@ -74,6 +78,21 @@ const inputPlaceholder = computed(() => {
     : 'Type your message...'
 })
 
+const suggestions = computed(() => {
+  if (locale.value === 'nl') {
+    return [
+      'Verjaardagsfeest voor 20 personen',
+      'Bedrijfsborrel met quiz',
+      'Intiem diner thuis',
+    ]
+  }
+  return [
+    'Birthday party for 20 people',
+    'Corporate drinks with a quiz',
+    'Intimate dinner at home',
+  ]
+})
+
 // Watch for new messages to auto-scroll
 watch(() => props.wizardAi.chatMessages.value.length, async () => {
   await nextTick()
@@ -97,6 +116,19 @@ watch(() => props.wizardAi.chatMessages.value.length, async () => {
           :content="greeting"
         />
 
+        <!-- Suggestion chips -->
+        <div v-if="!hasStarted" class="step-start__suggestions">
+          <button
+            v-for="suggestion in suggestions"
+            :key="suggestion"
+            type="button"
+            class="step-start__chip"
+            @click="sendMessage(suggestion)"
+          >
+            {{ suggestion }}
+          </button>
+        </div>
+
         <!-- Conversation messages -->
         <ChatBubble
           v-for="(msg, i) in wizardAi.chatMessages.value"
@@ -104,17 +136,12 @@ watch(() => props.wizardAi.chatMessages.value.length, async () => {
           :role="msg.role"
           :content="msg.content"
           :is-result="msg.isResult || false"
+          :is-error="msg.isError || false"
           :event="msg.isResult ? wizardAi.buildResult.value : null"
         />
 
         <!-- Typing indicator -->
         <ChatTypingIndicator v-if="wizardAi.chatLoading.value" />
-      </div>
-
-      <!-- Error -->
-      <div v-if="wizardAi.chatError.value" class="step-start__error">
-        <Icon name="lucide:alert-circle" size="14" />
-        {{ wizardAi.chatError.value }}
       </div>
 
       <!-- Accept result actions -->
@@ -219,15 +246,11 @@ watch(() => props.wizardAi.chatMessages.value.length, async () => {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  border: 2px solid color-mix(in srgb, var(--color-accent) 25%, var(--color-border-light));
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-xl);
-  background: color-mix(in srgb, var(--color-accent) 3%, var(--color-surface));
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
   padding: var(--space-4);
-  transition: border-color var(--transition-base);
-}
-
-.step-start__chat-wrap:focus-within {
-  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border-light));
 }
 
 .step-start__chat {
@@ -249,17 +272,37 @@ watch(() => props.wizardAi.chatMessages.value.length, async () => {
   border-radius: 2px;
 }
 
-/* Error */
-.step-start__error {
+/* Suggestion chips */
+.step-start__suggestions {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  animation: fade-in 400ms ease-out;
+}
+
+.step-start__chip {
+  display: inline-flex;
+  align-items: center;
   padding: var(--space-2) var(--space-3);
-  background: rgba(231, 76, 60, 0.08);
-  border: 1px solid rgba(231, 76, 60, 0.2);
-  border-radius: var(--radius-sm);
-  color: var(--color-error);
-  font-size: var(--text-sm);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-border-light));
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.step-start__chip:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  color: var(--color-accent);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Result actions */
@@ -317,11 +360,11 @@ watch(() => props.wizardAi.chatMessages.value.length, async () => {
   display: flex;
   align-items: flex-end;
   gap: var(--space-2);
-  background: var(--color-background);
+  background: var(--input-bg);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-2);
-  transition: border-color var(--transition-fast);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .step-start__input-wrap:focus-within {
@@ -351,10 +394,10 @@ watch(() => props.wizardAi.chatMessages.value.length, async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
   background: var(--color-accent);
   color: white;
   cursor: pointer;

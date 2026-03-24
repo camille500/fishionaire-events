@@ -2,6 +2,7 @@
 definePageMeta({ layout: 'admin' })
 
 const { t } = useI18n()
+const toast = useToast()
 
 const tierFilter = ref('')
 const statusFilter = ref('')
@@ -46,13 +47,33 @@ function cancelEdit() {
   editing.value = null
 }
 
-async function saveEdit(userClerkId) {
-  await $fetch(`/api/admin/subscriptions/${userClerkId}`, {
-    method: 'PATCH',
-    body: { tier: editTier.value, status: editStatus.value },
-  })
-  editing.value = null
-  await refresh()
+// Save with confirmation modal
+const showSaveModal = ref(false)
+const savingEdit = ref(false)
+const pendingSaveClerkId = ref(null)
+
+function promptSave(userClerkId) {
+  pendingSaveClerkId.value = userClerkId
+  showSaveModal.value = true
+}
+
+async function confirmSave() {
+  savingEdit.value = true
+  try {
+    await $fetch(`/api/admin/subscriptions/${pendingSaveClerkId.value}`, {
+      method: 'PATCH',
+      body: { tier: editTier.value, status: editStatus.value },
+    })
+    editing.value = null
+    toast.add({ title: t('toast.subscriptionUpdated'), icon: 'i-lucide-check', color: 'green' })
+    await refresh()
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    savingEdit.value = false
+    showSaveModal.value = false
+    pendingSaveClerkId.value = null
+  }
 }
 
 function formatDate(date) {
@@ -134,7 +155,7 @@ const statusVariant = { active: 'accent', past_due: 'warning', canceled: 'defaul
       <template #cell-actions="{ row }">
         <div class="admin-subs__actions">
           <template v-if="editing === row.userClerkId">
-            <AppButton size="sm" variant="primary" @click="saveEdit(row.userClerkId)">
+            <AppButton size="sm" variant="primary" @click="promptSave(row.userClerkId)">
               {{ t('admin.save') }}
             </AppButton>
             <AppButton size="sm" variant="ghost" @click="cancelEdit">
@@ -153,6 +174,15 @@ const statusVariant = { active: 'accent', past_due: 'warning', canceled: 'defaul
       :total-pages="totalPages"
       :total="data?.total || 0"
       @update:page="page = $event"
+    />
+
+    <ConfirmModal
+      :visible="showSaveModal"
+      :title="t('admin.subscriptions.confirmSave', 'Save subscription changes')"
+      :message="t('admin.subscriptions.confirmSaveMessage', `Tier: ${editTier}, Status: ${editStatus}`)"
+      :loading="savingEdit"
+      @confirm="confirmSave"
+      @close="showSaveModal = false"
     />
   </div>
 </template>

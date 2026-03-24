@@ -1,7 +1,7 @@
 <script setup>
 const { t } = useI18n()
 
-defineProps({
+const props = defineProps({
   visible: {
     type: Boolean,
     default: false,
@@ -31,16 +31,65 @@ defineProps({
     default: 'default',
     validator: (v) => ['default', 'danger'].includes(v),
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['confirm', 'close'])
+
+const modalRef = ref(null)
+
+function handleKeydown(e) {
+  if (e.key === 'Escape') {
+    emit('close')
+    return
+  }
+  if (e.key === 'Tab' && modalRef.value) {
+    const focusable = modalRef.value.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    if (!focusable.length) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+  }
+}
+
+watch(() => props.visible, (isVisible) => {
+  if (isVisible) {
+    nextTick(() => {
+      const confirmBtn = modalRef.value?.querySelector('.confirm-modal__actions button:last-child, .confirm-modal__actions .app-button')
+      confirmBtn?.focus()
+    })
+  }
+})
 </script>
 
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="visible" class="confirm-overlay" @click.self="emit('close')">
-        <div class="confirm-modal" :class="{ 'confirm-modal--danger': variant === 'danger' }">
+      <div
+        v-if="visible"
+        class="confirm-overlay"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="title"
+        @click.self="emit('close')"
+        @keydown="handleKeydown"
+      >
+        <div ref="modalRef" class="confirm-modal" :class="{ 'confirm-modal--danger': variant === 'danger' }">
           <div class="confirm-modal__header">
             <Icon
               :name="variant === 'danger' ? 'lucide:alert-triangle' : 'lucide:help-circle'"
@@ -58,12 +107,13 @@ const emit = defineEmits(['confirm', 'close'])
           </div>
 
           <div class="confirm-modal__actions">
-            <button class="confirm-modal__btn-cancel" @click="emit('close')">
+            <button class="confirm-modal__btn-cancel" :disabled="loading" @click="emit('close')">
               {{ cancelLabel || t('dashboard.cancel') }}
             </button>
             <AppButton
               :variant="variant === 'danger' ? 'primary' : 'primary'"
               size="sm"
+              :loading="loading"
               :class="{ 'confirm-modal__btn-danger': variant === 'danger' }"
               @click="emit('confirm')"
             >

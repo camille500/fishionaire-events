@@ -76,8 +76,53 @@ const accentColor = computed(() => {
 
 const customThemeStyles = computed(() => {
   if (!eventData.value?.themeColor) return {}
-  return deriveAccentVariants(eventData.value.themeColor)
+  return deriveAccentVariants(eventData.value.themeColor, {
+    secondaryHex: eventData.value.themeColorSecondary || null,
+    gradientAngle: eventData.value.gradientAngle ?? 135,
+  })
 })
+
+// Font loading
+const fontPairingId = computed(() => eventData.value?.fontPairing || null)
+const { fontVars } = useFontLoader(fontPairingId)
+
+// Combined theme styles
+const allThemeStyles = computed(() => ({
+  '--event-accent': accentColor.value,
+  ...customThemeStyles.value,
+  ...fontVars.value,
+}))
+
+// Welcome message with guest name interpolation
+const welcomeMessageRendered = computed(() => {
+  const msg = eventData.value?.welcomeMessage
+  if (!msg) return null
+  const name = invitation.value?.inviteeName || invitation.value?.inviteeEmail || ''
+  return msg.replace(/\{\{name\}\}/g, name)
+})
+
+// Color mode override
+const colorModeOverride = computed(() => eventData.value?.colorMode || 'auto')
+
+// Background pattern class
+const backgroundPatternClass = computed(() => {
+  const pattern = eventData.value?.backgroundPattern
+  if (!pattern) return ''
+  return `invite-body--pattern-${pattern}`
+})
+
+// Card style class
+const cardStyleClass = computed(() => {
+  const style = eventData.value?.cardStyle
+  if (!style || style === 'glass') return ''
+  return `invite-page--card-${style}`
+})
+
+// Hero animation
+const heroAnimation = computed(() => eventData.value?.heroAnimation || 'fadeUp')
+
+// Branding
+const showBranding = computed(() => !eventData.value?.hideBranding)
 
 const formattedDate = computed(() => {
   if (!eventData.value?.eventDate) return null
@@ -211,7 +256,10 @@ async function addPlusOne(name, email) {
   }
 }
 
+const removingPlusOne = ref(null)
+
 async function removePlusOne(plusOneId) {
+  removingPlusOne.value = plusOneId
   try {
     await $fetch(`/api/invite/${token}/plus-one/${plusOneId}`, { method: 'DELETE' })
     const refreshed = await $fetch(`/api/invite/${token}`)
@@ -219,6 +267,8 @@ async function removePlusOne(plusOneId) {
     toast.add({ title: t('toast.plusOneRemoved'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    removingPlusOne.value = null
   }
 }
 
@@ -248,7 +298,10 @@ function scrollToRsvpCard() {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
+const subEventRsvpLoading = ref({})
+
 async function handleSubEventRsvp(subEventId, status) {
+  subEventRsvpLoading.value[subEventId] = true
   try {
     await $fetch(`/api/invite/${token}/sub-event-rsvp`, {
       method: 'POST',
@@ -258,6 +311,8 @@ async function handleSubEventRsvp(subEventId, status) {
     toast.add({ title: t('toast.subEventRsvpSuccess'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.rsvpError'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    subEventRsvpLoading.value[subEventId] = false
   }
 }
 
@@ -321,8 +376,11 @@ async function fetchMusicRequests(subEventId) {
   }
 }
 
+const musicSubmitting = ref({})
+
 async function submitMusicRequest(subEventId, track) {
   if (!track?.songTitle?.trim()) return
+  musicSubmitting.value[subEventId] = true
   try {
     await $fetch(`/api/invite/${token}/music-request`, {
       method: 'POST',
@@ -342,6 +400,8 @@ async function submitMusicRequest(subEventId, track) {
     toast.add({ title: t('toast.musicRequested'), icon: 'i-lucide-check', color: 'green' })
   } catch {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    musicSubmitting.value[subEventId] = false
   }
 }
 
@@ -359,7 +419,15 @@ async function upvoteMusic(subEventId, requestId) {
 </script>
 
 <template>
-  <div class="invite-page" :style="{ '--event-accent': accentColor, ...customThemeStyles }">
+  <div
+    class="invite-page"
+    :class="[
+      cardStyleClass,
+      colorModeOverride === 'dark' ? 'dark' : '',
+      colorModeOverride === 'light' ? 'light-forced' : '',
+    ]"
+    :style="allThemeStyles"
+  >
     <!-- Error state -->
     <div v-if="error" class="invite-page__error">
       <div class="invite-page__error-card">
@@ -381,7 +449,16 @@ async function upvoteMusic(subEventId, requestId) {
         :formatted-date="formattedDate"
         :formatted-time="formattedTime"
         :has-poll="hasPoll"
+        :hero-animation="heroAnimation"
+        :show-branding="showBranding"
       />
+
+      <!-- Personal welcome message -->
+      <div v-if="welcomeMessageRendered" class="invite-welcome-message">
+        <div class="invite-welcome-message__inner">
+          <p class="invite-welcome-message__text">{{ welcomeMessageRendered }}</p>
+        </div>
+      </div>
 
       <!-- 2. Welcome + RSVP + Date Poll (overlaps hero) -->
       <InviteWelcomeRsvp
@@ -412,7 +489,7 @@ async function upvoteMusic(subEventId, requestId) {
       </div>
 
       <!-- 4. Content sections -->
-      <main class="invite-body">
+      <main class="invite-body" :class="backgroundPatternClass">
         <!-- Plus-ones -->
         <section
           v-if="showPlusOnes"
@@ -426,6 +503,7 @@ async function upvoteMusic(subEventId, requestId) {
               :remaining-plus-ones="remainingPlusOnes"
               :copied-plus-one-id="copiedPlusOneId"
               :plus-one-saving="plusOneSaving"
+              :removing-plus-one="removingPlusOne"
               :invitation="invitation"
               @add="addPlusOne"
               @remove="removePlusOne"
@@ -473,6 +551,7 @@ async function upvoteMusic(subEventId, requestId) {
               :token="token"
               :music-lists="musicLists"
               :dietary-saving="dietarySaving"
+              :music-submitting="musicSubmitting"
               @submit-dietary="submitDietary"
               @submit-music="submitMusicRequest"
               @upvote-music="upvoteMusic"
@@ -568,7 +647,7 @@ async function upvoteMusic(subEventId, requestId) {
       />
 
       <!-- Footer -->
-      <footer class="invite-page__footer">
+      <footer v-if="showBranding" class="invite-page__footer">
         <AppText size="xs" muted>
           Powered by <NuxtLink to="/" class="invite-page__footer-link">Fishionaire</NuxtLink>
         </AppText>
@@ -732,5 +811,89 @@ async function upvoteMusic(subEventId, requestId) {
   height: 200px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-light);
+}
+
+/* ── Welcome message ────────────────── */
+.invite-welcome-message {
+  padding: var(--space-8) var(--space-6) 0;
+  animation: sectionReveal 600ms ease-out both;
+}
+
+.invite-welcome-message__inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  border-left: 3px solid var(--event-accent, var(--color-accent));
+  background: var(--color-accent-dim, rgba(0, 0, 0, 0.02));
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+.invite-welcome-message__text {
+  font-size: var(--text-lg);
+  font-style: italic;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+/* ── Card style variants ────────────── */
+.invite-page--card-solid :deep(.invite-rsvp__card),
+.invite-page--card-solid :deep(.invite-section--tinted) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0, 0, 0, 0.08));
+}
+
+.invite-page--card-outlined :deep(.invite-rsvp__card),
+.invite-page--card-outlined :deep(.invite-section--tinted) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+  border: 2px solid var(--event-accent, var(--color-accent));
+  box-shadow: none;
+}
+
+/* ── Background patterns ────────────── */
+.invite-body--pattern-dots {
+  background-image: radial-gradient(var(--event-accent, var(--color-accent)) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-blend-mode: overlay;
+}
+
+.invite-body--pattern-crosshatch {
+  background-image:
+    linear-gradient(45deg, var(--event-accent, var(--color-accent)) 0.5px, transparent 0.5px),
+    linear-gradient(-45deg, var(--event-accent, var(--color-accent)) 0.5px, transparent 0.5px);
+  background-size: 16px 16px;
+}
+
+.invite-body--pattern-confetti {
+  background-image:
+    radial-gradient(circle 2px, var(--event-accent, var(--color-accent)) 100%, transparent 100%),
+    radial-gradient(circle 1.5px, var(--color-accent-secondary, var(--event-accent, var(--color-accent))) 100%, transparent 100%);
+  background-size: 40px 40px, 30px 30px;
+  background-position: 0 0, 15px 20px;
+}
+
+.invite-body--pattern-botanical {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 10 Q50 30 40 50 Q30 30 40 10Z' fill='none' stroke='currentColor' stroke-width='0.5' opacity='0.08'/%3E%3Cpath d='M20 40 Q30 50 20 70' fill='none' stroke='currentColor' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 80px 80px;
+}
+
+.invite-body--pattern-geometric {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpolygon points='30,5 55,20 55,50 30,65 5,50 5,20' fill='none' stroke='currentColor' stroke-width='0.4' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Pattern opacity — keep all patterns very subtle */
+.invite-body[class*="pattern-"] {
+  background-color: var(--color-bg, var(--color-background));
+}
+
+/* ── Light mode forced ──────────────── */
+.invite-page.light-forced {
+  color-scheme: light;
 }
 </style>

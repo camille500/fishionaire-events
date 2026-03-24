@@ -11,6 +11,15 @@ interface EventForm {
   rsvpEnabled: boolean
   rsvpDeadline: string
   themeColor: string
+  themeColorSecondary: string
+  gradientAngle: number
+  fontPairing: string
+  cardStyle: string
+  welcomeMessage: string
+  heroAnimation: string
+  backgroundPattern: string
+  colorMode: string
+  hideBranding: boolean
 }
 
 interface CompletionItem {
@@ -53,6 +62,15 @@ export function useEventEditorProvider(eventId: string) {
       rsvpEnabled: data?.rsvpEnabled ?? true,
       rsvpDeadline: toLocalDatetime(data?.rsvpDeadline),
       themeColor: data?.themeColor || '',
+      themeColorSecondary: data?.themeColorSecondary || '',
+      gradientAngle: data?.gradientAngle ?? 135,
+      fontPairing: data?.fontPairing || '',
+      cardStyle: data?.cardStyle || 'glass',
+      welcomeMessage: data?.welcomeMessage || '',
+      heroAnimation: data?.heroAnimation || 'fadeUp',
+      backgroundPattern: data?.backgroundPattern || '',
+      colorMode: data?.colorMode || 'auto',
+      hideBranding: data?.hideBranding ?? false,
     }
   }
 
@@ -104,6 +122,15 @@ export function useEventEditorProvider(eventId: string) {
         rsvpEnabled: form.rsvpEnabled,
         rsvpDeadline: form.rsvpDeadline || null,
         themeColor: form.themeColor || null,
+        themeColorSecondary: form.themeColorSecondary || null,
+        gradientAngle: form.gradientAngle,
+        fontPairing: form.fontPairing || null,
+        cardStyle: form.cardStyle,
+        welcomeMessage: form.welcomeMessage || null,
+        heroAnimation: form.heroAnimation,
+        backgroundPattern: form.backgroundPattern || null,
+        colorMode: form.colorMode,
+        hideBranding: form.hideBranding,
       }
 
       await $fetch(`/api/events/${eventId}`, {

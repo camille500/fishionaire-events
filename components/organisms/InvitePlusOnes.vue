@@ -6,6 +6,7 @@ defineProps({
   remainingPlusOnes: { type: Number, default: 0 },
   copiedPlusOneId: { type: [String, Number], default: null },
   plusOneSaving: { type: Boolean, default: false },
+  removingPlusOne: { type: [String, Number], default: null },
   invitation: { type: Object, default: null },
 })
 
@@ -65,9 +66,10 @@ function handleAdd() {
           <button
             class="invite-plus-ones__action-btn invite-plus-ones__action-btn--danger"
             :title="t('invite.plusOnes.remove')"
+            :disabled="removingPlusOne === po.id"
             @click="$emit('remove', po.id)"
           >
-            <Icon name="lucide:x" size="14" />
+            <Icon :name="removingPlusOne === po.id ? 'lucide:loader-2' : 'lucide:x'" size="14" :class="{ 'spin': removingPlusOne === po.id }" />
           </button>
         </div>
       </div>
@@ -121,6 +123,15 @@ function handleAdd() {
 </template>
 
 <style scoped>
+.spin {
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .invite-plus-ones {
   display: flex;
   flex-direction: column;

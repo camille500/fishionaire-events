@@ -2,6 +2,7 @@
 definePageMeta({ layout: 'admin' })
 
 const { t } = useI18n()
+const toast = useToast()
 
 const search = ref('')
 const roleFilter = ref('')
@@ -42,8 +43,6 @@ const columns = computed(() => [
   { key: 'actions', label: '', width: '100px' },
 ])
 
-const confirmingRole = ref(null)
-
 function formatDate(date) {
   if (!date) return '-'
   return new Date(date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -53,22 +52,35 @@ function getUserName(row) {
   return [row.firstName, row.lastName].filter(Boolean).join(' ') || row.displayName || '-'
 }
 
-async function toggleRole(user) {
-  if (confirmingRole.value === user.clerkId) {
-    const newRole = user.role === 'admin' ? 'user' : 'admin'
+// Role change with confirmation modal
+const showRoleModal = ref(false)
+const roleModalUser = ref(null)
+const roleChanging = ref(false)
+
+function promptRoleChange(user) {
+  roleModalUser.value = user
+  showRoleModal.value = true
+}
+
+async function confirmRoleChange() {
+  if (!roleModalUser.value) return
+  roleChanging.value = true
+  const user = roleModalUser.value
+  const newRole = user.role === 'admin' ? 'user' : 'admin'
+  try {
     await $fetch(`/api/admin/users/${user.clerkId}/role`, {
       method: 'PATCH',
       body: { role: newRole },
     })
-    confirmingRole.value = null
+    toast.add({ title: t('toast.roleUpdated'), icon: 'i-lucide-check', color: 'green' })
     await refresh()
-  } else {
-    confirmingRole.value = user.clerkId
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    roleChanging.value = false
+    showRoleModal.value = false
+    roleModalUser.value = null
   }
-}
-
-function cancelRoleChange() {
-  confirmingRole.value = null
 }
 </script>
 
@@ -122,15 +134,7 @@ function cancelRoleChange() {
 
       <template #cell-actions="{ row }">
         <div class="admin-users__actions">
-          <template v-if="confirmingRole === row.clerkId">
-            <AppButton size="sm" variant="danger" @click="toggleRole(row)">
-              {{ t('admin.confirm') }}
-            </AppButton>
-            <AppButton size="sm" variant="ghost" @click="cancelRoleChange">
-              {{ t('admin.cancel') }}
-            </AppButton>
-          </template>
-          <AppButton v-else size="sm" variant="ghost" @click="toggleRole(row)">
+          <AppButton size="sm" variant="ghost" @click="promptRoleChange(row)">
             {{ row.role === 'admin' ? t('admin.users.demote') : t('admin.users.promote') }}
           </AppButton>
         </div>
@@ -142,6 +146,16 @@ function cancelRoleChange() {
       :total-pages="totalPages"
       :total="data?.total || 0"
       @update:page="page = $event"
+    />
+
+    <ConfirmModal
+      :visible="showRoleModal"
+      :title="roleModalUser?.role === 'admin' ? t('admin.users.demote') : t('admin.users.promote')"
+      :message="roleModalUser ? `${getUserName(roleModalUser)} (${roleModalUser.email})` : ''"
+      variant="danger"
+      :loading="roleChanging"
+      @confirm="confirmRoleChange"
+      @close="showRoleModal = false"
     />
   </div>
 </template>

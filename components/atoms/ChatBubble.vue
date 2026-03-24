@@ -13,6 +13,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isError: {
+    type: Boolean,
+    default: false,
+  },
   event: {
     type: Object,
     default: null,
@@ -21,9 +25,9 @@ defineProps({
 </script>
 
 <template>
-  <div class="chat-bubble" :class="`chat-bubble--${role}`">
-    <div v-if="role === 'assistant'" class="chat-bubble__avatar">
-      <Icon name="lucide:sparkles" size="14" />
+  <div class="chat-bubble" :class="[`chat-bubble--${role}`, { 'chat-bubble--error': isError }]">
+    <div v-if="role === 'assistant'" class="chat-bubble__avatar" :class="{ 'chat-bubble__avatar--error': isError }">
+      <Icon :name="isError ? 'lucide:alert-circle' : 'lucide:sparkles'" size="14" />
     </div>
     <div class="chat-bubble__body">
       <p class="chat-bubble__text">{{ content }}</p>
@@ -114,6 +118,17 @@ defineProps({
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
   padding: var(--space-2) var(--space-3);
+}
+
+.chat-bubble--error .chat-bubble__body {
+  background: rgba(231, 76, 60, 0.06);
+  border-color: rgba(231, 76, 60, 0.15);
+  color: var(--color-error);
+}
+
+.chat-bubble__avatar--error {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--color-error);
 }
 
 .chat-bubble__text {

@@ -28,34 +28,39 @@ const { dataAttr, styleOverrides } = useEventTheme(computed(() => form.eventType
 
 useHead({ title: () => form.title ? `${form.title} — Fishionaire Events` : t('seo.eventEditor.title') })
 
-// Tabs
+// Tabs — always show all tabs, mark locked ones
 const tabs = computed(() => {
-  const base = [
-    { label: t('editor.tabs.details'), icon: 'i-lucide-file-text', slot: 'details' },
-    { label: t('editor.tabs.schedule'), icon: 'i-lucide-calendar-clock', slot: 'schedule' },
-    { label: t('editor.tabs.guests'), icon: 'i-lucide-users', slot: 'guests' },
+  const features = eventData.value?.features || {}
+
+  function tab(label, icon, slot, { feature, tier } = {}) {
+    const unlocked = feature ? features[feature] : true
+    return {
+      label: t(`editor.tabs.${label}`),
+      icon: `i-lucide-${icon}`,
+      slot,
+      locked: !unlocked,
+      tierBadge: !unlocked ? t(`tiers.${tier || 'standard'}`) : undefined,
+      requiredTier: !unlocked ? (tier || 'standard') : undefined,
+    }
+  }
+
+  return [
+    tab('details', 'file-text', 'details'),
+    tab('schedule', 'calendar-clock', 'schedule'),
+    tab('guests', 'users', 'guests'),
+    tab('responses', 'check-circle', 'responses', { feature: 'rsvp', tier: 'standard' }),
+    tab('wishlist', 'gift', 'wishlist', { feature: 'wishlist', tier: 'standard' }),
+    tab('photos', 'camera', 'photos', { feature: 'photoGallery', tier: 'standard' }),
+    tab('budget', 'wallet', 'budget', { feature: 'budgetTracker', tier: 'pro' }),
+    tab('socialWall', 'message-circle-heart', 'socialWall', { feature: 'socialWall', tier: 'standard' }),
+    tab('checkIn', 'scan-line', 'checkIn', { feature: 'checkIn', tier: 'standard' }),
+    tab('theme', 'palette', 'theme', { feature: 'customTheme', tier: 'pro' }),
+    tab('settings', 'settings', 'settings'),
   ]
-  if (eventData.value?.features?.rsvp || eventData.value?.features?.datePolling) {
-    base.push({ label: t('editor.tabs.responses'), icon: 'i-lucide-check-circle', slot: 'responses' })
-  }
-  if (eventData.value?.features?.wishlist) {
-    base.push({ label: t('editor.tabs.wishlist'), icon: 'i-lucide-gift', slot: 'wishlist' })
-  }
-  if (eventData.value?.features?.photoGallery) {
-    base.push({ label: t('editor.tabs.photos'), icon: 'i-lucide-camera', slot: 'photos' })
-  }
-  if (eventData.value?.features?.budgetTracker) {
-    base.push({ label: t('editor.tabs.budget'), icon: 'i-lucide-wallet', slot: 'budget' })
-  }
-  if (eventData.value?.features?.socialWall) {
-    base.push({ label: t('editor.tabs.socialWall'), icon: 'i-lucide-message-circle-heart', slot: 'socialWall' })
-  }
-  if (eventData.value?.features?.checkIn) {
-    base.push({ label: t('editor.tabs.checkIn'), icon: 'i-lucide-scan-line', slot: 'checkIn' })
-  }
-  base.push({ label: t('editor.tabs.settings'), icon: 'i-lucide-settings', slot: 'settings' })
-  return base
 })
+
+// Upgrade popover for locked tabs
+const showUpgradeForTab = ref(null)
 
 // Keyboard shortcut: Cmd/Ctrl+S to force save
 function handleKeydown(e) {
@@ -162,6 +167,47 @@ const formattedActivities = computed(() => {
   })
 })
 
+// Unsaved changes guard
+const showLeaveModal = ref(false)
+let pendingNavigation = null
+
+onBeforeRouteLeave((to, from, next) => {
+  if (isDirty.value) {
+    pendingNavigation = { to, next }
+    showLeaveModal.value = true
+    next(false)
+  } else {
+    next()
+  }
+})
+
+function handleBeforeUnload(e) {
+  if (isDirty.value) {
+    e.preventDefault()
+    e.returnValue = ''
+  }
+}
+
+onMounted(() => window.addEventListener('beforeunload', handleBeforeUnload))
+onUnmounted(() => window.removeEventListener('beforeunload', handleBeforeUnload))
+
+async function saveAndLeave() {
+  await forceSave()
+  showLeaveModal.value = false
+  if (pendingNavigation) {
+    navigateTo(pendingNavigation.to.fullPath)
+    pendingNavigation = null
+  }
+}
+
+function leaveWithoutSaving() {
+  showLeaveModal.value = false
+  if (pendingNavigation) {
+    pendingNavigation.next()
+    pendingNavigation = null
+  }
+}
+
 // Tab change animations
 const { animateTabChange } = useEditorAnimations()
 const previousTab = ref(0)
@@ -233,6 +279,11 @@ function onTabChange(index) {
 
       <!-- Tabbed content -->
       <AppTabs :items="tabs" :model-value="previousTab" class="event-editor__tabs" @update:model-value="onTabChange">
+        <!-- Upgrade popover for locked tabs -->
+        <template #locked-popover="{ item }">
+          <EventUpgradePanel @close="() => {}" @upgraded="refreshEvent" />
+        </template>
+
         <template #details>
           <div class="event-editor__tab-content">
             <EditorDetailsTab />
@@ -251,13 +302,13 @@ function onTabChange(index) {
           </div>
         </template>
 
-        <template v-if="eventData?.features?.rsvp || eventData?.features?.datePolling" #responses>
+        <template #responses>
           <div class="event-editor__tab-content">
             <EditorResponsesTab />
           </div>
         </template>
 
-        <template v-if="eventData?.features?.wishlist" #wishlist>
+        <template #wishlist>
           <div class="event-editor__tab-content">
             <EditorWishlistTab
               :event-id="eventData.id"
@@ -268,7 +319,7 @@ function onTabChange(index) {
           </div>
         </template>
 
-        <template v-if="eventData?.features?.photoGallery" #photos>
+        <template #photos>
           <div class="event-editor__tab-content">
             <EditorPhotosTab
               :event-id="eventData.id"
@@ -277,7 +328,7 @@ function onTabChange(index) {
           </div>
         </template>
 
-        <template v-if="eventData?.features?.budgetTracker" #budget>
+        <template #budget>
           <div class="event-editor__tab-content">
             <EditorBudgetTab
               :event-id="eventData.id"
@@ -286,7 +337,7 @@ function onTabChange(index) {
           </div>
         </template>
 
-        <template v-if="eventData?.features?.socialWall" #socialWall>
+        <template #socialWall>
           <div class="event-editor__tab-content">
             <EditorSocialWallTab
               :event-id="eventData.id"
@@ -296,12 +347,18 @@ function onTabChange(index) {
           </div>
         </template>
 
-        <template v-if="eventData?.features?.checkIn" #checkIn>
+        <template #checkIn>
           <div class="event-editor__tab-content">
             <EditorCheckInTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
+          </div>
+        </template>
+
+        <template #theme>
+          <div class="event-editor__tab-content">
+            <EditorThemeTab />
           </div>
         </template>
 
@@ -334,6 +391,18 @@ function onTabChange(index) {
         />
       </ClientOnly>
     </template>
+
+    <!-- Unsaved changes modal -->
+    <ConfirmModal
+      :visible="showLeaveModal"
+      :title="t('dashboard.eventEditor.unsavedChanges')"
+      :message="t('dashboard.eventEditor.unsavedMessage')"
+      :confirm-label="t('dashboard.eventEditor.saveAndLeave')"
+      :cancel-label="t('dashboard.eventEditor.leaveWithout')"
+      :loading="saving"
+      @confirm="saveAndLeave"
+      @close="leaveWithoutSaving"
+    />
   </div>
 </template>
 

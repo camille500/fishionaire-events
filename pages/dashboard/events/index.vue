@@ -2,6 +2,7 @@
 definePageMeta({ layout: 'dashboard' })
 
 const { t } = useI18n()
+const toast = useToast()
 const { data: events, error, refresh: refreshEvents } = await useFetch('/api/events')
 
 const searchQuery = ref('')
@@ -21,19 +22,78 @@ function openCreateWizard() {
   navigateTo('/dashboard/events/create')
 }
 
-async function onDuplicate(event) {
-  const result = await $fetch(`/api/events/${event.id}/duplicate`, { method: 'POST' })
-  navigateTo(`/dashboard/events/${result.id}`)
+// Confirmation modal state
+const confirmModal = ref({ visible: false, title: '', message: '', warning: '', variant: 'default', action: null })
+const confirmLoading = ref(false)
+
+function showConfirm({ title, message, warning = '', variant = 'default', action }) {
+  confirmModal.value = { visible: true, title, message, warning, variant, action }
 }
 
-async function onArchive(event) {
-  await $fetch(`/api/events/${event.id}`, { method: 'DELETE' })
-  refreshEvents()
+async function handleConfirm() {
+  confirmLoading.value = true
+  try {
+    await confirmModal.value.action()
+  } finally {
+    confirmLoading.value = false
+    confirmModal.value.visible = false
+  }
 }
+
+// Duplicate
+const duplicating = ref(null)
+
+function onDuplicate(event) {
+  duplicating.value = event.id
+  showConfirm({
+    title: t('dashboard.eventEditor.duplicateEvent'),
+    message: t('dashboard.eventEditor.duplicateDesc'),
+    action: async () => {
+      try {
+        const result = await $fetch(`/api/events/${event.id}/duplicate`, { method: 'POST' })
+        toast.add({ title: t('toast.eventDuplicated'), icon: 'i-lucide-check', color: 'green' })
+        navigateTo(`/dashboard/events/${result.id}`)
+      } catch {
+        toast.add({ title: t('toast.duplicateError'), icon: 'i-lucide-alert-circle', color: 'red' })
+      } finally {
+        duplicating.value = null
+      }
+    },
+  })
+}
+
+// Archive
+function onArchive(event) {
+  showConfirm({
+    title: t('dashboard.eventEditor.confirmArchiveTitle'),
+    message: t('dashboard.eventEditor.confirmArchiveMessage'),
+    variant: 'danger',
+    action: async () => {
+      try {
+        await $fetch(`/api/events/${event.id}`, { method: 'DELETE' })
+        toast.add({ title: t('toast.eventArchived'), icon: 'i-lucide-check', color: 'green' })
+        refreshEvents()
+      } catch {
+        toast.add({ title: t('toast.archiveError'), icon: 'i-lucide-alert-circle', color: 'red' })
+      }
+    },
+  })
+}
+
+// Restore
+const restoring = ref(null)
 
 async function onRestore(event) {
-  await $fetch(`/api/events/${event.id}/restore`, { method: 'POST' })
-  refreshEvents()
+  restoring.value = event.id
+  try {
+    await $fetch(`/api/events/${event.id}/restore`, { method: 'POST' })
+    toast.add({ title: t('toast.eventRestored'), icon: 'i-lucide-check', color: 'green' })
+    refreshEvents()
+  } catch {
+    toast.add({ title: t('toast.restoreError'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    restoring.value = null
+  }
 }
 </script>
 
@@ -111,9 +171,13 @@ async function onRestore(event) {
               <Icon name="lucide:archive" size="14" class="events-page__archived-icon" />
               <span class="events-page__archived-title">{{ event.title }}</span>
             </div>
-            <button class="events-page__restore-btn" @click="onRestore(event)">
-              <Icon name="lucide:archive-restore" size="14" />
-              {{ t('dashboard.eventEditor.restoreEvent') }}
+            <button
+              class="events-page__restore-btn"
+              :disabled="restoring === event.id"
+              @click="onRestore(event)"
+            >
+              <Icon :name="restoring === event.id ? 'lucide:loader-2' : 'lucide:archive-restore'" size="14" :class="{ 'spin': restoring === event.id }" />
+              {{ restoring === event.id ? '...' : t('dashboard.eventEditor.restoreEvent') }}
             </button>
           </div>
         </div>
@@ -127,6 +191,17 @@ async function onRestore(event) {
       :description="searchQuery ? t('dashboard.emptyState.noResults.description') : t('dashboard.emptyState.noEvents.description')"
       :cta-label="searchQuery ? '' : t('dashboard.emptyState.noEvents.cta')"
       @cta-click="openCreateWizard"
+    />
+
+    <ConfirmModal
+      :visible="confirmModal.visible"
+      :title="confirmModal.title"
+      :message="confirmModal.message"
+      :warning="confirmModal.warning"
+      :variant="confirmModal.variant"
+      :loading="confirmLoading"
+      @confirm="handleConfirm"
+      @close="confirmModal.visible = false"
     />
   </div>
 </template>
@@ -326,6 +401,15 @@ async function onRestore(event) {
 .slide-down-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+.spin {
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @media (max-width: 640px) {

@@ -31,6 +31,17 @@ export interface EventData {
   tier: string
   features: EventFeatures
   themeColor: string | null
+  themeColorSecondary: string | null
+  gradientAngle: number
+  fontPairing: string | null
+  cardStyle: string
+  welcomeMessage: string | null
+  heroAnimation: string
+  backgroundPattern: string | null
+  colorMode: string
+  customLogoUrl: string | null
+  customLogoKey: string | null
+  hideBranding: boolean
   coverImageUrl: string | null
   coverImageKey: string | null
   ownerClerkId: string
@@ -71,6 +82,28 @@ export interface EventJSON {
   features?: Partial<EventFeatures>
   themeColor?: string | null
   theme_color?: string | null
+  themeColorSecondary?: string | null
+  theme_color_secondary?: string | null
+  gradientAngle?: number
+  gradient_angle?: number
+  fontPairing?: string | null
+  font_pairing?: string | null
+  cardStyle?: string
+  card_style?: string
+  welcomeMessage?: string | null
+  welcome_message?: string | null
+  heroAnimation?: string
+  hero_animation?: string
+  backgroundPattern?: string | null
+  background_pattern?: string | null
+  colorMode?: string
+  color_mode?: string
+  customLogoUrl?: string | null
+  custom_logo_url?: string | null
+  customLogoKey?: string | null
+  custom_logo_key?: string | null
+  hideBranding?: boolean
+  hide_branding?: boolean
   coverImageUrl?: string | null
   cover_image_url?: string | null
   coverImageKey?: string | null
@@ -118,6 +151,17 @@ export default class Event {
   tier: string
   features: EventFeatures
   themeColor: string | null
+  themeColorSecondary: string | null
+  gradientAngle: number
+  fontPairing: string | null
+  cardStyle: string
+  welcomeMessage: string | null
+  heroAnimation: string
+  backgroundPattern: string | null
+  colorMode: string
+  customLogoUrl: string | null
+  customLogoKey: string | null
+  hideBranding: boolean
   coverImageUrl: string | null
   coverImageKey: string | null
   ownerClerkId: string
@@ -134,7 +178,7 @@ export default class Event {
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, themeColorSecondary, gradientAngle, fontPairing, cardStyle, welcomeMessage, heroAnimation, backgroundPattern, colorMode, customLogoUrl, customLogoKey, hideBranding, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -149,6 +193,17 @@ export default class Event {
     this.tier = tier || 'free'
     this.features = { ...getFeaturesForTier(this.tier), ...(features || {}) }
     this.themeColor = themeColor || null
+    this.themeColorSecondary = themeColorSecondary || null
+    this.gradientAngle = gradientAngle ?? 135
+    this.fontPairing = fontPairing || null
+    this.cardStyle = cardStyle || 'glass'
+    this.welcomeMessage = welcomeMessage || null
+    this.heroAnimation = heroAnimation || 'fadeUp'
+    this.backgroundPattern = backgroundPattern || null
+    this.colorMode = colorMode || 'auto'
+    this.customLogoUrl = customLogoUrl || null
+    this.customLogoKey = customLogoKey || null
+    this.hideBranding = hideBranding ?? false
     this.coverImageUrl = coverImageUrl || null
     this.coverImageKey = coverImageKey || null
     this.ownerClerkId = ownerClerkId
@@ -182,6 +237,17 @@ export default class Event {
       tier: data.tier || 'free',
       features: (data.features || {}) as EventFeatures,
       themeColor: data.themeColor || data.theme_color || null,
+      themeColorSecondary: data.themeColorSecondary || data.theme_color_secondary || null,
+      gradientAngle: data.gradientAngle ?? data.gradient_angle ?? 135,
+      fontPairing: data.fontPairing || data.font_pairing || null,
+      cardStyle: data.cardStyle || data.card_style || 'glass',
+      welcomeMessage: data.welcomeMessage ?? data.welcome_message ?? null,
+      heroAnimation: data.heroAnimation || data.hero_animation || 'fadeUp',
+      backgroundPattern: data.backgroundPattern || data.background_pattern || null,
+      colorMode: data.colorMode || data.color_mode || 'auto',
+      customLogoUrl: data.customLogoUrl || data.custom_logo_url || null,
+      customLogoKey: data.customLogoKey || data.custom_logo_key || null,
+      hideBranding: data.hideBranding ?? data.hide_branding ?? false,
       coverImageUrl: data.coverImageUrl || data.cover_image_url || null,
       coverImageKey: data.coverImageKey || data.cover_image_key || null,
       ownerClerkId: (data.ownerClerkId || data.owner_clerk_id)!,
@@ -216,6 +282,17 @@ export default class Event {
       tier: this.tier,
       features: this.features,
       themeColor: this.themeColor,
+      themeColorSecondary: this.themeColorSecondary,
+      gradientAngle: this.gradientAngle,
+      fontPairing: this.fontPairing,
+      cardStyle: this.cardStyle,
+      welcomeMessage: this.welcomeMessage,
+      heroAnimation: this.heroAnimation,
+      backgroundPattern: this.backgroundPattern,
+      colorMode: this.colorMode,
+      customLogoUrl: this.customLogoUrl,
+      customLogoKey: this.customLogoKey,
+      hideBranding: this.hideBranding,
       coverImageUrl: this.coverImageUrl,
       coverImageKey: this.coverImageKey,
       ownerClerkId: this.ownerClerkId,

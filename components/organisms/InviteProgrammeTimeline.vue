@@ -8,6 +8,7 @@ defineProps({
   token: { type: String, default: '' },
   musicLists: { type: Object, default: () => ({}) },
   dietarySaving: { type: Object, default: () => ({}) },
+  musicSubmitting: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['submitDietary', 'submitMusic', 'upvoteMusic'])

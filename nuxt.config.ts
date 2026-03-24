@@ -31,11 +31,9 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { swr: 3600 },
     '/functies': { swr: 3600 },
     '/prijzen': { swr: 3600 },
     '/hulp': { swr: 3600 },
-    '/en': { swr: 3600 },
     '/en/features': { swr: 3600 },
     '/en/pricing': { swr: 3600 },
     '/en/help': { swr: 3600 },

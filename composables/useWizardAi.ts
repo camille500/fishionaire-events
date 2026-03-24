@@ -19,6 +19,7 @@ export function useWizardAi(eventId?: Ref<string | undefined>) {
     role: 'user' | 'assistant'
     content: string
     isResult?: boolean
+    isError?: boolean
   }
   const chatMessages = ref<ChatMessage[]>([])
   const chatLoading = ref<boolean>(false)
@@ -111,7 +112,12 @@ export function useWizardAi(eventId?: Ref<string | undefined>) {
   // Chat-based AI event builder
   async function sendChatMessage(userMessage: string): Promise<{ type: string, message: string } | null> {
     if (chatComplete.value) return null
-    if (isFree.value && freeBuildUsed.value) return null
+    if (isFree.value && freeBuildUsed.value) {
+      chatError.value = locale.value === 'nl'
+        ? 'Je hebt je gratis AI-bouw al gebruikt. Upgrade voor meer.'
+        : 'You\'ve already used your free AI build. Upgrade for more.'
+      return null
+    }
 
     chatMessages.value.push({ role: 'user', content: userMessage })
     chatUserTurns.value++
@@ -154,9 +160,10 @@ export function useWizardAi(eventId?: Ref<string | undefined>) {
 
       return response
     } catch (e: any) {
-      chatError.value = e.data?.statusMessage || 'AI chat failed'
-      // Remove the user message we added since the call failed
-      chatMessages.value.pop()
+      const errorMsg = e.data?.statusMessage
+        || (locale.value === 'nl' ? 'Er ging iets mis. Probeer het opnieuw.' : 'Something went wrong. Please try again.')
+      chatError.value = errorMsg
+      chatMessages.value.push({ role: 'assistant', content: errorMsg, isError: true })
       chatUserTurns.value--
       return null
     } finally {

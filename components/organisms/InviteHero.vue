@@ -7,7 +7,11 @@ const props = defineProps({
   formattedDate: { type: String, default: null },
   formattedTime: { type: String, default: null },
   hasPoll: { type: Boolean, default: false },
+  heroAnimation: { type: String, default: 'fadeUp' },
+  showBranding: { type: Boolean, default: true },
 })
+
+const animationClass = computed(() => `invite-hero--anim-${props.heroAnimation}`)
 
 const eventTypeEmojiMap = {
   wedding: [
@@ -54,7 +58,7 @@ const eventEmojis = computed(() =>
 </script>
 
 <template>
-  <header class="invite-hero">
+  <header class="invite-hero" :class="animationClass">
     <!-- Background image or gradient -->
     <div
       v-if="eventData.coverImageUrl"
@@ -66,7 +70,10 @@ const eventEmojis = computed(() =>
     <!-- Aurora blobs -->
     <div class="invite-hero__aurora" aria-hidden="true">
       <div class="invite-hero__aurora-blob invite-hero__aurora-blob--1" />
-      <div class="invite-hero__aurora-blob invite-hero__aurora-blob--2" />
+      <div
+        class="invite-hero__aurora-blob invite-hero__aurora-blob--2"
+        :style="eventData.themeColorSecondary ? { background: `radial-gradient(circle, ${eventData.themeColorSecondary} 0%, transparent 70%)` } : {}"
+      />
     </div>
 
     <!-- Cinematic overlay -->
@@ -89,7 +96,11 @@ const eventEmojis = computed(() =>
 
     <!-- Content -->
     <div class="invite-hero__content">
-      <div class="invite-hero__logo">
+      <!-- Custom logo or default branding -->
+      <div v-if="eventData.customLogoUrl" class="invite-hero__logo">
+        <img :src="eventData.customLogoUrl" alt="" class="invite-hero__custom-logo" />
+      </div>
+      <div v-else-if="showBranding" class="invite-hero__logo">
         <NuxtLink to="/" class="invite-hero__logo-link">Fishionaire</NuxtLink>
       </div>
 
@@ -160,11 +171,11 @@ const eventEmojis = computed(() =>
 }
 
 .invite-hero__bg--gradient {
-  background: linear-gradient(
+  background: var(--gradient-accent, linear-gradient(
     135deg,
     var(--event-accent, var(--color-accent)),
     color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, #1a1a2e)
-  );
+  ));
 }
 
 /* Aurora blobs */
@@ -379,6 +390,86 @@ const eventEmojis = computed(() =>
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+
+/* Custom logo */
+.invite-hero__custom-logo {
+  max-height: 48px;
+  max-width: 180px;
+  object-fit: contain;
+  animation: fadeInDown 600ms ease-out both;
+}
+
+/* ── Hero animation variants ───────── */
+
+/* Cinematic: slow zoom with blur clearing */
+.invite-hero--anim-cinematic .invite-hero__title {
+  animation: cinematicReveal 1200ms ease-out 200ms both;
+}
+
+.invite-hero--anim-cinematic .invite-hero__badge {
+  animation: fadeIn 600ms ease-out 800ms both;
+}
+
+.invite-hero--anim-cinematic .invite-hero__meta {
+  animation: fadeIn 600ms ease-out 1000ms both;
+}
+
+@keyframes cinematicReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.15);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Slide: elements from alternating sides */
+.invite-hero--anim-slide .invite-hero__badge {
+  animation: slideFromLeft 600ms ease-out 200ms both;
+}
+
+.invite-hero--anim-slide .invite-hero__title {
+  animation: slideFromRight 700ms ease-out 400ms both;
+}
+
+.invite-hero--anim-slide .invite-hero__meta {
+  animation: slideFromLeft 600ms ease-out 600ms both;
+}
+
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Typewriter: handled via CSS with stepped animation on title */
+.invite-hero--anim-typewriter .invite-hero__title {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid rgba(255, 255, 255, 0.7);
+  width: 0;
+  animation:
+    typewrite 2s steps(30) 400ms forwards,
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typewrite {
+  from { width: 0; opacity: 1; }
+  to { width: 100%; opacity: 1; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: rgba(255, 255, 255, 0.7); }
 }
 
 /* Responsive */
