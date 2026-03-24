@@ -142,6 +142,21 @@ export default class EventRepository {
     return prisma.eventInvitation.count({ where: { eventId: Number(eventId) } })
   }
 
+  static async getInvitationCountsByEventIds(eventIds: number[]): Promise<Record<number, number>> {
+    if (eventIds.length === 0) return {}
+    const prisma = usePrisma()
+    const counts = await prisma.eventInvitation.groupBy({
+      by: ['eventId'],
+      where: { eventId: { in: eventIds } },
+      _count: true,
+    })
+    const result: Record<number, number> = {}
+    for (const c of counts) {
+      result[c.eventId] = c._count
+    }
+    return result
+  }
+
   static async findAllAdmin(options: { search?: string, offset: number, limit: number }): Promise<{ events: Event[], total: number }> {
     const prisma = usePrisma()
     const where: Record<string, unknown> = {}

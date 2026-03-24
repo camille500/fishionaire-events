@@ -3,8 +3,10 @@ definePageMeta({ layout: 'admin' })
 
 const { t } = useI18n()
 
-const { data: stats } = await useFetch('/api/admin/stats')
-const { data: analytics } = await useFetch('/api/admin/analytics', { query: { days: 30 } })
+const [{ data: stats }, { data: analytics }] = await Promise.all([
+  useFetch('/api/admin/stats'),
+  useFetch('/api/admin/analytics', { query: { days: 30 } }),
+])
 
 const statCards = computed(() => {
   if (!stats.value) return []

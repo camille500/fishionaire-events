@@ -6,9 +6,15 @@ const props = defineProps({
   rsvpLoading: { type: Boolean, default: false },
   rsvpClosed: { type: Boolean, default: false },
   visible: { type: Boolean, default: false },
+  hasPoll: { type: Boolean, default: false },
+  pollVoted: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['rsvp', 'changeResponse'])
+const emit = defineEmits(['rsvp', 'changeResponse', 'scrollToPoll'])
+
+function scrollToRsvpCard() {
+  emit('scrollToPoll')
+}
 </script>
 
 <template>
@@ -21,7 +27,15 @@ const emit = defineEmits(['rsvp', 'changeResponse'])
             <Icon :name="rsvpStatus === 'accepted' ? 'lucide:check-circle' : 'lucide:x-circle'" size="16" />
             {{ rsvpStatus === 'accepted' ? t('invite.rsvp.youreAttending') : t('invite.rsvp.youreNotAttending') }}
           </span>
-          <button class="sticky-rsvp__change" @click="emit('changeResponse')">
+          <button
+            v-if="rsvpStatus === 'accepted' && hasPoll && !pollVoted"
+            class="sticky-rsvp__poll-nudge"
+            @click="scrollToRsvpCard"
+          >
+            <Icon name="lucide:bar-chart-3" size="14" />
+            {{ t('invite.rsvp.voteDates') }}
+          </button>
+          <button v-else class="sticky-rsvp__change" @click="emit('changeResponse')">
             {{ t('invite.rsvp.changeResponse') }}
           </button>
         </template>
@@ -103,6 +117,28 @@ const emit = defineEmits(['rsvp', 'changeResponse'])
   min-height: 44px;
   display: flex;
   align-items: center;
+}
+
+.sticky-rsvp__poll-nudge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--event-accent, var(--color-accent));
+  background: color-mix(in srgb, var(--event-accent, var(--color-accent)) 8%, transparent);
+  color: var(--event-accent, var(--color-accent));
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 44px;
+  transition: all var(--transition-fast);
+}
+
+.sticky-rsvp__poll-nudge:hover {
+  background: color-mix(in srgb, var(--event-accent, var(--color-accent)) 14%, transparent);
 }
 
 .sticky-rsvp__btn {

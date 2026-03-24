@@ -10,9 +10,16 @@ const props = defineProps({
   rsvpLoading: { type: Boolean, default: false },
   subEvents: { type: Array, default: () => [] },
   subEventRsvps: { type: Object, default: () => ({}) },
+  hasPoll: { type: Boolean, default: false },
+  eventId: { type: Number, default: 0 },
+  token: { type: String, default: '' },
+  initialEmail: { type: String, default: '' },
+  initialName: { type: String, default: '' },
 })
 
-const emit = defineEmits(['rsvp', 'changeResponse', 'subEventRsvp'])
+const emit = defineEmits(['rsvp', 'changeResponse', 'subEventRsvp', 'pollVoted'])
+
+const pollVoted = ref(false)
 
 const rsvpClosed = computed(() => {
   if (!props.eventData.rsvpEnabled) return true
@@ -198,6 +205,43 @@ function handleRsvp(status) {
           {{ t('invite.rsvp.declining') }}
         </button>
       </div>
+
+      <!-- Inline date poll step (after accepting, when poll is active) -->
+      <Transition name="expand">
+        <div v-if="rsvpStatus === 'accepted' && hasPoll" class="invite-rsvp__poll-step">
+          <!-- Step indicator -->
+          <div class="invite-rsvp__steps">
+            <div class="invite-rsvp__step invite-rsvp__step--done">
+              <div class="invite-rsvp__step-dot">
+                <Icon name="lucide:check" size="12" />
+              </div>
+              <span>{{ t('invite.rsvp.stepRsvp') }}</span>
+            </div>
+            <div class="invite-rsvp__step-line" />
+            <div class="invite-rsvp__step" :class="{ 'invite-rsvp__step--done': pollVoted }">
+              <div class="invite-rsvp__step-dot">
+                <Icon :name="pollVoted ? 'lucide:check' : 'lucide:calendar'" size="12" />
+              </div>
+              <span>{{ t('invite.rsvp.stepDates') }}</span>
+            </div>
+          </div>
+
+          <!-- Poll section label -->
+          <p class="invite-rsvp__poll-label">
+            <Icon name="lucide:bar-chart-3" size="14" />
+            {{ t('invite.rsvp.datePollStep') }}
+          </p>
+
+          <!-- Inline date poll voting -->
+          <InviteRsvpDatePollStep
+            :event-id="eventId"
+            :token="token"
+            :initial-email="initialEmail"
+            :initial-name="initialName"
+            @voted="pollVoted = true; emit('pollVoted')"
+          />
+        </div>
+      </Transition>
 
       <!-- Plus-ones note -->
       <p v-if="invitation?.plusOnes > 0 && !isPlusOne" class="invite-rsvp__plus-note">
@@ -515,6 +559,100 @@ function handleRsvp(status) {
   border-top: 1px solid var(--color-border-light);
   width: 100%;
   justify-content: center;
+}
+
+/* Poll step */
+.invite-rsvp__poll-step {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.invite-rsvp__steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.invite-rsvp__step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.invite-rsvp__step--done {
+  color: var(--color-success);
+}
+
+.invite-rsvp__step-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-border-light);
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+}
+
+.invite-rsvp__step--done .invite-rsvp__step-dot {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #fff;
+}
+
+.invite-rsvp__step-line {
+  width: 32px;
+  height: 2px;
+  background: var(--color-border-light);
+  border-radius: 1px;
+}
+
+.invite-rsvp__poll-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.invite-rsvp__poll-label :deep(.iconify) {
+  color: var(--event-accent, var(--color-accent));
+}
+
+/* Expand transition */
+.expand-enter-active {
+  animation: expandIn 500ms ease-out;
+  overflow: hidden;
+}
+
+.expand-leave-active {
+  animation: expandIn 300ms ease-in reverse;
+  overflow: hidden;
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    max-height: 600px;
+    transform: translateY(0);
+  }
 }
 
 /* Confetti */

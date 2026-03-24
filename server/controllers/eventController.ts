@@ -53,31 +53,35 @@ export default class EventController {
     invited: Record<string, unknown>[]
     archived: Record<string, unknown>[]
   }> {
-    const ownedEvents = await EventRepository.findByOwner(clerkId)
-    const invitedResults = await EventRepository.findByInviteeEmail(email.toLowerCase())
-    const coOrgResults = await EventMemberRepository.findCoOrganizedEvents(clerkId)
+    const [ownedEvents, invitedResults, coOrgResults, archivedEvents] = await Promise.all([
+      EventRepository.findByOwner(clerkId),
+      EventRepository.findByInviteeEmail(email.toLowerCase()),
+      EventMemberRepository.findCoOrganizedEvents(clerkId),
+      EventRepository.findArchivedByOwner(clerkId),
+    ])
 
-    const owned = await Promise.all(
-      ownedEvents.map(async (event: Event) => {
-        const invitationCount = await EventRepository.getInvitationCount(event.id)
-        return { ...event.toJSON(), invitationCount }
-      })
-    )
+    const coOrgEntities = coOrgResults.map(({ event }: { event: Record<string, unknown> }) => Event.fromJSON(event))
+    const allEventIds = [
+      ...ownedEvents.map((e: Event) => Number(e.id)),
+      ...coOrgEntities.map((e: Event) => Number(e.id)),
+    ]
+    const invitationCounts = await EventRepository.getInvitationCountsByEventIds(allEventIds)
+
+    const owned = ownedEvents.map((event: Event) => ({
+      ...event.toJSON(),
+      invitationCount: invitationCounts[Number(event.id)] || 0,
+    }))
 
     const invited = invitedResults.map(({ event, status }: { event: Event, status: string }) => ({
       ...event.toJSON(),
       status,
     }))
 
-    const coOrganizing = await Promise.all(
-      coOrgResults.map(async ({ event }: { event: Record<string, unknown> }) => {
-        const e = Event.fromJSON(event)
-        const invitationCount = await EventRepository.getInvitationCount(e.id)
-        return { ...e.toJSON(), invitationCount }
-      })
-    )
+    const coOrganizing = coOrgEntities.map((e: Event) => ({
+      ...e.toJSON(),
+      invitationCount: invitationCounts[Number(e.id)] || 0,
+    }))
 
-    const archivedEvents = await EventRepository.findArchivedByOwner(clerkId)
     const archived = archivedEvents.map((event: Event) => event.toJSON())
 
     return { owned, coOrganizing, invited, archived }

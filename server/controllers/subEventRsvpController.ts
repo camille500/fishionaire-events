@@ -136,6 +136,11 @@ export default class SubEventRsvpController {
       totalInvited: invitations.length,
       overall: { accepted, declined, pending },
       subEvents: subEventOverview,
+      invitations: invitations.map((inv) => ({
+        inviteeName: inv.inviteeName,
+        inviteeEmail: inv.inviteeEmail,
+        status: inv.status,
+      })),
     }
   }
 

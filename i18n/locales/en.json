@@ -896,6 +896,7 @@
       "guests": "Guests",
       "wishlist": "Wishlist",
       "rsvp": "RSVP",
+      "responses": "Responses",
       "photos": "Photos",
       "budget": "Budget",
       "socialWall": "Social Wall",
@@ -1090,6 +1091,15 @@
       "exportLabel": "Export",
       "exportCsv": "Download guest list",
       "exportCsvDescription": "Export all guests with RSVP status, dietary info and plus-ones as CSV"
+    },
+    "responses": {
+      "datePollLabel": "Date polling",
+      "overviewLabel": "Response overview",
+      "guestTableLabel": "Guest responses",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colStatus": "Status",
+      "noGuests": "No guests invited yet"
     },
     "datePicker": {
       "selectDate": "Pick a date",
@@ -1381,7 +1391,12 @@
       "plusOnesNote": "You can bring {count} additional guest(s)",
       "deadlineNote": "Please respond before {date}",
       "closed": "RSVPs are closed for this event",
-      "whichParts": "Which parts will you attend?"
+      "whichParts": "Which parts will you attend?",
+      "stepRsvp": "RSVP",
+      "stepDates": "Dates",
+      "datePollStep": "Pick your preferred dates",
+      "votesSaved": "Your votes are saved",
+      "voteDates": "Vote on dates"
     },
     "programme": {
       "title": "Programme",

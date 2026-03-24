@@ -26,6 +26,7 @@ if (import.meta.client) {
     if (!mapContainer.value) return
 
     try {
+      await import('leaflet/dist/leaflet.css')
       const leafletModule = await import('leaflet')
       const L = leafletModule.default || leafletModule
 

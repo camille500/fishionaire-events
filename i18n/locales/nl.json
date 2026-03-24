@@ -896,6 +896,7 @@
       "guests": "Gasten",
       "wishlist": "Verlanglijst",
       "rsvp": "RSVP",
+      "responses": "Reacties",
       "photos": "Foto's",
       "budget": "Budget",
       "socialWall": "Prikbord",
@@ -1090,6 +1091,15 @@
       "exportLabel": "Exporteren",
       "exportCsv": "Gastenlijst downloaden",
       "exportCsvDescription": "Exporteer alle gasten met RSVP-status, dieetwensen en plus-ones als CSV"
+    },
+    "responses": {
+      "datePollLabel": "Datumpeiling",
+      "overviewLabel": "Reactieoverzicht",
+      "guestTableLabel": "Reacties van gasten",
+      "colName": "Naam",
+      "colEmail": "E-mail",
+      "colStatus": "Status",
+      "noGuests": "Nog geen gasten uitgenodigd"
     },
     "datePicker": {
       "selectDate": "Kies een datum",
@@ -1381,7 +1391,12 @@
       "plusOnesNote": "Je mag {count} extra persoon(en) meenemen",
       "deadlineNote": "Reageer voor {date}",
       "closed": "RSVP's zijn gesloten voor dit evenement",
-      "whichParts": "Bij welke onderdelen ben je erbij?"
+      "whichParts": "Bij welke onderdelen ben je erbij?",
+      "stepRsvp": "RSVP",
+      "stepDates": "Datums",
+      "datePollStep": "Kies je favoriete datums",
+      "votesSaved": "Je stemmen zijn opgeslagen",
+      "voteDates": "Stem op datums"
     },
     "programme": {
       "title": "Programma",

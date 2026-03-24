@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (isSignedIn.value && adminRoutes(to)) {
     try {
-      const { data } = await useFetch('/api/users/me')
+      const { data } = await useFetch('/api/users/me', { key: 'current-user' })
       if (data.value?.role !== 'admin') {
         return navigateTo('/dashboard')
       }

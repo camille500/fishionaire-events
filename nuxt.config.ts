@@ -31,6 +31,14 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    '/': { swr: 3600 },
+    '/functies': { swr: 3600 },
+    '/prijzen': { swr: 3600 },
+    '/hulp': { swr: 3600 },
+    '/en': { swr: 3600 },
+    '/en/features': { swr: 3600 },
+    '/en/pricing': { swr: 3600 },
+    '/en/help': { swr: 3600 },
     '/**': {
       headers: {
         'X-Frame-Options': 'DENY',
@@ -56,7 +64,7 @@ export default defineNuxtConfig({
     '#prisma/client': resolve(__dirname, 'prisma/generated/client/client.ts'),
   },
 
-  css: ['~/assets/css/main.css', 'leaflet/dist/leaflet.css'],
+  css: ['~/assets/css/main.css'],
 
   clerk: {
     signInForceRedirectUrl: '/dashboard',
@@ -71,7 +79,7 @@ export default defineNuxtConfig({
   },
 
   icon: {
-    serverBundle: 'remote',
+    serverBundle: 'local',
   },
 
   motionV: {

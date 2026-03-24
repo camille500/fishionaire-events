@@ -9,111 +9,26 @@ const props = defineProps({
   eventTitle: { type: String, default: '' },
 })
 
-const poll = ref(null)
-const loading = ref(true)
-const submitting = ref(false)
-const submitted = ref(false)
-const error = ref(null)
-const savingVoteId = ref(null)
-
-const email = ref(props.initialEmail)
-const name = ref(props.initialName)
-const votes = ref({}) // { [optionId]: 'yes' | 'maybe' | 'no' }
-
-// Sync email/name if props change after mount (async data)
-watch(() => props.initialEmail, (v) => { if (v) email.value = v })
-watch(() => props.initialName, (v) => { if (v) name.value = v })
-
-// When on invite page, the guest is already identified — no need for manual form
-const isIdentified = computed(() => !!props.token || !!props.initialEmail)
-
-async function fetchPoll() {
-  loading.value = true
-  error.value = null
-  try {
-    poll.value = await $fetch(`/api/events/${props.eventId}/date-poll/vote`, {
-      query: { email: props.initialEmail || undefined },
-    })
-    if (poll.value?.options) {
-      for (const opt of poll.value.options) {
-        if (opt.ownVote) votes.value[opt.id] = opt.ownVote
-      }
-    }
-  } catch (err) {
-    error.value = err.statusMessage || t('common.errorGeneric')
-  } finally {
-    loading.value = false
-  }
-}
-
-async function setVote(optionId, status) {
-  if (votes.value[optionId] === status) {
-    delete votes.value[optionId]
-  } else {
-    votes.value[optionId] = status
-  }
-
-  // Auto-save when the guest is already identified via invite token
-  if (isIdentified.value) {
-    await autoSaveVotes(optionId)
-  }
-}
-
-async function autoSaveVotes(optionId) {
-  savingVoteId.value = optionId
-  error.value = null
-  const votePayload = Object.entries(votes.value).map(([id, status]) => ({ optionId: id, status }))
-  if (votePayload.length === 0) {
-    savingVoteId.value = null
-    return
-  }
-  try {
-    if (props.token) {
-      // Token-based endpoint — no email needed, works for +1 invitees
-      await $fetch(`/api/invite/${props.token}/vote`, {
-        method: 'POST',
-        body: { votes: votePayload },
-      })
-    } else {
-      // Fallback to email-based endpoint
-      await $fetch(`/api/events/${props.eventId}/date-poll/vote`, {
-        method: 'POST',
-        body: {
-          email: email.value,
-          name: name.value || null,
-          votes: votePayload,
-        },
-      })
-    }
-  } catch (err) {
-    error.value = err.data?.message || err.statusMessage || t('common.errorGeneric')
-  } finally {
-    savingVoteId.value = null
-  }
-}
-
-async function submit() {
-  if (!email.value || !email.value.includes('@')) return
-  if (Object.keys(votes.value).length === 0) return
-
-  submitting.value = true
-  error.value = null
-  try {
-    await $fetch(`/api/events/${props.eventId}/date-poll/vote`, {
-      method: 'POST',
-      body: {
-        email: email.value,
-        name: name.value || null,
-        votes: Object.entries(votes.value).map(([optionId, status]) => ({ optionId, status })),
-      },
-    })
-    submitted.value = true
-  } catch (err) {
-    error.value = err.data?.message || err.statusMessage || t('common.errorGeneric')
-  } finally {
-    submitting.value = false
-  }
-}
+const {
+  poll,
+  loading,
+  submitting,
+  submitted,
+  error,
+  savingVoteId,
+  email,
+  name,
+  votes,
+  isIdentified,
+  fetchPoll,
+  setVote,
+  submit,
+} = useDatePollVoting(
+  computed(() => props.eventId),
+  computed(() => props.token),
+  computed(() => props.initialEmail),
+  computed(() => props.initialName),
+)
 
 onMounted(fetchPoll)
 </script>

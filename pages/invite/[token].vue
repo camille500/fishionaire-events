@@ -41,6 +41,7 @@ useHead({
 
 const rsvpLoading = ref(false)
 const rsvpStatus = ref(invitation.value?.status || 'pending')
+const pollVoted = ref(false)
 
 // Sticky RSVP bar visibility (mobile)
 const rsvpSectionRef = ref(null)
@@ -126,7 +127,6 @@ const plusOneInvites = computed(() => invitation.value?.plusOneInvites || [])
 const navSections = computed(() => {
   const sections = []
   if (showPlusOnes.value) sections.push({ id: 'section-plus-ones', label: t('invite.nav.plusOnes'), icon: 'lucide:user-plus' })
-  if (hasPoll.value) sections.push({ id: 'section-poll', label: t('invite.nav.datePoll'), icon: 'lucide:bar-chart-3' })
   if (eventData.value?.locationLat && eventData.value?.locationLon) sections.push({ id: 'section-location', label: t('invite.nav.location'), icon: 'lucide:map-pin' })
   if (subEvents.value.length > 0) sections.push({ id: 'section-programme', label: t('invite.nav.programme'), icon: 'lucide:calendar-range' })
   if (hasWishlist.value) sections.push({ id: 'section-wishlist', label: t('invite.nav.wishlist'), icon: 'lucide:gift' })
@@ -145,6 +145,15 @@ const progressSteps = computed(() => {
     icon: 'lucide:check-circle',
     completed: rsvpStatus.value !== 'pending',
   })
+  // Date poll
+  if (hasPoll.value) {
+    steps.push({
+      id: 'datePoll',
+      label: t('invite.rsvp.stepDates'),
+      icon: 'lucide:bar-chart-3',
+      completed: pollVoted.value,
+    })
+  }
   // Dietary (if any dinner sub-events exist)
   const hasDinner = subEvents.value.some(se => se.type === 'dinner')
   if (hasDinner) {
@@ -232,6 +241,11 @@ async function rsvp(status) {
 
 function handleChangeResponse() {
   rsvpStatus.value = 'pending'
+}
+
+function scrollToRsvpCard() {
+  const el = rsvpSectionRef.value?.$el || rsvpSectionRef.value
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 async function handleSubEventRsvp(subEventId, status) {
@@ -369,7 +383,7 @@ async function upvoteMusic(subEventId, requestId) {
         :has-poll="hasPoll"
       />
 
-      <!-- 2. Welcome + RSVP (overlaps hero) -->
+      <!-- 2. Welcome + RSVP + Date Poll (overlaps hero) -->
       <InviteWelcomeRsvp
         ref="rsvpSectionRef"
         :event-data="eventData"
@@ -380,9 +394,15 @@ async function upvoteMusic(subEventId, requestId) {
         :rsvp-loading="rsvpLoading"
         :sub-events="subEvents"
         :sub-event-rsvps="subEventRsvps"
+        :has-poll="hasPoll"
+        :event-id="parseInt(eventData.id)"
+        :token="token"
+        :initial-email="invitation?.inviteeEmail || ''"
+        :initial-name="invitation?.inviteeName || ''"
         @rsvp="rsvp"
         @change-response="handleChangeResponse"
         @sub-event-rsvp="handleSubEventRsvp"
+        @poll-voted="pollVoted = true"
       />
 
       <!-- 3. Section navigation + progress -->
@@ -410,29 +430,6 @@ async function upvoteMusic(subEventId, requestId) {
               @add="addPlusOne"
               @remove="removePlusOne"
               @copy-link="copyPlusOneLink"
-            />
-          </div>
-        </section>
-
-        <!-- Date poll -->
-        <section
-          v-if="hasPoll"
-          id="section-poll"
-          class="invite-section invite-section--tinted invite-section--reveal"
-          style="animation-delay: 150ms"
-        >
-          <div class="invite-section__inner">
-            <h2 class="invite-section__title">
-              <Icon name="lucide:bar-chart-3" size="22" />
-              {{ t('invite.poll.title') }}
-            </h2>
-            <p class="invite-section__subtitle">{{ t('invite.poll.subtitle') }}</p>
-            <DatePollVotingForm
-              :event-id="parseInt(eventData.id)"
-              :initial-email="invitation?.inviteeEmail || ''"
-              :initial-name="invitation?.inviteeName || ''"
-              :token="token"
-              :event-title="eventData.title"
             />
           </div>
         </section>
@@ -563,8 +560,11 @@ async function upvoteMusic(subEventId, requestId) {
         :rsvp-loading="rsvpLoading"
         :rsvp-closed="!eventData.rsvpEnabled"
         :visible="!rsvpSectionVisible"
+        :has-poll="hasPoll"
+        :poll-voted="pollVoted"
         @rsvp="rsvp"
         @change-response="handleChangeResponse"
+        @scroll-to-poll="scrollToRsvpCard"
       />
 
       <!-- Footer -->

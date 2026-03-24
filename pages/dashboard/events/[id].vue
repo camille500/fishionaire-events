@@ -35,8 +35,8 @@ const tabs = computed(() => {
     { label: t('editor.tabs.schedule'), icon: 'i-lucide-calendar-clock', slot: 'schedule' },
     { label: t('editor.tabs.guests'), icon: 'i-lucide-users', slot: 'guests' },
   ]
-  if (eventData.value?.features?.rsvp) {
-    base.push({ label: t('editor.tabs.rsvp'), icon: 'i-lucide-check-circle', slot: 'rsvp' })
+  if (eventData.value?.features?.rsvp || eventData.value?.features?.datePolling) {
+    base.push({ label: t('editor.tabs.responses'), icon: 'i-lucide-check-circle', slot: 'responses' })
   }
   if (eventData.value?.features?.wishlist) {
     base.push({ label: t('editor.tabs.wishlist'), icon: 'i-lucide-gift', slot: 'wishlist' })
@@ -251,9 +251,9 @@ function onTabChange(index) {
           </div>
         </template>
 
-        <template v-if="eventData?.features?.rsvp" #rsvp>
+        <template v-if="eventData?.features?.rsvp || eventData?.features?.datePolling" #responses>
           <div class="event-editor__tab-content">
-            <EditorRsvpTab />
+            <EditorResponsesTab />
           </div>
         </template>
 

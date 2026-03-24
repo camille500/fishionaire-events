@@ -37,53 +37,6 @@ function selectType(type, event) {
 }
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
-const hasDatePolling = computed(() => !!eventData.value?.features?.datePolling)
-
-// Date polling toggle state — derived from whether a poll exists and is active
-const datePollingActive = ref(false)
-const pollLoading = ref(false)
-const pollExists = ref(false)
-
-async function checkPollExists() {
-  if (!hasDatePolling.value || !eventData.value?.id) return
-  pollLoading.value = true
-  try {
-    const poll = await $fetch(`/api/events/${eventData.value.id}/date-poll`)
-    pollExists.value = !!poll
-    datePollingActive.value = !!poll?.isActive
-  } catch {
-    pollExists.value = false
-    datePollingActive.value = false
-  } finally {
-    pollLoading.value = false
-  }
-}
-
-async function toggleDatePolling(active) {
-  if (!eventData.value?.id) return
-  pollLoading.value = true
-  try {
-    if (active) {
-      if (pollExists.value) {
-        // Reactivate existing poll (preserves options and votes)
-        await $fetch(`/api/events/${eventData.value.id}/date-poll/reopen`, { method: 'POST' })
-      } else {
-        // Create a new poll
-        await $fetch(`/api/events/${eventData.value.id}/date-poll`, { method: 'POST', body: { options: [] } })
-        pollExists.value = true
-      }
-      datePollingActive.value = true
-    } else {
-      // Deactivate poll (preserves options and votes)
-      await $fetch(`/api/events/${eventData.value.id}/date-poll/close`, { method: 'POST' })
-      datePollingActive.value = false
-    }
-  } finally {
-    pollLoading.value = false
-  }
-}
-
-onMounted(checkPollExists)
 const {
   titleSuggestions,
   loadingTitles,
@@ -217,76 +170,28 @@ onMounted(() => {
     <section class="editor-details__section">
       <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.detailsSection') }}</h3>
       <div class="editor-details__props">
-        <!-- Date polling locked upsell (free tier) -->
-        <div v-if="!hasDatePolling" class="editor-details__upsell-card">
-          <div class="editor-details__upsell-left">
-            <div class="editor-details__upsell-icon">
-              <Icon name="lucide:bar-chart-3" size="16" />
-            </div>
-            <div class="editor-details__toggle-text">
-              <span class="editor-details__toggle-title">{{ t('editor.details.datePollingToggle') }}</span>
-              <span class="editor-details__toggle-desc">{{ t('editor.details.datePollingUpsell') }}</span>
-            </div>
-          </div>
-          <TierBadge tier="standard" />
-        </div>
+        <ClientOnly>
+          <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
+            <EditorDatePicker
+              v-model="form.eventDate"
+              :placeholder="t('editor.datePicker.selectDate')"
+              :error="errors.eventDate"
+              :touched="touched.eventDate"
+              @blur="markTouched('eventDate')"
+            />
+          </EditorPropertyRow>
 
-        <!-- Date polling toggle (Standard+) -->
-        <div
-          v-if="hasDatePolling"
-          class="editor-details__toggle-card"
-          :class="{ 'editor-details__toggle-card--active': datePollingActive }"
-        >
-          <div class="editor-details__toggle-left">
-            <div class="editor-details__toggle-icon">
-              <Icon :name="datePollingActive ? 'lucide:bar-chart-3' : 'lucide:calendar'" size="16" />
-            </div>
-            <div class="editor-details__toggle-text">
-              <span class="editor-details__toggle-title">{{ t('editor.details.datePollingToggle') }}</span>
-              <span class="editor-details__toggle-desc">{{ t('editor.details.datePollingToggleDesc') }}</span>
-            </div>
-          </div>
-          <AppSwitch
-            :model-value="datePollingActive"
-            :disabled="pollLoading"
-            @update:model-value="toggleDatePolling"
-          />
-        </div>
-
-        <!-- Fixed date pickers (when polling is OFF) -->
-        <template v-if="!datePollingActive">
-          <ClientOnly>
-            <EditorPropertyRow :label="t('dashboard.eventEditor.eventDateLabel')" icon="lucide:calendar">
-              <EditorDatePicker
-                v-model="form.eventDate"
-                :placeholder="t('editor.datePicker.selectDate')"
-                :error="errors.eventDate"
-                :touched="touched.eventDate"
-                @blur="markTouched('eventDate')"
-              />
-            </EditorPropertyRow>
-
-            <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
-              <EditorDatePicker
-                v-model="form.eventEndDate"
-                :placeholder="t('editor.datePicker.selectEndDate')"
-                :min-date="form.eventDate"
-                :error="errors.eventEndDate"
-                :touched="touched.eventEndDate"
-                @blur="markTouched('eventEndDate')"
-              />
-            </EditorPropertyRow>
-          </ClientOnly>
-        </template>
-
-        <!-- Date poll editor (when polling is ON) -->
-        <div v-if="datePollingActive" class="editor-details__poll-section">
-          <DatePollEditor
-            :event-id="eventData.id"
-            :editable="true"
-            :locked="false"
-          />
-        </div>
+          <EditorPropertyRow :label="t('dashboard.eventEditor.eventEndDateLabel')" icon="lucide:calendar-check">
+            <EditorDatePicker
+              v-model="form.eventEndDate"
+              :placeholder="t('editor.datePicker.selectEndDate')"
+              :min-date="form.eventDate"
+              :error="errors.eventEndDate"
+              :touched="touched.eventEndDate"
+              @blur="markTouched('eventEndDate')"
+            />
+          </EditorPropertyRow>
+        </ClientOnly>
 
         <ClientOnly>
           <EditorPropertyRow :label="t('dashboard.eventEditor.locationLabel')" icon="lucide:map-pin">
