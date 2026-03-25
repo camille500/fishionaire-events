@@ -12,8 +12,8 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }
 
-  const { email } = await readBody<{ email: string }>(event)
-  const result = await EventMemberController.addCoOrganizer(eventId, userId, email)
+  const { email, clerkId } = await readBody<{ email?: string, clerkId?: string }>(event)
+  const result = await EventMemberController.addCoOrganizer(eventId, userId, { email, clerkId })
 
   setResponseStatus(event, 201)
   return result

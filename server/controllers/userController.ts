@@ -61,4 +61,17 @@ export default class UserController {
     await UserRepository.updateAvatar(clerkId, null, null)
     return { avatarUrl: null }
   }
+
+  static async searchUsers(query: string, excludeClerkId: string) {
+    const { users } = await UserRepository.findAll({ search: query, offset: 0, limit: 6 })
+    return users
+      .filter((u) => u.clerkId !== excludeClerkId)
+      .slice(0, 5)
+      .map((u) => ({
+        clerkId: u.clerkId,
+        displayName: u.fullDisplayName,
+        email: u.email,
+        avatarUrl: u.avatarUrl,
+      }))
+  }
 }

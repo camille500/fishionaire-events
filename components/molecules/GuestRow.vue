@@ -43,6 +43,7 @@ const inviteLink = computed(() => {
 })
 
 const plusOneInvites = computed(() => props.invitation.plusOneInvites || [])
+const showPlusOnes = ref(false)
 
 function startEdit() {
   editName.value = props.invitation.inviteeName || ''
@@ -93,13 +94,24 @@ async function handleSendEmail() {
         </div>
         <span v-if="invitation.inviteeName" class="guest-row__email">{{ invitation.inviteeEmail }}</span>
         <div class="guest-row__meta">
-          <span v-if="invitation.plusOnes > 0" class="guest-row__plus-ones">
+          <button
+            v-if="invitation.plusOnes > 0"
+            class="guest-row__plus-ones"
+            :class="{ 'guest-row__plus-ones--clickable': plusOneInvites.length > 0 }"
+            @click="plusOneInvites.length > 0 ? showPlusOnes = !showPlusOnes : null"
+          >
             <Icon name="lucide:user-plus" size="12" />
             +{{ invitation.plusOnes }}
             <span v-if="plusOneInvites.length > 0" class="guest-row__plus-ones-filled">
               ({{ plusOneInvites.length }}/{{ invitation.plusOnes }} {{ t('editor.guests.plusOnesFilled') }})
             </span>
-          </span>
+            <Icon
+              v-if="plusOneInvites.length > 0"
+              :name="showPlusOnes ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+              size="10"
+              class="guest-row__plus-ones-toggle"
+            />
+          </button>
           <template v-if="invitedSubEventNames">
             <span
               v-for="name in invitedSubEventNames"
@@ -175,25 +187,27 @@ async function handleSendEmail() {
       </div>
     </div>
 
-    <!-- Nested plus-one invites -->
-    <div v-if="plusOneInvites.length > 0" class="guest-row__plus-one-list">
-      <div
-        v-for="po in plusOneInvites"
-        :key="po.id"
-        class="guest-row__plus-one"
-      >
-        <div class="guest-row__plus-one-connector" />
-        <div class="guest-row__plus-one-avatar">
-          {{ (po.inviteeName || po.inviteeEmail || '?').charAt(0).toUpperCase() }}
+    <!-- Nested plus-one invites (collapsed by default) -->
+    <Transition name="plus-ones-slide">
+      <div v-if="showPlusOnes && plusOneInvites.length > 0" class="guest-row__plus-one-list">
+        <div
+          v-for="po in plusOneInvites"
+          :key="po.id"
+          class="guest-row__plus-one"
+        >
+          <div class="guest-row__plus-one-connector" />
+          <div class="guest-row__plus-one-avatar">
+            {{ (po.inviteeName || po.inviteeEmail || '?').charAt(0).toUpperCase() }}
+          </div>
+          <div class="guest-row__plus-one-info">
+            <span class="guest-row__plus-one-name">{{ po.inviteeName || po.inviteeEmail }}</span>
+            <span v-if="po.inviteeName" class="guest-row__plus-one-email">{{ po.inviteeEmail }}</span>
+          </div>
+          <AppBadge :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" size="sm" :label="t(`editor.guests.status.${po.status}`)" />
+          <span class="guest-row__plus-one-label">+1</span>
         </div>
-        <div class="guest-row__plus-one-info">
-          <span class="guest-row__plus-one-name">{{ po.inviteeName || po.inviteeEmail }}</span>
-          <span v-if="po.inviteeName" class="guest-row__plus-one-email">{{ po.inviteeEmail }}</span>
-        </div>
-        <AppBadge :variant="po.status === 'accepted' ? 'success' : po.status === 'declined' ? 'error' : 'default'" size="sm" :label="t(`editor.guests.status.${po.status}`)" />
-        <span class="guest-row__plus-one-label">+1</span>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -201,6 +215,7 @@ async function handleSendEmail() {
 .guest-row-wrapper {
   display: flex;
   flex-direction: column;
+  contain: layout style;
 }
 
 .guest-row {
@@ -279,6 +294,28 @@ async function handleSendEmail() {
   font-size: var(--text-xs);
   color: var(--color-accent);
   font-weight: var(--font-weight-medium);
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: default;
+  font-family: inherit;
+}
+
+.guest-row__plus-ones--clickable {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 1px var(--space-1);
+  margin: -1px calc(-1 * var(--space-1));
+  transition: background var(--transition-fast);
+}
+
+.guest-row__plus-ones--clickable:hover {
+  background: var(--color-accent-dim);
+}
+
+.guest-row__plus-ones-toggle {
+  opacity: 0.6;
+  transition: transform var(--transition-fast);
 }
 
 .guest-row__plus-ones-filled {
@@ -516,6 +553,29 @@ async function handleSendEmail() {
   background: color-mix(in srgb, var(--color-accent-violet) 8%, transparent);
   padding: 1px var(--space-2);
   border-radius: var(--radius-full);
+}
+
+/* Plus-one collapse transition */
+.plus-ones-slide-enter-active {
+  transition: all 200ms ease-out;
+  overflow: hidden;
+}
+
+.plus-ones-slide-leave-active {
+  transition: all 150ms ease-in;
+  overflow: hidden;
+}
+
+.plus-ones-slide-enter-from,
+.plus-ones-slide-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.plus-ones-slide-enter-to,
+.plus-ones-slide-leave-from {
+  opacity: 1;
+  max-height: 500px;
 }
 
 @media (max-width: 640px) {

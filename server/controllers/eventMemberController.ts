@@ -1,16 +1,14 @@
 import EventMember from '../entities/EventMember'
 import EventMemberRepository from '../repositories/eventMemberRepository'
 import EventRepository from '../repositories/eventRepository'
+import UserRepository from '../repositories/userRepository'
 import NotificationController from './notificationController'
-import { usePrisma } from '../database'
 
 export default class EventMemberController {
-  static async addCoOrganizer(eventId: number, ownerClerkId: string, email: string): Promise<Record<string, unknown>> {
-    if (!email || !email.trim()) {
-      throw createError({ statusCode: 400, statusMessage: 'Email is required' })
+  static async addCoOrganizer(eventId: number, ownerClerkId: string, payload: { email?: string, clerkId?: string }): Promise<Record<string, unknown>> {
+    if (!payload.clerkId && (!payload.email || !payload.email.trim())) {
+      throw createError({ statusCode: 400, statusMessage: 'Email or user ID is required' })
     }
-
-    const normalizedEmail = email.trim().toLowerCase()
 
     // Only the owner can add co-organizers
     const ownerMember = await EventMemberRepository.findByEventIdAndUserId(eventId, ownerClerkId)
@@ -18,11 +16,20 @@ export default class EventMemberController {
       throw createError({ statusCode: 403, statusMessage: 'Only the event owner can add co-organizers' })
     }
 
-    // Look up user by email
-    const prisma = usePrisma()
-    const user = await prisma.user.findFirst({ where: { email: normalizedEmail } })
-    if (!user) {
-      throw createError({ statusCode: 404, statusMessage: 'No user found with this email. They need to sign up first.' })
+    // Look up user by clerkId or email
+    let user
+    if (payload.clerkId) {
+      user = await UserRepository.findByClerkId(payload.clerkId)
+      if (!user) {
+        throw createError({ statusCode: 404, statusMessage: 'User not found' })
+      }
+    } else {
+      const normalizedEmail = payload.email!.trim().toLowerCase()
+      const { users } = await UserRepository.findAll({ search: normalizedEmail, offset: 0, limit: 1 })
+      user = users.find((u) => u.email === normalizedEmail) || null
+      if (!user) {
+        throw createError({ statusCode: 404, statusMessage: 'No user found with this email. They need to sign up first.' })
+      }
     }
 
     if (user.clerkId === ownerClerkId) {
@@ -39,7 +46,7 @@ export default class EventMemberController {
       eventId,
       userClerkId: user.clerkId,
       role: 'co_organizer',
-      invitedEmail: normalizedEmail,
+      invitedEmail: user.email,
     })
 
     const saved = await EventMemberRepository.create(member)

@@ -443,6 +443,79 @@ export default class EventController {
     return saved.toJSON()
   }
 
+  static async bulkInviteToEvent(
+    eventId: number,
+    inviterClerkId: string,
+    guests: Array<{ email: string, name?: string | null, plusOnes?: number }>,
+    subEventInvites: { subEventId: number, plusOnes: number }[] = []
+  ): Promise<{ created: Record<string, unknown>[], duplicates: string[], invalid: string[] }> {
+    if (!guests || guests.length === 0) {
+      throw createError({ statusCode: 400, statusMessage: 'At least one guest is required' })
+    }
+    if (guests.length > 500) {
+      throw createError({ statusCode: 400, statusMessage: 'Maximum 500 guests per batch' })
+    }
+
+    const member = await EventMemberRepository.findByEventIdAndUserId(eventId, inviterClerkId)
+    if (!member || !member.canEdit) {
+      throw createError({ statusCode: 403, statusMessage: 'You do not have permission to invite to this event' })
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const invalid: string[] = []
+    const validGuests: Array<{ email: string, name?: string | null, plusOnes?: number }> = []
+
+    // Validate and deduplicate
+    const seenEmails = new Set<string>()
+    for (const guest of guests) {
+      const email = guest.email?.trim().toLowerCase()
+      if (!email || !emailRegex.test(email)) {
+        invalid.push(guest.email || '')
+        continue
+      }
+      if (seenEmails.has(email)) continue
+      seenEmails.add(email)
+      validGuests.push({ ...guest, email })
+    }
+
+    // Check existing invitations in one query
+    const existing = await EventInvitationRepository.findByEventId(String(eventId))
+    const existingEmails = new Set(existing.map((inv) => inv.inviteeEmail.toLowerCase()))
+
+    const duplicates: string[] = []
+    const toCreate: Array<{ email: string, name?: string | null, plusOnes?: number }> = []
+
+    for (const guest of validGuests) {
+      if (existingEmails.has(guest.email)) {
+        duplicates.push(guest.email)
+      } else {
+        toCreate.push(guest)
+      }
+    }
+
+    // Create invitation entities
+    const invitations = toCreate.map((guest) => new EventInvitation({
+      id: null,
+      eventId,
+      inviteeEmail: guest.email,
+      inviteeName: guest.name?.trim() || null,
+      inviterClerkId,
+      status: 'pending',
+      plusOnes: guest.plusOnes || 0,
+      accessToken: crypto.randomBytes(16).toString('hex'),
+      invitedById: null,
+      invitedByName: null,
+      subEventInvites,
+      plusOneInvites: [],
+      createdAt: new Date(),
+    }))
+
+    const saved = await EventInvitationRepository.bulkCreate(invitations)
+    const created = saved.map((inv) => inv.toJSON())
+
+    return { created, duplicates, invalid }
+  }
+
   static async addPlusOneInvite(
     accessToken: string,
     plusOneName: string,
@@ -606,6 +679,16 @@ export default class EventController {
         locationLon: event.locationLon,
         coverImageUrl: event.coverImageUrl,
         themeColor: event.themeColor,
+        themeColorSecondary: event.themeColorSecondary,
+        gradientAngle: event.gradientAngle,
+        fontPairing: event.fontPairing,
+        cardStyle: event.cardStyle,
+        welcomeMessage: event.welcomeMessage,
+        heroAnimation: event.heroAnimation,
+        backgroundPattern: event.backgroundPattern,
+        colorMode: event.colorMode,
+        customLogoUrl: event.customLogoUrl,
+        hideBranding: event.hideBranding,
         features: event.features,
         rsvpEnabled: event.rsvpEnabled,
         rsvpDeadline: event.rsvpDeadline,

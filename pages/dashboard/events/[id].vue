@@ -59,9 +59,6 @@ const tabs = computed(() => {
   ]
 })
 
-// Upgrade popover for locked tabs
-const showUpgradeForTab = ref(null)
-
 // Keyboard shortcut: Cmd/Ctrl+S to force save
 function handleKeydown(e) {
   if ((e.metaKey || e.ctrlKey) && e.key === 's') {
@@ -208,16 +205,25 @@ function leaveWithoutSaving() {
   }
 }
 
-// Tab change animations
-const { animateTabChange } = useEditorAnimations()
-const previousTab = ref(0)
+// Sidebar navigation
+const { editorSidebarOpen, isMobile, closeEditorSidebar } = useEditorSidebar()
+const { animateTabChangeVertical } = useEditorAnimations()
+const activeTab = ref(0)
+
+const tabSections = computed(() => [
+  { label: t('editor.sections.core'), startIndex: 0 },
+  { label: t('editor.sections.people'), startIndex: 2 },
+  { label: t('editor.sections.features'), startIndex: 4 },
+  { label: t('editor.sections.appearance'), startIndex: 9 },
+])
 
 function onTabChange(index) {
-  const direction = index > previousTab.value ? 'right' : 'left'
-  previousTab.value = index
+  const direction = index > activeTab.value ? 'down' : 'up'
+  activeTab.value = index
+  if (isMobile.value) closeEditorSidebar()
   nextTick(() => {
     const tabContent = document.querySelector('.event-editor__tab-content')
-    if (tabContent) animateTabChange(tabContent, direction)
+    if (tabContent) animateTabChangeVertical(tabContent, direction)
   })
 }
 </script>
@@ -277,39 +283,63 @@ function onTabChange(index) {
         :visible="!!(errors.title && touched.title)"
       />
 
-      <!-- Tabbed content -->
-      <AppTabs :items="tabs" :model-value="previousTab" class="event-editor__tabs" @update:model-value="onTabChange">
-        <!-- Upgrade popover for locked tabs -->
-        <template #locked-popover="{ item }">
-          <EventUpgradePanel @close="() => {}" @upgraded="refreshEvent" />
-        </template>
+      <!-- Two-column body: sidebar + content -->
+      <div class="event-editor__body">
+        <!-- Mobile sidebar toggle -->
+        <button
+          v-if="isMobile"
+          type="button"
+          class="event-editor__sidebar-toggle"
+          @click="editorSidebarOpen = !editorSidebarOpen"
+        >
+          <Icon name="lucide:panel-left" size="18" />
+        </button>
 
-        <template #details>
-          <div class="event-editor__tab-content">
+        <!-- Mobile backdrop -->
+        <Transition name="backdrop">
+          <div
+            v-if="isMobile && editorSidebarOpen"
+            class="event-editor__sidebar-backdrop"
+            @click="closeEditorSidebar"
+          />
+        </Transition>
+
+        <!-- Editor sidebar nav -->
+        <aside
+          class="event-editor__sidebar"
+          :class="{ 'event-editor__sidebar--open': editorSidebarOpen }"
+        >
+          <EditorSidebarNav
+            :items="tabs"
+            :model-value="activeTab"
+            :sections="tabSections"
+            @update:model-value="onTabChange"
+          >
+            <template #locked-popover="{ item }">
+              <EventUpgradePanel @close="() => {}" @upgraded="refreshEvent" />
+            </template>
+          </EditorSidebarNav>
+        </aside>
+
+        <!-- Content panels -->
+        <div class="event-editor__content">
+          <div v-show="activeTab === 0" class="event-editor__tab-content">
             <EditorDetailsTab />
           </div>
-        </template>
 
-        <template #schedule>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 1" class="event-editor__tab-content">
             <EditorScheduleTab />
           </div>
-        </template>
 
-        <template #guests>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 2" class="event-editor__tab-content">
             <EditorGuestsTab />
           </div>
-        </template>
 
-        <template #responses>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 3 && !tabs[3]?.locked" class="event-editor__tab-content">
             <EditorResponsesTab />
           </div>
-        </template>
 
-        <template #wishlist>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 4 && !tabs[4]?.locked" class="event-editor__tab-content">
             <EditorWishlistTab
               :event-id="eventData.id"
               :event-type="form.eventType"
@@ -317,60 +347,48 @@ function onTabChange(index) {
               :features="eventData.features"
             />
           </div>
-        </template>
 
-        <template #photos>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 5 && !tabs[5]?.locked" class="event-editor__tab-content">
             <EditorPhotosTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>
-        </template>
 
-        <template #budget>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 6 && !tabs[6]?.locked" class="event-editor__tab-content">
             <EditorBudgetTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>
-        </template>
 
-        <template #socialWall>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 7 && !tabs[7]?.locked" class="event-editor__tab-content">
             <EditorSocialWallTab
               :event-id="eventData.id"
               :features="eventData.features"
               :auto-approve="eventData.socialWallAutoApprove"
             />
           </div>
-        </template>
 
-        <template #checkIn>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 8 && !tabs[8]?.locked" class="event-editor__tab-content">
             <EditorCheckInTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>
-        </template>
 
-        <template #theme>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 9 && !tabs[9]?.locked" class="event-editor__tab-content">
             <EditorThemeTab />
           </div>
-        </template>
 
-        <template #settings>
-          <div class="event-editor__tab-content">
+          <div v-show="activeTab === 10" class="event-editor__tab-content">
             <EditorSettingsTab />
           </div>
-        </template>
-      </AppTabs>
 
-      <!-- Activity feed -->
-      <ActivityFeed :activities="formattedActivities" />
+          <!-- Activity feed -->
+          <ActivityFeed :activities="formattedActivities" />
+        </div>
+      </div>
 
       <!-- AI Assistant FAB (paid users only) -->
       <AiAssistantFab
@@ -408,8 +426,6 @@ function onTabChange(index) {
 
 <style scoped>
 .event-editor {
-  max-width: 860px;
-  margin: 0 auto;
   transition: --color-accent 0.4s ease, --color-accent-light 0.4s ease, --color-accent-dark 0.4s ease, --color-accent-bg 0.4s ease, --color-accent-dim 0.4s ease;
 }
 
@@ -429,6 +445,7 @@ function onTabChange(index) {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  max-width: 860px;
 }
 
 .event-editor__title-input {
@@ -490,13 +507,113 @@ function onTabChange(index) {
   opacity: 0;
 }
 
-/* Tabs */
-.event-editor__tabs {
+/* ── Two-column body: sidebar + content ── */
+.event-editor__body {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: var(--space-6);
   margin-top: var(--space-6);
+  position: relative;
+}
+
+/* ── Editor sidebar ── */
+.event-editor__sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-4));
+  max-height: calc(100vh - var(--header-height) - var(--space-8));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-light) transparent;
+  padding-right: var(--space-2);
+  border-right: 1px solid var(--color-border-light);
+}
+
+/* ── Content area ── */
+.event-editor__content {
+  min-width: 0;
+  max-width: 860px;
 }
 
 .event-editor__tab-content {
-  padding: var(--space-6) 0;
+  padding: var(--space-2) 0 var(--space-6) 0;
 }
 
+/* ── Mobile sidebar toggle ── */
+.event-editor__sidebar-toggle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.event-editor__sidebar-toggle:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+/* ── Mobile backdrop ── */
+.event-editor__sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 29;
+}
+
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity var(--transition-base);
+}
+
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .event-editor__body {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .event-editor__sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    max-height: none;
+    z-index: 30;
+    background: var(--color-background);
+    border-right: 1px solid var(--color-border-light);
+    padding: var(--space-4) var(--space-3);
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    overflow-y: auto;
+  }
+
+  .event-editor__sidebar--open {
+    transform: translateX(0);
+  }
+
+  .event-editor__content {
+    max-width: none;
+  }
+
+  .event-editor__tab-content {
+    padding: var(--space-4) 0;
+  }
+}
 </style>

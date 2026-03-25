@@ -60,6 +60,15 @@ export default class EventInvitationRepository {
     return EventInvitation.fromJSON(mapRow(row))
   }
 
+  static async bulkCreate(invitations: EventInvitation[]): Promise<EventInvitation[]> {
+    const results: EventInvitation[] = []
+    for (const invitation of invitations) {
+      const saved = await this.create(invitation)
+      results.push(saved)
+    }
+    return results
+  }
+
   static async findByEventId(eventId: string): Promise<EventInvitation[]> {
     const prisma = usePrisma()
     const rows = await prisma.eventInvitation.findMany({

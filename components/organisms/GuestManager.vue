@@ -13,6 +13,74 @@ const loading = ref(false)
 const saving = ref(false)
 const copySuccess = ref(false)
 const showAddForm = ref(false)
+const showBulkForm = ref(false)
+const bulkSaving = ref(false)
+
+// Search & filter
+const searchQuery = ref('')
+const debouncedSearch = ref('')
+const statusFilter = ref('all')
+let searchTimer = null
+
+watch(searchQuery, (val) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { debouncedSearch.value = val }, 200)
+})
+
+const existingEmails = computed(() => {
+  return new Set(guests.value.map((g) => g.inviteeEmail?.toLowerCase()))
+})
+
+const filteredGuests = computed(() => {
+  let result = guests.value
+
+  if (statusFilter.value !== 'all') {
+    result = result.filter((g) => g.status === statusFilter.value)
+  }
+
+  const q = debouncedSearch.value.trim().toLowerCase()
+  if (q) {
+    result = result.filter((g) => {
+      const name = (g.inviteeName || '').toLowerCase()
+      const email = (g.inviteeEmail || '').toLowerCase()
+      return name.includes(q) || email.includes(q)
+    })
+  }
+
+  return result
+})
+
+// Virtual scrolling
+const listContainer = ref(null)
+const scrollTop = ref(0)
+const ITEM_HEIGHT = 64
+const OVERSCAN = 5
+
+function handleScroll() {
+  if (listContainer.value) {
+    scrollTop.value = listContainer.value.scrollTop
+  }
+}
+
+const useVirtual = computed(() => filteredGuests.value.length > 50)
+
+const virtualState = computed(() => {
+  if (!useVirtual.value) return null
+  const containerHeight = 480
+  const totalHeight = filteredGuests.value.length * ITEM_HEIGHT
+  const startIndex = Math.max(0, Math.floor(scrollTop.value / ITEM_HEIGHT) - OVERSCAN)
+  const endIndex = Math.min(
+    filteredGuests.value.length,
+    Math.ceil((scrollTop.value + containerHeight) / ITEM_HEIGHT) + OVERSCAN
+  )
+  return {
+    totalHeight,
+    startIndex,
+    endIndex,
+    offsetY: startIndex * ITEM_HEIGHT,
+    visibleItems: filteredGuests.value.slice(startIndex, endIndex),
+  }
+})
 
 // Add guest form
 const newName = ref('')
@@ -81,6 +149,27 @@ async function addGuest() {
     toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
   } finally {
     saving.value = false
+  }
+}
+
+async function bulkAddGuests(payload) {
+  bulkSaving.value = true
+  try {
+    const result = await $fetch(`/api/events/${props.eventId}/guests/bulk`, {
+      method: 'POST',
+      body: payload,
+    })
+    const messages = []
+    if (result.created?.length) messages.push(t('editor.guests.bulkResultCreated', result.created.length))
+    if (result.duplicates?.length) messages.push(t('editor.guests.bulkResultDuplicates', result.duplicates.length))
+    if (result.invalid?.length) messages.push(t('editor.guests.bulkResultInvalid', result.invalid.length))
+    toast.add({ title: messages.join(', '), icon: 'i-lucide-check', color: 'green' })
+    showBulkForm.value = false
+    await fetchGuests()
+  } catch {
+    toast.add({ title: t('toast.error'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    bulkSaving.value = false
   }
 }
 
@@ -187,22 +276,91 @@ function toggleSubEvent(id) {
       </div>
     </div>
 
+    <!-- Search & filter -->
+    <div v-if="guests.length > 10" class="guest-manager__search">
+      <AppInput
+        v-model="searchQuery"
+        type="text"
+        :placeholder="t('editor.guests.searchPlaceholder')"
+        size="sm"
+        icon="lucide:search"
+        class="guest-manager__search-input"
+      />
+      <div class="guest-manager__filters">
+        <button
+          class="guest-manager__filter-pill"
+          :class="{ 'guest-manager__filter-pill--active': statusFilter === 'all' }"
+          @click="statusFilter = 'all'"
+        >
+          {{ t('editor.guests.filterAll') }}
+        </button>
+        <button
+          class="guest-manager__filter-pill guest-manager__filter-pill--success"
+          :class="{ 'guest-manager__filter-pill--active': statusFilter === 'accepted' }"
+          @click="statusFilter = 'accepted'"
+        >
+          {{ t('editor.guests.status.accepted') }}
+        </button>
+        <button
+          class="guest-manager__filter-pill guest-manager__filter-pill--error"
+          :class="{ 'guest-manager__filter-pill--active': statusFilter === 'declined' }"
+          @click="statusFilter = 'declined'"
+        >
+          {{ t('editor.guests.status.declined') }}
+        </button>
+        <button
+          class="guest-manager__filter-pill"
+          :class="{ 'guest-manager__filter-pill--active': statusFilter === 'pending' }"
+          @click="statusFilter = 'pending'"
+        >
+          {{ t('editor.guests.status.pending') }}
+        </button>
+      </div>
+    </div>
+
     <!-- Guest list -->
     <div v-if="loading" class="guest-manager__loading">
       <SkeletonLoader height="56px" />
       <SkeletonLoader height="56px" />
     </div>
 
-    <div v-else-if="guests.length === 0 && !showAddForm" class="guest-manager__empty">
+    <div v-else-if="guests.length === 0 && !showAddForm && !showBulkForm" class="guest-manager__empty">
       <div class="guest-manager__empty-icon">
         <Icon name="lucide:user-plus" size="24" />
       </div>
       <AppText size="sm" muted>{{ t('editor.guests.noGuests') }}</AppText>
     </div>
 
+    <div v-else-if="guests.length > 0 && filteredGuests.length === 0" class="guest-manager__empty">
+      <AppText size="sm" muted>{{ t('editor.guests.noSearchResults') }}</AppText>
+    </div>
+
+    <!-- Virtual scrolling for large lists -->
+    <div
+      v-else-if="useVirtual"
+      ref="listContainer"
+      class="guest-manager__list guest-manager__list--virtual"
+      @scroll="handleScroll"
+    >
+      <div :style="{ height: virtualState.totalHeight + 'px', position: 'relative' }">
+        <div :style="{ transform: 'translateY(' + virtualState.offsetY + 'px)' }">
+          <GuestRow
+            v-for="guest in virtualState.visibleItems"
+            :key="guest.id"
+            :invitation="guest"
+            :sub-events="subEvents"
+            @update="updateGuest"
+            @remove="removeGuest"
+            @send-email="sendInviteEmail"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Normal list for smaller guest counts -->
     <TransitionGroup v-else name="guest-list" tag="div" class="guest-manager__list">
       <GuestRow
-        v-for="guest in guests"
+        v-for="guest in filteredGuests"
         :key="guest.id"
         :invitation="guest"
         :sub-events="subEvents"
@@ -294,16 +452,36 @@ function toggleSubEvent(id) {
       </div>
     </div>
 
+    <!-- Bulk import form -->
+    <BulkGuestImport
+      v-if="showBulkForm"
+      :sub-events="subEvents"
+      :existing-emails="existingEmails"
+      :saving="bulkSaving"
+      @submit="bulkAddGuests"
+      @cancel="showBulkForm = false"
+    />
+
     <!-- Action buttons -->
     <div class="guest-manager__footer">
       <AppButton
-        v-if="!showAddForm"
+        v-if="!showAddForm && !showBulkForm"
         variant="outline"
         size="sm"
-        @click="showAddForm = true"
+        @click="showAddForm = true; showBulkForm = false"
       >
         <Icon name="lucide:user-plus" size="14" />
         {{ t('editor.guests.addGuest') }}
+      </AppButton>
+
+      <AppButton
+        v-if="!showAddForm && !showBulkForm"
+        variant="outline"
+        size="sm"
+        @click="showBulkForm = true; showAddForm = false"
+      >
+        <Icon name="lucide:users" size="14" />
+        {{ t('editor.guests.bulkAdd') }}
       </AppButton>
 
       <AppButton
@@ -404,10 +582,67 @@ function toggleSubEvent(id) {
   opacity: 0.7;
 }
 
+.guest-manager__search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.guest-manager__search-input {
+  max-width: 320px;
+}
+
+.guest-manager__filters {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.guest-manager__filter-pill {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.guest-manager__filter-pill:hover {
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.guest-manager__filter-pill--active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+.guest-manager__filter-pill--success.guest-manager__filter-pill--active {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 8%, transparent);
+  color: var(--color-success);
+}
+
+.guest-manager__filter-pill--error.guest-manager__filter-pill--active {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-error);
+}
+
 .guest-manager__list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.guest-manager__list--virtual {
+  max-height: 480px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .guest-manager__add-form {

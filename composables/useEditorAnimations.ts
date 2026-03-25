@@ -89,8 +89,23 @@ export function useEditorAnimations() {
     })
   }
 
+  function animateTabChangeVertical(el: HTMLElement, direction: string = 'down'): void {
+    const yFrom = direction === 'down' ? 12 : -12
+
+    gsap.fromTo(el, {
+      opacity: 0,
+      y: yFrom,
+    }, {
+      opacity: 1,
+      y: 0,
+      duration: 0.3,
+      ease: 'power2.out',
+    })
+  }
+
   return {
     animateTabChange,
+    animateTabChangeVertical,
     animateNewItem,
     animateReorderStart,
     animateReorderEnd,
