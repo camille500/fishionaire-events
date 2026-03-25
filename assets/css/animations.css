@@ -316,7 +316,7 @@
 
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 250ms ease, transform 250ms ease;
+  transition: opacity 150ms ease, transform 150ms ease;
 }
 
 .page-enter-from {

@@ -84,6 +84,7 @@ function submitNote() {
         :src="item.imageUrl"
         :alt="item.title"
         class="wishlist-card__img"
+        loading="lazy"
       />
       <div v-else class="wishlist-card__placeholder">
         <Icon name="lucide:gift" />

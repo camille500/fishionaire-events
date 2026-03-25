@@ -80,21 +80,21 @@ export default class EventController {
     const invitationCounts = await EventRepository.getInvitationCountsByEventIds(allEventIds)
 
     const owned = ownedEvents.map((event: Event) => ({
-      ...event.toJSON(),
+      ...event.toSummaryJSON(),
       invitationCount: invitationCounts[Number(event.id)] || 0,
     }))
 
     const invited = invitedResults.map(({ event, status }: { event: Event, status: string }) => ({
-      ...event.toJSON(),
+      ...event.toSummaryJSON(),
       status,
     }))
 
     const coOrganizing = coOrgEntities.map((e: Event) => ({
-      ...e.toJSON(),
+      ...e.toSummaryJSON(),
       invitationCount: invitationCounts[Number(e.id)] || 0,
     }))
 
-    const archived = archivedEvents.map((event: Event) => event.toJSON())
+    const archived = archivedEvents.map((event: Event) => event.toSummaryJSON())
 
     return { owned, coOrganizing, invited, archived }
   }

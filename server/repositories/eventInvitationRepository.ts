@@ -61,11 +61,9 @@ export default class EventInvitationRepository {
   }
 
   static async bulkCreate(invitations: EventInvitation[]): Promise<EventInvitation[]> {
-    const results: EventInvitation[] = []
-    for (const invitation of invitations) {
-      const saved = await this.create(invitation)
-      results.push(saved)
-    }
+    const results = await Promise.all(
+      invitations.map((invitation) => this.create(invitation))
+    )
     return results
   }
 

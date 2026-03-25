@@ -29,7 +29,7 @@ defineProps({
       <div class="cta-section__aurora-layer cta-section__aurora-layer--violet" />
     </div>
     <div class="cta-section__particles" aria-hidden="true">
-      <span v-for="n in 8" :key="n" class="cta-section__particle" :style="{
+      <span v-for="n in 4" :key="n" class="cta-section__particle" :style="{
         left: (n * 12 + 2) % 96 + '%',
         top: (n * 11 + 8) % 88 + '%',
         animationDelay: (n * 0.5) + 's',

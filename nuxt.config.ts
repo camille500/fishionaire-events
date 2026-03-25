@@ -37,6 +37,11 @@ export default defineNuxtConfig({
     '/en/features': { swr: 3600 },
     '/en/pricing': { swr: 3600 },
     '/en/help': { swr: 3600 },
+    '/': { swr: 3600 },
+    '/en': { swr: 3600 },
+    '/dashboard/**': { swr: 60 },
+    '/api/invite/**': { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' } },
+    '/api/users/me': { headers: { 'Cache-Control': 'private, max-age=30' } },
     '/**': {
       headers: {
         'X-Frame-Options': 'DENY',
@@ -70,9 +75,12 @@ export default defineNuxtConfig({
   },
 
   fonts: {
+    defaults: {
+      weights: [400, 500, 600, 700],
+    },
     families: [
-      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
-      { name: 'Plus Jakarta Sans', provider: 'google', weights: [500, 600, 700, 800] },
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700], display: 'swap' },
+      { name: 'Plus Jakarta Sans', provider: 'google', weights: [600, 700, 800], display: 'swap' },
     ],
   },
 
@@ -166,6 +174,6 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
     },
-    pageTransition: { name: 'page', mode: 'out-in' },
+    pageTransition: { name: 'page', mode: 'out-in', duration: 150 },
   },
 })

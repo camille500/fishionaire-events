@@ -47,17 +47,54 @@ const pollVoted = ref(false)
 const rsvpSectionRef = ref(null)
 const rsvpSectionVisible = ref(true)
 
-onMounted(() => {
+// IntersectionObserver for section reveal animations
+const revealedSections = reactive(new Set())
+
+function useRevealObserver() {
   if (typeof IntersectionObserver === 'undefined') return
   const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('data-reveal')
+          if (id) revealedSections.add(id)
+          observer.unobserve(entry.target)
+        }
+      }
+    },
+    { threshold: 0.1, rootMargin: '0px 0px 50px 0px' },
+  )
+  return observer
+}
+
+let revealObserver = null
+
+onMounted(() => {
+  // RSVP section visibility observer
+  if (typeof IntersectionObserver === 'undefined') return
+  const rsvpObserver = new IntersectionObserver(
     ([entry]) => { rsvpSectionVisible.value = entry.isIntersecting },
     { threshold: 0.1 },
   )
   watch(rsvpSectionRef, (el) => {
-    if (el?.$el) observer.observe(el.$el)
-    else if (el) observer.observe(el)
+    if (el?.$el) rsvpObserver.observe(el.$el)
+    else if (el) rsvpObserver.observe(el)
   }, { immediate: true })
-  onUnmounted(() => observer.disconnect())
+
+  // Section reveal observer
+  revealObserver = useRevealObserver()
+  if (revealObserver) {
+    nextTick(() => {
+      document.querySelectorAll('[data-reveal]').forEach((el) => {
+        revealObserver.observe(el)
+      })
+    })
+  }
+
+  onUnmounted(() => {
+    rsvpObserver.disconnect()
+    revealObserver?.disconnect()
+  })
 })
 
 const eventTypeColorMap = {
@@ -489,8 +526,9 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="showPlusOnes"
           id="section-plus-ones"
-          class="invite-section invite-section--tinted invite-section--reveal"
-          style="animation-delay: 100ms"
+          data-reveal="plus-ones"
+          class="invite-section invite-section--tinted"
+          :class="{ 'invite-section--revealed': revealedSections.has('plus-ones') }"
         >
           <div class="invite-section__inner">
             <InvitePlusOnes
@@ -511,15 +549,16 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="eventData.locationLat && eventData.locationLon"
           id="section-location"
-          class="invite-section invite-section--reveal"
-          style="animation-delay: 200ms"
+          data-reveal="location"
+          class="invite-section"
+          :class="{ 'invite-section--revealed': revealedSections.has('location') }"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
               <Icon name="lucide:map-pin" size="22" />
               {{ t('invite.location.title') }}
             </h2>
-            <StaticLocationMap
+            <LazyStaticLocationMap
               :lat="eventData.locationLat"
               :lon="eventData.locationLon"
               :label="eventData.location"
@@ -531,8 +570,9 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="subEvents.length > 0"
           id="section-programme"
-          class="invite-section invite-section--reveal"
-          style="animation-delay: 250ms"
+          data-reveal="programme"
+          class="invite-section"
+          :class="{ 'invite-section--revealed': revealedSections.has('programme') }"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
@@ -558,8 +598,9 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="hasWishlist"
           id="section-wishlist"
-          class="invite-section invite-section--tinted invite-section--reveal"
-          style="animation-delay: 300ms"
+          data-reveal="wishlist"
+          class="invite-section invite-section--tinted"
+          :class="{ 'invite-section--revealed': revealedSections.has('wishlist') }"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
@@ -567,7 +608,7 @@ async function upvoteMusic(subEventId, requestId) {
               {{ t('invite.wishlist.title') }}
             </h2>
             <p class="invite-section__subtitle">{{ t('invite.wishlist.subtitle') }}</p>
-            <WishlistGuestView :token="token" />
+            <LazyWishlistGuestView :token="token" />
           </div>
         </section>
 
@@ -575,8 +616,9 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="hasGallery"
           id="section-gallery"
-          class="invite-section invite-section--reveal"
-          style="animation-delay: 350ms"
+          data-reveal="gallery"
+          class="invite-section"
+          :class="{ 'invite-section--revealed': revealedSections.has('gallery') }"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
@@ -584,7 +626,7 @@ async function upvoteMusic(subEventId, requestId) {
               {{ t('invite.gallery.title') }}
             </h2>
             <p class="invite-section__subtitle">{{ t('invite.gallery.subtitle') }}</p>
-            <InviteGallerySection :token="token" :event-data="eventData" />
+            <LazyInviteGallerySection :token="token" :event-data="eventData" />
           </div>
         </section>
 
@@ -592,8 +634,9 @@ async function upvoteMusic(subEventId, requestId) {
         <section
           v-if="hasSocialWall"
           id="section-social-wall"
-          class="invite-section invite-section--reveal"
-          style="animation-delay: 400ms"
+          data-reveal="social-wall"
+          class="invite-section"
+          :class="{ 'invite-section--revealed': revealedSections.has('social-wall') }"
         >
           <div class="invite-section__inner">
             <h2 class="invite-section__title">
@@ -601,15 +644,16 @@ async function upvoteMusic(subEventId, requestId) {
               {{ t('invite.socialWall.title') }}
             </h2>
             <p class="invite-section__subtitle">{{ t('invite.socialWall.subtitle') }}</p>
-            <InviteSocialWallSection :token="token" :event-data="eventData" />
+            <LazyInviteSocialWallSection :token="token" :event-data="eventData" />
           </div>
         </section>
 
         <!-- QR Code check-in -->
         <section
           v-if="hasCheckIn && rsvpStatus === 'accepted' && qrCodeDataUrl"
-          class="invite-section invite-section--reveal"
-          style="animation-delay: 500ms"
+          data-reveal="qr-code"
+          class="invite-section"
+          :class="{ 'invite-section--revealed': revealedSections.has('qr-code') }"
         >
           <div class="invite-section__inner invite-qr-code">
             <h2 class="invite-section__title">
@@ -690,19 +734,15 @@ async function upvoteMusic(subEventId, requestId) {
   padding-top: var(--space-12);
 }
 
-.invite-section--reveal {
-  animation: sectionReveal 600ms ease-out both;
+.invite-section[data-reveal] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
 }
 
-@keyframes sectionReveal {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.invite-section--revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .invite-section--tinted {

@@ -60,6 +60,7 @@ const colors = [
         :src="src"
         :alt="name"
         class="avatar__image"
+        loading="lazy"
       />
       <span
         v-else

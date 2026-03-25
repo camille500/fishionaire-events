@@ -3,15 +3,24 @@ const scrollProgress = ref(0)
 
 if (import.meta.client) {
   onMounted(() => {
+    let ticking = false
     const onScroll = () => {
-      const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      scrollProgress.value = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const scrollTop = window.scrollY
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight
+        scrollProgress.value = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+        ticking = false
+      })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     onUnmounted(() => window.removeEventListener('scroll', onScroll))
   })
 }
+
+const LazyGSAPAnimations = defineAsyncComponent(() => import('~/components/atoms/GSAPAnimations.vue'))
+const LazyCursorGlow = defineAsyncComponent(() => import('~/components/atoms/CursorGlow.vue'))
 </script>
 
 <template>
@@ -20,8 +29,8 @@ if (import.meta.client) {
     <AuroraBackground />
     <GridOverlay />
     <ClientOnly>
-      <CursorGlow />
-      <GSAPAnimations />
+      <LazyCursorGlow />
+      <LazyGSAPAnimations />
     </ClientOnly>
 
     <div

@@ -100,23 +100,29 @@ const ownedEvents = computed(() => events.value?.owned || [])
 const coOrgEvents = computed(() => events.value?.coOrganizing || [])
 const invitedEvents = computed(() => events.value?.invited || [])
 
-const now = new Date()
+const sortedEvents = computed(() => {
+  const now = new Date()
+  const owned = ownedEvents.value
+  const upcoming = []
+  const past = []
 
-const upcomingEvents = computed(() =>
-  ownedEvents.value
-    .filter(e => e.eventDate && new Date(e.eventDate) >= now)
-    .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
-)
+  for (const e of owned) {
+    if (e.eventDate && new Date(e.eventDate) >= now) {
+      upcoming.push(e)
+    } else {
+      past.push(e)
+    }
+  }
 
-const pastEvents = computed(() =>
-  ownedEvents.value
-    .filter(e => !e.eventDate || new Date(e.eventDate) < now)
-    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
-)
+  upcoming.sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+  past.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
 
-const nextEvent = computed(() => upcomingEvents.value[0] || null)
+  return { upcoming, past, next: upcoming[0] || null }
+})
 
-const recentEvents = computed(() => ownedEvents.value.slice(0, 6))
+const upcomingEvents = computed(() => sortedEvents.value.upcoming)
+const pastEvents = computed(() => sortedEvents.value.past)
+const nextEvent = computed(() => sortedEvents.value.next)
 
 function daysUntil(dateStr) {
   if (!dateStr) return null

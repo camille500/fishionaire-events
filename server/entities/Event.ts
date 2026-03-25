@@ -266,6 +266,22 @@ export default class Event {
     })
   }
 
+  toSummaryJSON(): Partial<EventData> {
+    return {
+      id: this.id,
+      title: this.title,
+      eventType: this.eventType,
+      eventDate: this.eventDate,
+      eventEndDate: this.eventEndDate,
+      location: this.location,
+      coverImageUrl: this.coverImageUrl,
+      tier: this.tier,
+      archivedAt: this.archivedAt,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
+  }
+
   toJSON(): EventData {
     return {
       id: this.id,

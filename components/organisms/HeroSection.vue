@@ -31,9 +31,6 @@ const eventEmojis = [
   { emoji: '🥂', x: 88, y: 52, delay: 3, duration: 5.5 },
   { emoji: '🎁', x: 8, y: 62, delay: 0.8, duration: 6.5 },
   { emoji: '🎉', x: 50, y: 3, delay: 2.2, duration: 7.5 },
-  { emoji: '💐', x: 92, y: 28, delay: 4, duration: 6 },
-  { emoji: '🍰', x: 22, y: 78, delay: 1, duration: 5 },
-  { emoji: '✨', x: 72, y: 72, delay: 2.8, duration: 6.8 },
 ]
 
 onMounted(() => {
@@ -371,14 +368,14 @@ onMounted(() => {
   inset: 0;
   pointer-events: none;
   z-index: 1;
+  contain: layout style paint;
 }
 
 .floating-emoji {
   position: absolute;
   font-size: 2rem;
   animation: emoji-float ease-in-out infinite;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
-  will-change: transform;
+  contain: layout style;
 }
 
 @keyframes emoji-float {

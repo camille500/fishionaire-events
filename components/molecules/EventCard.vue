@@ -110,6 +110,9 @@ function onArchiveConfirm() {
         :src="event.coverImageUrl"
         alt=""
         class="event-card__cover"
+        loading="lazy"
+        width="400"
+        height="120"
       />
 
       <div class="event-card__body">

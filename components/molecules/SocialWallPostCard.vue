@@ -57,6 +57,7 @@ const statusBadgeClass = computed(() => {
       :src="post.imageUrl"
       :alt="t('socialWall.postImage')"
       class="post-card__image"
+      loading="lazy"
     />
 
     <div class="post-card__footer">
