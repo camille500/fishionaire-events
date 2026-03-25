@@ -637,7 +637,11 @@
         "budgetTracker": { "label": "Budget tracker", "description": "Track expenses and split costs" },
         "seatingArrangements": { "label": "Seating arrangements", "description": "Plan your seating layout visually" },
         "timeline": { "label": "Event timeline", "description": "Create a detailed schedule for the day" },
-        "customTheme": { "label": "Custom invitations & themes", "description": "Personalise with custom colours and designs" }
+        "customTheme": { "label": "Custom invitations & themes", "description": "Personalise with custom colours and designs" },
+        "socialWall": { "label": "Social Wall", "description": "Let guests share messages and photos publicly" },
+        "checkIn": { "label": "Check-in", "description": "Scan QR codes to check guests in at the event" },
+        "analytics": { "label": "Analytics", "description": "View insights and statistics about your event" },
+        "aiAssistant": { "label": "AI Assistant", "description": "Get AI-powered suggestions and help planning" }
       },
       "detailsSection": "Event Details",
       "eventTypeLabel": "Event type",
@@ -951,6 +955,8 @@
       "paymentYearly": "Yearly",
       "paymentYearlySave": "-20%",
       "subscriptionHint": "A subscription unlocks these features for all your events.",
+      "featuresLabel": "Feature toggles",
+      "featuresDescription": "Enable or disable features for this event. Features outside your current tier require an upgrade.",
       "actionsLabel": "Actions",
       "duplicateDesc": "Create a copy of this event with all settings",
       "templateDesc": "Save this setup as a reusable template",
@@ -1977,5 +1983,80 @@
     "cancel": "Cancel",
     "save": "Save",
     "edit": "Edit"
+  },
+  "tour": {
+    "skipStep": "Skip",
+    "skipAll": "Skip tour",
+    "next": "Next",
+    "back": "Back",
+    "finish": "Finish",
+    "stepOf": "Step {current} of {total}",
+    "restart": "Restart tour",
+    "restartDescription": "Reset and replay the guided dashboard tour.",
+    "guidedTourLabel": "Guided Tour",
+    "restartEditorTour": "Replay tour",
+    "restartEditorDescription": "Not sure how everything works? Replay the guided walkthrough of the editor.",
+    "dashboard": {
+      "welcome": {
+        "title": "Welcome!",
+        "description": "This is your dashboard — your home base for managing events, invitations, and more."
+      },
+      "sidebar": {
+        "title": "Navigation",
+        "description": "Access your events, invitations, profile, and settings from the sidebar."
+      },
+      "createEvent": {
+        "title": "Create an Event",
+        "description": "Start planning by creating your first event — use AI or pick a template."
+      },
+      "events": {
+        "title": "Your Events",
+        "description": "Upcoming and past events will appear here once you create them."
+      },
+      "invitations": {
+        "title": "Invitations",
+        "description": "Events you've been invited to will show up in this section."
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Customize your language, notifications, and AI preferences here."
+      }
+    },
+    "eventEditor": {
+      "title": {
+        "title": "Event Title",
+        "description": "Give your event a memorable name. This is what guests will see."
+      },
+      "navigation": {
+        "title": "Editor Sections",
+        "description": "Navigate between details, schedule, guests, and more using the sidebar."
+      },
+      "details": {
+        "title": "Details",
+        "description": "Set the date, location, description, and type of your event here."
+      },
+      "schedule": {
+        "title": "Schedule",
+        "description": "Add activities like dinner, dancing, or games. Each can have its own RSVP."
+      },
+      "guests": {
+        "title": "Guests",
+        "description": "Invite guests by email or share your event link. Control privacy settings."
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Manage your event tier, toggle features, and find actions like duplicate or archive."
+      },
+      "completion": {
+        "title": "Track Progress",
+        "description": "This bar shows how complete your event setup is. Fill in more details to reach 100%."
+      }
+    }
+  },
+  "infoIcon": {
+    "eventType": "The event type determines the default theme and icon for your event page.",
+    "tierSelection": "Each tier unlocks more features like wishlists, photo galleries, and budgets. You can upgrade later.",
+    "guestSettings": "Control whether your event is private (invite-only) or publicly accessible via a link.",
+    "analytics": "A summary of views, RSVPs, and activity across all your events."
   }
 }

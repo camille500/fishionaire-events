@@ -28,36 +28,38 @@ const { dataAttr, styleOverrides } = useEventTheme(computed(() => form.eventType
 
 useHead({ title: () => form.title ? `${form.title} — Fishionaire Events` : t('seo.eventEditor.title') })
 
-// Tabs — always show all tabs, mark locked ones
+// Tabs — show only enabled features, hide disabled ones
 const tabs = computed(() => {
-  const features = eventData.value?.features || {}
+  const features = form.features || {}
 
-  function tab(label, icon, slot, { feature, tier } = {}) {
-    const unlocked = feature ? features[feature] : true
+  function tab(label, icon, slot, section, { feature, tier } = {}) {
+    const enabled = feature ? features[feature] : true
     return {
       label: t(`editor.tabs.${label}`),
       icon: `i-lucide-${icon}`,
       slot,
-      locked: !unlocked,
-      tierBadge: !unlocked ? t(`tiers.${tier || 'standard'}`) : undefined,
-      requiredTier: !unlocked ? (tier || 'standard') : undefined,
+      section,
+      hidden: feature ? !enabled : false,
     }
   }
 
   return [
-    tab('details', 'file-text', 'details'),
-    tab('schedule', 'calendar-clock', 'schedule'),
-    tab('guests', 'users', 'guests'),
-    tab('responses', 'check-circle', 'responses', { feature: 'rsvp', tier: 'standard' }),
-    tab('wishlist', 'gift', 'wishlist', { feature: 'wishlist', tier: 'standard' }),
-    tab('photos', 'camera', 'photos', { feature: 'photoGallery', tier: 'standard' }),
-    tab('budget', 'wallet', 'budget', { feature: 'budgetTracker', tier: 'pro' }),
-    tab('socialWall', 'message-circle-heart', 'socialWall', { feature: 'socialWall', tier: 'standard' }),
-    tab('checkIn', 'scan-line', 'checkIn', { feature: 'checkIn', tier: 'standard' }),
-    tab('theme', 'palette', 'theme', { feature: 'customTheme', tier: 'pro' }),
-    tab('settings', 'settings', 'settings'),
+    tab('details', 'file-text', 'details', 'core'),
+    tab('schedule', 'calendar-clock', 'schedule', 'core'),
+    tab('guests', 'users', 'guests', 'people'),
+    tab('responses', 'check-circle', 'responses', 'people', { feature: 'rsvp', tier: 'standard' }),
+    tab('wishlist', 'gift', 'wishlist', 'features', { feature: 'wishlist', tier: 'standard' }),
+    tab('photos', 'camera', 'photos', 'features', { feature: 'photoGallery', tier: 'standard' }),
+    tab('budget', 'wallet', 'budget', 'features', { feature: 'budgetTracker', tier: 'pro' }),
+    tab('socialWall', 'message-circle-heart', 'socialWall', 'features', { feature: 'socialWall', tier: 'standard' }),
+    tab('checkIn', 'scan-line', 'checkIn', 'features', { feature: 'checkIn', tier: 'standard' }),
+    tab('theme', 'palette', 'theme', 'appearance', { feature: 'customTheme', tier: 'pro' }),
+    tab('settings', 'settings', 'settings', 'appearance'),
   ]
 })
+
+const visibleTabs = computed(() => tabs.value.filter(t => !t.hidden))
+const activeSlot = computed(() => visibleTabs.value[activeTab.value]?.slot || 'details')
 
 // Keyboard shortcut: Cmd/Ctrl+S to force save
 function handleKeydown(e) {
@@ -75,6 +77,77 @@ onMounted(() => {
   if (route.query.new) {
     showConfetti.value = true
     setTimeout(() => { showConfetti.value = false }, 2000)
+  }
+})
+
+// Event editor tour
+const tour = useTour()
+const onboardingSync = useOnboardingSync()
+
+tour.registerTour({
+  id: 'event-creation',
+  steps: [
+    {
+      key: 'editor.title',
+      target: 'editor-title',
+      title: 'tour.eventEditor.title.title',
+      description: 'tour.eventEditor.title.description',
+      position: 'bottom',
+    },
+    {
+      key: 'editor.sidebar',
+      target: 'editor-sidebar',
+      title: 'tour.eventEditor.navigation.title',
+      description: 'tour.eventEditor.navigation.description',
+      position: 'right',
+    },
+    {
+      key: 'editor.details',
+      target: 'editor-details-tab',
+      title: 'tour.eventEditor.details.title',
+      description: 'tour.eventEditor.details.description',
+      position: 'left',
+      onBeforeShow: () => navigateToSlot('details'),
+    },
+    {
+      key: 'editor.schedule',
+      target: 'editor-schedule-tab',
+      title: 'tour.eventEditor.schedule.title',
+      description: 'tour.eventEditor.schedule.description',
+      position: 'left',
+      onBeforeShow: () => navigateToSlot('schedule'),
+    },
+    {
+      key: 'editor.guests',
+      target: 'editor-guests-tab',
+      title: 'tour.eventEditor.guests.title',
+      description: 'tour.eventEditor.guests.description',
+      position: 'left',
+      onBeforeShow: () => navigateToSlot('guests'),
+    },
+    {
+      key: 'editor.settings',
+      target: 'editor-settings-tab',
+      title: 'tour.eventEditor.settings.title',
+      description: 'tour.eventEditor.settings.description',
+      position: 'left',
+      onBeforeShow: () => navigateToSlot('settings'),
+    },
+  ],
+})
+
+onMounted(() => {
+  const forceStart = route.query.startTour === 'true'
+  const isNewEvent = route.query.new && !onboardingSync.state.value.eventCreationTourDone
+
+  if (forceStart || isNewEvent) {
+    if (forceStart) {
+      const router = useRouter()
+      router.replace({ query: { ...route.query, startTour: undefined } })
+    }
+    setTimeout(() => {
+      tour.startTour('event-creation')
+    }, isNewEvent ? 2500 : 800) // Longer delay for new events (confetti)
   }
 })
 
@@ -210,12 +283,12 @@ const { editorSidebarOpen, isMobile, closeEditorSidebar } = useEditorSidebar()
 const { animateTabChangeVertical } = useEditorAnimations()
 const activeTab = ref(0)
 
-const tabSections = computed(() => [
-  { label: t('editor.sections.core'), startIndex: 0 },
-  { label: t('editor.sections.people'), startIndex: 2 },
-  { label: t('editor.sections.features'), startIndex: 4 },
-  { label: t('editor.sections.appearance'), startIndex: 9 },
-])
+// Fall back to first tab if current tab gets hidden
+watch(visibleTabs, (newTabs) => {
+  if (activeTab.value >= newTabs.length) {
+    activeTab.value = 0
+  }
+})
 
 function onTabChange(index) {
   const direction = index > activeTab.value ? 'down' : 'up'
@@ -225,6 +298,11 @@ function onTabChange(index) {
     const tabContent = document.querySelector('.event-editor__tab-content')
     if (tabContent) animateTabChangeVertical(tabContent, direction)
   })
+}
+
+function navigateToSlot(slot) {
+  const index = visibleTabs.value.findIndex(t => t.slot === slot)
+  if (index >= 0) onTabChange(index)
 }
 </script>
 
@@ -255,6 +333,7 @@ function onTabChange(index) {
         <EventCompletionBar
           :percent="completionPercent"
           :items="completionItems"
+          data-tour="editor-completion"
         />
       </ClientOnly>
 
@@ -267,7 +346,7 @@ function onTabChange(index) {
       />
 
       <!-- Notion-style title + save status -->
-      <div class="event-editor__title-row">
+      <div class="event-editor__title-row" data-tour="editor-title">
         <input
           v-model="form.title"
           type="text"
@@ -308,38 +387,40 @@ function onTabChange(index) {
         <aside
           class="event-editor__sidebar"
           :class="{ 'event-editor__sidebar--open': editorSidebarOpen }"
+          data-tour="editor-sidebar"
         >
           <EditorSidebarNav
-            :items="tabs"
+            :items="visibleTabs"
             :model-value="activeTab"
-            :sections="tabSections"
+            :section-labels="{
+              core: t('editor.sections.core'),
+              people: t('editor.sections.people'),
+              features: t('editor.sections.features'),
+              appearance: t('editor.sections.appearance'),
+            }"
             @update:model-value="onTabChange"
-          >
-            <template #locked-popover="{ item }">
-              <EventUpgradePanel @close="() => {}" @upgraded="refreshEvent" />
-            </template>
-          </EditorSidebarNav>
+          />
         </aside>
 
         <!-- Content panels -->
         <div class="event-editor__content">
-          <div v-show="activeTab === 0" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'details'" class="event-editor__tab-content" data-tour="editor-details-tab">
             <EditorDetailsTab />
           </div>
 
-          <div v-show="activeTab === 1" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'schedule'" class="event-editor__tab-content" data-tour="editor-schedule-tab">
             <EditorScheduleTab />
           </div>
 
-          <div v-show="activeTab === 2" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'guests'" class="event-editor__tab-content" data-tour="editor-guests-tab">
             <EditorGuestsTab />
           </div>
 
-          <div v-show="activeTab === 3 && !tabs[3]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'responses'" class="event-editor__tab-content">
             <EditorResponsesTab />
           </div>
 
-          <div v-show="activeTab === 4 && !tabs[4]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'wishlist'" class="event-editor__tab-content">
             <EditorWishlistTab
               :event-id="eventData.id"
               :event-type="form.eventType"
@@ -348,21 +429,21 @@ function onTabChange(index) {
             />
           </div>
 
-          <div v-show="activeTab === 5 && !tabs[5]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'photos'" class="event-editor__tab-content">
             <EditorPhotosTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>
 
-          <div v-show="activeTab === 6 && !tabs[6]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'budget'" class="event-editor__tab-content">
             <EditorBudgetTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>
 
-          <div v-show="activeTab === 7 && !tabs[7]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'socialWall'" class="event-editor__tab-content">
             <EditorSocialWallTab
               :event-id="eventData.id"
               :features="eventData.features"
@@ -370,18 +451,18 @@ function onTabChange(index) {
             />
           </div>
 
-          <div v-show="activeTab === 8 && !tabs[8]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'checkIn'" class="event-editor__tab-content">
             <EditorCheckInTab
               :event-id="eventData.id"
               :features="eventData.features"
             />
           </div>
 
-          <div v-show="activeTab === 9 && !tabs[9]?.locked" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'theme'" class="event-editor__tab-content">
             <EditorThemeTab />
           </div>
 
-          <div v-show="activeTab === 10" class="event-editor__tab-content">
+          <div v-show="activeSlot === 'settings'" class="event-editor__tab-content" data-tour="editor-settings-tab">
             <EditorSettingsTab />
           </div>
 

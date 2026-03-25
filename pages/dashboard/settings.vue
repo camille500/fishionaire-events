@@ -11,6 +11,16 @@ const currentLanguage = computed({
 
 const { settings: aiSettings, loading: aiLoading, saving: aiSaving, error: aiError, fetchAccountSettings, saveAccountSettings } = useLlmSettings()
 
+const onboardingSync = useOnboardingSync()
+const resettingTour = ref(false)
+
+async function restartTour() {
+  resettingTour.value = true
+  await onboardingSync.resetAll()
+  resettingTour.value = false
+  navigateTo('/dashboard?startTour=true')
+}
+
 onMounted(() => {
   fetchAccountSettings()
 })
@@ -68,6 +78,20 @@ onMounted(() => {
     <div class="settings-page__section">
       <h2 class="settings-page__section-title">{{ t('dashboard.settings.notifications') }}</h2>
       <NotificationPreferences />
+    </div>
+
+    <div class="settings-page__section">
+      <h2 class="settings-page__section-title">{{ t('tour.restart') }}</h2>
+      <p class="settings-page__hint">{{ t('tour.restartDescription') }}</p>
+      <AppButton
+        variant="outline"
+        size="sm"
+        :loading="resettingTour"
+        @click="restartTour"
+      >
+        <Icon name="lucide:rotate-ccw" size="14" />
+        {{ t('tour.restart') }}
+      </AppButton>
     </div>
   </div>
 </template>
@@ -152,5 +176,11 @@ onMounted(() => {
   font-size: var(--text-sm);
   color: var(--color-error, #e74c3c);
   margin: 0;
+}
+
+.settings-page__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4);
 }
 </style>

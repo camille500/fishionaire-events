@@ -104,7 +104,7 @@ function onInput(e) {
 
 .app-input:focus-within:not(.app-input--disabled) {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-dim);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
   background: var(--color-surface);
 }
 

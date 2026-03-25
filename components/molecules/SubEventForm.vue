@@ -424,10 +424,23 @@ function onSubmit() {
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--input-bg);
   font-family: var(--font-family);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.sub-event-form__select:hover {
+  border-color: var(--color-border);
+}
+
+.sub-event-form__select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--color-surface);
 }
 
 .sub-event-form__hint {

@@ -174,7 +174,7 @@ const eventEmojis = computed(() =>
   background: var(--gradient-accent, linear-gradient(
     135deg,
     var(--event-accent, var(--color-accent)),
-    color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, #1a1a2e)
+    color-mix(in srgb, var(--color-accent-secondary, var(--event-accent, var(--color-accent))) 60%, #1a1a2e)
   ));
 }
 
@@ -208,7 +208,7 @@ const eventEmojis = computed(() =>
   height: 400px;
   bottom: 5%;
   right: 10%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, #6c5ce7) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, var(--color-accent-secondary, #6c5ce7)) 0%, transparent 70%);
   animation: aurora-drift 20s ease-in-out infinite -8s;
 }
 

@@ -23,7 +23,7 @@ const navItems = computed(() => {
     { icon: 'user', label: t('dashboard.sidebar.profile'), to: localePath('dashboard') + '/profile' },
     { icon: 'calendar', label: t('dashboard.sidebar.events'), to: localePath('dashboard') + '/events' },
     { icon: 'inbox', label: t('dashboard.sidebar.invitations'), to: localePath('dashboard') + '/invitations' },
-    { icon: 'settings', label: t('dashboard.sidebar.settings'), to: localePath('dashboard') + '/settings' },
+    { icon: 'settings', label: t('dashboard.sidebar.settings'), to: localePath('dashboard') + '/settings', tourKey: 'sidebar-settings' },
   ]
   if (currentUser.value?.role === 'admin') {
     items.push({ icon: 'shield', label: t('admin.sidebar.title'), to: '/admin' })
@@ -76,7 +76,7 @@ const sidebarHovered = ref(false)
       </div>
 
       <!-- Navigation -->
-      <nav class="sidebar__nav">
+      <nav class="sidebar__nav" data-tour="sidebar-nav">
         <SidebarNavItem
           v-for="item in navItems"
           :key="item.to"
@@ -86,6 +86,7 @@ const sidebarHovered = ref(false)
           :badge="item.badge || 0"
           :collapsed="collapsed"
           :exact="item.exact || false"
+          :data-tour="item.tourKey || undefined"
         />
       </nav>
 

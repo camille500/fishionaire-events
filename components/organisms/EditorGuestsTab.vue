@@ -13,7 +13,10 @@ onMounted(() => {
   <div ref="guestsRef" class="editor-guests">
     <!-- Private toggle card -->
     <section class="editor-guests__section">
-      <h3 class="editor-guests__section-label">{{ t('dashboard.eventEditor.guestSettingsSection') }}</h3>
+      <h3 class="editor-guests__section-label">
+        {{ t('dashboard.eventEditor.guestSettingsSection') }}
+        <InfoIcon :content="t('infoIcon.guestSettings')" position="right" />
+      </h3>
 
       <ClientOnly>
         <div

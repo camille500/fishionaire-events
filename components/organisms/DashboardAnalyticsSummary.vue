@@ -12,6 +12,7 @@ const hasData = computed(() => analytics.value && (analytics.value.totalViews > 
       <h3 class="dashboard-analytics__title">
         <Icon name="lucide:bar-chart-3" size="16" />
         {{ t('dashboard.analytics.title') }}
+        <InfoIcon :content="t('infoIcon.analytics')" position="right" />
       </h3>
     </div>
 

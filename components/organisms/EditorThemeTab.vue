@@ -114,7 +114,7 @@ onMounted(() => {
 
     <!-- Hide branding -->
     <div class="editor-theme__group">
-      <label class="editor-theme__toggle-card" :class="{ 'editor-theme__toggle-card--active': form.hideBranding }">
+      <div class="editor-theme__toggle-card" :class="{ 'editor-theme__toggle-card--active': form.hideBranding }">
         <div class="editor-theme__toggle-left">
           <div class="editor-theme__toggle-icon">
             <Icon name="lucide:eye-off" size="16" />
@@ -124,8 +124,8 @@ onMounted(() => {
             <span class="editor-theme__toggle-desc">{{ t('editor.theme.hideBrandingDesc') }}</span>
           </div>
         </div>
-        <input v-model="form.hideBranding" type="checkbox" class="editor-theme__checkbox" />
-      </label>
+        <AppSwitch v-model="form.hideBranding" />
+      </div>
     </div>
   </div>
 </template>
@@ -243,7 +243,7 @@ onMounted(() => {
   width: 100%;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--input-bg);
   font-family: var(--font-family);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
@@ -251,13 +251,19 @@ onMounted(() => {
   resize: vertical;
   min-height: 80px;
   line-height: var(--line-height-relaxed);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.editor-theme__textarea:hover:not(:disabled) {
+  border-color: var(--color-border);
 }
 
 .editor-theme__textarea:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-dim);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--color-surface);
 }
 
 .editor-theme__textarea::placeholder {
@@ -325,13 +331,6 @@ onMounted(() => {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   line-height: var(--line-height-normal);
-}
-
-.editor-theme__checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-accent);
-  cursor: pointer;
 }
 
 @media (max-width: 640px) {

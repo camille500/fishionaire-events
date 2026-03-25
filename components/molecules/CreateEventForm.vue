@@ -118,13 +118,18 @@ async function onSubmit() {
   font-family: var(--font-family);
   background: var(--color-surface);
   color: var(--color-text-primary);
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   outline: none;
+}
+
+.create-form__input:hover:not(:disabled) {
+  border-color: var(--color-border);
 }
 
 .create-form__input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--color-surface);
 }
 
 .create-form__input::placeholder {

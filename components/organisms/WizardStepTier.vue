@@ -11,7 +11,10 @@ const props = defineProps({
 <template>
   <div class="step-tier">
     <div class="step-tier__header">
-      <AppHeading :level="2" size="xl">{{ t('wizard.steps.tierTitle') }}</AppHeading>
+      <AppHeading :level="2" size="xl">
+        {{ t('wizard.steps.tierTitle') }}
+        <InfoIcon :content="t('infoIcon.tierSelection')" position="bottom" />
+      </AppHeading>
       <AppText size="sm" muted>{{ t('wizard.steps.tierSubtitle') }}</AppText>
     </div>
 

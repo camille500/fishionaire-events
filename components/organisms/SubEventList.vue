@@ -198,16 +198,10 @@ defineExpose({ fetchSubEvents, subEvents })
 <template>
   <div class="sub-event-list">
     <div class="sub-event-list__header">
-      <OnboardingTooltip
-        tooltip-key="editor-activities"
-        :description="t('editor.onboarding.addActivities')"
-        position="bottom"
-      >
-        <div>
-          <AppHeading :level="3" size="sm">{{ t('dashboard.eventEditor.subEventsSection') }}</AppHeading>
-          <AppText size="sm" muted>{{ t('dashboard.eventEditor.subEventsSubtitle') }}</AppText>
-        </div>
-      </OnboardingTooltip>
+      <div>
+        <AppHeading :level="3" size="sm">{{ t('dashboard.eventEditor.subEventsSection') }}</AppHeading>
+        <AppText size="sm" muted>{{ t('dashboard.eventEditor.subEventsSubtitle') }}</AppText>
+      </div>
       <div v-if="canEdit" class="sub-event-list__actions">
         <AppButton
           v-if="subEvents.length > 0 && !showForm"

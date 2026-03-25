@@ -184,14 +184,21 @@ function handleSubmit() {
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
-  background: var(--color-background);
-  transition: border-color var(--transition-fast);
+  background: var(--input-bg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.budget-form__input:hover,
+.budget-form__select:hover {
+  border-color: var(--color-border);
 }
 
 .budget-form__input:focus,
 .budget-form__select:focus {
   outline: none;
   border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--color-surface);
 }
 
 .budget-form__actions {

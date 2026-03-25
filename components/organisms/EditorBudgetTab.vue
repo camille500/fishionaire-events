@@ -232,12 +232,20 @@ async function saveTarget() {
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   color: var(--color-text-primary);
-  background: var(--color-background);
+  background: var(--input-bg);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.budget-tab__target-input:hover {
+  border-color: var(--color-border);
 }
 
 .budget-tab__target-input:focus {
   outline: none;
   border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--color-surface);
 }
 
 .budget-tab__toolbar {

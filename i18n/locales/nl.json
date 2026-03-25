@@ -637,7 +637,11 @@
         "budgetTracker": { "label": "Budgettracker", "description": "Houd uitgaven bij en verdeel kosten" },
         "seatingArrangements": { "label": "Tafelschikking", "description": "Plan je tafelindeling visueel" },
         "timeline": { "label": "Tijdlijn", "description": "Maak een gedetailleerd dagprogramma" },
-        "customTheme": { "label": "Eigen thema", "description": "Personaliseer met eigen kleuren en ontwerpen" }
+        "customTheme": { "label": "Eigen thema", "description": "Personaliseer met eigen kleuren en ontwerpen" },
+        "socialWall": { "label": "Prikbord", "description": "Laat gasten berichten en foto's delen" },
+        "checkIn": { "label": "Inchecken", "description": "Scan QR-codes om gasten in te checken bij het evenement" },
+        "analytics": { "label": "Statistieken", "description": "Bekijk inzichten en statistieken over je evenement" },
+        "aiAssistant": { "label": "AI-assistent", "description": "Krijg slimme suggesties en hulp bij het plannen" }
       },
       "detailsSection": "Evenementdetails",
       "eventTypeLabel": "Type evenement",
@@ -951,6 +955,8 @@
       "paymentYearly": "Jaarlijks",
       "paymentYearlySave": "-20%",
       "subscriptionHint": "Een abonnement ontgrendelt deze functies voor al je evenementen.",
+      "featuresLabel": "Functie-instellingen",
+      "featuresDescription": "Schakel functies in of uit voor dit evenement. Functies buiten je huidige tier vereisen een upgrade.",
       "actionsLabel": "Acties",
       "duplicateDesc": "Maak een kopie van dit evenement met alle instellingen",
       "templateDesc": "Sla deze opzet op als herbruikbaar sjabloon",
@@ -1977,5 +1983,80 @@
     "cancel": "Annuleren",
     "save": "Opslaan",
     "edit": "Bewerken"
+  },
+  "tour": {
+    "skipStep": "Overslaan",
+    "skipAll": "Tour overslaan",
+    "next": "Volgende",
+    "back": "Terug",
+    "finish": "Afronden",
+    "stepOf": "Stap {current} van {total}",
+    "restart": "Tour herstarten",
+    "restartDescription": "Herstart en speel de rondleiding van het dashboard opnieuw af.",
+    "guidedTourLabel": "Rondleiding",
+    "restartEditorTour": "Rondleiding opnieuw",
+    "restartEditorDescription": "Weet je niet zeker hoe alles werkt? Speel de rondleiding van de editor opnieuw af.",
+    "dashboard": {
+      "welcome": {
+        "title": "Welkom!",
+        "description": "Dit is je dashboard — je thuisbasis voor het beheren van evenementen, uitnodigingen en meer."
+      },
+      "sidebar": {
+        "title": "Navigatie",
+        "description": "Open je evenementen, uitnodigingen, profiel en instellingen via de zijbalk."
+      },
+      "createEvent": {
+        "title": "Maak een evenement",
+        "description": "Begin met plannen door je eerste evenement aan te maken — gebruik AI of kies een sjabloon."
+      },
+      "events": {
+        "title": "Je evenementen",
+        "description": "Aankomende en afgelopen evenementen verschijnen hier zodra je ze aanmaakt."
+      },
+      "invitations": {
+        "title": "Uitnodigingen",
+        "description": "Evenementen waarvoor je bent uitgenodigd verschijnen in deze sectie."
+      },
+      "settings": {
+        "title": "Instellingen",
+        "description": "Pas hier je taal, meldingen en AI-voorkeuren aan."
+      }
+    },
+    "eventEditor": {
+      "title": {
+        "title": "Evenementnaam",
+        "description": "Geef je evenement een pakkende naam. Dit is wat gasten zien."
+      },
+      "navigation": {
+        "title": "Editor-secties",
+        "description": "Navigeer tussen details, planning, gasten en meer via de zijbalk."
+      },
+      "details": {
+        "title": "Details",
+        "description": "Stel hier de datum, locatie, beschrijving en het type van je evenement in."
+      },
+      "schedule": {
+        "title": "Programma",
+        "description": "Voeg activiteiten toe zoals diner, dansen of spelletjes. Elk kan een eigen RSVP hebben."
+      },
+      "guests": {
+        "title": "Gasten",
+        "description": "Nodig gasten uit per e-mail of deel je evenementlink. Beheer privacy-instellingen."
+      },
+      "settings": {
+        "title": "Instellingen",
+        "description": "Beheer je evenementtier, schakel functies in of uit, en vind acties zoals dupliceren of archiveren."
+      },
+      "completion": {
+        "title": "Voortgang bijhouden",
+        "description": "Deze balk toont hoe compleet de opzet van je evenement is. Vul meer details in om 100% te bereiken."
+      }
+    }
+  },
+  "infoIcon": {
+    "eventType": "Het type evenement bepaalt het standaardthema en icoon voor je evenementpagina.",
+    "tierSelection": "Elk niveau ontgrendelt meer functies zoals verlanglijstjes, fotogalerijen en budgetten. Je kunt later upgraden.",
+    "guestSettings": "Bepaal of je evenement privé is (alleen op uitnodiging) of openbaar toegankelijk via een link.",
+    "analytics": "Een overzicht van weergaven, RSVP's en activiteit van al je evenementen."
   }
 }

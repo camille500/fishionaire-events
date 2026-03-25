@@ -8,10 +8,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
-  sections: {
-    type: Array,
-    default: () => [],
-    // [{ label: string, startIndex: number }]
+  sectionLabels: {
+    type: Object,
+    default: () => ({}),
+    // { core: 'Core', people: 'People', ... }
   },
 })
 
@@ -39,6 +39,7 @@ function updateIndicator() {
 }
 
 watch(() => props.modelValue, () => nextTick(updateIndicator))
+watch(() => props.items.length, () => nextTick(updateIndicator))
 
 onMounted(() => {
   nextTick(() => {
@@ -106,28 +107,18 @@ function selectTab(index, event) {
   emit('update:modelValue', index)
 }
 
-// Build section map: which items belong to which section
-const sectionMap = computed(() => {
-  if (!props.sections.length) return null
-  const map = new Map()
-  for (let i = 0; i < props.sections.length; i++) {
-    const current = props.sections[i]
-    const nextStart = props.sections[i + 1]?.startIndex ?? props.items.length
-    for (let j = current.startIndex; j < nextStart; j++) {
-      map.set(j, current.label)
-    }
-  }
-  return map
-})
-
+// Derive section headers from item.section property
 function shouldShowSectionHeader(index) {
-  if (!sectionMap.value) return false
+  const item = props.items[index]
+  if (!item?.section) return false
   if (index === 0) return true
-  return sectionMap.value.get(index) !== sectionMap.value.get(index - 1)
+  return item.section !== props.items[index - 1]?.section
 }
 
 function getSectionLabel(index) {
-  return sectionMap.value?.get(index) || ''
+  const section = props.items[index]?.section
+  if (!section) return ''
+  return props.sectionLabels[section] || section
 }
 </script>
 

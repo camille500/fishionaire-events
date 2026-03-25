@@ -1,7 +1,7 @@
 <script setup>
 const { t } = useI18n()
 const route = useRoute()
-const { eventData, isOwner } = useEventEditor()
+const { eventData, isOwner, form } = useEventEditor()
 const { staggerIn } = useEditorAnimations()
 
 const showTemplateModal = ref(false)
@@ -9,6 +9,21 @@ const duplicating = ref(false)
 const archiving = ref(false)
 const showArchiveConfirm = ref(false)
 const showUpgrade = ref(false)
+
+// Tour restart
+const tour = useTour()
+const onboardingSync = useOnboardingSync()
+const restartingTour = ref(false)
+
+async function restartEditorTour() {
+  restartingTour.value = true
+  await onboardingSync.resetTour('event-creation')
+  restartingTour.value = false
+  // Start tour immediately
+  setTimeout(() => {
+    tour.startTour('event-creation')
+  }, 300)
+}
 
 const canUpgrade = computed(() => eventData.value?.tier !== 'pro')
 
@@ -70,6 +85,34 @@ onMounted(() => {
       <AppText v-else size="sm" muted>
         {{ t('editor.settings.maxTier') }}
       </AppText>
+    </section>
+
+    <!-- Feature toggles -->
+    <section class="editor-settings__section">
+      <h3 class="editor-settings__section-label">{{ t('editor.settings.featuresLabel') }}</h3>
+      <AppText size="sm" muted>{{ t('editor.settings.featuresDescription') }}</AppText>
+      <FeatureTogglesGrid
+        :model-value="form.features"
+        :tier-features="eventData?.tierAllowedFeatures || {}"
+        :feature-tier-map="eventData?.featureTierMap || {}"
+        @update:model-value="form.features = $event"
+        @locked-click="showUpgrade = true"
+      />
+    </section>
+
+    <!-- Tour restart -->
+    <section class="editor-settings__section">
+      <h3 class="editor-settings__section-label">{{ t('tour.guidedTourLabel') }}</h3>
+      <AppText size="sm" muted>{{ t('tour.restartEditorDescription') }}</AppText>
+      <AppButton
+        variant="outline"
+        size="sm"
+        :loading="restartingTour"
+        @click="restartEditorTour"
+      >
+        <Icon name="lucide:rotate-ccw" size="14" />
+        {{ t('tour.restartEditorTour') }}
+      </AppButton>
     </section>
 
     <!-- Actions (owner only) -->

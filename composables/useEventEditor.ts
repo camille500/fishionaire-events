@@ -20,6 +20,7 @@ interface EventForm {
   backgroundPattern: string
   colorMode: string
   hideBranding: boolean
+  features: Record<string, boolean>
 }
 
 interface CompletionItem {
@@ -71,6 +72,7 @@ export function useEventEditorProvider(eventId: string) {
       backgroundPattern: data?.backgroundPattern || '',
       colorMode: data?.colorMode || 'auto',
       hideBranding: data?.hideBranding ?? false,
+      features: { ...(data?.tierAllowedFeatures || {}), ...(data?.features || {}) },
     }
   }
 
@@ -131,6 +133,7 @@ export function useEventEditorProvider(eventId: string) {
         backgroundPattern: form.backgroundPattern || null,
         colorMode: form.colorMode,
         hideBranding: form.hideBranding,
+        features: form.features,
       }
 
       await $fetch(`/api/events/${eventId}`, {

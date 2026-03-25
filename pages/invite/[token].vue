@@ -453,13 +453,6 @@ async function upvoteMusic(subEventId, requestId) {
         :show-branding="showBranding"
       />
 
-      <!-- Personal welcome message -->
-      <div v-if="welcomeMessageRendered" class="invite-welcome-message">
-        <div class="invite-welcome-message__inner">
-          <p class="invite-welcome-message__text">{{ welcomeMessageRendered }}</p>
-        </div>
-      </div>
-
       <!-- 2. Welcome + RSVP + Date Poll (overlaps hero) -->
       <InviteWelcomeRsvp
         ref="rsvpSectionRef"
@@ -476,6 +469,8 @@ async function upvoteMusic(subEventId, requestId) {
         :token="token"
         :initial-email="invitation?.inviteeEmail || ''"
         :initial-name="invitation?.inviteeName || ''"
+        :accent-color="accentColor"
+        :welcome-message="welcomeMessageRendered"
         @rsvp="rsvp"
         @change-response="handleChangeResponse"
         @sub-event-rsvp="handleSubEventRsvp"
@@ -813,29 +808,6 @@ async function upvoteMusic(subEventId, requestId) {
   border: 1px solid var(--color-border-light);
 }
 
-/* ── Welcome message ────────────────── */
-.invite-welcome-message {
-  padding: var(--space-8) var(--space-6) 0;
-  animation: sectionReveal 600ms ease-out both;
-}
-
-.invite-welcome-message__inner {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: var(--space-6);
-  border-left: 3px solid var(--event-accent, var(--color-accent));
-  background: var(--color-accent-dim, rgba(0, 0, 0, 0.02));
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-}
-
-.invite-welcome-message__text {
-  font-size: var(--text-lg);
-  font-style: italic;
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
-  margin: 0;
-}
-
 /* ── Card style variants ────────────── */
 .invite-page--card-solid :deep(.invite-rsvp__card),
 .invite-page--card-solid :deep(.invite-section--tinted) {
@@ -878,12 +850,12 @@ async function upvoteMusic(subEventId, requestId) {
 }
 
 .invite-body--pattern-botanical {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 10 Q50 30 40 50 Q30 30 40 10Z' fill='none' stroke='currentColor' stroke-width='0.5' opacity='0.08'/%3E%3Cpath d='M20 40 Q30 50 20 70' fill='none' stroke='currentColor' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 10 Q50 30 40 50 Q30 30 40 10Z' fill='none' stroke='%23787890' stroke-width='0.5' opacity='0.12'/%3E%3Cpath d='M20 40 Q30 50 20 70' fill='none' stroke='%23787890' stroke-width='0.5' opacity='0.08'/%3E%3C/svg%3E");
   background-size: 80px 80px;
 }
 
 .invite-body--pattern-geometric {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpolygon points='30,5 55,20 55,50 30,65 5,50 5,20' fill='none' stroke='currentColor' stroke-width='0.4' opacity='0.06'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpolygon points='30,5 55,20 55,50 30,65 5,50 5,20' fill='none' stroke='%23787890' stroke-width='0.4' opacity='0.08'/%3E%3C/svg%3E");
   background-size: 60px 60px;
 }
 

@@ -23,8 +23,28 @@ const accentColor = computed(() => {
 
 const customThemeStyles = computed(() => {
   if (!eventData.value?.themeColor) return {}
-  return deriveAccentVariants(eventData.value.themeColor)
+  return deriveAccentVariants(eventData.value.themeColor, {
+    secondaryHex: eventData.value.themeColorSecondary || null,
+    gradientAngle: eventData.value.gradientAngle ?? 135,
+  })
 })
+
+// Font loading
+const fontPairingId = computed(() => eventData.value?.fontPairing || null)
+const { fontVars } = useFontLoader(fontPairingId)
+
+// Combined theme styles
+const allThemeStyles = computed(() => ({
+  '--event-accent': accentColor.value,
+  ...customThemeStyles.value,
+  ...fontVars.value,
+}))
+
+// Color mode override
+const colorModeOverride = computed(() => eventData.value?.colorMode || 'auto')
+
+// Branding
+const showBranding = computed(() => !eventData.value?.hideBranding)
 
 const formattedDate = computed(() => {
   if (!eventData.value?.eventDate) return null
@@ -58,7 +78,14 @@ useHead({ title: ogTitle })
 </script>
 
 <template>
-  <div class="event-public" :style="{ '--event-accent': accentColor, ...customThemeStyles }">
+  <div
+    class="event-public"
+    :class="[
+      colorModeOverride === 'dark' ? 'dark' : '',
+      colorModeOverride === 'light' ? 'light-forced' : '',
+    ]"
+    :style="allThemeStyles"
+  >
     <!-- Error -->
     <div v-if="error" class="event-public__center">
       <div class="event-public__error-card">
@@ -80,7 +107,10 @@ useHead({ title: ogTitle })
         <div class="event-public__hero-overlay" />
 
         <div class="event-public__hero-content">
-          <div class="event-public__logo">
+          <div v-if="eventData.customLogoUrl" class="event-public__logo">
+            <img :src="eventData.customLogoUrl" alt="" class="event-public__custom-logo" />
+          </div>
+          <div v-else-if="showBranding" class="event-public__logo">
             <NuxtLink to="/" class="event-public__logo-link">Fishionaire</NuxtLink>
           </div>
 
@@ -110,7 +140,7 @@ useHead({ title: ogTitle })
         </div>
       </main>
 
-      <footer class="event-public__footer">
+      <footer v-if="showBranding" class="event-public__footer">
         <AppText size="xs" muted>
           Powered by <NuxtLink to="/" class="event-public__footer-link">Fishionaire</NuxtLink>
         </AppText>
@@ -166,7 +196,7 @@ useHead({ title: ogTitle })
 }
 
 .event-public__hero-bg--gradient {
-  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 60%, #1a1a2e));
+  background: var(--gradient-accent, linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--color-accent-secondary, var(--event-accent, var(--color-accent))) 60%, #1a1a2e)));
 }
 
 .event-public__hero-overlay {
@@ -271,6 +301,16 @@ useHead({ title: ogTitle })
   color: var(--color-accent);
   text-decoration: none;
   font-weight: var(--font-weight-medium);
+}
+
+.event-public__custom-logo {
+  max-height: 40px;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.event-public.light-forced {
+  color-scheme: light;
 }
 
 @keyframes fadeInUp {

@@ -1,5 +1,14 @@
 <script setup>
 const { collapsed, mobileOpen, toggle, closeMobile } = useSidebar()
+
+// Provide tour system to all dashboard pages
+provideTour()
+
+// Sync onboarding state from server on mount
+const onboardingSync = useOnboardingSync()
+onMounted(() => {
+  onboardingSync.syncFromServer()
+})
 </script>
 
 <template>
@@ -18,6 +27,8 @@ const { collapsed, mobileOpen, toggle, closeMobile } = useSidebar()
         <slot />
       </main>
     </div>
+
+    <TourOverlay />
   </div>
 </template>
 

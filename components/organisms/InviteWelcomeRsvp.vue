@@ -15,6 +15,8 @@ const props = defineProps({
   token: { type: String, default: '' },
   initialEmail: { type: String, default: '' },
   initialName: { type: String, default: '' },
+  accentColor: { type: String, default: '#00b894' },
+  welcomeMessage: { type: String, default: null },
 })
 
 const emit = defineEmits(['rsvp', 'changeResponse', 'subEventRsvp', 'pollVoted'])
@@ -38,7 +40,7 @@ const confettiParticles = ref([])
 
 function triggerConfetti() {
   showConfetti.value = true
-  const colors = ['#00b894', '#6c5ce7', '#ff6b6b', '#ffd93d', '#74b9ff', '#fd79a8']
+  const colors = [props.accentColor, '#6c5ce7', '#ff6b6b', '#ffd93d', '#74b9ff', '#fd79a8']
   confettiParticles.value = Array.from({ length: 40 }, (_, i) => ({
     id: i,
     color: colors[Math.floor(Math.random() * colors.length)],
@@ -96,6 +98,11 @@ function handleRsvp(status) {
           {{ t('invite.welcome') }}
         </template>
       </h2>
+
+      <!-- Personal welcome message -->
+      <div v-if="welcomeMessage" class="invite-rsvp__welcome-message">
+        <p class="invite-rsvp__welcome-text">{{ welcomeMessage }}</p>
+      </div>
 
       <!-- Plus-one context -->
       <p v-if="isPlusOne && invitedByName" class="invite-rsvp__plus-one-context">
@@ -292,7 +299,7 @@ function handleRsvp(status) {
   width: 68px;
   height: 68px;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 65%, #6c5ce7));
+  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 65%, var(--color-accent-secondary, #6c5ce7)));
   color: #fff;
   display: flex;
   align-items: center;
@@ -313,6 +320,25 @@ function handleRsvp(status) {
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   line-height: var(--line-height-tight);
+  margin: 0;
+}
+
+/* Personal welcome message */
+.invite-rsvp__welcome-message {
+  width: 100%;
+  max-width: 440px;
+  padding: var(--space-4);
+  border-left: 3px solid var(--event-accent, var(--color-accent));
+  background: var(--color-accent-dim, rgba(0, 0, 0, 0.02));
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  text-align: left;
+}
+
+.invite-rsvp__welcome-text {
+  font-size: var(--text-base);
+  font-style: italic;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
   margin: 0;
 }
 
@@ -338,7 +364,7 @@ function handleRsvp(status) {
   width: 48px;
   height: 2px;
   border-radius: 1px;
-  background: linear-gradient(90deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, #6c5ce7));
+  background: linear-gradient(90deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 50%, var(--color-accent-secondary, #6c5ce7)));
   margin: var(--space-2) 0;
 }
 
@@ -456,7 +482,7 @@ function handleRsvp(status) {
 .invite-rsvp__btn--accept {
   padding: var(--space-5) var(--space-8);
   font-size: var(--text-lg);
-  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 75%, #6c5ce7));
+  background: linear-gradient(135deg, var(--event-accent, var(--color-accent)), color-mix(in srgb, var(--event-accent, var(--color-accent)) 75%, var(--color-accent-secondary, #6c5ce7)));
   color: #fff;
   box-shadow: 0 4px 24px color-mix(in srgb, var(--event-accent, var(--color-accent)) 30%, transparent);
 }

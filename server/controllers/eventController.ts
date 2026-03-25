@@ -12,6 +12,7 @@ import TimelineItemRepository from '../repositories/timelineItemRepository'
 import SubscriptionController from './subscriptionController'
 import NotificationController from './notificationController'
 import { getFeaturesForTier } from '../utils/tierFeatures'
+import { getFeatureTierMap } from '../utils/featureTierMap'
 import { uploadImage, deleteImage } from '../utils/s3'
 import { sendEmail } from '../utils/email'
 import { renderInviteEmail, renderRsvpConfirmationEmail, renderEventUpdateEmail } from '../utils/emailTemplates'
@@ -192,16 +193,21 @@ export default class EventController {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
     }
 
+    const tierMeta = {
+      tierAllowedFeatures: getFeaturesForTier(event.tier as Tier),
+      featureTierMap: getFeatureTierMap(),
+    }
+
     // Check membership for role
     const member = await EventMemberRepository.findByEventIdAndUserId(eventId, clerkId)
     if (member) {
-      return { ...event.toJSON(), role: member.role, isOwner: member.isOwner }
+      return { ...event.toJSON(), role: member.role, isOwner: member.isOwner, ...tierMeta }
     }
 
     // Check invitation
     const invitation = await EventInvitationRepository.findByEventIdAndEmail(eventId, email.toLowerCase())
     if (invitation) {
-      return { ...event.toJSON(), role: 'guest', isOwner: false }
+      return { ...event.toJSON(), role: 'guest', isOwner: false, ...tierMeta }
     }
 
     throw createError({ statusCode: 403, statusMessage: 'You do not have access to this event' })
@@ -356,7 +362,15 @@ export default class EventController {
     }
 
     if (features !== undefined) {
-      event.features = { ...event.features, ...features }
+      const tierAllowed = getFeaturesForTier(event.tier as Tier)
+      const validated: Record<string, boolean> = {}
+      for (const [key, value] of Object.entries(features)) {
+        if (typeof value !== 'boolean') continue
+        // Can't enable features outside the event's tier
+        if (value === true && !tierAllowed[key as keyof typeof tierAllowed]) continue
+        validated[key] = value
+      }
+      event.features = { ...event.features, ...validated }
     }
 
     const saved = await EventRepository.update(event)
@@ -633,6 +647,15 @@ export default class EventController {
       locationLon: event.locationLon,
       coverImageUrl: event.coverImageUrl,
       themeColor: event.themeColor,
+      themeColorSecondary: event.themeColorSecondary,
+      gradientAngle: event.gradientAngle,
+      fontPairing: event.fontPairing,
+      cardStyle: event.cardStyle,
+      heroAnimation: event.heroAnimation,
+      backgroundPattern: event.backgroundPattern,
+      colorMode: event.colorMode,
+      customLogoUrl: event.customLogoUrl,
+      hideBranding: event.hideBranding,
       features: event.features,
     }
   }

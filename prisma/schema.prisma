@@ -148,6 +148,7 @@ model User {
   spotifyConnections     SpotifyConnection[]
   notifications          Notification[]
   notificationPreference NotificationPreference?
+  onboardingState        OnboardingState?
 
   @@map("users")
 }
@@ -677,6 +678,19 @@ model BudgetEntry {
 
   @@index([eventId, category])
   @@map("budget_entries")
+}
+
+model OnboardingState {
+  id                    Int      @id @default(autoincrement())
+  userClerkId           String   @unique @map("user_clerk_id")
+  dashboardTourDone     Boolean  @default(false) @map("dashboard_tour_done")
+  eventCreationTourDone Boolean  @default(false) @map("event_creation_tour_done")
+  dismissedTooltips     Json     @default("{}") @map("dismissed_tooltips")
+  updatedAt             DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userClerkId], references: [clerkId], onDelete: Cascade)
+
+  @@map("onboarding_states")
 }
 
 model SocialWallPost {

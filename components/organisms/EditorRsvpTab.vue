@@ -278,15 +278,23 @@ async function exportCsv() {
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  background: var(--color-bg);
+  background: var(--input-bg);
   color: var(--color-text-primary);
   font-size: var(--text-sm);
   font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.editor-rsvp__deadline-input:hover:not(:disabled) {
+  border-color: var(--color-border);
 }
 
 .editor-rsvp__deadline-input:focus {
   outline: none;
   border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--color-surface);
 }
 
 .editor-rsvp__deadline-warning {

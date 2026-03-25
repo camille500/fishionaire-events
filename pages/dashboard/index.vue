@@ -15,6 +15,76 @@ useHead({ title: () => t('seo.dashboard.title') })
 
 const showConfetti = ref(false)
 
+// Dashboard tour
+const tour = useTour()
+const onboardingSync = useOnboardingSync()
+
+tour.registerTour({
+  id: 'dashboard',
+  steps: [
+    {
+      key: 'dashboard.welcome',
+      target: 'dashboard-greeting',
+      title: 'tour.dashboard.welcome.title',
+      description: 'tour.dashboard.welcome.description',
+      position: 'bottom',
+    },
+    {
+      key: 'dashboard.sidebar',
+      target: 'sidebar-nav',
+      title: 'tour.dashboard.sidebar.title',
+      description: 'tour.dashboard.sidebar.description',
+      position: 'right',
+    },
+    {
+      key: 'dashboard.create',
+      target: 'quick-create',
+      title: 'tour.dashboard.createEvent.title',
+      description: 'tour.dashboard.createEvent.description',
+      position: 'bottom',
+    },
+    {
+      key: 'dashboard.events',
+      target: 'events-section',
+      title: 'tour.dashboard.events.title',
+      description: 'tour.dashboard.events.description',
+      position: 'top',
+    },
+    {
+      key: 'dashboard.invitations',
+      target: 'invitations-section',
+      title: 'tour.dashboard.invitations.title',
+      description: 'tour.dashboard.invitations.description',
+      position: 'top',
+    },
+    {
+      key: 'dashboard.settings',
+      target: 'sidebar-settings',
+      title: 'tour.dashboard.settings.title',
+      description: 'tour.dashboard.settings.description',
+      position: 'right',
+    },
+  ],
+})
+
+const route = useRoute()
+const router = useRouter()
+
+onMounted(() => {
+  const forceStart = route.query.startTour === 'true'
+
+  if (forceStart || !onboardingSync.state.value.dashboardTourDone) {
+    // Clean query param from URL
+    if (forceStart) {
+      router.replace({ query: { ...route.query, startTour: undefined } })
+    }
+    // Small delay to let the page render
+    setTimeout(() => {
+      tour.startTour('dashboard')
+    }, 800)
+  }
+})
+
 const displayName = computed(() => user.value?.firstName || 'User')
 
 const todayFormatted = computed(() => {
@@ -146,7 +216,7 @@ const formattedActivities = computed(() => {
       <!-- Bento grid -->
       <div class="dashboard-home__bento">
         <!-- Greeting (spans 2 cols) -->
-        <section class="dashboard-home__greeting bento-greeting">
+        <section class="dashboard-home__greeting bento-greeting" data-tour="dashboard-greeting">
           <div>
             <h1 class="dashboard-home__title">{{ getGreeting(displayName) }}</h1>
             <p class="dashboard-home__date">{{ todayFormatted }}</p>
@@ -155,7 +225,7 @@ const formattedActivities = computed(() => {
         </section>
 
         <!-- Quick Create (1 col) -->
-        <section class="bento-quick-create">
+        <section class="bento-quick-create" data-tour="quick-create">
           <QuickCreateCard />
         </section>
 
@@ -184,7 +254,7 @@ const formattedActivities = computed(() => {
         </section>
 
         <!-- Upcoming Events -->
-        <section class="bento-events">
+        <section class="bento-events" data-tour="events-section">
           <div class="dashboard-home__section-header">
             <h2 class="dashboard-home__section-title">
               {{ t('dashboard.upcoming.title') }}
@@ -277,7 +347,7 @@ const formattedActivities = computed(() => {
         </section>
 
         <!-- Invitations -->
-        <section v-if="invitedEvents.length" class="bento-invitations">
+        <section v-if="invitedEvents.length" class="bento-invitations" data-tour="invitations-section">
           <div class="dashboard-home__section-header">
             <h2 class="dashboard-home__section-title">
               {{ t('dashboard.invitations') }}
@@ -294,7 +364,7 @@ const formattedActivities = computed(() => {
         </section>
 
         <!-- Empty invitations -->
-        <section v-if="!invitedEvents.length && ownedEvents.length" class="bento-invitations">
+        <section v-if="!invitedEvents.length && ownedEvents.length" class="bento-invitations" data-tour="invitations-section">
           <div class="dashboard-home__section-header">
             <h2 class="dashboard-home__section-title">
               {{ t('dashboard.invitations') }}

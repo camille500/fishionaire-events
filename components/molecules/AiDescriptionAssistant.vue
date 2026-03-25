@@ -449,9 +449,23 @@ function accept() {
   width: auto;
   padding: var(--space-1) var(--space-6);
   padding-left: var(--space-2);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.ai-assistant__select:hover:not(:disabled) {
+  border-color: var(--color-border);
+}
+
+.ai-assistant__select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
 }
 
 .ai-assistant__toggle {

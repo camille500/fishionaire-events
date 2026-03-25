@@ -47,6 +47,7 @@
   /* Inputs */
   --input-bg: rgba(0, 0, 0, 0.02);
   --input-border: rgba(0, 0, 0, 0.1);
+  --input-focus-ring: rgba(0, 184, 148, 0.18);
   --border-glass: rgba(0, 0, 0, 0.06);
   --border-subtle: rgba(0, 0, 0, 0.04);
 
@@ -219,6 +220,7 @@
   /* Inputs */
   --input-bg: rgba(0, 0, 0, 0.35);
   --input-border: rgba(255, 255, 255, 0.06);
+  --input-focus-ring: rgba(0, 212, 170, 0.22);
   --border-glass: rgba(255, 255, 255, 0.06);
   --border-subtle: rgba(255, 255, 255, 0.04);
 

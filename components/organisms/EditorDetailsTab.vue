@@ -80,21 +80,15 @@ onMounted(() => {
   <div ref="detailsRef" class="editor-details">
     <!-- AI title suggestions -->
     <div v-if="hasAi" class="editor-details__ai-row">
-      <OnboardingTooltip
-        tooltip-key="editor-ai-suggest"
-        :description="t('editor.onboarding.tryAi')"
-        position="bottom"
+      <button
+        type="button"
+        class="editor-details__ai-btn"
+        :disabled="loadingTitles"
+        @click="onSuggestTitles"
       >
-        <button
-          type="button"
-          class="editor-details__ai-btn"
-          :disabled="loadingTitles"
-          @click="onSuggestTitles"
-        >
-          <Icon name="lucide:sparkles" size="14" :class="{ 'editor-details__spinner': loadingTitles }" />
-          {{ loadingTitles ? t('editor.ai.loading') : t('editor.ai.suggestTitle') }}
-        </button>
-      </OnboardingTooltip>
+        <Icon name="lucide:sparkles" size="14" :class="{ 'editor-details__spinner': loadingTitles }" />
+        {{ loadingTitles ? t('editor.ai.loading') : t('editor.ai.suggestTitle') }}
+      </button>
 
       <TransitionGroup name="chip-list" tag="div" class="editor-details__chips">
         <AiSuggestionChip
@@ -128,13 +122,10 @@ onMounted(() => {
 
     <!-- Event Type -->
     <section class="editor-details__section">
-      <OnboardingTooltip
-        tooltip-key="editor-event-type"
-        :description="t('editor.onboarding.setEventType')"
-        position="bottom"
-      >
-        <h3 class="editor-details__section-label">{{ t('dashboard.eventEditor.eventTypeLabel') }}</h3>
-      </OnboardingTooltip>
+      <h3 class="editor-details__section-label">
+        {{ t('dashboard.eventEditor.eventTypeLabel') }}
+        <InfoIcon :content="t('infoIcon.eventType')" position="right" />
+      </h3>
       <ClientOnly>
         <div ref="typeGridRef" class="editor-details__type-grid">
           <button
