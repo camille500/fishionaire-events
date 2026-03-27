@@ -81,6 +81,7 @@ export function useNotifications() {
   }
 
   function startPolling() {
+    stopPolling()
     fetchCount()
     pollInterval = setInterval(fetchCount, 30000)
   }

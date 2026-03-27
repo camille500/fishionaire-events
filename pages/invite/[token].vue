@@ -188,13 +188,17 @@ const qrCodeDataUrl = ref(null)
 
 watch(rsvpStatus, async (status) => {
   if (status === 'accepted' && hasCheckIn.value && typeof window !== 'undefined') {
-    const QRCode = await import('qrcode')
-    const inviteUrl = `${window.location.origin}/invite/${token}`
-    qrCodeDataUrl.value = await QRCode.toDataURL(inviteUrl, {
-      width: 200,
-      margin: 2,
-      color: { dark: '#1a1a2e' },
-    })
+    try {
+      const QRCode = await import('qrcode')
+      const inviteUrl = `${window.location.origin}/invite/${token}`
+      qrCodeDataUrl.value = await QRCode.toDataURL(inviteUrl, {
+        width: 200,
+        margin: 2,
+        color: { dark: '#1a1a2e' },
+      })
+    } catch {
+      // QR code generation failed — section simply won't render
+    }
   }
 }, { immediate: true })
 const isPlusOne = computed(() => !!invitation.value?.invitedById)
@@ -395,22 +399,15 @@ watch(subEvents, (subs) => {
   }
 }, { immediate: true })
 
-// Initialize music progress dot from existing requests
-watch(() => ({ ...musicLists }), (lists) => {
-  if (musicCompleted.value) return
-  const guestEmail = invitation.value?.inviteeEmail
-  if (!guestEmail) return
-  for (const seId in lists) {
-    if (lists[seId]?.some(r => r.guestEmail === guestEmail)) {
-      musicCompleted.value = true
-      return
-    }
-  }
-}, { deep: true })
-
 async function fetchMusicRequests(subEventId) {
   try {
     musicLists[subEventId] = await $fetch(`/api/invite/${token}/music-requests`, { query: { subEventId } })
+    if (!musicCompleted.value) {
+      const guestEmail = invitation.value?.inviteeEmail
+      if (guestEmail && musicLists[subEventId]?.some(r => r.guestEmail === guestEmail)) {
+        musicCompleted.value = true
+      }
+    }
   } catch {
     musicLists[subEventId] = []
   }

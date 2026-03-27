@@ -1,7 +1,16 @@
-import { gsap } from 'gsap'
+let _gsap: typeof import('gsap')['gsap'] | null = null
+
+async function getGsap() {
+  if (!_gsap) {
+    const mod = await import('gsap')
+    _gsap = mod.gsap
+  }
+  return _gsap
+}
 
 export function useEditorAnimations() {
-  function animateTabChange(el: HTMLElement, direction: string = 'right'): void {
+  async function animateTabChange(el: HTMLElement, direction: string = 'right'): Promise<void> {
+    const gsap = await getGsap()
     const xFrom = direction === 'right' ? 20 : -20
 
     gsap.fromTo(el, {
@@ -15,7 +24,8 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateNewItem(el: HTMLElement): void {
+  async function animateNewItem(el: HTMLElement): Promise<void> {
+    const gsap = await getGsap()
     gsap.fromTo(el, {
       opacity: 0,
       y: 8,
@@ -29,7 +39,8 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateReorderStart(el: HTMLElement): void {
+  async function animateReorderStart(el: HTMLElement): Promise<void> {
+    const gsap = await getGsap()
     gsap.to(el, {
       scale: 1.02,
       boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
@@ -38,7 +49,8 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateReorderEnd(el: HTMLElement): void {
+  async function animateReorderEnd(el: HTMLElement): Promise<void> {
+    const gsap = await getGsap()
     gsap.to(el, {
       scale: 1,
       boxShadow: 'none',
@@ -47,10 +59,11 @@ export function useEditorAnimations() {
     })
   }
 
-  function staggerIn(container: HTMLElement | null, selector: string, delay: number = 0.05): void {
+  async function staggerIn(container: HTMLElement | null, selector: string, delay: number = 0.05): Promise<void> {
     const items = container?.querySelectorAll(selector)
     if (!items?.length) return
 
+    const gsap = await getGsap()
     gsap.fromTo(items, {
       opacity: 0,
       y: 10,
@@ -63,7 +76,8 @@ export function useEditorAnimations() {
     })
   }
 
-  function pulseElement(el: HTMLElement): void {
+  async function pulseElement(el: HTMLElement): Promise<void> {
+    const gsap = await getGsap()
     gsap.fromTo(el, {
       scale: 1,
     }, {
@@ -75,7 +89,8 @@ export function useEditorAnimations() {
     })
   }
 
-  function revealField(el: HTMLElement): void {
+  async function revealField(el: HTMLElement): Promise<void> {
+    const gsap = await getGsap()
     gsap.fromTo(el, {
       opacity: 0,
       y: -8,
@@ -89,7 +104,8 @@ export function useEditorAnimations() {
     })
   }
 
-  function animateTabChangeVertical(el: HTMLElement, direction: string = 'down'): void {
+  async function animateTabChangeVertical(el: HTMLElement, direction: string = 'down'): Promise<void> {
+    const gsap = await getGsap()
     const yFrom = direction === 'down' ? 12 : -12
 
     gsap.fromTo(el, {

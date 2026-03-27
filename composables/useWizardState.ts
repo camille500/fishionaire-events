@@ -255,7 +255,7 @@ export function useWizardStateProvider() {
   }
 
   // Auto-save draft on form changes
-  watch([() => ({ ...form }), currentStep], () => {
+  watch([form, currentStep], () => {
     if (form.title.trim() || form.selectedType || form.subEvents.length) {
       saveDraft()
     }

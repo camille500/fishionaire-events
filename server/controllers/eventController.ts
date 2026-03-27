@@ -954,7 +954,7 @@ export default class EventController {
     return { emailSentAt: new Date() }
   }
 
-  static async sendAllPendingEmails(eventId: number, clerkId: string): Promise<{ sent: number }> {
+  static async sendAllPendingEmails(eventId: number, clerkId: string): Promise<{ sent: number; failed: number; errors: Array<{ email: string; error: string }> }> {
     const member = await EventMemberRepository.findByEventIdAndUserId(String(eventId), clerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission' })
@@ -971,6 +971,7 @@ export default class EventController {
     const config = useRuntimeConfig()
     const appUrl = config.public.appUrl as string
     let sent = 0
+    const failed: Array<{ email: string; error: string }> = []
 
     for (const invitation of unsent) {
       try {
@@ -994,11 +995,13 @@ export default class EventController {
           emailSentAt: new Date(),
         })
         sent++
-      } catch {
-        // Skip failed sends, continue with others
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e)
+        console.error(`[sendAllPendingEmails] Failed to send to ${invitation.inviteeEmail}: ${message}`)
+        failed.push({ email: invitation.inviteeEmail, error: message })
       }
     }
 
-    return { sent }
+    return { sent, failed: failed.length, errors: failed }
   }
 }

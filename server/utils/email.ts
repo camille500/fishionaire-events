@@ -21,18 +21,24 @@ export async function sendEmail(to: string, subject: string, htmlBody: string): 
   const fromEmail = config.awsSesFromEmail as string
   const fromName = config.awsSesFromName as string
 
-  await getClient().send(new SendEmailCommand({
-    FromEmailAddress: `${fromName} <${fromEmail}>`,
-    Destination: {
-      ToAddresses: [to],
-    },
-    Content: {
-      Simple: {
-        Subject: { Data: subject, Charset: 'UTF-8' },
-        Body: {
-          Html: { Data: htmlBody, Charset: 'UTF-8' },
+  try {
+    await getClient().send(new SendEmailCommand({
+      FromEmailAddress: `${fromName} <${fromEmail}>`,
+      Destination: {
+        ToAddresses: [to],
+      },
+      Content: {
+        Simple: {
+          Subject: { Data: subject, Charset: 'UTF-8' },
+          Body: {
+            Html: { Data: htmlBody, Charset: 'UTF-8' },
+          },
         },
       },
-    },
-  }))
+    }))
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e)
+    console.error(`[sendEmail] Failed sending to ${to}: ${message}`)
+    throw new Error(`Email delivery failed for ${to}: ${message}`)
+  }
 }

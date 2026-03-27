@@ -15,8 +15,10 @@ useHead({ title: () => t('seo.pricing.title') })
 
 const subscribing = ref(false)
 
+const PLAN_TIERS = ['free', 'standard', 'pro']
+
 const plans = computed(() =>
-  tm('pricing.plans').map((plan) => ({
+  tm('pricing.plans').map((plan, index) => ({
     name: rt(plan.name),
     price: rt(plan.price),
     period: rt(plan.period),
@@ -24,7 +26,7 @@ const plans = computed(() =>
     highlighted: plan.highlighted,
     features: plan.features.map((f) => rt(f)),
     perEventPrice: plan.perEventPrice ? rt(plan.perEventPrice) : '',
-    tier: plan.tier || '',
+    tier: PLAN_TIERS[index] || '',
   }))
 )
 

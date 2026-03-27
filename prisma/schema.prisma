@@ -312,6 +312,8 @@ model EventInvitation {
   plusOneInvites  EventInvitation[]     @relation("PlusOneLink")
   subEventInvites InvitationSubEvent[]
 
+  @@index([eventId])
+  @@index([eventId, inviteeEmail])
   @@map("event_invitations")
 }
 
@@ -343,6 +345,7 @@ model SubEvent {
   plusOneRequests   SubEventPlusOne[]
   musicRequests    SubEventMusicRequest[]
 
+  @@index([eventId, sortOrder])
   @@map("sub_events")
 }
 

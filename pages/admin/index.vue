@@ -113,7 +113,7 @@ function formatEur(value) {
       <div class="admin-overview__chart-card">
         <AppHeading :level="3">{{ t('admin.analytics.userEventGrowth') }}</AppHeading>
         <ClientOnly>
-          <ChartLine
+          <LazyChartLine
             v-if="growthChart.labels.length"
             :labels="growthChart.labels"
             :datasets="growthDatasets"
@@ -126,7 +126,7 @@ function formatEur(value) {
       <div class="admin-overview__chart-card admin-overview__chart-card--narrow">
         <AppHeading :level="3">{{ t('admin.analytics.subscriptionDistribution') }}</AppHeading>
         <ClientOnly>
-          <ChartDoughnut
+          <LazyChartDoughnut
             v-if="tierData.some((v) => v > 0)"
             :labels="tierLabels"
             :data="tierData"
@@ -144,7 +144,7 @@ function formatEur(value) {
       <div class="admin-overview__chart-card">
         <AppHeading :level="3">{{ t('admin.analytics.revenueTrend') }}</AppHeading>
         <ClientOnly>
-          <ChartLine
+          <LazyChartLine
             v-if="revenueLabels.length"
             :labels="revenueLabels"
             :datasets="revenueDatasets"
@@ -158,7 +158,7 @@ function formatEur(value) {
       <div class="admin-overview__chart-card">
         <AppHeading :level="3">{{ t('admin.analytics.pageViews') }}</AppHeading>
         <ClientOnly>
-          <ChartLine
+          <LazyChartLine
             v-if="viewsLabels.length"
             :labels="viewsLabels"
             :datasets="viewsDatasets"

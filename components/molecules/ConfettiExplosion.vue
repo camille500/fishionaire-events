@@ -1,6 +1,4 @@
 <script setup>
-import confetti from 'canvas-confetti'
-
 const props = defineProps({
   trigger: {
     type: Boolean,
@@ -12,8 +10,9 @@ const props = defineProps({
   },
 })
 
-watch(() => props.trigger, (val) => {
+watch(() => props.trigger, async (val) => {
   if (val) {
+    const { default: confetti } = await import('canvas-confetti')
     const colors = ['#00b894', '#00d4aa', '#6c5ce7', '#7c6bda', '#48dbfb', '#b8860b', '#f4f4f6']
 
     confetti({

@@ -1,10 +1,17 @@
 <script setup>
-import { gsap } from 'gsap'
-
 const { t } = useI18n()
 const { form, eventData, eventTypes, errors, touched, markTouched } = useEventEditor()
 const { icon } = useEventTheme(computed(() => form.eventType))
 const { staggerIn } = useEditorAnimations()
+
+let _gsap = null
+async function getGsap() {
+  if (!_gsap) {
+    const mod = await import('gsap')
+    _gsap = mod.gsap
+  }
+  return _gsap
+}
 const typeGridRef = ref(null)
 
 let lastSelectedLocation = ''
@@ -22,11 +29,12 @@ function onLocationInput() {
   }
 }
 
-function selectType(type, event) {
+async function selectType(type, event) {
   const isDeselect = form.eventType === type
   form.eventType = isDeselect ? '' : type
 
   const card = event.currentTarget
+  const gsap = await getGsap()
   gsap.fromTo(card, { scale: 0.92 }, { scale: 1, duration: 0.4, ease: 'back.out(2)' })
 
   // Brief glow pulse on the grid (only on selection)

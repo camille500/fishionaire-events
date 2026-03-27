@@ -79,7 +79,11 @@ export function useEventEditorProvider(eventId: string) {
   const form = reactive(initForm(eventData.value))
 
   watch(eventData, (val) => {
-    if (val) Object.assign(form, initForm(val))
+    if (val) {
+      Object.assign(form, initForm(val))
+      lastSaved = JSON.stringify(form)
+      isDirty.value = false
+    }
   })
 
   const saving = ref(false)
@@ -88,7 +92,7 @@ export function useEventEditorProvider(eventId: string) {
   let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
   let lastSaved: string = JSON.stringify(form)
 
-  const isDirty = computed(() => JSON.stringify(form) !== lastSaved)
+  const isDirty = ref(false)
 
   const saveStatus = computed<'idle' | 'pending' | 'saving' | 'saved' | 'error'>(() => {
     if (saveError.value) return 'error'
@@ -98,9 +102,9 @@ export function useEventEditorProvider(eventId: string) {
     return 'idle'
   })
 
-  function forceSave(): void {
+  async function forceSave(): Promise<void> {
     if (autoSaveTimer) clearTimeout(autoSaveTimer)
-    if (isDirty.value) save()
+    if (isDirty.value) await save()
   }
 
   async function save(): Promise<void> {
@@ -142,6 +146,7 @@ export function useEventEditorProvider(eventId: string) {
       })
 
       lastSaved = JSON.stringify(form)
+      isDirty.value = false
       saved.value = true
       setTimeout(() => { saved.value = false }, 3000)
     } catch (e) {
@@ -155,7 +160,8 @@ export function useEventEditorProvider(eventId: string) {
     clearTimeout(autoSaveTimer)
     if (!form.title.trim()) return
     const current = JSON.stringify(form)
-    if (current === lastSaved) return
+    isDirty.value = current !== lastSaved
+    if (!isDirty.value) return
     autoSaveTimer = setTimeout(() => save(), 1500)
   }, { deep: true })
 

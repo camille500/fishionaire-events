@@ -1,7 +1,4 @@
 <script setup>
-import confetti from 'canvas-confetti'
-import { gsap } from 'gsap'
-
 const { t } = useI18n()
 const router = useRouter()
 
@@ -14,10 +11,11 @@ const titleRef = ref(null)
 const actionsRef = ref(null)
 const showContent = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
   showContent.value = true
 
-  // Fire confetti
+  // Fire confetti (dynamic import)
+  const { default: confetti } = await import('canvas-confetti')
   confetti({
     particleCount: 100,
     spread: 70,
@@ -43,7 +41,8 @@ onMounted(() => {
     })
   }, 200)
 
-  // GSAP animation timeline
+  // GSAP animation timeline (dynamic import)
+  const { gsap } = await import('gsap')
   nextTick(() => {
     const tl = gsap.timeline()
 

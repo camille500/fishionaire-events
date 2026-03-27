@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-03-11',
   devtools: { enabled: process.env.NODE_ENV !== 'production' },
   devServer: { host: '0.0.0.0' },
+  sourcemap: { server: false, client: true },
 
   modules: [
     '@nuxt/ui',
@@ -151,6 +152,29 @@ export default defineNuxtConfig({
     cronSecret: process.env.CRON_SECRET || '',
     public: {
       appUrl: process.env.APP_URL || 'http://localhost:3000',
+    },
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@clerk/vue',
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'gsap',
+        'gsap/ScrollTrigger',
+      ],
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('chart.js') || id.includes('vue-chartjs')) return 'vendor-charts'
+            if (id.includes('@tiptap')) return 'vendor-tiptap'
+            if (id.includes('gsap')) return 'vendor-gsap'
+          },
+        },
+      },
     },
   },
 

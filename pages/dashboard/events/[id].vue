@@ -265,7 +265,7 @@ async function saveAndLeave() {
   await forceSave()
   showLeaveModal.value = false
   if (pendingNavigation) {
-    navigateTo(pendingNavigation.to.fullPath)
+    pendingNavigation.next()
     pendingNavigation = null
   }
 }
