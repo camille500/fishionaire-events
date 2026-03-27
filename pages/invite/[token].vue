@@ -68,15 +68,17 @@ function useRevealObserver() {
 }
 
 let revealObserver = null
+let rsvpObserver = null
+let stopRsvpWatch = null
 
 onMounted(() => {
   // RSVP section visibility observer
   if (typeof IntersectionObserver === 'undefined') return
-  const rsvpObserver = new IntersectionObserver(
+  rsvpObserver = new IntersectionObserver(
     ([entry]) => { rsvpSectionVisible.value = entry.isIntersecting },
     { threshold: 0.1 },
   )
-  watch(rsvpSectionRef, (el) => {
+  stopRsvpWatch = watch(rsvpSectionRef, (el) => {
     if (el?.$el) rsvpObserver.observe(el.$el)
     else if (el) rsvpObserver.observe(el)
   }, { immediate: true })
@@ -90,11 +92,12 @@ onMounted(() => {
       })
     })
   }
+})
 
-  onUnmounted(() => {
-    rsvpObserver.disconnect()
-    revealObserver?.disconnect()
-  })
+onUnmounted(() => {
+  stopRsvpWatch?.()
+  rsvpObserver?.disconnect()
+  revealObserver?.disconnect()
 })
 
 const eventTypeColorMap = {

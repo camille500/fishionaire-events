@@ -1051,7 +1051,7 @@
       "bulkAdd": "Bulk add guests",
       "bulkPaste": "Paste",
       "bulkUpload": "Upload CSV",
-      "bulkTextareaPlaceholder": "Emails, one per line (optionally with name)",
+      "bulkTextareaPlaceholder": "Emails, one per line (optionally with name and plus-one count)",
       "bulkPreview": "Preview",
       "bulkSend": "Add {count} guest | Add {count} guests",
       "bulkResultCreated": "{count} guest added | {count} guests added",
@@ -1269,7 +1269,18 @@
       "playlistNamePlaceholder": "Playlist name",
       "premiumRequired": "Spotify Premium is required to add tracks to the queue",
       "quotaMessage": "Spotify requires app approval for playlist creation. You can copy the track list and create the playlist manually.",
-      "copyTrackList": "Copy track list"
+      "copyTrackList": "Copy track list",
+      "playlists": "Playlists",
+      "unassigned": "Unassigned",
+      "trackCount": "{count} track(s)",
+      "duration": "{minutes} min",
+      "removeFromPlaylist": "Remove from playlist",
+      "moveToPlaylist": "Move to...",
+      "approveAndAdd": "Approve & add",
+      "batchAdd": "Add selected",
+      "selectAll": "Select all",
+      "noTracksInPlaylist": "No tracks in this playlist yet",
+      "emptyUnassigned": "All tracks have been assigned"
     },
     "capacity": {
       "label": "Capacity",

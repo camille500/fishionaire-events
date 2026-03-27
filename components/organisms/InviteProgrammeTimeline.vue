@@ -1,5 +1,7 @@
 <script setup>
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const timeLocale = computed(() => locale.value === 'nl' ? 'nl-NL' : 'en-GB')
 
 defineProps({
   subEvents: { type: Array, required: true },
@@ -49,7 +51,7 @@ function toggleMusicList(subEventId) {
           <h4 class="invite-timeline__name">{{ se.title }}</h4>
           <div v-if="se.startTime" class="invite-timeline__time">
             <Icon name="lucide:clock" size="12" />
-            {{ new Date(se.startTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) }}
+            {{ new Date(se.startTime).toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' }) }}
           </div>
         </div>
 

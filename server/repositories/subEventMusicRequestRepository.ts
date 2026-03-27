@@ -85,6 +85,14 @@ export default class SubEventMusicRequestRepository {
     })
   }
 
+  static async unassignFromPlaylist(ids: number[]): Promise<void> {
+    const prisma = usePrisma()
+    await prisma.subEventMusicRequest.updateMany({
+      where: { id: { in: ids } },
+      data: { playlistId: null },
+    })
+  }
+
   static async findByPlaylistId(playlistId: number): Promise<SubEventMusicRequest[]> {
     const prisma = usePrisma()
     const rows = await prisma.subEventMusicRequest.findMany({

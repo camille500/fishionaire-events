@@ -9,11 +9,12 @@ const props = defineProps({
 
 const activeSection = ref(null)
 const navRef = ref(null)
+let observer = null
 
 onMounted(() => {
   if (typeof IntersectionObserver === 'undefined') return
 
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
@@ -29,8 +30,10 @@ onMounted(() => {
     const el = document.getElementById(section.id)
     if (el) observer.observe(el)
   }
+})
 
-  onUnmounted(() => observer.disconnect())
+onUnmounted(() => {
+  observer?.disconnect()
 })
 
 function scrollTo(id) {

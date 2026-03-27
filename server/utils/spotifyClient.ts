@@ -240,6 +240,60 @@ export async function addTracksToPlaylist(accessToken: string, playlistId: strin
   }
 }
 
+export async function getPlaylistTracks(accessToken: string, playlistId: string): Promise<Record<string, unknown>[]> {
+  const tracks: Record<string, unknown>[] = []
+  let url: string | null = `${SPOTIFY_API}/playlists/${playlistId}/tracks?limit=100&fields=items(track(id,uri,name,artists(name),album(images),duration_ms)),next`
+
+  while (url) {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+
+    if (!res.ok) {
+      throw createError({ statusCode: 502, statusMessage: 'Failed to fetch Spotify playlist tracks' })
+    }
+
+    const data = await res.json()
+    for (const item of data.items || []) {
+      const track = item.track
+      if (!track) continue
+      tracks.push({
+        spotifyTrackId: track.id,
+        spotifyUri: track.uri,
+        songTitle: track.name,
+        artist: track.artists?.map((a: Record<string, unknown>) => a.name).join(', ') || null,
+        albumArtUrl: track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || null,
+        durationMs: track.duration_ms || null,
+      })
+    }
+    url = data.next || null
+  }
+
+  return tracks
+}
+
+export async function removeTracksFromPlaylist(accessToken: string, playlistId: string, trackUris: string[]): Promise<void> {
+  for (let i = 0; i < trackUris.length; i += 100) {
+    const batch = trackUris.slice(i, i + 100)
+    const res = await fetch(`${SPOTIFY_API}/playlists/${playlistId}/tracks`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tracks: batch.map((uri) => ({ uri })),
+      }),
+    })
+
+    if (!res.ok) {
+      const errorBody = await res.text().catch(() => 'unknown')
+      console.error('[Spotify] removeTracksFromPlaylist failed:', res.status, errorBody)
+      throw createError({ statusCode: 502, statusMessage: `Failed to remove tracks from Spotify playlist: ${res.status}` })
+    }
+  }
+}
+
 export async function addToQueue(accessToken: string, trackUri: string): Promise<void> {
   const params = new URLSearchParams({ uri: trackUri })
   const res = await fetch(`${SPOTIFY_API}/me/player/queue?${params}`, {

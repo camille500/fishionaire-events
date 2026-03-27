@@ -14,7 +14,6 @@ const phase = ref('input') // 'input' | 'preview'
 const inputMode = ref('paste') // 'paste' | 'csv'
 const textInput = ref('')
 const parsedGuests = ref([])
-const plusOnes = ref(0)
 const selectedSubEventIds = ref([])
 const fileInput = ref(null)
 const isDragging = ref(false)
@@ -49,11 +48,19 @@ function parseLines(text) {
     parts.push(current.trim())
 
     const email = parts.find((p) => p.includes('@')) || parts[0] || ''
-    const name = parts.find((p) => p !== email && p.length > 0) || ''
+    const remaining = parts.filter((p) => p !== email)
+    // Last part that is purely numeric is plusOnes
+    const lastPart = remaining[remaining.length - 1]
+    const parsedPlusOnes = lastPart && /^\d+$/.test(lastPart) ? parseInt(lastPart) : 0
+    const nameParts = parsedPlusOnes > 0 || (lastPart && /^\d+$/.test(lastPart))
+      ? remaining.slice(0, -1)
+      : remaining
+    const name = nameParts.filter((p) => p.length > 0).join(' ')
 
     return {
       email: email.trim().toLowerCase(),
       name: name.trim(),
+      plusOnes: parsedPlusOnes,
       id: Math.random().toString(36).slice(2),
     }
   })
@@ -99,15 +106,21 @@ function goBack() {
   phase.value = 'input'
 }
 
+function updateGuestPlusOnes(id, delta) {
+  const guest = parsedGuests.value.find((g) => g.id === id)
+  if (guest) guest.plusOnes = Math.max(0, (guest.plusOnes || 0) + delta)
+}
+
 function handleSubmit() {
-  const guests = validGuests.value.map(({ email, name }) => ({
+  const guests = validGuests.value.map(({ email, name, plusOnes: po }) => ({
     email,
     name: name || undefined,
+    plusOnes: po || 0,
   }))
   const subEventInvites = selectedSubEventIds.value.length > 0 && selectedSubEventIds.value.length < props.subEvents.length
     ? selectedSubEventIds.value.map((id) => ({ subEventId: id, plusOnes: 0 }))
     : []
-  emit('submit', { guests, plusOnes: plusOnes.value, subEventInvites })
+  emit('submit', { guests, subEventInvites })
 }
 
 function toggleSubEvent(id) {
@@ -150,7 +163,7 @@ function toggleSubEvent(id) {
         <textarea
           v-model="textInput"
           class="bulk-import__textarea"
-          placeholder="jan@example.com, Jan de Vries&#10;lisa@example.com, Lisa Bakker&#10;piet@example.com"
+          placeholder="jan@example.com, Jan de Vries, 2&#10;lisa@example.com, Lisa Bakker&#10;piet@example.com, 1"
           rows="8"
         />
       </div>
@@ -178,19 +191,6 @@ function toggleSubEvent(id) {
 
       <!-- Shared options -->
       <div class="bulk-import__options">
-        <div class="bulk-import__plus-ones">
-          <label class="bulk-import__label">{{ t('editor.guests.plusOnesLabel') }}</label>
-          <div class="bulk-import__stepper">
-            <button type="button" class="bulk-import__stepper-btn" :disabled="plusOnes <= 0" @click="plusOnes--">
-              <Icon name="lucide:minus" size="12" />
-            </button>
-            <span class="bulk-import__stepper-value">{{ plusOnes }}</span>
-            <button type="button" class="bulk-import__stepper-btn" @click="plusOnes++">
-              <Icon name="lucide:plus" size="12" />
-            </button>
-          </div>
-        </div>
-
         <div v-if="subEvents.length > 0" class="bulk-import__sub-events">
           <label class="bulk-import__label">{{ t('editor.guests.inviteTo') }}</label>
           <div class="bulk-import__sub-event-checks">
@@ -276,6 +276,15 @@ function toggleSubEvent(id) {
           <div class="bulk-import__preview-info">
             <span class="bulk-import__preview-email">{{ guest.email }}</span>
             <span v-if="guest.name" class="bulk-import__preview-name">{{ guest.name }}</span>
+          </div>
+          <div v-if="guestStatus(guest) === 'valid'" class="bulk-import__stepper bulk-import__stepper--compact">
+            <button type="button" class="bulk-import__stepper-btn" :disabled="!guest.plusOnes" @click="updateGuestPlusOnes(guest.id, -1)">
+              <Icon name="lucide:minus" size="10" />
+            </button>
+            <span class="bulk-import__stepper-value">{{ guest.plusOnes || 0 }}</span>
+            <button type="button" class="bulk-import__stepper-btn" @click="updateGuestPlusOnes(guest.id, 1)">
+              <Icon name="lucide:plus" size="10" />
+            </button>
           </div>
           <button
             class="bulk-import__preview-remove"
@@ -467,6 +476,22 @@ function toggleSubEvent(id) {
   color: var(--color-text-primary);
   min-width: 20px;
   text-align: center;
+}
+
+.bulk-import__stepper--compact {
+  flex-shrink: 0;
+  padding: 0 var(--space-1);
+  gap: var(--space-1);
+}
+
+.bulk-import__stepper--compact .bulk-import__stepper-btn {
+  width: 20px;
+  height: 20px;
+}
+
+.bulk-import__stepper--compact .bulk-import__stepper-value {
+  font-size: var(--text-xs);
+  min-width: 16px;
 }
 
 .bulk-import__sub-events {

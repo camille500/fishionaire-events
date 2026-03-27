@@ -126,7 +126,7 @@ const nextEvent = computed(() => sortedEvents.value.next)
 
 function daysUntil(dateStr) {
   if (!dateStr) return null
-  const diff = new Date(dateStr).getTime() - now.getTime()
+  const diff = new Date(dateStr).getTime() - Date.now()
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 

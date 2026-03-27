@@ -9,6 +9,7 @@ import {
   getValidToken,
   createPlaylist,
   addTracksToPlaylist,
+  removeTracksFromPlaylist,
   addToQueue,
 } from '../utils/spotifyClient'
 
@@ -64,13 +65,20 @@ export default class SpotifyController {
       return { connected: false }
     }
     const playlists = await SpotifyConnectionRepository.findPlaylists(Number(connection.id))
-    return {
-      ...connection.toPublicJSON(),
-      playlists: playlists.map((p) => ({
+    const enrichedPlaylists = await Promise.all(playlists.map(async (p) => {
+      const tracks = await SubEventMusicRequestRepository.findByPlaylistId(Number(p.id))
+      const totalDurationMs = tracks.reduce((sum, t) => sum + (t.durationMs || 0), 0)
+      return {
         id: p.id,
         name: p.name,
         spotifyPlaylistUrl: p.spotifyPlaylistUrl,
-      })),
+        trackCount: tracks.length,
+        totalDurationMs,
+      }
+    }))
+    return {
+      ...connection.toPublicJSON(),
+      playlists: enrichedPlaylists,
     }
   }
 
@@ -155,6 +163,91 @@ export default class SpotifyController {
     )
 
     return { added: requests.length }
+  }
+
+  static async getPlaylistTracks(eventId: number, clerkId: string, playlistDbId: number): Promise<Record<string, unknown>[]> {
+    await this.#verifyOrganizer(eventId, clerkId)
+    const playlist = await SpotifyConnectionRepository.findPlaylistById(playlistDbId)
+    if (!playlist) {
+      throw createError({ statusCode: 404, statusMessage: 'Playlist not found' })
+    }
+    const requests = await SubEventMusicRequestRepository.findByPlaylistId(playlistDbId)
+    return requests.map((r) => r.toJSON())
+  }
+
+  static async removeFromPlaylist(eventId: number, clerkId: string, playlistDbId: number, requestIds: number[]): Promise<Record<string, unknown>> {
+    await this.#verifyOrganizer(eventId, clerkId)
+
+    const connection = await SpotifyConnectionRepository.findByEventId(eventId)
+    if (!connection) {
+      throw createError({ statusCode: 400, statusMessage: 'Spotify is not connected for this event' })
+    }
+
+    const playlist = await SpotifyConnectionRepository.findPlaylistById(playlistDbId)
+    if (!playlist) {
+      throw createError({ statusCode: 404, statusMessage: 'Playlist not found' })
+    }
+
+    const requests = []
+    for (const id of requestIds) {
+      const req = await SubEventMusicRequestRepository.findById(id)
+      if (req && req.spotifyUri && Number(req.playlistId) === playlistDbId) requests.push(req)
+    }
+
+    if (requests.length === 0) {
+      throw createError({ statusCode: 400, statusMessage: 'No valid tracks to remove' })
+    }
+
+    const accessToken = await getValidToken(connection)
+    const trackUris = requests.map((r) => r.spotifyUri!)
+    await removeTracksFromPlaylist(accessToken, playlist.spotifyPlaylistId, trackUris)
+    await SubEventMusicRequestRepository.unassignFromPlaylist(requests.map((r) => Number(r.id)))
+
+    return { removed: requests.length }
+  }
+
+  static async moveToPlaylist(eventId: number, clerkId: string, fromPlaylistDbId: number | null, toPlaylistDbId: number, requestIds: number[]): Promise<Record<string, unknown>> {
+    await this.#verifyOrganizer(eventId, clerkId)
+
+    const connection = await SpotifyConnectionRepository.findByEventId(eventId)
+    if (!connection) {
+      throw createError({ statusCode: 400, statusMessage: 'Spotify is not connected for this event' })
+    }
+
+    const toPlaylist = await SpotifyConnectionRepository.findPlaylistById(toPlaylistDbId)
+    if (!toPlaylist) {
+      throw createError({ statusCode: 404, statusMessage: 'Target playlist not found' })
+    }
+
+    const requests = []
+    for (const id of requestIds) {
+      const req = await SubEventMusicRequestRepository.findById(id)
+      if (req && req.spotifyUri) requests.push(req)
+    }
+
+    if (requests.length === 0) {
+      throw createError({ statusCode: 400, statusMessage: 'No valid Spotify tracks to move' })
+    }
+
+    const accessToken = await getValidToken(connection)
+    const trackUris = requests.map((r) => r.spotifyUri!)
+
+    // Remove from source playlist if specified
+    if (fromPlaylistDbId) {
+      const fromPlaylist = await SpotifyConnectionRepository.findPlaylistById(fromPlaylistDbId)
+      if (fromPlaylist) {
+        await removeTracksFromPlaylist(accessToken, fromPlaylist.spotifyPlaylistId, trackUris)
+      }
+    }
+
+    // Add to target playlist
+    await addTracksToPlaylist(accessToken, toPlaylist.spotifyPlaylistId, trackUris)
+    await SubEventMusicRequestRepository.assignToPlaylist(
+      requests.map((r) => Number(r.id)),
+      toPlaylistDbId,
+    )
+
+    return { moved: requests.length }
   }
 
   static async addTrackToQueue(eventId: number, clerkId: string, requestId: number): Promise<void> {

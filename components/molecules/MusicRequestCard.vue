@@ -26,9 +26,17 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  selectable: {
+    type: Boolean,
+    default: false,
+  },
+  selected: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['upvote', 'approve', 'reject', 'queue', 'addToPlaylist'])
+const emit = defineEmits(['upvote', 'approve', 'reject', 'queue', 'addToPlaylist', 'select', 'approveAndAdd'])
 
 const isPlaying = ref(false)
 const audioRef = ref(null)
@@ -70,7 +78,16 @@ const statusColor = computed(() => {
 </script>
 
 <template>
-  <div class="music-card" :class="{ 'music-card--rejected': request.status === 'rejected' }">
+  <div class="music-card" :class="{ 'music-card--rejected': request.status === 'rejected', 'music-card--selected': selected }">
+    <!-- Selection checkbox -->
+    <label v-if="selectable" class="music-card__checkbox">
+      <input
+        type="checkbox"
+        :checked="selected"
+        @change="emit('select', request.id)"
+      />
+    </label>
+
     <!-- Album art -->
     <button
       v-if="request.albumArtUrl"
@@ -107,6 +124,14 @@ const statusColor = computed(() => {
         <button type="button" class="music-card__action music-card__action--approve" @click="emit('approve', request.id)">
           <Icon name="lucide:check" size="12" />
         </button>
+        <select
+          v-if="playlists.length > 0 && request.spotifyUri"
+          class="music-card__approve-add-select"
+          @change="(e) => { if (e.target.value) { emit('approveAndAdd', request.id, Number(e.target.value)); e.target.value = '' } }"
+        >
+          <option value="">{{ t('editor.spotify.approveAndAdd') }}</option>
+          <option v-for="pl in playlists" :key="pl.id" :value="pl.id">{{ pl.name }}</option>
+        </select>
         <button type="button" class="music-card__action music-card__action--reject" @click="emit('reject', request.id)">
           <Icon name="lucide:x" size="12" />
         </button>
@@ -174,6 +199,37 @@ const statusColor = computed(() => {
 
 .music-card--rejected {
   opacity: 0.5;
+}
+
+.music-card--selected {
+  border-color: rgba(29, 185, 84, 0.4);
+  background: rgba(29, 185, 84, 0.04);
+}
+
+.music-card__checkbox {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.music-card__checkbox input {
+  width: 14px;
+  height: 14px;
+  accent-color: #1db954;
+  cursor: pointer;
+}
+
+.music-card__approve-add-select {
+  padding: 2px var(--space-2);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--radius-md);
+  background: rgba(34, 197, 94, 0.05);
+  font-family: var(--font-family);
+  font-size: 9px;
+  color: #22c55e;
+  cursor: pointer;
+  max-width: 110px;
 }
 
 .music-card__art-btn {

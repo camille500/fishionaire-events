@@ -160,6 +160,34 @@ async function onQueueMusic(requestId) {
 }
 
 const playlistError = ref('')
+const expandedPlaylistId = ref(null)
+const playlistTracks = ref({})
+const loadingPlaylistTracks = ref(null)
+const selectedRequestIds = ref(new Set())
+const batchMode = ref(false)
+const batchTargetPlaylistId = ref(null)
+const showRejected = ref(false)
+
+const unassignedRequests = computed(() => {
+  const list = musicRequests.value.filter((r) => !r.playlistId && effectiveStatus(r.status) !== 'rejected')
+  if (musicFilter.value === 'all') return list
+  return list.filter((r) => effectiveStatus(r.status) === musicFilter.value)
+})
+
+const rejectedRequests = computed(() => {
+  return musicRequests.value.filter((r) => r.status === 'rejected')
+})
+
+const unassignedCounts = computed(() => {
+  const list = musicRequests.value.filter((r) => !r.playlistId && effectiveStatus(r.status) !== 'rejected')
+  const counts = { all: 0, pending: 0, approved: 0 }
+  for (const r of list) {
+    counts.all++
+    const s = effectiveStatus(r.status)
+    if (counts[s] !== undefined) counts[s]++
+  }
+  return counts
+})
 
 async function onCreatePlaylist() {
   if (!playlistName.value.trim()) return
@@ -201,12 +229,114 @@ async function onAddToPlaylist(playlistId, requestId) {
       body: { playlistId, requestIds: [requestId] },
     })
     await fetchMusicRequests()
+    await fetchSpotifyStatus()
+    if (expandedPlaylistId.value === playlistId) {
+      await fetchPlaylistTracks(playlistId)
+    }
   } catch (err) {
     if (err?.statusCode === 403) {
       playlistError.value = 'quota'
     }
   } finally {
     addingToPlaylist.value = false
+  }
+}
+
+async function fetchPlaylistTracks(playlistId) {
+  loadingPlaylistTracks.value = playlistId
+  try {
+    const tracks = await $fetch(`/api/events/${props.eventId}/spotify/playlist-tracks`, {
+      params: { playlistId },
+    })
+    playlistTracks.value = { ...playlistTracks.value, [playlistId]: tracks }
+  } finally {
+    loadingPlaylistTracks.value = null
+  }
+}
+
+function togglePlaylist(playlistId) {
+  if (expandedPlaylistId.value === playlistId) {
+    expandedPlaylistId.value = null
+  } else {
+    expandedPlaylistId.value = playlistId
+    if (!playlistTracks.value[playlistId]) {
+      fetchPlaylistTracks(playlistId)
+    }
+  }
+}
+
+async function onRemoveFromPlaylist(playlistId, requestId) {
+  try {
+    await $fetch(`/api/events/${props.eventId}/spotify/playlist-remove`, {
+      method: 'POST',
+      body: { playlistId, requestIds: [requestId] },
+    })
+    await fetchMusicRequests()
+    await fetchSpotifyStatus()
+    await fetchPlaylistTracks(playlistId)
+  } catch {}
+}
+
+async function onBatchAddToPlaylist() {
+  if (!batchTargetPlaylistId.value || selectedRequestIds.value.size === 0) return
+  addingToPlaylist.value = true
+  try {
+    await $fetch(`/api/events/${props.eventId}/spotify/playlist-move`, {
+      method: 'POST',
+      body: {
+        fromPlaylistId: null,
+        toPlaylistId: batchTargetPlaylistId.value,
+        requestIds: [...selectedRequestIds.value],
+      },
+    })
+    selectedRequestIds.value = new Set()
+    batchMode.value = false
+    batchTargetPlaylistId.value = null
+    await fetchMusicRequests()
+    await fetchSpotifyStatus()
+    if (expandedPlaylistId.value) {
+      await fetchPlaylistTracks(expandedPlaylistId.value)
+    }
+  } catch (err) {
+    if (err?.statusCode === 403) playlistError.value = 'quota'
+  } finally {
+    addingToPlaylist.value = false
+  }
+}
+
+async function onApproveAndAdd(requestId, playlistId) {
+  await $fetch(`/api/events/${props.eventId}/sub-events/${props.subEvent.id}/music-requests/${requestId}/approve`, {
+    method: 'POST',
+  })
+  try {
+    await $fetch(`/api/events/${props.eventId}/spotify/playlist-add`, {
+      method: 'POST',
+      body: { playlistId, requestIds: [requestId] },
+    })
+  } catch {}
+  await fetchMusicRequests()
+  await fetchSpotifyStatus()
+  if (expandedPlaylistId.value === playlistId) {
+    await fetchPlaylistTracks(playlistId)
+  }
+}
+
+function toggleSelectRequest(requestId) {
+  const next = new Set(selectedRequestIds.value)
+  if (next.has(requestId)) {
+    next.delete(requestId)
+  } else {
+    next.add(requestId)
+  }
+  selectedRequestIds.value = next
+}
+
+function toggleSelectAll() {
+  const eligible = unassignedRequests.value.filter((r) => effectiveStatus(r.status) === 'approved' && r.spotifyUri)
+  if (selectedRequestIds.value.size === eligible.length) {
+    selectedRequestIds.value = new Set()
+  } else {
+    selectedRequestIds.value = new Set(eligible.map((r) => r.id))
   }
 }
 
@@ -453,12 +583,6 @@ onUnmounted(() => {
                       {{ t('editor.spotify.disconnect') }}
                     </button>
                   </div>
-                  <div v-if="spotifyStatus.playlistUrl" class="panel__spotify-playlist-link">
-                    <a :href="spotifyStatus.playlistUrl" target="_blank" rel="noopener noreferrer" class="panel__spotify-link">
-                      <Icon name="lucide:external-link" size="11" />
-                      {{ t('editor.spotify.viewPlaylist') }}
-                    </a>
-                  </div>
                 </template>
                 <button v-else type="button" class="panel__spotify-connect" @click="connectSpotify">
                   <Icon name="lucide:music-2" size="14" />
@@ -466,22 +590,27 @@ onUnmounted(() => {
                 </button>
               </div>
 
-              <!-- Playlists -->
+              <!-- Playlists section -->
               <div v-if="spotifyStatus?.connected" class="panel__playlist-section">
-                <!-- Existing playlists -->
-                <div v-if="spotifyStatus.playlists?.length > 0" class="panel__playlist-list">
-                  <a
+                <div class="panel__section-header">
+                  <h4 class="panel__section-title">
+                    <Icon name="lucide:list-music" size="13" />
+                    {{ t('editor.spotify.playlists') }}
+                  </h4>
+                </div>
+
+                <!-- Expandable playlists -->
+                <div v-if="spotifyStatus.playlists?.length > 0" class="panel__playlist-accordions">
+                  <PlaylistAccordionItem
                     v-for="pl in spotifyStatus.playlists"
                     :key="pl.id"
-                    :href="pl.spotifyPlaylistUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="panel__playlist-item"
-                  >
-                    <Icon name="lucide:list-music" size="12" />
-                    <span>{{ pl.name }}</span>
-                    <Icon name="lucide:external-link" size="10" class="panel__playlist-ext" />
-                  </a>
+                    :playlist="pl"
+                    :tracks="playlistTracks[pl.id] || []"
+                    :loading="loadingPlaylistTracks === pl.id"
+                    :expanded="expandedPlaylistId === pl.id"
+                    @toggle="togglePlaylist(pl.id)"
+                    @remove="(requestId) => onRemoveFromPlaylist(pl.id, requestId)"
+                  />
                 </div>
 
                 <!-- Quota error fallback -->
@@ -516,45 +645,118 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <!-- Filter tabs -->
-              <div v-if="musicRequests.length > 0" class="panel__music-filters">
-                <button
-                  v-for="f in ['all', 'pending', 'approved', 'rejected']"
-                  :key="f"
-                  type="button"
-                  class="panel__music-filter"
-                  :class="{ 'panel__music-filter--active': musicFilter === f }"
-                  @click="musicFilter = f"
-                >
-                  {{ t(`editor.musicRequest.filter.${f}`) }}
-                  <span class="panel__music-filter-count">{{ musicCounts[f] }}</span>
-                </button>
+              <!-- Unassigned requests section -->
+              <div v-if="musicRequests.length > 0" class="panel__unassigned-section">
+                <div class="panel__section-header">
+                  <h4 class="panel__section-title">
+                    <Icon name="lucide:music" size="13" />
+                    {{ t('editor.spotify.unassigned') }}
+                    <span class="panel__section-count">{{ unassignedCounts.all }}</span>
+                  </h4>
+                  <button
+                    v-if="spotifyStatus?.connected && spotifyStatus.playlists?.length > 0 && unassignedCounts.approved > 0"
+                    type="button"
+                    class="panel__batch-toggle"
+                    :class="{ 'panel__batch-toggle--active': batchMode }"
+                    @click="batchMode = !batchMode; selectedRequestIds = new Set()"
+                  >
+                    <Icon name="lucide:check-square" size="12" />
+                  </button>
+                </div>
+
+                <!-- Batch toolbar -->
+                <div v-if="batchMode" class="panel__batch-toolbar">
+                  <label class="panel__batch-select-all">
+                    <input type="checkbox" :checked="selectedRequestIds.size > 0" @change="toggleSelectAll" />
+                    {{ t('editor.spotify.selectAll') }}
+                  </label>
+                  <div class="panel__batch-actions">
+                    <select v-model="batchTargetPlaylistId" class="panel__batch-playlist-select">
+                      <option :value="null" disabled>{{ t('editor.spotify.addToPlaylist') }}</option>
+                      <option v-for="pl in spotifyStatus.playlists" :key="pl.id" :value="pl.id">{{ pl.name }}</option>
+                    </select>
+                    <AppButton
+                      variant="outline"
+                      size="sm"
+                      :disabled="!batchTargetPlaylistId || selectedRequestIds.size === 0 || addingToPlaylist"
+                      @click="onBatchAddToPlaylist"
+                    >
+                      {{ t('editor.spotify.batchAdd') }} ({{ selectedRequestIds.size }})
+                    </AppButton>
+                  </div>
+                </div>
+
+                <!-- Filter tabs -->
+                <div class="panel__music-filters">
+                  <button
+                    v-for="f in ['all', 'pending', 'approved']"
+                    :key="f"
+                    type="button"
+                    class="panel__music-filter"
+                    :class="{ 'panel__music-filter--active': musicFilter === f }"
+                    @click="musicFilter = f"
+                  >
+                    {{ t(`editor.musicRequest.filter.${f}`) }}
+                    <span class="panel__music-filter-count">{{ unassignedCounts[f] }}</span>
+                  </button>
+                </div>
+
+                <!-- Request list -->
+                <div v-if="unassignedRequests.length > 0" class="panel__music-list">
+                  <MusicRequestCard
+                    v-for="request in unassignedRequests"
+                    :key="request.id"
+                    :request="request"
+                    :can-vote="false"
+                    :show-status="true"
+                    :show-actions="canEdit"
+                    :spotify-connected="spotifyStatus?.connected || false"
+                    :playlists="spotifyStatus?.playlists || []"
+                    :selectable="batchMode && effectiveStatus(request.status) === 'approved' && !!request.spotifyUri"
+                    :selected="selectedRequestIds.has(request.id)"
+                    @approve="onApproveMusic"
+                    @reject="onRejectMusic"
+                    @queue="onQueueMusic"
+                    @upvote="onUpvoteMusic"
+                    @add-to-playlist="(reqId, plId) => onAddToPlaylist(plId, reqId)"
+                    @select="toggleSelectRequest"
+                    @approve-and-add="onApproveAndAdd"
+                  />
+                </div>
+                <div v-else-if="unassignedCounts.all === 0 && musicRequests.length > 0" class="panel__empty panel__empty--sm">
+                  <Icon name="lucide:check-circle" size="18" />
+                  <span>{{ t('editor.spotify.emptyUnassigned') }}</span>
+                </div>
+                <div v-else class="panel__empty panel__empty--sm">
+                  <span>{{ t('editor.musicRequest.noResults') }}</span>
+                </div>
               </div>
 
-              <!-- Request list -->
-              <div v-if="filteredMusicRequests.length > 0" class="panel__music-list">
-                <MusicRequestCard
-                  v-for="request in filteredMusicRequests"
-                  :key="request.id"
-                  :request="request"
-                  :can-vote="false"
-                  :show-status="true"
-                  :show-actions="canEdit"
-                  :spotify-connected="spotifyStatus?.connected || false"
-                  :playlists="spotifyStatus?.playlists || []"
-                  @approve="onApproveMusic"
-                  @reject="onRejectMusic"
-                  @queue="onQueueMusic"
-                  @upvote="onUpvoteMusic"
-                  @add-to-playlist="(reqId, plId) => onAddToPlaylist(plId, reqId)"
-                />
+              <!-- Rejected section (collapsible) -->
+              <div v-if="rejectedRequests.length > 0" class="panel__rejected-section">
+                <button type="button" class="panel__rejected-toggle" @click="showRejected = !showRejected">
+                  <Icon :name="showRejected ? 'lucide:chevron-down' : 'lucide:chevron-right'" size="13" />
+                  {{ t('editor.musicRequest.rejected') }}
+                  <span class="panel__section-count">{{ rejectedRequests.length }}</span>
+                </button>
+                <div v-if="showRejected" class="panel__music-list">
+                  <MusicRequestCard
+                    v-for="request in rejectedRequests"
+                    :key="request.id"
+                    :request="request"
+                    :can-vote="false"
+                    :show-status="true"
+                    :show-actions="false"
+                    :spotify-connected="false"
+                    :playlists="[]"
+                  />
+                </div>
               </div>
-              <div v-else-if="musicRequests.length === 0" class="panel__empty">
+
+              <!-- Empty state -->
+              <div v-if="musicRequests.length === 0" class="panel__empty">
                 <Icon name="lucide:music" size="24" />
                 <span>{{ t('editor.musicRequest.none') }}</span>
-              </div>
-              <div v-else class="panel__empty">
-                <span>{{ t('editor.musicRequest.noResults') }}</span>
               </div>
 
               <!-- Refresh -->
@@ -1030,35 +1232,140 @@ onUnmounted(() => {
   gap: var(--space-2);
 }
 
-.panel__playlist-list {
+.panel__section-header {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
-.panel__playlist-item {
+.panel__section-title {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: var(--color-surface);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.panel__section-count {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-light);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.panel__playlist-accordions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel__unassigned-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panel__batch-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.panel__batch-toggle:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.panel__batch-toggle--active {
+  background: rgba(29, 185, 84, 0.1);
+  border-color: rgba(29, 185, 84, 0.3);
+  color: #1db954;
+}
+
+.panel__batch-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(29, 185, 84, 0.04);
+  border: 1px solid rgba(29, 185, 84, 0.15);
+  border-radius: var(--radius-md);
+}
+
+.panel__batch-select-all {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.panel__batch-select-all input {
+  accent-color: #1db954;
+  cursor: pointer;
+}
+
+.panel__batch-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.panel__batch-playlist-select {
+  flex: 1;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-family);
   font-size: var(--text-xs);
   color: var(--color-text-primary);
-  text-decoration: none;
-  transition: background var(--transition-fast);
+  cursor: pointer;
 }
 
-.panel__playlist-item:hover {
-  background: var(--color-border-light);
+.panel__rejected-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
-.panel__playlist-item span {
-  flex: 1;
-}
-
-.panel__playlist-ext {
+.panel__rejected-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.panel__rejected-toggle:hover {
+  color: var(--color-text-secondary);
+}
+
+.panel__empty--sm {
+  padding: var(--space-4);
 }
 
 .panel__quota-fallback {

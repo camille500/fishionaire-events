@@ -1051,7 +1051,7 @@
       "bulkAdd": "Meerdere gasten toevoegen",
       "bulkPaste": "Plakken",
       "bulkUpload": "CSV uploaden",
-      "bulkTextareaPlaceholder": "E-mailadressen, één per regel (optioneel met naam)",
+      "bulkTextareaPlaceholder": "E-mailadressen, één per regel (optioneel met naam en extra personen)",
       "bulkPreview": "Voorbeeld bekijken",
       "bulkSend": "{count} gast toevoegen | {count} gasten toevoegen",
       "bulkResultCreated": "{count} gast toegevoegd | {count} gasten toegevoegd",
@@ -1269,7 +1269,18 @@
       "playlistNamePlaceholder": "Naam afspeellijst",
       "premiumRequired": "Spotify Premium is vereist om nummers aan de wachtrij toe te voegen",
       "quotaMessage": "Spotify vereist app-goedkeuring voor het maken van afspeellijsten. Je kunt de nummers kopiëren en handmatig een afspeellijst maken.",
-      "copyTrackList": "Kopieer nummers"
+      "copyTrackList": "Kopieer nummers",
+      "playlists": "Afspeellijsten",
+      "unassigned": "Niet toegewezen",
+      "trackCount": "{count} nummer(s)",
+      "duration": "{minutes} min",
+      "removeFromPlaylist": "Verwijderen uit lijst",
+      "moveToPlaylist": "Verplaatsen naar...",
+      "approveAndAdd": "Goedkeuren & toevoegen",
+      "batchAdd": "Geselecteerde toevoegen",
+      "selectAll": "Alles selecteren",
+      "noTracksInPlaylist": "Nog geen nummers in deze lijst",
+      "emptyUnassigned": "Alle nummers zijn toegewezen"
     },
     "capacity": {
       "label": "Capaciteit",

@@ -13,21 +13,15 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid event ID' })
   }
 
-  const { guests, plusOnes, subEventInvites } = await readBody<{
-    guests: Array<{ email: string, name?: string }>
-    plusOnes?: number
+  const { guests, subEventInvites } = await readBody<{
+    guests: Array<{ email: string, name?: string, plusOnes?: number }>
     subEventInvites?: { subEventId: number, plusOnes: number }[]
   }>(event)
-
-  const guestsWithPlusOnes = (guests || []).map((g) => ({
-    ...g,
-    plusOnes: plusOnes || 0,
-  }))
 
   const result = await EventController.bulkInviteToEvent(
     eventId,
     userId,
-    guestsWithPlusOnes,
+    guests || [],
     subEventInvites || []
   )
 

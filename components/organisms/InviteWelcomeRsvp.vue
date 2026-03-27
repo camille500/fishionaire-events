@@ -1,5 +1,7 @@
 <script setup>
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const timeLocale = computed(() => locale.value === 'nl' ? 'nl-NL' : 'en-GB')
 
 const props = defineProps({
   eventData: { type: Object, required: true },
@@ -173,7 +175,7 @@ function handleRsvp(status) {
               />
               <span class="invite-rsvp__sub-event-name">{{ se.title }}</span>
               <span v-if="se.startTime" class="invite-rsvp__sub-event-time">
-                {{ new Date(se.startTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) }}
+                {{ new Date(se.startTime).toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' }) }}
               </span>
             </label>
           </div>
