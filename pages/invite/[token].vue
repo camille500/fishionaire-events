@@ -243,9 +243,9 @@ const progressSteps = computed(() => {
       completed: pollVoted.value,
     })
   }
-  // Dietary (if any dinner sub-events exist)
-  const hasDinner = subEvents.value.some(se => se.type === 'dinner')
-  if (hasDinner) {
+  // Dietary (if any sub-events have dietary enabled)
+  const hasDietary = subEvents.value.some(se => se.typeConfig?.dietaryEnabled)
+  if (hasDietary) {
     steps.push({
       id: 'dietary',
       label: t('invite.progress.dietary'),
@@ -253,9 +253,9 @@ const progressSteps = computed(() => {
       completed: dietaryCompleted.value,
     })
   }
-  // Music (if any party sub-events exist)
-  const hasParty = subEvents.value.some(se => se.type === 'party')
-  if (hasParty) {
+  // Music (if any sub-events have music requests enabled)
+  const hasMusic = subEvents.value.some(se => se.typeConfig?.musicRequestsEnabled)
+  if (hasMusic) {
     steps.push({
       id: 'music',
       label: t('invite.progress.music'),
@@ -393,7 +393,7 @@ const musicCompleted = ref(false)
 
 watch(subEvents, (subs) => {
   for (const se of subs) {
-    if (se.type === 'party' && !musicLists[se.id]) {
+    if (se.typeConfig?.musicRequestsEnabled && !musicLists[se.id]) {
       fetchMusicRequests(se.id)
     }
   }

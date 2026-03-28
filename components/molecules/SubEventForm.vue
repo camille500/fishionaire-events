@@ -70,16 +70,20 @@ if (aiGenerator) {
   })
 }
 
-// Party config helpers
-const partyConfig = computed({
-  get() {
-    return {
-      musicRequestsEnabled: form.typeConfig.musicRequestsEnabled ?? true,
-    }
-  },
-  set(val) {
-    form.typeConfig = { ...form.typeConfig, ...val }
-  },
+// Feature toggle helpers
+function toggleDietary(e) {
+  form.typeConfig = { ...form.typeConfig, dietaryEnabled: e.target.checked }
+}
+
+// Auto-enable sensible defaults when type changes
+watch(() => form.type, (newType, oldType) => {
+  if (!oldType) return
+  if (newType === 'dinner' && form.typeConfig.dietaryEnabled === undefined) {
+    form.typeConfig = { ...form.typeConfig, dietaryEnabled: true }
+  }
+  if (newType === 'party' && form.typeConfig.musicRequestsEnabled === undefined) {
+    form.typeConfig = { ...form.typeConfig, musicRequestsEnabled: true }
+  }
 })
 
 // Activity config helpers
@@ -144,8 +148,8 @@ function onSubmit() {
     location: form.location || null,
     locationLat: form.locationLat,
     locationLon: form.locationLon,
-    capacity: form.type === 'activity' ? form.capacity : null,
-    dressCode: form.type === 'party' ? form.dressCode : null,
+    capacity: form.capacity || null,
+    dressCode: form.dressCode || null,
     typeConfig: form.typeConfig,
   })
 }
@@ -211,41 +215,50 @@ function onSubmit() {
       />
     </div>
 
-    <!-- Party-specific fields -->
-    <template v-if="form.type === 'party'">
-      <div class="sub-event-form__divider" />
-      <div class="sub-event-form__type-header">
-        <SubEventTypeIcon type="party" size="xs" />
-        <span>{{ t('editor.subEventTypes.partySettings') }}</span>
-      </div>
-      <div class="sub-event-form__field">
-        <label class="sub-event-form__label">{{ t('editor.dressCode.label') }}</label>
-        <AppInput
-          v-model="form.dressCode"
-          :placeholder="t('editor.dressCode.placeholder')"
-          :disabled="loading"
-          icon="lucide:shirt"
+    <!-- Feature toggles (available for all types) -->
+    <div class="sub-event-form__divider" />
+    <div class="sub-event-form__type-header">
+      <Icon name="lucide:puzzle" size="14" />
+      <span>{{ t('editor.features.title') }}</span>
+    </div>
+    <div class="sub-event-form__feature-list">
+      <label class="sub-event-form__feature">
+        <input
+          type="checkbox"
+          :checked="form.typeConfig.dietaryEnabled || false"
+          @change="toggleDietary"
         />
-      </div>
-      <div class="sub-event-form__check-row">
-        <label class="sub-event-form__checkbox">
-          <input
-            type="checkbox"
-            :checked="partyConfig.musicRequestsEnabled"
-            @change="toggleMusicRequests"
-          />
-          {{ t('editor.musicRequest.enableRequests') }}
-        </label>
-        <label v-if="partyConfig.musicRequestsEnabled" class="sub-event-form__checkbox">
-          <input
-            type="checkbox"
-            :checked="form.typeConfig.autoApproveRequests || false"
-            @change="toggleAutoApprove"
-          />
-          {{ t('editor.musicRequest.autoApprove') }}
-        </label>
-      </div>
-    </template>
+        <div class="sub-event-form__feature-info">
+          <span class="sub-event-form__feature-label">
+            <Icon name="lucide:heart-pulse" size="13" />
+            {{ t('editor.features.dietaryEnabled') }}
+          </span>
+          <span class="sub-event-form__feature-hint">{{ t('editor.features.dietaryHint') }}</span>
+        </div>
+      </label>
+      <label class="sub-event-form__feature">
+        <input
+          type="checkbox"
+          :checked="form.typeConfig.musicRequestsEnabled || false"
+          @change="toggleMusicRequests"
+        />
+        <div class="sub-event-form__feature-info">
+          <span class="sub-event-form__feature-label">
+            <Icon name="lucide:music" size="13" />
+            {{ t('editor.features.musicRequestsEnabled') }}
+          </span>
+          <span class="sub-event-form__feature-hint">{{ t('editor.features.musicHint') }}</span>
+        </div>
+      </label>
+      <label v-if="form.typeConfig.musicRequestsEnabled" class="sub-event-form__checkbox sub-event-form__checkbox--nested">
+        <input
+          type="checkbox"
+          :checked="form.typeConfig.autoApproveRequests || false"
+          @change="toggleAutoApprove"
+        />
+        {{ t('editor.musicRequest.autoApprove') }}
+      </label>
+    </div>
 
     <!-- Activity-specific fields -->
     <template v-if="form.type === 'activity'">
@@ -288,15 +301,6 @@ function onSubmit() {
           :disabled="loading"
           icon="lucide:package"
         />
-      </div>
-    </template>
-
-    <!-- Dinner-specific hint -->
-    <template v-if="form.type === 'dinner'">
-      <div class="sub-event-form__divider" />
-      <div class="sub-event-form__hint">
-        <Icon name="lucide:info" size="12" />
-        {{ t('editor.dinner.configHint') }}
       </div>
     </template>
 
@@ -418,6 +422,62 @@ function onSubmit() {
 
 .sub-event-form__checkbox input {
   accent-color: var(--color-accent);
+}
+
+.sub-event-form__checkbox--nested {
+  padding-left: var(--space-6);
+}
+
+.sub-event-form__feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sub-event-form__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sub-event-form__feature:hover {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.sub-event-form__feature:has(input:checked) {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 4%, transparent);
+}
+
+.sub-event-form__feature input {
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+}
+
+.sub-event-form__feature-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sub-event-form__feature-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.sub-event-form__feature-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 
 .sub-event-form__select {

@@ -56,7 +56,8 @@
     "vue-advanced-cropper": "^2.8.9",
     "vue-chartjs": "^5.3.3",
     "vue-draggable-plus": "^0.6.1",
-    "vue-router": "^5.0.4"
+    "vue-router": "^5.0.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^1.15.2",

@@ -432,6 +432,15 @@ export default class EventController {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission to invite to this event' })
     }
 
+    // Enforce guest limit for RSVP-mode events
+    const eventData = await EventRepository.findById(eventId)
+    if (eventData?.guestLimit) {
+      const currentCount = await EventRepository.getInvitationCount(String(eventId))
+      if (currentCount >= eventData.guestLimit) {
+        throw createError({ statusCode: 400, statusMessage: `Guest limit reached (${eventData.guestLimit})` })
+      }
+    }
+
     const existing = await EventInvitationRepository.findByEventIdAndEmail(eventId, normalizedEmail)
     if (existing) {
       throw createError({ statusCode: 409, statusMessage: 'This person is already invited' })
@@ -473,6 +482,19 @@ export default class EventController {
     const member = await EventMemberRepository.findByEventIdAndUserId(eventId, inviterClerkId)
     if (!member || !member.canEdit) {
       throw createError({ statusCode: 403, statusMessage: 'You do not have permission to invite to this event' })
+    }
+
+    // Enforce guest limit for RSVP-mode events
+    const eventData = await EventRepository.findById(eventId)
+    if (eventData?.guestLimit) {
+      const currentCount = await EventRepository.getInvitationCount(String(eventId))
+      const remaining = eventData.guestLimit - currentCount
+      if (remaining <= 0) {
+        throw createError({ statusCode: 400, statusMessage: `Guest limit reached (${eventData.guestLimit})` })
+      }
+      if (guests.length > remaining) {
+        throw createError({ statusCode: 400, statusMessage: `Only ${remaining} guest slots remaining (limit: ${eventData.guestLimit})` })
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

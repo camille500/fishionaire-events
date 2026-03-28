@@ -39,6 +39,8 @@ export default class EventRepository {
         aiExtraContext: data.aiExtraContext,
         rsvpEnabled: data.rsvpEnabled,
         rsvpDeadline: data.rsvpDeadline,
+        mode: data.mode,
+        guestLimit: data.guestLimit,
       },
     })
     return Event.fromJSON(row)
@@ -61,7 +63,16 @@ export default class EventRepository {
   static async findByOwner(clerkId: string): Promise<Event[]> {
     const prisma = usePrisma()
     const rows = await prisma.event.findMany({
-      where: { ownerClerkId: clerkId, archivedAt: null },
+      where: { ownerClerkId: clerkId, archivedAt: null, mode: 'event' },
+      orderBy: { createdAt: 'desc' },
+    })
+    return rows.map((row) => Event.fromJSON(row))
+  }
+
+  static async findRsvpsByOwner(clerkId: string): Promise<Event[]> {
+    const prisma = usePrisma()
+    const rows = await prisma.event.findMany({
+      where: { ownerClerkId: clerkId, archivedAt: null, mode: 'rsvp' },
       orderBy: { createdAt: 'desc' },
     })
     return rows.map((row) => Event.fromJSON(row))
@@ -137,6 +148,8 @@ export default class EventRepository {
         rsvpDeadline: data.rsvpDeadline,
         guestUploadsEnabled: data.guestUploadsEnabled,
         socialWallAutoApprove: data.socialWallAutoApprove,
+        mode: data.mode,
+        guestLimit: data.guestLimit,
         updatedAt: new Date(),
       },
     })

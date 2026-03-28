@@ -34,30 +34,41 @@ const tabs = computed(() => {
     { key: 'overview', label: t('editor.subEventDetail.overview'), icon: 'lucide:info' },
   ]
 
-  switch (props.subEvent.type) {
-    case 'ceremony':
-      base.push(
-        { key: 'content', label: t('editor.subEventDetail.content'), icon: 'lucide:file-text' },
-        { key: 'speakers', label: t('editor.subEventDetail.speakers'), icon: 'lucide:users' },
-      )
-      break
-    case 'dinner':
-      base.push(
-        { key: 'menu', label: t('editor.subEventDetail.menu'), icon: 'lucide:utensils' },
-        { key: 'dietary', label: t('editor.subEventDetail.dietary'), icon: 'lucide:heart-pulse' },
-      )
-      break
-    case 'party':
-      base.push(
-        { key: 'plusOnes', label: t('editor.subEventDetail.plusOnes'), icon: 'lucide:user-plus' },
-        { key: 'music', label: t('editor.subEventDetail.musicRequests'), icon: 'lucide:music' },
-      )
-      break
-    case 'activity':
-      base.push(
-        { key: 'details', label: t('editor.subEventDetail.activityDetails'), icon: 'lucide:settings-2' },
-      )
-      break
+  const tc = props.subEvent.typeConfig || {}
+
+  // Type-specific tabs
+  if (props.subEvent.type === 'ceremony') {
+    base.push(
+      { key: 'content', label: t('editor.subEventDetail.content'), icon: 'lucide:file-text' },
+      { key: 'speakers', label: t('editor.subEventDetail.speakers'), icon: 'lucide:users' },
+    )
+  }
+  if (props.subEvent.type === 'dinner') {
+    base.push(
+      { key: 'menu', label: t('editor.subEventDetail.menu'), icon: 'lucide:utensils' },
+    )
+  }
+  if (props.subEvent.type === 'activity') {
+    base.push(
+      { key: 'details', label: t('editor.subEventDetail.activityDetails'), icon: 'lucide:settings-2' },
+    )
+  }
+  if (props.subEvent.type === 'party') {
+    base.push(
+      { key: 'plusOnes', label: t('editor.subEventDetail.plusOnes'), icon: 'lucide:user-plus' },
+    )
+  }
+
+  // Feature-based tabs (available on any type)
+  if (tc.dietaryEnabled) {
+    base.push(
+      { key: 'dietary', label: t('editor.subEventDetail.dietary'), icon: 'lucide:heart-pulse' },
+    )
+  }
+  if (tc.musicRequestsEnabled) {
+    base.push(
+      { key: 'music', label: t('editor.subEventDetail.musicRequests'), icon: 'lucide:music' },
+    )
   }
 
   return base
@@ -379,10 +390,13 @@ function onKeydown(e) {
 
 onMounted(() => {
   fetchDetail()
-  if (props.subEvent.type === 'party') {
+  const tc = props.subEvent.typeConfig || {}
+  if (tc.musicRequestsEnabled) {
     fetchMusicRequests()
-    fetchPlusOnes()
     fetchSpotifyStatus()
+  }
+  if (props.subEvent.type === 'party') {
+    fetchPlusOnes()
   }
   document.addEventListener('keydown', onKeydown)
 })

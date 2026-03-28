@@ -42,8 +42,9 @@ export default class SubEventInteractionController {
   static async submitDietary(subEventId: number, email: string, data: { guestName?: string, restrictions: string, notes?: string }): Promise<Record<string, unknown>> {
     const subEvent = await this.#verifyGuestAccess(subEventId, email)
 
-    if (subEvent.type !== 'dinner') {
-      throw createError({ statusCode: 400, statusMessage: 'Dietary preferences are only available for dinner sub-events' })
+    const tc = subEvent.typeConfig as Record<string, unknown> || {}
+    if (!tc.dietaryEnabled) {
+      throw createError({ statusCode: 400, statusMessage: 'Dietary preferences are not enabled for this sub-event' })
     }
 
     if (!data.restrictions || !data.restrictions.trim()) {
@@ -102,12 +103,8 @@ export default class SubEventInteractionController {
   static async requestPlusOne(subEventId: number, email: string, plusOneName: string): Promise<Record<string, unknown>> {
     const subEvent = await this.#verifyGuestAccess(subEventId, email)
 
-    if (subEvent.type !== 'party') {
-      throw createError({ statusCode: 400, statusMessage: 'Plus-one requests are only available for party sub-events' })
-    }
-
-    const config = subEvent.typeConfig as { allowPlusOnes?: boolean, maxPlusOnes?: number }
-    if (!config.allowPlusOnes) {
+    const plusOneConfig = subEvent.typeConfig as { allowPlusOnes?: boolean, maxPlusOnes?: number }
+    if (!plusOneConfig.allowPlusOnes) {
       throw createError({ statusCode: 400, statusMessage: 'Plus-ones are not enabled for this sub-event' })
     }
 
@@ -117,7 +114,7 @@ export default class SubEventInteractionController {
 
     if (subEvent.capacity) {
       const currentCount = await SubEventPlusOneRepository.countBySubEventId(subEventId)
-      if (currentCount >= (config.maxPlusOnes || subEvent.capacity)) {
+      if (currentCount >= (plusOneConfig.maxPlusOnes || subEvent.capacity)) {
         throw createError({ statusCode: 400, statusMessage: 'No more plus-one spots available' })
       }
     }
@@ -168,12 +165,8 @@ export default class SubEventInteractionController {
   }): Promise<Record<string, unknown>> {
     const subEvent = await this.#verifyGuestAccess(subEventId, email)
 
-    if (subEvent.type !== 'party') {
-      throw createError({ statusCode: 400, statusMessage: 'Music requests are only available for party sub-events' })
-    }
-
     const config = subEvent.typeConfig as { musicRequestsEnabled?: boolean, autoApproveRequests?: boolean }
-    if (config.musicRequestsEnabled === false) {
+    if (!config.musicRequestsEnabled) {
       throw createError({ statusCode: 400, statusMessage: 'Music requests are not enabled for this sub-event' })
     }
 

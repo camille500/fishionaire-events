@@ -82,8 +82,8 @@ function toggleMusicList(subEventId) {
           {{ t('editor.subEventPreview.capacity', { count: se.capacity }) }}
         </div>
 
-        <!-- Dinner: dietary preferences -->
-        <div v-if="se.type === 'dinner'" class="invite-timeline__interaction">
+        <!-- Dietary preferences (any sub-event with dietaryEnabled) -->
+        <div v-if="se.typeConfig?.dietaryEnabled" class="invite-timeline__interaction">
           <p class="invite-timeline__hint">
             <Icon name="lucide:heart-pulse" size="13" />
             {{ t('invite.programme.dietaryHint') }}
@@ -94,8 +94,8 @@ function toggleMusicList(subEventId) {
           />
         </div>
 
-        <!-- Party: music requests -->
-        <div v-if="se.type === 'party' && se.typeConfig?.musicRequestsEnabled !== false" class="invite-timeline__interaction">
+        <!-- Music requests (any sub-event with musicRequestsEnabled) -->
+        <div v-if="se.typeConfig?.musicRequestsEnabled" class="invite-timeline__interaction">
           <p class="invite-timeline__hint">
             <Icon name="lucide:music" size="13" />
             {{ t('invite.programme.musicHint') }}

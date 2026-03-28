@@ -17,6 +17,7 @@ interface TierFeatureSet {
   digestEmails: boolean
   socialWall: boolean
   checkIn: boolean
+  standaloneRsvp: boolean
 }
 
 export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
@@ -37,6 +38,7 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     digestEmails: false,
     socialWall: false,
     checkIn: false,
+    standaloneRsvp: false,
   },
   standard: {
     rsvp: true,
@@ -55,6 +57,7 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     digestEmails: false,
     socialWall: true,
     checkIn: true,
+    standaloneRsvp: true,
   },
   pro: {
     rsvp: true,
@@ -73,7 +76,16 @@ export const TIER_FEATURES: Record<TierName, TierFeatureSet> = {
     digestEmails: true,
     socialWall: true,
     checkIn: true,
+    standaloneRsvp: true,
   },
+}
+
+export const RSVP_PRICE_CENTS = 199
+
+export const RSVP_GUEST_LIMITS: Record<TierName, number> = {
+  free: 50,
+  standard: 50,
+  pro: 100,
 }
 
 export const TIER_ORDER: Record<TierName, number> = { free: 0, standard: 1, pro: 2 }

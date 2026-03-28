@@ -251,7 +251,14 @@ export default class SubscriptionController {
     }
 
     if (session.mode === 'payment') {
-      const { eventId, tier, purchaseId } = session.metadata
+      const { eventId, tier, purchaseId, type } = session.metadata
+
+      // Handle standalone RSVP purchase (no eventId or purchaseId yet)
+      if (type === 'rsvp') {
+        // RSVP checkout completed — the RSVP will be created by the frontend
+        // after redirect. Nothing to do here besides confirming payment.
+        return
+      }
 
       await EventPurchaseRepository.updateStatus(Number(purchaseId), 'completed')
       await EventPurchaseRepository.updateCheckoutSessionId(Number(purchaseId), session.id)

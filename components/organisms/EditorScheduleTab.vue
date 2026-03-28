@@ -3,8 +3,6 @@ const { t } = useI18n()
 const { eventId, eventData, form, canEdit } = useEventEditor()
 
 const hasAi = computed(() => !!eventData.value?.features?.aiAssistant)
-const hasTimeline = computed(() => !!eventData.value?.features?.timeline)
-
 const subEventListRef = ref(null)
 const detailSubEvent = ref(null)
 
@@ -75,18 +73,6 @@ function onDetailSaved() {
       />
     </section>
 
-    <!-- Timeline (Pro feature) -->
-    <section
-      class="editor-schedule__section"
-      :class="{ 'editor-schedule__section--locked': !hasTimeline }"
-    >
-      <EventTimelineEditor
-        :event-id="eventData.id"
-        :editable="canEdit"
-        :locked="!hasTimeline"
-      />
-    </section>
-
     <!-- Detail Panel (slide-over) -->
     <SubEventDetailPanel
       v-if="detailSubEvent"
@@ -112,7 +98,4 @@ function onDetailSaved() {
   gap: var(--space-3);
 }
 
-.editor-schedule__section--locked {
-  position: relative;
-}
 </style>

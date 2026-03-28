@@ -71,9 +71,25 @@ function handleParse() {
   phase.value = 'preview'
 }
 
-function handleFileSelect(e) {
+async function handleFileSelect(e) {
   const file = e.target?.files?.[0] || e.dataTransfer?.files?.[0]
   if (!file) return
+
+  const isXlsx = file.name.endsWith('.xlsx') || file.name.endsWith('.xls') ||
+    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.type === 'application/vnd.ms-excel'
+
+  if (isXlsx) {
+    const XLSX = await import('xlsx')
+    const buffer = await file.arrayBuffer()
+    const workbook = XLSX.read(buffer, { type: 'array' })
+    const sheet = workbook.Sheets[workbook.SheetNames[0]]
+    const csv = XLSX.utils.sheet_to_csv(sheet)
+    parsedGuests.value = parseLines(csv)
+    phase.value = 'preview'
+    return
+  }
+
   const reader = new FileReader()
   reader.onload = () => {
     parsedGuests.value = parseLines(reader.result)
@@ -183,11 +199,16 @@ function toggleSubEvent(id) {
         <input
           ref="fileInput"
           type="file"
-          accept=".csv,.txt,.tsv"
+          accept=".csv,.txt,.tsv,.xlsx,.xls"
           class="bulk-import__file-input"
           @change="handleFileSelect"
         />
       </div>
+
+      <a href="/templates/guest-import-template.csv" download class="bulk-import__template-link">
+        <Icon name="lucide:download" size="13" />
+        {{ t('editor.guests.downloadTemplate') }}
+      </a>
 
       <!-- Shared options -->
       <div class="bulk-import__options">
@@ -417,6 +438,22 @@ function toggleSubEvent(id) {
 
 .bulk-import__file-input {
   display: none;
+}
+
+.bulk-import__template-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  text-decoration: none;
+  padding: var(--space-1) 0;
+  transition: opacity var(--transition-fast);
+}
+
+.bulk-import__template-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 .bulk-import__options {

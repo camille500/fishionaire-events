@@ -16,6 +16,8 @@ interface DateOptionInput {
 interface VoteInput {
   optionId: string
   status: DatePollVoteStatus
+  attendFrom?: string | null
+  attendUntil?: string | null
 }
 
 export default class DatePollController {
@@ -256,7 +258,10 @@ export default class DatePollController {
       if (!validStatuses.includes(vote.status)) {
         throw createError({ statusCode: 400, statusMessage: `Invalid vote status: ${vote.status}` })
       }
-      await DatePollVoteRepository.upsert(vote.optionId, voterEmail.toLowerCase(), vote.status, voterName)
+      await DatePollVoteRepository.upsert(
+        vote.optionId, voterEmail.toLowerCase(), vote.status, voterName, null,
+        vote.attendFrom || null, vote.attendUntil || null,
+      )
     }
 
     const updated = await DatePollRepository.findByEventId(eventId)
@@ -296,7 +301,10 @@ export default class DatePollController {
       if (!validStatuses.includes(vote.status)) {
         throw createError({ statusCode: 400, statusMessage: `Invalid vote status: ${vote.status}` })
       }
-      await DatePollVoteRepository.upsert(vote.optionId, voterEmail.toLowerCase(), vote.status, voterName)
+      await DatePollVoteRepository.upsert(
+        vote.optionId, voterEmail.toLowerCase(), vote.status, voterName, null,
+        vote.attendFrom || null, vote.attendUntil || null,
+      )
     }
 
     const updated = await DatePollRepository.findByEventId(eventId)
@@ -328,6 +336,8 @@ export default class DatePollController {
           email: v.voterEmail,
           name: v.voterName,
           status: v.status,
+          attendFrom: v.attendFrom,
+          attendUntil: v.attendUntil,
         })),
       })),
     }

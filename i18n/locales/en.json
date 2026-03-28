@@ -486,6 +486,7 @@
       "home": "Home",
       "profile": "Profile",
       "events": "Events",
+      "rsvps": "RSVPs",
       "invitations": "Invitations",
       "settings": "Settings",
       "billing": "Billing",
@@ -1035,6 +1036,9 @@
       "dietaryNote": "Guest will be asked about dietary preferences",
       "musicNote": "Guest can request songs",
       "copyInviteLink": "Copy invite link",
+      "shareWhatsApp": "Share via WhatsApp",
+      "whatsappMessage": "You're invited! Check it out here: {link}",
+      "downloadTemplate": "Download template",
       "copyShareLink": "Copy shareable link",
       "linkCopied": "Copied!",
       "noGuests": "No guests invited yet",
@@ -1195,6 +1199,7 @@
       "dinnerDefault": "Dietary preferences enabled",
       "plusOnesAllowed": "Plus-ones allowed",
       "musicRequests": "Music requests",
+      "dietaryEnabled": "Dietary wishes",
       "capacity": "{count} spots",
       "hasContent": "Rich content added"
     },
@@ -1297,6 +1302,13 @@
     "materials": {
       "label": "Materials needed",
       "placeholder": "e.g. Yoga mat, Notebook, Pen"
+    },
+    "features": {
+      "title": "Features",
+      "dietaryEnabled": "Dietary wishes & allergies",
+      "dietaryHint": "Guests can submit their dietary preferences and allergies",
+      "musicRequestsEnabled": "Music requests (Spotify)",
+      "musicHint": "Guests can request songs for the playlist"
     },
     "dinner": {
       "configHint": "Save this sub-event first, then open it to configure the menu and dietary preferences."
@@ -2069,5 +2081,87 @@
     "tierSelection": "Each tier unlocks more features like wishlists, photo galleries, and budgets. You can upgrade later.",
     "guestSettings": "Control whether your event is private (invite-only) or publicly accessible via a link.",
     "analytics": "A summary of views, RSVPs, and activity across all your events."
+  },
+  "rsvp": {
+    "title": "RSVPs",
+    "create": "New RSVP",
+    "createNew": "Create new RSVP",
+    "created": "RSVP created",
+    "createError": "Failed to create",
+    "saved": "Saved",
+    "saveError": "Failed to save",
+    "deleted": "RSVP deleted",
+    "delete": "Delete",
+    "deleteError": "Failed to delete",
+    "copied": "Copied!",
+    "copyLink": "Copy link",
+    "copyError": "Failed to copy",
+    "emptyState": {
+      "title": "No RSVPs yet",
+      "description": "Create a quick RSVP or date poll to get started."
+    },
+    "payment": {
+      "error": "Payment failed"
+    },
+    "paywall": {
+      "title": "Upgrade required",
+      "description": "Standalone RSVPs are available with a Standard or Pro subscription. Or purchase a single RSVP for one-time use.",
+      "subscribeTitle": "Subscribe",
+      "subscribeDesc": "Unlimited RSVPs and access to all other features.",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "month": "mo",
+      "or": "or",
+      "oneTimeTitle": "One-time purchase",
+      "oneTimeDesc": "Create a single RSVP with up to 50 guests.",
+      "payOnce": "Pay once"
+    },
+    "validation": {
+      "titleRequired": "Title is required"
+    },
+    "tabs": {
+      "poll": "Date Poll",
+      "guests": "Guests",
+      "settings": "Settings"
+    },
+    "stats": {
+      "accepted": "accepted",
+      "declined": "declined",
+      "pending": "pending"
+    },
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "E.g. \"Dinner at ours\" or \"Team outing planning\"",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional note for your guests...",
+      "deadline": "RSVP deadline",
+      "deadlineHint": "Optional — guests cannot respond after this date",
+      "cancel": "Cancel",
+      "createButton": "Create RSVP",
+      "save": "Save"
+    },
+    "guest": {
+      "notFound": "RSVP not found",
+      "notFoundDesc": "This link is invalid or expired.",
+      "whoAreYou": "Who are you?",
+      "namePlaceholder": "Your name",
+      "emailPlaceholder": "Your email address",
+      "continue": "Continue",
+      "pickDates": "When are you available?",
+      "voteSaved": "Your choice has been saved!",
+      "willYouCome": "Will you be there?",
+      "accepted": "You have confirmed!",
+      "declined": "You have declined.",
+      "accept": "Yes, I'll be there",
+      "decline": "No, I can't make it",
+      "yes": "Yes",
+      "maybe": "Maybe",
+      "no": "No",
+      "submitVotes": "Submit choice",
+      "availableFrom": "Available from",
+      "until": "until",
+      "createAccountCta": "Create an account to manage your RSVPs",
+      "signUp": "Sign up"
+    }
   }
 }

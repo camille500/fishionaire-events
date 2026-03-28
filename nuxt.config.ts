@@ -40,7 +40,6 @@ export default defineNuxtConfig({
     '/en/help': { swr: 3600 },
     '/': { swr: 3600 },
     '/en': { swr: 3600 },
-    '/dashboard/**': { swr: 60 },
     '/api/invite/**': { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' } },
     '/api/users/me': { headers: { 'Cache-Control': 'private, max-age=30' } },
     '/**': {
@@ -145,6 +144,7 @@ export default defineNuxtConfig({
     stripeProYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID || '',
     stripeEventStandardPriceId: process.env.STRIPE_EVENT_STANDARD_PRICE_ID || '',
     stripeEventProPriceId: process.env.STRIPE_EVENT_PRO_PRICE_ID || '',
+    stripeRsvpPriceId: process.env.STRIPE_RSVP_PRICE_ID || '',
     spotifyClientId: process.env.SPOTIFY_CLIENT_ID || '',
     spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET || '',
     awsSesFromEmail: process.env.AWS_SES_FROM_EMAIL || 'noreply@fishionaire.com',
@@ -163,6 +163,8 @@ export default defineNuxtConfig({
         '@vue/devtools-kit',
         'gsap',
         'gsap/ScrollTrigger',
+        'xlsx',
+        '@internationalized/date',
       ],
     },
     build: {

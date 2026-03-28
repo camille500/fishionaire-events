@@ -208,6 +208,8 @@ model Event {
   socialWallAutoApprove     Boolean    @default(false) @map("social_wall_auto_approve")
   budgetTargetCents   Int?       @map("budget_target_cents")
   budgetCurrency      String     @default("EUR") @map("budget_currency")
+  mode                String     @default("event")
+  guestLimit          Int?       @map("guest_limit")
   archivedAt          DateTime?  @map("archived_at")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @default(now()) @map("updated_at")
@@ -267,6 +269,8 @@ model DatePollVote {
   voterName        String?            @map("voter_name")
   status           DatePollVoteStatus @default(yes)
   token            String?
+  attendFrom       DateTime?          @map("attend_from")
+  attendUntil      DateTime?          @map("attend_until")
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @default(now()) @map("updated_at")
 

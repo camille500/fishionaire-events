@@ -486,6 +486,7 @@
       "home": "Home",
       "profile": "Profiel",
       "events": "Evenementen",
+      "rsvps": "RSVPs",
       "invitations": "Uitnodigingen",
       "settings": "Instellingen",
       "billing": "Facturering",
@@ -1035,6 +1036,9 @@
       "dietaryNote": "Gast wordt gevraagd naar dieetwensen",
       "musicNote": "Gast kan nummers aanvragen",
       "copyInviteLink": "Kopieer uitnodigingslink",
+      "shareWhatsApp": "Deel via WhatsApp",
+      "whatsappMessage": "Je bent uitgenodigd! Bekijk het hier: {link}",
+      "downloadTemplate": "Download template",
       "copyShareLink": "Kopieer deelbare link",
       "linkCopied": "Gekopieerd!",
       "noGuests": "Nog geen gasten uitgenodigd",
@@ -1195,6 +1199,7 @@
       "dinnerDefault": "Dieetwensen ingeschakeld",
       "plusOnesAllowed": "Plus-ones toegestaan",
       "musicRequests": "Muziekverzoeken",
+      "dietaryEnabled": "Dieetwensen",
       "capacity": "{count} plekken",
       "hasContent": "Tekst toegevoegd"
     },
@@ -1297,6 +1302,13 @@
     "materials": {
       "label": "Benodigdheden",
       "placeholder": "bijv. Yogamat, Notitieboek, Pen"
+    },
+    "features": {
+      "title": "Extra's",
+      "dietaryEnabled": "Dieetwensen & allergieën",
+      "dietaryHint": "Gasten kunnen hun dieetwensen en allergieën doorgeven",
+      "musicRequestsEnabled": "Muziekverzoeken (Spotify)",
+      "musicHint": "Gasten kunnen nummers aanvragen voor de playlist"
     },
     "dinner": {
       "configHint": "Sla dit onderdeel eerst op en open het daarna om het menu en dieetwensen in te stellen."
@@ -2069,5 +2081,87 @@
     "tierSelection": "Elk niveau ontgrendelt meer functies zoals verlanglijstjes, fotogalerijen en budgetten. Je kunt later upgraden.",
     "guestSettings": "Bepaal of je evenement privé is (alleen op uitnodiging) of openbaar toegankelijk via een link.",
     "analytics": "Een overzicht van weergaven, RSVP's en activiteit van al je evenementen."
+  },
+  "rsvp": {
+    "title": "RSVPs",
+    "create": "Nieuwe RSVP",
+    "createNew": "Nieuwe RSVP aanmaken",
+    "created": "RSVP aangemaakt",
+    "createError": "Fout bij aanmaken",
+    "saved": "Opgeslagen",
+    "saveError": "Fout bij opslaan",
+    "deleted": "RSVP verwijderd",
+    "delete": "Verwijder",
+    "deleteError": "Fout bij verwijderen",
+    "copied": "Gekopieerd!",
+    "copyLink": "Kopieer link",
+    "copyError": "Kopiëren mislukt",
+    "emptyState": {
+      "title": "Nog geen RSVPs",
+      "description": "Maak een snelle RSVP of datumpoll aan om te beginnen."
+    },
+    "payment": {
+      "error": "Betaling mislukt"
+    },
+    "paywall": {
+      "title": "Upgrade nodig",
+      "description": "Standalone RSVPs zijn beschikbaar met een Standard of Pro abonnement. Of koop een losse RSVP voor eenmalig gebruik.",
+      "subscribeTitle": "Neem een abonnement",
+      "subscribeDesc": "Onbeperkt RSVPs aanmaken en alle andere functies.",
+      "monthly": "Maandelijks",
+      "yearly": "Jaarlijks",
+      "month": "mnd",
+      "or": "of",
+      "oneTimeTitle": "Eenmalige aankoop",
+      "oneTimeDesc": "Maak een enkele RSVP aan met maximaal 50 gasten.",
+      "payOnce": "Eenmalig betalen"
+    },
+    "validation": {
+      "titleRequired": "Titel is verplicht"
+    },
+    "tabs": {
+      "poll": "Datumpoll",
+      "guests": "Gasten",
+      "settings": "Instellingen"
+    },
+    "stats": {
+      "accepted": "bevestigd",
+      "declined": "afgewezen",
+      "pending": "in afwachting"
+    },
+    "form": {
+      "title": "Titel",
+      "titlePlaceholder": "Bijv. \"Etentje bij ons\" of \"Teamuitje planning\"",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Optionele toelichting voor je gasten...",
+      "deadline": "RSVP-deadline",
+      "deadlineHint": "Optioneel — na deze datum kunnen gasten niet meer reageren",
+      "cancel": "Annuleren",
+      "createButton": "RSVP aanmaken",
+      "save": "Opslaan"
+    },
+    "guest": {
+      "notFound": "RSVP niet gevonden",
+      "notFoundDesc": "Deze link is ongeldig of verlopen.",
+      "whoAreYou": "Wie ben je?",
+      "namePlaceholder": "Je naam",
+      "emailPlaceholder": "Je e-mailadres",
+      "continue": "Verder",
+      "pickDates": "Wanneer kun je?",
+      "voteSaved": "Je keuze is opgeslagen!",
+      "willYouCome": "Kom je?",
+      "accepted": "Je hebt bevestigd!",
+      "declined": "Je hebt afgewezen.",
+      "accept": "Ja, ik kom",
+      "decline": "Nee, ik kan niet",
+      "yes": "Ja",
+      "maybe": "Misschien",
+      "no": "Nee",
+      "submitVotes": "Verstuur keuze",
+      "availableFrom": "Aanwezig van",
+      "until": "tot",
+      "createAccountCta": "Maak een account aan om je RSVPs te beheren",
+      "signUp": "Registreren"
+    }
   }
 }

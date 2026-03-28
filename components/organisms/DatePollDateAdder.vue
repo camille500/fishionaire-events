@@ -195,9 +195,46 @@ const timeOptions = computed(() => {
 
 const naturalPlaceholder = computed(() => {
   return locale.value === 'nl'
-    ? 'Typ data... (bijv. "28 t/m 30 maart" of "5, 6 en 7 april")'
-    : 'Type dates... (e.g. "May 5 to 8" or "March 28, 29 and April 4")'
+    ? 'Typ data... (bijv. "28 t/m 30 maart", "elke zondag in april")'
+    : 'Type dates... (e.g. "May 5 to 8", "every Sunday in April")'
 })
+
+// ── AI date suggestions ─────────────────────────────────
+const aiLoading = ref(false)
+const aiError = ref(null)
+
+async function askAiForDates() {
+  if (!naturalInput.value.trim()) return
+  aiLoading.value = true
+  aiError.value = null
+  try {
+    const { dates } = await $fetch('/api/ai/suggest-dates', {
+      method: 'POST',
+      body: { prompt: naturalInput.value.trim(), language: locale.value },
+    })
+    if (dates?.length) {
+      for (const d of dates) {
+        const dateStr = `${d.date}T12:00`
+        addStagedDate(dateStr)
+        // If AI returned times, apply them
+        if (d.startTime || d.endTime) {
+          const staged = stagedDates.value[stagedDates.value.length - 1]
+          if (staged) {
+            if (d.startTime) staged.startTime = `${d.date}T${d.startTime}`
+            if (d.endTime) staged.endTime = `${d.date}T${d.endTime}`
+          }
+        }
+      }
+      naturalInput.value = ''
+    } else {
+      aiError.value = locale.value === 'nl' ? 'AI kon geen data herkennen' : 'AI could not recognize any dates'
+    }
+  } catch {
+    aiError.value = locale.value === 'nl' ? 'AI-suggestie mislukt' : 'AI suggestion failed'
+  } finally {
+    aiLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -262,7 +299,7 @@ const naturalPlaceholder = computed(() => {
     <!-- Natural language input -->
     <div class="date-adder__natural">
       <div class="date-adder__natural-wrap">
-        <Icon name="lucide:sparkles" size="14" class="date-adder__natural-icon" />
+        <Icon name="lucide:type" size="14" class="date-adder__natural-icon" />
         <input
           ref="naturalInputEl"
           v-model="naturalInput"
@@ -272,6 +309,16 @@ const naturalPlaceholder = computed(() => {
           autofocus
           @keydown="onNaturalKeydown"
         />
+        <button
+          v-if="naturalInput.trim()"
+          type="button"
+          class="date-adder__ai-btn"
+          :disabled="aiLoading"
+          @click="askAiForDates"
+        >
+          <Icon :name="aiLoading ? 'lucide:loader-2' : 'lucide:sparkles'" size="13" :class="{ 'date-adder__spin': aiLoading }" />
+          {{ aiLoading ? (locale === 'nl' ? 'Laden...' : 'Loading...') : (locale === 'nl' ? 'AI suggestie' : 'AI suggest') }}
+        </button>
       </div>
       <Transition name="fade">
         <div v-if="parsedResults.length" class="date-adder__preview">
@@ -285,9 +332,13 @@ const naturalPlaceholder = computed(() => {
           </button>
         </div>
       </Transition>
-      <div v-if="naturalInput.trim() && !parsedResults.length" class="date-adder__no-parse">
+      <div v-if="naturalInput.trim() && !parsedResults.length && !aiLoading" class="date-adder__no-parse">
         <Icon name="lucide:help-circle" size="12" />
-        <span>{{ locale === 'nl' ? 'Typ bijv. "28 maart", "5 t/m 8 mei" of "volgende zaterdag"' : 'Try "March 28", "May 5 to 8" or "next Saturday 3pm"' }}</span>
+        <span>{{ locale === 'nl' ? 'Niet herkend — gebruik AI suggestie hierboven' : 'Not recognized — use AI suggest above' }}</span>
+      </div>
+      <div v-if="aiError" class="date-adder__ai-error">
+        <Icon name="lucide:alert-circle" size="12" />
+        {{ aiError }}
       </div>
     </div>
 
@@ -583,10 +634,56 @@ const naturalPlaceholder = computed(() => {
 .date-adder__no-parse {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   padding: 0 var(--space-1);
+}
+
+.date-adder__ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  color: var(--color-accent);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.date-adder__ai-btn:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: white;
+}
+
+.date-adder__ai-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.date-adder__ai-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  padding: 0 var(--space-1);
+}
+
+.date-adder__spin {
+  animation: date-adder-spin 0.6s linear infinite;
+}
+
+@keyframes date-adder-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Divider */

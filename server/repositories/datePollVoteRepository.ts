@@ -8,13 +8,29 @@ export default class DatePollVoteRepository {
     status: DatePollVoteStatus,
     voterName?: string | null,
     token?: string | null,
+    attendFrom?: Date | string | null,
+    attendUntil?: Date | string | null,
   ): Promise<DatePollVote> {
     const prisma = usePrisma()
     const optionId = typeof datePollOptionId === 'string' ? parseInt(datePollOptionId, 10) : datePollOptionId
     const row = await prisma.datePollVote.upsert({
       where: { datePollOptionId_voterEmail: { datePollOptionId: optionId, voterEmail } },
-      update: { status, voterName: voterName || undefined, updatedAt: new Date() },
-      create: { datePollOptionId: optionId, voterEmail, voterName, status, token },
+      update: {
+        status,
+        voterName: voterName || undefined,
+        attendFrom: attendFrom ?? null,
+        attendUntil: attendUntil ?? null,
+        updatedAt: new Date(),
+      },
+      create: {
+        datePollOptionId: optionId,
+        voterEmail,
+        voterName,
+        status,
+        token,
+        attendFrom: attendFrom ?? null,
+        attendUntil: attendUntil ?? null,
+      },
     })
     return DatePollVote.fromJSON(row)
   }

@@ -181,6 +181,14 @@ async function handleSendEmail() {
         <button class="guest-row__action-btn" :title="t('editor.guests.copyInviteLink')" @click="copyLink">
           <Icon :name="copySuccess ? 'lucide:check' : 'lucide:link'" size="14" />
         </button>
+        <a
+          class="guest-row__action-btn"
+          :href="`https://wa.me/?text=${encodeURIComponent(t('editor.guests.whatsappMessage', { link: inviteLink }))}`"
+          target="_blank"
+          :title="t('editor.guests.shareWhatsApp')"
+        >
+          <Icon name="lucide:message-circle" size="14" />
+        </a>
         <button class="guest-row__action-btn guest-row__action-btn--danger" :title="t('editor.guests.removeGuest')" @click="emit('remove', invitation.id)">
           <Icon name="lucide:x" size="14" />
         </button>

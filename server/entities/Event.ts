@@ -53,6 +53,8 @@ export interface EventData {
   guestUploadsEnabled: boolean
   socialWallAutoApprove: boolean
   budgetTargetCents: number | null
+  mode: string
+  guestLimit: number | null
   budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
@@ -126,6 +128,9 @@ export interface EventJSON {
   social_wall_auto_approve?: boolean
   budgetTargetCents?: number | null
   budget_target_cents?: number | null
+  mode?: string
+  guestLimit?: number | null
+  guest_limit?: number | null
   budgetCurrency?: string
   budget_currency?: string
   archivedAt?: string | Date | null
@@ -173,12 +178,14 @@ export default class Event {
   guestUploadsEnabled: boolean
   socialWallAutoApprove: boolean
   budgetTargetCents: number | null
+  mode: string
+  guestLimit: number | null
   budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, themeColorSecondary, gradientAngle, fontPairing, cardStyle, welcomeMessage, heroAnimation, backgroundPattern, colorMode, customLogoUrl, customLogoKey, hideBranding, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, themeColorSecondary, gradientAngle, fontPairing, cardStyle, welcomeMessage, heroAnimation, backgroundPattern, colorMode, customLogoUrl, customLogoKey, hideBranding, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, mode, guestLimit, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -215,6 +222,8 @@ export default class Event {
     this.guestUploadsEnabled = guestUploadsEnabled ?? true
     this.socialWallAutoApprove = socialWallAutoApprove ?? false
     this.budgetTargetCents = budgetTargetCents ?? null
+    this.mode = mode || 'event'
+    this.guestLimit = guestLimit ?? null
     this.budgetCurrency = budgetCurrency || 'EUR'
     this.archivedAt = archivedAt || null
     this.createdAt = createdAt || new Date()
@@ -259,6 +268,8 @@ export default class Event {
       guestUploadsEnabled: data.guestUploadsEnabled ?? data.guest_uploads_enabled ?? true,
       socialWallAutoApprove: data.socialWallAutoApprove ?? data.social_wall_auto_approve ?? false,
       budgetTargetCents: data.budgetTargetCents ?? data.budget_target_cents ?? null,
+      mode: data.mode || 'event',
+      guestLimit: data.guestLimit ?? data.guest_limit ?? null,
       budgetCurrency: data.budgetCurrency || data.budget_currency || 'EUR',
       archivedAt: data.archivedAt || data.archived_at || null,
       createdAt: data.createdAt || data.created_at || new Date(),
@@ -276,6 +287,7 @@ export default class Event {
       location: this.location,
       coverImageUrl: this.coverImageUrl,
       tier: this.tier,
+      mode: this.mode,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
@@ -320,6 +332,8 @@ export default class Event {
       guestUploadsEnabled: this.guestUploadsEnabled,
       socialWallAutoApprove: this.socialWallAutoApprove,
       budgetTargetCents: this.budgetTargetCents,
+      mode: this.mode,
+      guestLimit: this.guestLimit,
       budgetCurrency: this.budgetCurrency,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,

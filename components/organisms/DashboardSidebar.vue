@@ -22,6 +22,7 @@ const navItems = computed(() => {
     { icon: 'home', label: t('dashboard.sidebar.home'), to: localePath('dashboard'), exact: true },
     { icon: 'user', label: t('dashboard.sidebar.profile'), to: localePath('dashboard') + '/profile' },
     { icon: 'calendar', label: t('dashboard.sidebar.events'), to: localePath('dashboard') + '/events' },
+    { icon: 'calendar-check', label: t('dashboard.sidebar.rsvps'), to: localePath('dashboard') + '/rsvps' },
     { icon: 'inbox', label: t('dashboard.sidebar.invitations'), to: localePath('dashboard') + '/invitations' },
     { icon: 'settings', label: t('dashboard.sidebar.settings'), to: localePath('dashboard') + '/settings', tourKey: 'sidebar-settings' },
   ]

@@ -168,15 +168,18 @@ export default class SubEventController {
     // Include type-specific data for organizers
     const member = await EventMemberRepository.findByEventIdAndUserId(result.subEvent.eventId, clerkId)
     if (member?.canEdit) {
-      if (result.subEvent.type === 'dinner') {
+      const tc = result.subEvent.typeConfig as Record<string, unknown> || {}
+      if (tc.dietaryEnabled) {
         const dietaryResponses = await SubEventDietaryRepository.findBySubEventId(subEventId)
         detail.dietaryResponses = dietaryResponses.map((d) => d.toJSON())
+      }
+      if (tc.musicRequestsEnabled) {
+        const musicRequests = await SubEventMusicRequestRepository.findBySubEventId(subEventId)
+        detail.musicRequests = musicRequests.map((m) => m.toJSON())
       }
       if (result.subEvent.type === 'party') {
         const plusOnes = await SubEventPlusOneRepository.findBySubEventId(subEventId)
         detail.plusOneRequests = plusOnes.map((p) => p.toJSON())
-        const musicRequests = await SubEventMusicRequestRepository.findBySubEventId(subEventId)
-        detail.musicRequests = musicRequests.map((m) => m.toJSON())
       }
     }
 

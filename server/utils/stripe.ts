@@ -25,6 +25,14 @@ export function getStripePriceId(tier: string, type: string = 'subscription'): s
       standard: config.stripeEventStandardPriceId,
       pro: config.stripeEventProPriceId,
     },
+    rsvp: {
+      standalone: config.stripeRsvpPriceId,
+    },
   }
-  return map[type]?.[tier] || null
+  return (map as Record<string, Record<string, string>>)[type]?.[tier] || null
+}
+
+export function getStripeRsvpPriceId(): string | null {
+  const config = useRuntimeConfig()
+  return config.stripeRsvpPriceId || null
 }

@@ -70,30 +70,34 @@ export function useSubEventTypes() {
   function getPreview(subEvent: Record<string, unknown>): string | null {
     const type = subEvent.type as SubEventTypeValue
     const config = subEvent.typeConfig as Record<string, unknown> || {}
+    const parts: string[] = []
 
+    // Feature-based previews (any type)
+    if (config.dietaryEnabled) parts.push(t('editor.subEventPreview.dietaryEnabled'))
+    if (config.musicRequestsEnabled) parts.push(t('editor.subEventPreview.musicRequests'))
+
+    // Type-specific previews
     switch (type) {
       case 'dinner': {
         const sections = config.menuSections as unknown[] || []
-        if (sections.length > 0) return t('editor.subEventPreview.menuItems', { count: sections.length })
-        return t('editor.subEventPreview.dinnerDefault')
+        if (sections.length > 0) parts.push(t('editor.subEventPreview.menuItems', { count: sections.length }))
+        break
       }
       case 'party': {
-        const parts: string[] = []
         if (config.allowPlusOnes) parts.push(t('editor.subEventPreview.plusOnesAllowed'))
-        if (config.musicRequestsEnabled !== false) parts.push(t('editor.subEventPreview.musicRequests'))
-        return parts.length > 0 ? parts.join(' · ') : null
+        break
       }
       case 'activity': {
-        const parts: string[] = []
         if (subEvent.capacity) parts.push(t('editor.subEventPreview.capacity', { count: subEvent.capacity }))
         if (config.skillLevel) parts.push(t(`editor.skillLevel.${config.skillLevel}`))
-        return parts.length > 0 ? parts.join(' · ') : null
+        break
       }
       case 'ceremony':
-        return subEvent.richContent ? t('editor.subEventPreview.hasContent') : null
-      default:
-        return null
+        if (subEvent.richContent) parts.push(t('editor.subEventPreview.hasContent'))
+        break
     }
+
+    return parts.length > 0 ? parts.join(' · ') : null
   }
 
   return {

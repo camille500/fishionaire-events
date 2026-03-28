@@ -428,11 +428,11 @@ function toggleSubEvent(id) {
         </div>
         <div v-if="selectedSubEventIds.length > 0" class="guest-manager__sub-event-notes">
           <template v-for="se in subEvents" :key="'note-' + se.id">
-            <div v-if="selectedSubEventIds.includes(se.id) && se.type === 'dinner'" class="guest-manager__sub-event-note">
-              <Icon name="lucide:utensils" size="11" />
+            <div v-if="selectedSubEventIds.includes(se.id) && se.typeConfig?.dietaryEnabled" class="guest-manager__sub-event-note">
+              <Icon name="lucide:heart-pulse" size="11" />
               {{ t('editor.guests.dietaryNote') }}
             </div>
-            <div v-if="selectedSubEventIds.includes(se.id) && se.type === 'party' && se.typeConfig?.musicRequestsEnabled !== false" class="guest-manager__sub-event-note">
+            <div v-if="selectedSubEventIds.includes(se.id) && se.typeConfig?.musicRequestsEnabled" class="guest-manager__sub-event-note">
               <Icon name="lucide:music" size="11" />
               {{ t('editor.guests.musicNote') }}
             </div>
