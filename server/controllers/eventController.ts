@@ -446,6 +446,8 @@ export default class EventController {
       throw createError({ statusCode: 409, statusMessage: 'This person is already invited' })
     }
 
+    const pinCode = String(crypto.randomInt(100000, 999999))
+
     const invitation = new EventInvitation({
       id: null,
       eventId,
@@ -455,8 +457,11 @@ export default class EventController {
       status: 'pending',
       plusOnes,
       accessToken: crypto.randomBytes(16).toString('hex'),
+      pinCode,
       invitedById: null,
       invitedByName: null,
+      emailSentAt: null,
+      checkedInAt: null,
       subEventInvites,
       plusOneInvites: [],
       createdAt: new Date(),
@@ -539,8 +544,11 @@ export default class EventController {
       status: 'pending',
       plusOnes: guest.plusOnes || 0,
       accessToken: crypto.randomBytes(16).toString('hex'),
+      pinCode: String(crypto.randomInt(100000, 999999)),
       invitedById: null,
       invitedByName: null,
+      emailSentAt: null,
+      checkedInAt: null,
       subEventInvites,
       plusOneInvites: [],
       createdAt: new Date(),
@@ -589,8 +597,11 @@ export default class EventController {
       status: 'pending',
       plusOnes: 0,
       accessToken: crypto.randomBytes(16).toString('hex'),
+      pinCode: String(crypto.randomInt(100000, 999999)),
       invitedById: parseInt(parentInvitation.id!),
       invitedByName: parentInvitation.inviteeName,
+      emailSentAt: null,
+      checkedInAt: null,
       subEventInvites: parentInvitation.subEventInvites,
       plusOneInvites: [],
       createdAt: new Date(),
@@ -682,7 +693,7 @@ export default class EventController {
     }
   }
 
-  static async getInviteEvent(accessToken: string): Promise<Record<string, unknown>> {
+  static async getInviteEvent(accessToken: string, options?: { pin?: string | null, authUserId?: string | null }): Promise<Record<string, unknown>> {
     const invitation = await EventInvitationRepository.findByAccessToken(accessToken)
     if (!invitation) {
       throw createError({ statusCode: 404, statusMessage: 'Invalid invite code' })
@@ -691,6 +702,44 @@ export default class EventController {
     const event = await EventRepository.findById(invitation.eventId)
     if (!event) {
       throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+    }
+
+    // PIN gate: check if verification is needed
+    const requiresPin = !!invitation.pinCode
+    let pinVerified = !requiresPin
+
+    if (requiresPin) {
+      // Bypass 1: correct PIN provided
+      if (options?.pin && options.pin === invitation.pinCode) {
+        pinVerified = true
+      }
+
+      // Bypass 2: authenticated user whose email matches the invitation
+      if (!pinVerified && options?.authUserId) {
+        const UserRepository = (await import('../repositories/userRepository')).default
+        const user = await UserRepository.findByClerkId(options.authUserId)
+        if (user && user.email.toLowerCase() === invitation.inviteeEmail.toLowerCase()) {
+          pinVerified = true
+        }
+      }
+    }
+
+    // If PIN not verified, return only preview data
+    if (!pinVerified) {
+      return {
+        requiresPin: true,
+        event: {
+          title: event.title,
+          coverImageUrl: event.coverImageUrl,
+          themeColor: event.themeColor,
+          themeColorSecondary: event.themeColorSecondary,
+          gradientAngle: event.gradientAngle,
+          colorMode: event.colorMode,
+        },
+        invitation: {
+          inviteeName: invitation.inviteeName,
+        },
+      }
     }
 
     // Check if there is an active date poll
@@ -712,6 +761,7 @@ export default class EventController {
     }
 
     return {
+      requiresPin: false,
       event: {
         id: event.id,
         title: event.title,
@@ -738,8 +788,14 @@ export default class EventController {
         rsvpEnabled: event.rsvpEnabled,
         rsvpDeadline: event.rsvpDeadline,
         hasActivePoll,
+        mode: event.mode,
+        shareToken: event.shareToken,
       },
-      invitation: invitation.toJSON(),
+      invitation: (() => {
+        const inv = invitation.toJSON()
+        const { pinCode: _pin, ...safeInv } = inv
+        return safeInv
+      })(),
       subEvents: subEvents.map((se) => se.toJSON()),
       subEventRsvps: subEventRsvpMap,
     }
@@ -785,7 +841,9 @@ export default class EventController {
       ).catch(() => {})
     }
 
-    return updated.toJSON()
+    const rsvpResult = updated.toJSON()
+    const { pinCode: _rsvpPin, ...safeRsvpResult } = rsvpResult
+    return safeRsvpResult
   }
 
   static async archiveEvent(eventId: number, clerkId: string): Promise<{ success: boolean }> {
@@ -961,6 +1019,7 @@ export default class EventController {
       coverImageUrl: event.coverImageUrl,
       inviteeName: invitation.inviteeName,
       inviteLink,
+      pinCode: invitation.pinCode,
     })
 
     await sendEmail(
@@ -1005,6 +1064,7 @@ export default class EventController {
           coverImageUrl: event.coverImageUrl,
           inviteeName: invitation.inviteeName,
           inviteLink,
+          pinCode: invitation.pinCode,
         })
 
         await sendEmail(

@@ -20,6 +20,7 @@ interface CreateRsvpData {
   coverImageUrl?: string | null
   coverImageKey?: string | null
   rsvpDeadline?: string | null
+  showPollResults?: boolean
 }
 
 export default class RsvpController {
@@ -138,6 +139,7 @@ export default class RsvpController {
     if (data.rsvpDeadline !== undefined) {
       event.rsvpDeadline = data.rsvpDeadline ? new Date(data.rsvpDeadline + 'T23:59:59.999Z') : null
     }
+    if (data.showPollResults !== undefined) event.showPollResults = data.showPollResults
 
     const saved = await EventRepository.update(event)
     return saved.toJSON()
@@ -156,7 +158,7 @@ export default class RsvpController {
     await EventRepository.archive(String(rsvpId))
   }
 
-  static async getPublicRsvp(shareToken: string): Promise<Record<string, unknown>> {
+  static async getPublicRsvp(shareToken: string, voterEmail?: string | null): Promise<Record<string, unknown>> {
     const event = await EventRepository.findByShareToken(shareToken)
     if (!event || event.mode !== 'rsvp') {
       throw createError({ statusCode: 404, statusMessage: 'RSVP not found' })
@@ -164,13 +166,30 @@ export default class RsvpController {
 
     const poll = await DatePollRepository.findByEventId(Number(event.id))
 
+    // Build own-vote map if email is provided
+    const ownVoteMap: Record<string, { status: string, attendFrom?: string | null, attendUntil?: string | null }> = {}
+    if (voterEmail && poll) {
+      for (const opt of poll.options) {
+        const mine = opt.votes.find((v) => v.voterEmail === voterEmail.toLowerCase())
+        if (mine) {
+          ownVoteMap[String(opt.id)] = {
+            status: mine.status,
+            attendFrom: mine.attendFrom,
+            attendUntil: mine.attendUntil,
+          }
+        }
+      }
+    }
+
     return {
       id: event.id,
       title: event.title,
       description: event.description,
       coverImageUrl: event.coverImageUrl,
+      eventDate: event.eventDate,
       rsvpEnabled: event.rsvpEnabled,
       rsvpDeadline: event.rsvpDeadline,
+      showPollResults: event.showPollResults,
       themeColor: event.themeColor,
       themeColorSecondary: event.themeColorSecondary,
       poll: poll ? {
@@ -186,6 +205,7 @@ export default class RsvpController {
           maybeCount: o.maybeCount,
           noCount: o.noCount,
           totalVotes: o.votes.length,
+          ownVote: ownVoteMap[String(o.id)] || null,
         })),
       } : null,
     }

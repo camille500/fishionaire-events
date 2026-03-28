@@ -20,6 +20,7 @@ export interface EventInvitationData {
   status: string
   plusOnes: number
   accessToken: string
+  pinCode: string | null
   invitedById: number | null
   invitedByName: string | null
   emailSentAt: Date | string | null
@@ -44,6 +45,8 @@ export interface EventInvitationJSON {
   plus_ones?: number
   accessToken?: string
   access_token?: string
+  pinCode?: string | null
+  pin_code?: string | null
   invitedById?: number | null
   invited_by_id?: number | null
   invitedBy?: { inviteeName?: string | null, invitee_name?: string | null } | null
@@ -69,6 +72,7 @@ export default class EventInvitation {
   status: string
   plusOnes: number
   accessToken: string
+  pinCode: string | null
   invitedById: number | null
   invitedByName: string | null
   emailSentAt: Date | string | null
@@ -77,7 +81,7 @@ export default class EventInvitation {
   plusOneInvites: PlusOneInvite[]
   createdAt: Date | string
 
-  constructor({ id, eventId, inviteeEmail, inviteeName, inviterClerkId, status, plusOnes, accessToken, invitedById, invitedByName, emailSentAt, checkedInAt, subEventInvites, plusOneInvites, createdAt }: EventInvitationData) {
+  constructor({ id, eventId, inviteeEmail, inviteeName, inviterClerkId, status, plusOnes, accessToken, pinCode, invitedById, invitedByName, emailSentAt, checkedInAt, subEventInvites, plusOneInvites, createdAt }: EventInvitationData) {
     this.id = id || null
     this.eventId = eventId
     this.inviteeEmail = inviteeEmail
@@ -86,6 +90,7 @@ export default class EventInvitation {
     this.status = status || 'pending'
     this.plusOnes = plusOnes || 0
     this.accessToken = accessToken
+    this.pinCode = pinCode || null
     this.invitedById = invitedById || null
     this.invitedByName = invitedByName || null
     this.emailSentAt = emailSentAt || null
@@ -139,6 +144,7 @@ export default class EventInvitation {
       status: data.status || 'pending',
       plusOnes: data.plusOnes ?? data.plus_ones ?? 0,
       accessToken: (data.accessToken || data.access_token)!,
+      pinCode: data.pinCode ?? data.pin_code ?? null,
       invitedById: data.invitedById ?? data.invited_by_id ?? null,
       invitedByName,
       emailSentAt: data.emailSentAt ?? data.email_sent_at ?? null,
@@ -168,6 +174,7 @@ export default class EventInvitation {
       status: this.status,
       plusOnes: this.plusOnes,
       accessToken: this.accessToken,
+      pinCode: this.pinCode,
       invitedById: this.invitedById,
       invitedByName: this.invitedByName,
       emailSentAt: this.emailSentAt,

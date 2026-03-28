@@ -5,6 +5,7 @@ interface InviteEmailData {
   coverImageUrl?: string | null
   inviteeName?: string | null
   inviteLink: string
+  pinCode?: string | null
 }
 
 export function renderInviteEmail(data: InviteEmailData): string {
@@ -38,6 +39,13 @@ export function renderInviteEmail(data: InviteEmailData): string {
               <a href="${escapeHtml(data.inviteLink)}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;letter-spacing:0.02em;">View invitation & RSVP</a>
             </td></tr>
           </table>
+          ${data.pinCode ? `
+          <div style="margin:24px auto 0;max-width:320px;padding:20px;background:#f8faf9;border:1px solid #e0e0e0;border-radius:12px;text-align:center;">
+            <p style="margin:0 0 8px;font-size:13px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Your personal PIN code</p>
+            <p style="margin:0;font-size:32px;font-weight:700;color:#1a1a2e;letter-spacing:0.15em;font-family:monospace;">${escapeHtml(data.pinCode)}</p>
+            <p style="margin:8px 0 0;font-size:12px;color:#999;">You'll need this to open your invitation</p>
+          </div>
+          ` : ''}
           <p style="margin:24px 0 0;font-size:13px;color:#999;text-align:center;line-height:1.5;">
             If the button doesn't work, copy this link:<br />
             <a href="${escapeHtml(data.inviteLink)}" style="color:#00b894;word-break:break-all;">${escapeHtml(data.inviteLink)}</a>

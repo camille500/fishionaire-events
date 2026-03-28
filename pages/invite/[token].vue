@@ -8,6 +8,47 @@ const toast = useToast()
 
 const { data, error } = await useFetch(`/api/invite/${token}`)
 
+// Redirect RSVP-mode events to the dedicated /rsvp page
+if (data.value?.event?.mode === 'rsvp' && data.value?.event?.shareToken) {
+  await navigateTo(`/rsvp/${data.value.event.shareToken}?t=${token}`, { replace: true })
+}
+
+// PIN gate state
+const requiresPin = ref(!!data.value?.requiresPin)
+const pinInput = ref('')
+const pinError = ref('')
+const pinVerifying = ref(false)
+const pinVerified = ref(!requiresPin.value)
+
+async function verifyPin() {
+  if (pinInput.value.length !== 6) return
+  pinVerifying.value = true
+  pinError.value = ''
+  try {
+    await $fetch(`/api/invite/${token}/verify-pin`, {
+      method: 'POST',
+      body: { pin: pinInput.value },
+    })
+    // PIN correct — refetch full data with pin
+    const fullData = await $fetch(`/api/invite/${token}?pin=${pinInput.value}`)
+    data.value = fullData
+
+    // Re-check RSVP mode redirect after PIN verification
+    if (fullData?.event?.mode === 'rsvp' && fullData?.event?.shareToken) {
+      window.location.replace(`/rsvp/${fullData.event.shareToken}?t=${token}&pin=${pinInput.value}`)
+      return
+    }
+
+    pinVerified.value = true
+    requiresPin.value = false
+  } catch {
+    pinError.value = t('invite.pin.incorrect')
+    pinInput.value = ''
+  } finally {
+    pinVerifying.value = false
+  }
+}
+
 const eventData = computed(() => data.value?.event || null)
 const invitation = computed(() => data.value?.invitation || null)
 const subEvents = computed(() => data.value?.subEvents || [])
@@ -477,6 +518,47 @@ async function upvoteMusic(subEventId, requestId) {
       </div>
     </div>
 
+    <!-- PIN gate -->
+    <div v-else-if="requiresPin && !pinVerified" class="invite-pin-gate">
+      <div class="invite-pin-gate__card">
+        <div v-if="eventData?.coverImageUrl" class="invite-pin-gate__cover">
+          <img :src="eventData.coverImageUrl" :alt="eventData?.title || ''" />
+        </div>
+        <div class="invite-pin-gate__body">
+          <div v-if="invitation?.inviteeName" class="invite-pin-gate__greeting">
+            {{ t('invite.welcomeNamed', { name: invitation.inviteeName }) }}
+          </div>
+          <h1 v-else class="invite-pin-gate__greeting">{{ t('invite.welcome') }}</h1>
+          <h2 v-if="eventData?.title" class="invite-pin-gate__event-title">{{ eventData.title }}</h2>
+
+          <div class="invite-pin-gate__form">
+            <label class="invite-pin-gate__label">{{ t('invite.pin.title') }}</label>
+            <p class="invite-pin-gate__hint">{{ t('invite.pin.subtitle') }}</p>
+            <input
+              v-model="pinInput"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="6"
+              :placeholder="t('invite.pin.placeholder')"
+              class="invite-pin-gate__input"
+              autofocus
+              @keyup.enter="verifyPin"
+            />
+            <p v-if="pinError" class="invite-pin-gate__error">{{ pinError }}</p>
+            <AppButton
+              :disabled="pinInput.length !== 6 || pinVerifying"
+              :loading="pinVerifying"
+              class="invite-pin-gate__submit"
+              @click="verifyPin"
+            >
+              {{ t('invite.pin.verify') }}
+            </AppButton>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main content -->
     <template v-else-if="eventData">
       <!-- 1. Full-viewport hero -->
@@ -907,5 +989,165 @@ async function upvoteMusic(subEventId, requestId) {
 /* ── Light mode forced ──────────────── */
 .invite-page.light-forced {
   color-scheme: light;
+}
+
+/* ── PIN gate ───────────────────────── */
+.invite-pin-gate {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  min-height: 100dvh;
+  background: var(--color-bg, var(--color-background));
+}
+
+.invite-pin-gate__card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-lg, 0 8px 32px rgba(0, 0, 0, 0.08));
+  overflow: hidden;
+}
+
+.invite-pin-gate__cover {
+  height: 180px;
+  overflow: hidden;
+}
+
+.invite-pin-gate__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.invite-pin-gate__body {
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.invite-pin-gate__greeting {
+  font-family: var(--font-family-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.invite-pin-gate__event-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.invite-pin-gate__form {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.invite-pin-gate__label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.invite-pin-gate__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-4) 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.invite-pin-gate__input {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  font-family: monospace;
+  text-align: center;
+  letter-spacing: 0.3em;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg, var(--color-background));
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 200ms ease;
+}
+
+.invite-pin-gate__input:focus {
+  border-color: var(--event-accent, var(--color-accent));
+}
+
+.invite-pin-gate__error {
+  font-size: var(--text-sm);
+  color: var(--color-error, #e74c3c);
+  margin: var(--space-2) 0 0 0;
+}
+
+.invite-pin-gate__submit {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.invite-pin-gate__divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.invite-pin-gate__divider::before,
+.invite-pin-gate__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-light);
+}
+
+.invite-pin-gate__link {
+  background: none;
+  border: none;
+  color: var(--event-accent, var(--color-accent));
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  transition: background 150ms ease;
+}
+
+.invite-pin-gate__link:hover {
+  background: color-mix(in srgb, var(--event-accent, var(--color-accent)) 8%, transparent);
+}
+
+.invite-pin-gate__success-icon {
+  color: var(--event-accent, var(--color-accent));
+  margin-bottom: var(--space-2);
+}
+
+.invite-pin-gate__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-6);
+}
+
+.invite-pin-gate__actions .btn {
+  width: 100%;
 }
 </style>

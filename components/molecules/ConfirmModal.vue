@@ -31,6 +31,10 @@ const props = defineProps({
     default: 'default',
     validator: (v) => ['default', 'danger'].includes(v),
   },
+  confirmText: {
+    type: String,
+    default: '',
+  },
   loading: {
     type: Boolean,
     default: false,
@@ -40,6 +44,8 @@ const props = defineProps({
 const emit = defineEmits(['confirm', 'close'])
 
 const modalRef = ref(null)
+const typedConfirm = ref('')
+const confirmTextMatches = computed(() => !props.confirmText || typedConfirm.value.trim().toLowerCase() === props.confirmText.trim().toLowerCase())
 
 function handleKeydown(e) {
   if (e.key === 'Escape') {
@@ -69,7 +75,10 @@ function handleKeydown(e) {
 
 watch(() => props.visible, (isVisible) => {
   if (isVisible) {
+    typedConfirm.value = ''
     nextTick(() => {
+      const input = modalRef.value?.querySelector('.confirm-modal__input')
+      if (input) { input.focus(); return }
       const confirmBtn = modalRef.value?.querySelector('.confirm-modal__actions button:last-child, .confirm-modal__actions .app-button')
       confirmBtn?.focus()
     })
@@ -106,6 +115,20 @@ watch(() => props.visible, (isVisible) => {
             <span>{{ warning }}</span>
           </div>
 
+          <div v-if="confirmText" class="confirm-modal__confirm-input">
+            <label class="confirm-modal__confirm-label">
+              {{ t('dashboard.typeToConfirm', { text: confirmText }) }}
+            </label>
+            <input
+              v-model="typedConfirm"
+              type="text"
+              class="confirm-modal__input"
+              :placeholder="confirmText"
+              autofocus
+              @keyup.enter="confirmTextMatches && emit('confirm')"
+            />
+          </div>
+
           <div class="confirm-modal__actions">
             <button class="confirm-modal__btn-cancel" :disabled="loading" @click="emit('close')">
               {{ cancelLabel || t('dashboard.cancel') }}
@@ -114,6 +137,7 @@ watch(() => props.visible, (isVisible) => {
               :variant="variant === 'danger' ? 'primary' : 'primary'"
               size="sm"
               :loading="loading"
+              :disabled="!confirmTextMatches"
               :class="{ 'confirm-modal__btn-danger': variant === 'danger' }"
               @click="emit('confirm')"
             >
@@ -195,6 +219,34 @@ watch(() => props.visible, (isVisible) => {
   color: var(--color-warning);
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+.confirm-modal__confirm-input {
+  margin-bottom: var(--space-5);
+}
+
+.confirm-modal__confirm-label {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.confirm-modal__input {
+  width: 100%;
+  padding: var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg, var(--color-background));
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.confirm-modal__input:focus {
+  border-color: var(--color-error);
 }
 
 .confirm-modal__actions {

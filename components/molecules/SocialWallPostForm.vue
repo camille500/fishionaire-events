@@ -55,13 +55,12 @@ onUnmounted(() => {
 
 <template>
   <div class="post-form">
-    <textarea
+    <RichTextEditor
       v-model="content"
-      class="post-form__textarea"
-      :class="{ 'post-form__textarea--over': isOverLimit }"
+      mode="simple"
       :placeholder="t('socialWall.placeholder')"
-      rows="3"
-      maxlength="600"
+      :max-length="600"
+      :rows="3"
       :disabled="posting"
     />
 

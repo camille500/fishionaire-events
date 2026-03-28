@@ -15,6 +15,7 @@ const saving = ref(false)
 const showDateAdder = ref(false)
 const settingDate = ref(false)
 const copySuccess = ref(false)
+const showDeleteConfirm = ref(false)
 
 const existingDates = computed(() =>
   (poll.value?.options || []).map(o => o.date)

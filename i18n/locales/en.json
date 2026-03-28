@@ -901,6 +901,10 @@
     "premiumUpgrade": "Upgrade to unlock"
   },
   "editor": {
+    "mentions": {
+      "title": "Variables",
+      "empty": "No results"
+    },
     "tabs": {
       "details": "Details",
       "schedule": "Schedule",
@@ -1115,6 +1119,12 @@
       "startTimeLabel": "Start",
       "endTimeLabel": "End",
       "dateAlreadyAdded": "This date is already in the poll",
+      "deletePoll": {
+        "title": "Delete date poll",
+        "message": "This will permanently delete the date poll, all date options, and all guest votes. This action cannot be undone.",
+        "confirmText": "delete poll",
+        "confirm": "Delete poll"
+      },
       "locked": {
         "title": "Date Polling",
         "description": "Propose multiple dates and let your guests vote for when they're available. The best date is highlighted automatically.",
@@ -1470,6 +1480,18 @@
       "title": "Invitation not found",
       "description": "This invitation link is invalid or has expired.",
       "backHome": "Back to home"
+    },
+    "pin": {
+      "title": "Enter your PIN",
+      "subtitle": "Check your email for the 6-digit PIN code",
+      "placeholder": "000000",
+      "verify": "Open invitation",
+      "incorrect": "Incorrect PIN. Please try again.",
+      "or": "or",
+      "signInToSkip": "Sign in to skip the PIN",
+      "createAccount": "Create an account",
+      "createAccountSubtitle": "Save this invitation to your account so you don't need the PIN next time",
+      "skipAccount": "Continue without account"
     },
     "rsvp": {
       "title": "Will you be there?",
@@ -2005,7 +2027,8 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "save": "Save",
-    "edit": "Edit"
+    "edit": "Edit",
+    "typeToConfirm": "Type {text} to confirm"
   },
   "tour": {
     "skipStep": "Skip",
@@ -2082,6 +2105,15 @@
     "guestSettings": "Control whether your event is private (invite-only) or publicly accessible via a link.",
     "analytics": "A summary of views, RSVPs, and activity across all your events."
   },
+  "welcome": {
+    "title": "Welcome!",
+    "description": "Set up your profile so others can recognize you.",
+    "avatarHint": "Click to upload a profile picture",
+    "nameLabel": "Your name",
+    "namePlaceholder": "What should we call you?",
+    "continue": "Continue",
+    "skip": "Skip for now"
+  },
   "rsvp": {
     "title": "RSVPs",
     "create": "New RSVP",
@@ -2138,7 +2170,9 @@
       "deadlineHint": "Optional — guests cannot respond after this date",
       "cancel": "Cancel",
       "createButton": "Create RSVP",
-      "save": "Save"
+      "save": "Save",
+      "showPollResults": "Show other reactions",
+      "showPollResultsHint": "Guests can see how many people voted for each option"
     },
     "guest": {
       "notFound": "RSVP not found",
@@ -2158,10 +2192,21 @@
       "maybe": "Maybe",
       "no": "No",
       "submitVotes": "Submit choice",
+      "editVotes": "Edit choice",
+      "mostPopular": "Most popular: {date}",
+      "addToCalendar": "Add to calendar",
+      "notifyTitle": "Get notified?",
+      "notifyDesc": "Get a message when the date is confirmed.",
+      "notifyAction": "Free account",
       "availableFrom": "Available from",
       "until": "until",
-      "createAccountCta": "Create an account to manage your RSVPs",
-      "signUp": "Sign up"
+      "ctaTitle": "Create your own RSVPs?",
+      "createAccountCta": "Create a free account and never miss a thing.",
+      "benefit1": "Get notified when the date is confirmed",
+      "benefit2": "Create your own date polls and RSVPs",
+      "benefit3": "Manage all your invitations in one place",
+      "signUp": "Sign up free",
+      "login": "Log in"
     }
   }
 }

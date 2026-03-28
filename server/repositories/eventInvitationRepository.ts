@@ -45,6 +45,7 @@ export default class EventInvitationRepository {
         status: data.status,
         plusOnes: data.plusOnes,
         accessToken: data.accessToken || crypto.randomBytes(16).toString('hex'),
+        pinCode: data.pinCode || null,
         invitedById: data.invitedById ? Number(data.invitedById) : null,
         subEventInvites: data.subEventInvites.length > 0
           ? {

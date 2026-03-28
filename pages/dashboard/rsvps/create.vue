@@ -60,12 +60,16 @@ async function handleCreate() {
 
       <div class="rsvp-create__field">
         <label class="rsvp-create__label">{{ t('rsvp.form.description') }}</label>
-        <textarea
+        <RichTextEditor
           v-model="description"
-          class="rsvp-create__textarea"
+          mode="mention"
           :placeholder="t('rsvp.form.descriptionPlaceholder')"
-          rows="3"
-          maxlength="2000"
+          :max-length="2000"
+          :rows="3"
+          :mention-items="[
+            { id: 'name', label: 'Naam / Name', hint: '#name' },
+            { id: 'date', label: 'Datum / Date', hint: '#date' },
+          ]"
         />
       </div>
 

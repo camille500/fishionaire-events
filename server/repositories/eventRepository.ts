@@ -41,6 +41,7 @@ export default class EventRepository {
         rsvpDeadline: data.rsvpDeadline,
         mode: data.mode,
         guestLimit: data.guestLimit,
+        showPollResults: data.showPollResults,
       },
     })
     return Event.fromJSON(row)
@@ -150,6 +151,7 @@ export default class EventRepository {
         socialWallAutoApprove: data.socialWallAutoApprove,
         mode: data.mode,
         guestLimit: data.guestLimit,
+        showPollResults: data.showPollResults,
         updatedAt: new Date(),
       },
     })

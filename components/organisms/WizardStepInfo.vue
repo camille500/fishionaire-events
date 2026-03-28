@@ -172,15 +172,13 @@ const showCharCount = computed(() => descriptionCharCount.value > 1500)
             {{ generatingDescription ? t('editor.ai.loading') : t('wizard.aiGenerateDescription') }}
           </button>
         </div>
-        <textarea
+        <RichTextEditor
           v-model="form.description"
-          class="step-info__textarea"
+          mode="rich"
+          :rows="4"
+          :max-length="2000"
           :placeholder="t('wizard.descriptionPlaceholder')"
-          rows="4"
         />
-        <span v-if="showCharCount" class="step-info__char-count" :class="{ 'step-info__char-count--warn': descriptionCharCount > 1800 }">
-          {{ descriptionCharCount }} / 2000
-        </span>
       </div>
     </Transition>
   </div>

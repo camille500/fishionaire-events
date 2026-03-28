@@ -103,7 +103,7 @@ function handleRsvp(status) {
 
       <!-- Personal welcome message -->
       <div v-if="welcomeMessage" class="invite-rsvp__welcome-message">
-        <p class="invite-rsvp__welcome-text">{{ welcomeMessage }}</p>
+        <div class="invite-rsvp__welcome-text" v-html="welcomeMessage"></div>
       </div>
 
       <!-- Plus-one context -->

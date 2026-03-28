@@ -37,6 +37,7 @@ async function copyShareLink() {
 const editTitle = ref('')
 const editDescription = ref('')
 const editDeadline = ref('')
+const editShowPollResults = ref(true)
 const saving = ref(false)
 
 watch(rsvp, (val) => {
@@ -44,18 +45,20 @@ watch(rsvp, (val) => {
     editTitle.value = val.title || ''
     editDescription.value = val.description || ''
     editDeadline.value = val.rsvpDeadline ? new Date(val.rsvpDeadline).toISOString().slice(0, 10) : ''
+    editShowPollResults.value = val.showPollResults ?? true
   }
 }, { immediate: true })
 
 async function saveSettings() {
   saving.value = true
   try {
-    await $fetch(`/api/rsvps/${rsvpId.value}`, {
+    await $fetch(`/api/rsvps/${rsvpId}`, {
       method: 'PUT',
       body: {
         title: editTitle.value.trim(),
         description: editDescription.value.trim() || null,
         rsvpDeadline: editDeadline.value || null,
+        showPollResults: editShowPollResults.value,
       },
     })
     toast.add({ title: t('rsvp.saved'), icon: 'i-lucide-check', color: 'green' })
@@ -146,12 +149,33 @@ async function saveSettings() {
 
         <div class="rsvp-manage__field">
           <label class="rsvp-manage__label">{{ t('rsvp.form.description') }}</label>
-          <textarea v-model="editDescription" class="rsvp-manage__textarea" rows="3" maxlength="2000" />
+          <RichTextEditor
+            v-model="editDescription"
+            mode="mention"
+            :max-length="2000"
+            :rows="3"
+            :mention-items="[
+              { id: 'name', label: 'Naam / Name', hint: '#name' },
+              { id: 'date', label: 'Datum / Date', hint: '#date' },
+            ]"
+          />
         </div>
 
         <div class="rsvp-manage__field">
           <label class="rsvp-manage__label">{{ t('rsvp.form.deadline') }}</label>
           <input v-model="editDeadline" type="date" class="rsvp-manage__input" />
+        </div>
+
+        <div class="rsvp-manage__toggle-field">
+          <label class="rsvp-manage__toggle-label" @click="editShowPollResults = !editShowPollResults">
+            <span class="rsvp-manage__toggle-switch" :class="{ 'rsvp-manage__toggle-switch--on': editShowPollResults }">
+              <span class="rsvp-manage__toggle-knob" />
+            </span>
+            <div>
+              <span class="rsvp-manage__label">{{ t('rsvp.form.showPollResults') }}</span>
+              <span class="rsvp-manage__hint">{{ t('rsvp.form.showPollResultsHint') }}</span>
+            </div>
+          </label>
         </div>
 
         <div class="rsvp-manage__settings-actions">
@@ -338,6 +362,55 @@ async function saveSettings() {
 .rsvp-manage__textarea {
   resize: vertical;
   min-height: 80px;
+}
+
+.rsvp-manage__toggle-field {
+  padding: var(--space-3) 0;
+}
+
+.rsvp-manage__toggle-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.rsvp-manage__toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--color-border);
+  border-radius: 11px;
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+  margin-top: 1px;
+}
+
+.rsvp-manage__toggle-switch--on {
+  background: var(--color-accent);
+}
+
+.rsvp-manage__toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.rsvp-manage__toggle-switch--on .rsvp-manage__toggle-knob {
+  transform: translateX(18px);
+}
+
+.rsvp-manage__hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }
 
 .rsvp-manage__settings-actions {

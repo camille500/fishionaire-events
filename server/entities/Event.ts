@@ -55,6 +55,7 @@ export interface EventData {
   budgetTargetCents: number | null
   mode: string
   guestLimit: number | null
+  showPollResults: boolean
   budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
@@ -131,6 +132,8 @@ export interface EventJSON {
   mode?: string
   guestLimit?: number | null
   guest_limit?: number | null
+  showPollResults?: boolean
+  show_poll_results?: boolean
   budgetCurrency?: string
   budget_currency?: string
   archivedAt?: string | Date | null
@@ -180,12 +183,13 @@ export default class Event {
   budgetTargetCents: number | null
   mode: string
   guestLimit: number | null
+  showPollResults: boolean
   budgetCurrency: string
   archivedAt: string | Date | null
   createdAt: Date | string
   updatedAt: Date | string
 
-  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, themeColorSecondary, gradientAngle, fontPairing, cardStyle, welcomeMessage, heroAnimation, backgroundPattern, colorMode, customLogoUrl, customLogoKey, hideBranding, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, mode, guestLimit, archivedAt, createdAt, updatedAt }: EventData) {
+  constructor({ id, title, description, eventType, eventDate, eventEndDate, location, locationLat, locationLon, isPrivate, shareToken, tier, features, themeColor, themeColorSecondary, gradientAngle, fontPairing, cardStyle, welcomeMessage, heroAnimation, backgroundPattern, colorMode, customLogoUrl, customLogoKey, hideBranding, coverImageUrl, coverImageKey, ownerClerkId, aiTone, aiToneCustom, aiExtraContext, rsvpEnabled, rsvpDeadline, guestUploadsEnabled, socialWallAutoApprove, budgetTargetCents, budgetCurrency, mode, guestLimit, showPollResults, archivedAt, createdAt, updatedAt }: EventData) {
     this.id = id || null
     this.title = title
     this.description = description || null
@@ -224,6 +228,7 @@ export default class Event {
     this.budgetTargetCents = budgetTargetCents ?? null
     this.mode = mode || 'event'
     this.guestLimit = guestLimit ?? null
+    this.showPollResults = showPollResults ?? true
     this.budgetCurrency = budgetCurrency || 'EUR'
     this.archivedAt = archivedAt || null
     this.createdAt = createdAt || new Date()
@@ -270,6 +275,7 @@ export default class Event {
       budgetTargetCents: data.budgetTargetCents ?? data.budget_target_cents ?? null,
       mode: data.mode || 'event',
       guestLimit: data.guestLimit ?? data.guest_limit ?? null,
+      showPollResults: data.showPollResults ?? data.show_poll_results ?? true,
       budgetCurrency: data.budgetCurrency || data.budget_currency || 'EUR',
       archivedAt: data.archivedAt || data.archived_at || null,
       createdAt: data.createdAt || data.created_at || new Date(),
@@ -334,6 +340,7 @@ export default class Event {
       budgetTargetCents: this.budgetTargetCents,
       mode: this.mode,
       guestLimit: this.guestLimit,
+      showPollResults: this.showPollResults,
       budgetCurrency: this.budgetCurrency,
       archivedAt: this.archivedAt,
       createdAt: this.createdAt,

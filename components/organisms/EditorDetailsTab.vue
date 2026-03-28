@@ -112,14 +112,11 @@ onMounted(() => {
     <!-- Description -->
     <div class="editor-details__field">
       <label class="editor-details__label">{{ t('dashboard.eventEditor.descriptionPlaceholder') }}</label>
-      <textarea
-        ref="descriptionRef"
+      <RichTextEditor
         v-model="form.description"
-        class="editor-details__description"
-        rows="3"
+        mode="rich"
+        :rows="3"
         :placeholder="t('dashboard.eventEditor.descriptionPlaceholder')"
-        @input="autoResize"
-        @blur="markTouched('description')"
       />
       <AiDescriptionAssistant
         v-model="form.description"

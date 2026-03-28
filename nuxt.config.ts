@@ -71,7 +71,7 @@ export default defineNuxtConfig({
 
   clerk: {
     signInForceRedirectUrl: '/dashboard',
-    signUpForceRedirectUrl: '/dashboard',
+    signUpForceRedirectUrl: '/welcome',
   },
 
   fonts: {
@@ -165,6 +165,12 @@ export default defineNuxtConfig({
         'gsap/ScrollTrigger',
         'xlsx',
         '@internationalized/date',
+        '@tiptap/vue-3',
+        '@tiptap/starter-kit',
+        '@tiptap/extension-placeholder',
+        '@tiptap/extension-mention',
+        '@tiptap/extension-character-count',
+        '@tiptap/extension-link',
       ],
     },
     build: {

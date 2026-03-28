@@ -74,11 +74,14 @@ onMounted(() => {
     <div class="editor-theme__group">
       <label class="editor-theme__label">{{ t('editor.theme.welcomeMessage') }}</label>
       <p class="editor-theme__desc">{{ t('editor.theme.welcomeMessageHint') }}</p>
-      <textarea
+      <RichTextEditor
         v-model="form.welcomeMessage"
-        class="editor-theme__textarea"
-        rows="3"
+        mode="mention"
+        :rows="3"
         :placeholder="t('editor.theme.welcomeMessagePlaceholder')"
+        :mention-items="[
+          { id: 'name', label: 'Naam / Name', hint: '#name' },
+        ]"
       />
     </div>
 
