@@ -57,11 +57,12 @@ async function createPoll() {
   }
 }
 
-async function deletePoll() {
+async function confirmDeletePoll() {
   saving.value = true
   try {
     await $fetch(`/api/events/${props.eventId}/date-poll`, { method: 'DELETE' })
     poll.value = null
+    showDeleteConfirm.value = false
   } finally {
     saving.value = false
   }
