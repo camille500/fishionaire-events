@@ -95,6 +95,7 @@ export default function useAiDescriptionGenerator() {
     } finally {
       isGenerating.value = false
       abortController = null
+      refreshNuxtData('ai-token-usage')
     }
   }
 

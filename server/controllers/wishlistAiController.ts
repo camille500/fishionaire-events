@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import LlmSettingsController from './llmSettingsController'
+import { AI_MODEL } from '../utils/aiConfig'
 
 type Language = 'nl' | 'en'
 
@@ -66,7 +67,7 @@ export default class WishlistAiController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt },
@@ -77,7 +78,7 @@ export default class WishlistAiController {
       })
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
-      return { suggestions: result.suggestions || [] }
+      return { suggestions: result.suggestions || [], tokensUsed: response.usage?.total_tokens ?? 0 }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })

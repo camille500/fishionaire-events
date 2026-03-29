@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
 
   const { eventType, eventTitle, description, eventDate, existingSubEvents, language, eventId } = await readBody<{
     eventType?: string
@@ -23,7 +24,7 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Description too long (max 2000 characters)' })
   }
 
-  return await AiSuggestionsController.suggestSubEvents({
+  const result = await AiSuggestionsController.suggestSubEvents({
     eventType: eventType || null,
     eventTitle: eventTitle || null,
     description: description || null,
@@ -33,4 +34,7 @@ export default defineEventHandler(async (event: H3Event) => {
     clerkId: userId,
     eventId,
   })
+
+  await recordAiTokens(userId, result.tokensUsed)
+  return result
 })

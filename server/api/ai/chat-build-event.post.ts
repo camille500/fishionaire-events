@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
 
   const { messages, language } = await readBody<{
     messages: Array<{ role: 'user' | 'assistant', content: string }>
@@ -26,9 +27,12 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Message too long (max 2000 characters)' })
   }
 
-  return await AiSuggestionsController.chatBuildEvent({
+  const result = await AiSuggestionsController.chatBuildEvent({
     messages,
     language: (language as 'nl' | 'en') || 'en',
     clerkId: userId,
   })
+
+  await recordAiTokens(userId, result.tokensUsed)
+  return result
 })

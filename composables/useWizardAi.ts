@@ -102,10 +102,13 @@ export function useWizardAi(eventId?: Ref<string | undefined>) {
       if (isFree.value) freeBuildUsed.value = true
       return result
     } catch (e) {
-      buildError.value = e.data?.statusMessage || 'AI build failed'
+      buildError.value = e.data?.data?.code === 'AI_TOKEN_LIMIT'
+        ? (e.data?.statusMessage || 'Daily AI limit reached')
+        : (e.data?.statusMessage || 'AI build failed')
       return null
     } finally {
       buildLoading.value = false
+      refreshNuxtData('ai-token-usage')
     }
   }
 
@@ -160,14 +163,16 @@ export function useWizardAi(eventId?: Ref<string | undefined>) {
 
       return response
     } catch (e: any) {
-      const errorMsg = e.data?.statusMessage
-        || (locale.value === 'nl' ? 'Er ging iets mis. Probeer het opnieuw.' : 'Something went wrong. Please try again.')
+      const errorMsg = e.data?.data?.code === 'AI_TOKEN_LIMIT'
+        ? (e.data?.statusMessage || 'Daily AI limit reached')
+        : (e.data?.statusMessage || (locale.value === 'nl' ? 'Er ging iets mis. Probeer het opnieuw.' : 'Something went wrong. Please try again.'))
       chatError.value = errorMsg
       chatMessages.value.push({ role: 'assistant', content: errorMsg, isError: true })
       chatUserTurns.value--
       return null
     } finally {
       chatLoading.value = false
+      refreshNuxtData('ai-token-usage')
     }
   }
 

@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { AI_MODEL } from '../utils/aiConfig'
 
 interface SuggestedDate {
   date: string
@@ -37,7 +38,7 @@ Rules:
 - The user may write in ${language === 'nl' ? 'Dutch' : 'English'}.`
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: AI_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt.trim() },
@@ -71,6 +72,6 @@ Rules:
       return true
     }).slice(0, 20)
 
-    return { dates: validDates }
+    return { dates: validDates, tokensUsed: response.usage?.total_tokens ?? 0 }
   }
 }

@@ -7,6 +7,9 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
+  checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
+
   const eventId = getRouterParam(event, 'id')
   const body = await readBody(event)
 
@@ -14,7 +17,7 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Prompt is required' })
   }
 
-  return WishlistAiController.suggestPresents({
+  const result = await WishlistAiController.suggestPresents({
     eventType: body.eventType,
     eventTitle: body.eventTitle,
     prompt: body.prompt.trim(),
@@ -23,4 +26,7 @@ export default defineEventHandler(async (event: H3Event) => {
     clerkId: userId,
     eventId,
   })
+
+  await recordAiTokens(userId, result.tokensUsed)
+  return result
 })

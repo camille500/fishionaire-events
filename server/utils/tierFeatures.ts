@@ -88,6 +88,12 @@ export const RSVP_GUEST_LIMITS: Record<TierName, number> = {
   pro: 100,
 }
 
+export const AI_DAILY_TOKEN_LIMITS: Record<TierName, number> = {
+  free: 10_000,
+  standard: 100_000,
+  pro: 500_000,
+}
+
 export const TIER_ORDER: Record<TierName, number> = { free: 0, standard: 1, pro: 2 }
 
 export const EVENT_PRICES_CENTS: Record<string, number> = {

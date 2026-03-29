@@ -21,6 +21,7 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
 
   const { prompt, tone, language, length, eventType, includeEmojis, refineInstruction, previousText, eventId } = await readBody<GenerateDescriptionBody>(event)
 
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Previous text too long (max 5000 characters)' })
   }
 
-  const stream = AiController.generateDescriptionStream({
+  const { stream, getTokensUsed } = AiController.generateDescriptionStream({
     prompt,
     tone,
     language,
@@ -52,6 +53,7 @@ export default defineEventHandler(async (event: H3Event) => {
       for await (const chunk of stream) {
         await eventStream.push({ data: chunk })
       }
+      await recordAiTokens(userId, getTokensUsed())
     } catch (err: unknown) {
       await eventStream.push({ event: 'error', data: (err as { statusMessage?: string }).statusMessage || 'An error occurred' })
     } finally {

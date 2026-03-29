@@ -49,9 +49,12 @@ export function useAiCoCreate() {
       }))
       hasGenerated.value = true
     } catch (err: any) {
-      error.value = err?.data?.statusMessage || 'Failed to generate suggestions'
+      error.value = err?.data?.data?.code === 'AI_TOKEN_LIMIT'
+        ? (err?.data?.statusMessage || 'Daily AI limit reached')
+        : (err?.data?.statusMessage || 'Failed to generate suggestions')
     } finally {
       loading.value = false
+      refreshNuxtData('ai-token-usage')
     }
   }
 

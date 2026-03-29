@@ -50,9 +50,12 @@ export function useAiSuggestions() {
       })
       titleSuggestions.value = result.suggestions || []
     } catch (e) {
-      error.value = e.data?.statusMessage || 'AI suggestion failed'
+      error.value = e.data?.data?.code === 'AI_TOKEN_LIMIT'
+        ? (e.data?.statusMessage || 'Daily AI limit reached')
+        : (e.data?.statusMessage || 'AI suggestion failed')
     } finally {
       loadingTitles.value = false
+      refreshNuxtData('ai-token-usage')
     }
   }
 
@@ -76,9 +79,12 @@ export function useAiSuggestions() {
       })
       subEventSuggestions.value = result.suggestions || []
     } catch (e) {
-      error.value = e.data?.statusMessage || 'AI suggestion failed'
+      error.value = e.data?.data?.code === 'AI_TOKEN_LIMIT'
+        ? (e.data?.statusMessage || 'Daily AI limit reached')
+        : (e.data?.statusMessage || 'AI suggestion failed')
     } finally {
       loadingSubEvents.value = false
+      refreshNuxtData('ai-token-usage')
     }
   }
 
@@ -100,9 +106,12 @@ export function useAiSuggestions() {
       })
       timelineItems.value = result.items || []
     } catch (e) {
-      error.value = e.data?.statusMessage || 'AI suggestion failed'
+      error.value = e.data?.data?.code === 'AI_TOKEN_LIMIT'
+        ? (e.data?.statusMessage || 'Daily AI limit reached')
+        : (e.data?.statusMessage || 'AI suggestion failed')
     } finally {
       loadingTimeline.value = false
+      refreshNuxtData('ai-token-usage')
     }
   }
 

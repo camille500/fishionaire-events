@@ -23,11 +23,11 @@ function openCreateWizard() {
 }
 
 // Confirmation modal state
-const confirmModal = ref({ visible: false, title: '', message: '', warning: '', variant: 'default', action: null })
+const confirmModal = ref({ visible: false, title: '', message: '', warning: '', variant: 'default', confirmText: '', confirmLabel: '', action: null })
 const confirmLoading = ref(false)
 
-function showConfirm({ title, message, warning = '', variant = 'default', action }) {
-  confirmModal.value = { visible: true, title, message, warning, variant, action }
+function showConfirm({ title, message, warning = '', variant = 'default', confirmText = '', confirmLabel = '', action }) {
+  confirmModal.value = { visible: true, title, message, warning, variant, confirmText, confirmLabel, action }
 }
 
 async function handleConfirm() {
@@ -67,6 +67,8 @@ function onArchive(event) {
   showConfirm({
     title: t('dashboard.eventEditor.confirmArchiveTitle'),
     message: t('dashboard.eventEditor.confirmArchiveMessage'),
+    confirmText: t('dashboard.eventEditor.confirmArchiveText'),
+    confirmLabel: t('dashboard.eventEditor.confirmArchiveLabel'),
     variant: 'danger',
     action: async () => {
       try {
@@ -118,6 +120,8 @@ async function onRestore(event) {
         </AppButton>
       </div>
     </div>
+
+    <AiUsageBar />
 
     <div v-if="error" class="events-page__error">
       <AppText size="sm">{{ t('dashboard.errorLoading') }}</AppText>
@@ -199,6 +203,8 @@ async function onRestore(event) {
       :message="confirmModal.message"
       :warning="confirmModal.warning"
       :variant="confirmModal.variant"
+      :confirm-text="confirmModal.confirmText"
+      :confirm-label="confirmModal.confirmLabel"
       :loading="confirmLoading"
       @confirm="handleConfirm"
       @close="confirmModal.visible = false"

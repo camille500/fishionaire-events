@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import LlmSettingsController from './llmSettingsController'
+import { AI_MODEL } from '../utils/aiConfig'
 
 type Language = 'nl' | 'en'
 
@@ -137,7 +138,7 @@ export default class AiSuggestionsController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -148,7 +149,7 @@ export default class AiSuggestionsController {
       })
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
-      return { suggestions: result.suggestions || [] }
+      return { suggestions: result.suggestions || [], tokensUsed: response.usage?.total_tokens ?? 0 }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
@@ -190,7 +191,7 @@ export default class AiSuggestionsController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Suggest activities for this ${eventType || 'event'}.` },
@@ -201,7 +202,7 @@ export default class AiSuggestionsController {
       })
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
-      return { suggestions: result.suggestions || [] }
+      return { suggestions: result.suggestions || [], tokensUsed: response.usage?.total_tokens ?? 0 }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
@@ -240,7 +241,7 @@ export default class AiSuggestionsController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Create a timeline for this ${eventType || 'event'}.` },
@@ -251,7 +252,7 @@ export default class AiSuggestionsController {
       })
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
-      return { items: result.items || [] }
+      return { items: result.items || [], tokensUsed: response.usage?.total_tokens ?? 0 }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
@@ -314,7 +315,7 @@ export default class AiSuggestionsController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -325,7 +326,7 @@ export default class AiSuggestionsController {
       })
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
-      return { suggestions: result.suggestions || [] }
+      return { suggestions: result.suggestions || [], tokensUsed: response.usage?.total_tokens ?? 0 }
     } catch (err: any) {
       if (err.status === 401) {
         throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
@@ -401,7 +402,7 @@ export default class AiSuggestionsController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: openaiMessages,
         response_format: { type: 'json_object' },
         max_tokens: 800,
@@ -409,10 +410,11 @@ export default class AiSuggestionsController {
       })
 
       const result = JSON.parse(response.choices[0].message.content || '{}')
+      const tokensUsed = response.usage?.total_tokens ?? 0
 
       if (result.type === 'result' && result.event) {
         return {
-          type: 'result',
+          type: 'result' as const,
           message: result.message || '',
           event: {
             eventType: result.event.eventType || 'other',
@@ -422,12 +424,14 @@ export default class AiSuggestionsController {
             activities: result.event.activities || [],
             location: result.event.location || null,
           },
+          tokensUsed,
         }
       }
 
       return {
-        type: 'question',
+        type: 'question' as const,
         message: result.message || '',
+        tokensUsed,
       }
     } catch (err: any) {
       if (err.status === 401) {
@@ -471,7 +475,7 @@ export default class AiSuggestionsController {
 
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: AI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Plan an event based on this description: ${description}` },
@@ -488,6 +492,7 @@ export default class AiSuggestionsController {
         description: result.description || '',
         dateSuggestion: result.dateSuggestion || null,
         activities: result.activities || [],
+        tokensUsed: response.usage?.total_tokens ?? 0,
       }
     } catch (err: any) {
       if (err.status === 401) {

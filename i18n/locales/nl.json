@@ -741,8 +741,10 @@
       "duplicating": "Dupliceren...",
       "duplicated": "Evenement gedupliceerd",
       "archiveEvent": "Archiveren",
-      "confirmArchiveTitle": "Evenement archiveren",
-      "confirmArchiveMessage": "Dit evenement wordt gearchiveerd en verborgen van je dashboard. Je kunt het later herstellen.",
+      "confirmArchiveTitle": "Evenement verwijderen",
+      "confirmArchiveMessage": "Alle gastgegevens, RSVPs en instellingen worden permanent verwijderd. Dit kan niet ongedaan worden gemaakt.",
+      "confirmArchiveText": "verwijder evenement",
+      "confirmArchiveLabel": "Verwijder evenement",
       "paidEventWarning": "Dit is een betaald evenement. Archiveren verbergt het, maar je aankoop blijft bewaard.",
       "restoreEvent": "Herstellen",
       "saveAsTemplate": "Opslaan als sjabloon",
@@ -967,7 +969,8 @@
       "templateDesc": "Sla deze opzet op als herbruikbaar sjabloon",
       "archiveEvent": "Evenement archiveren",
       "archiveDesc": "Verberg dit evenement van je dashboard. Je kunt het later herstellen.",
-      "archiveConfirm": "Weet je zeker dat je dit evenement wilt archiveren? Je kunt het later herstellen vanuit de gearchiveerde evenementen."
+      "archiveConfirm": "Hiermee worden dit evenement, alle gastgegevens, RSVPs en instellingen permanent verwijderd. Dit kan niet ongedaan worden gemaakt.",
+      "archiveConfirmText": "verwijder evenement"
     },
     "ai": {
       "suggestTitle": "Titels voorstellen",
@@ -1040,6 +1043,7 @@
       "dietaryNote": "Gast wordt gevraagd naar dieetwensen",
       "musicNote": "Gast kan nummers aanvragen",
       "copyInviteLink": "Kopieer uitnodigingslink",
+      "pinCopied": "Pincode gekopieerd!",
       "shareWhatsApp": "Deel via WhatsApp",
       "whatsappMessage": "Je bent uitgenodigd! Bekijk het hier: {link}",
       "downloadTemplate": "Download template",
@@ -2125,6 +2129,12 @@
     "deleted": "RSVP verwijderd",
     "delete": "Verwijder",
     "deleteError": "Fout bij verwijderen",
+    "deleteConfirm": {
+      "title": "RSVP verwijderen",
+      "message": "Hiermee worden deze RSVP, alle datumopties en alle stemmen permanent verwijderd. Dit kan niet ongedaan worden gemaakt.",
+      "confirmText": "verwijder rsvp",
+      "confirm": "Verwijder RSVP"
+    },
     "copied": "Gekopieerd!",
     "copyLink": "Kopieer link",
     "copyError": "Kopiëren mislukt",
@@ -2207,6 +2217,13 @@
       "benefit3": "Beheer al je uitnodigingen op een plek",
       "signUp": "Gratis registreren",
       "login": "Inloggen"
+    }
+  },
+  "ai": {
+    "usage": {
+      "label": "AI-tokens vandaag",
+      "limitReached": "Dagelijks AI-limiet bereikt. Reset om middernacht.",
+      "upgrade": "Upgrade voor meer AI-tokens"
     }
   }
 }

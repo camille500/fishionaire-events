@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
 
   const { eventType, eventDate, subEvents, language, eventId } = await readBody<{
     eventType?: string
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event: H3Event) => {
     eventId?: string
   }>(event)
 
-  return await AiSuggestionsController.suggestTimeline({
+  const result = await AiSuggestionsController.suggestTimeline({
     eventType: eventType || null,
     eventDate: eventDate || null,
     subEvents: subEvents || [],
@@ -25,4 +26,7 @@ export default defineEventHandler(async (event: H3Event) => {
     clerkId: userId,
     eventId,
   })
+
+  await recordAiTokens(userId, result.tokensUsed)
+  return result
 })

@@ -9,7 +9,11 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
 
   const { prompt, language } = await readBody<{ prompt: string, language?: string }>(event)
-  return AiDateController.suggestDates(prompt, language || 'nl')
+  const result = await AiDateController.suggestDates(prompt, language || 'nl')
+
+  await recordAiTokens(userId, result.tokensUsed)
+  return result
 })

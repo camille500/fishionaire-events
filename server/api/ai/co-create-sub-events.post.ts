@@ -8,6 +8,7 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   checkAiRateLimit(userId)
+  await checkAiTokenLimit(userId)
 
   const { eventType, eventTitle, userPrompt, existingSubEvents, language, eventId } = await readBody<{
     eventType?: string
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 400, statusMessage: 'Prompt too long (max 2000 characters)' })
   }
 
-  return await AiSuggestionsController.coCreateSubEvents({
+  const result = await AiSuggestionsController.coCreateSubEvents({
     eventType: eventType || undefined,
     eventTitle: eventTitle || undefined,
     userPrompt,
@@ -35,4 +36,7 @@ export default defineEventHandler(async (event: H3Event) => {
     clerkId: userId,
     eventId,
   })
+
+  await recordAiTokens(userId, result.tokensUsed)
+  return result
 })

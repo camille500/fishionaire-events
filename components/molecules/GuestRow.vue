@@ -9,6 +9,7 @@ const props = defineProps({
 const emit = defineEmits(['remove', 'update', 'send-email'])
 
 const copySuccess = ref(false)
+const pinCopySuccess = ref(false)
 const sendingEmail = ref(false)
 const editing = ref(false)
 const editName = ref('')
@@ -69,6 +70,15 @@ async function copyLink() {
     await navigator.clipboard.writeText(inviteLink.value)
     copySuccess.value = true
     setTimeout(() => { copySuccess.value = false }, 2000)
+  } catch {}
+}
+
+async function copyPin() {
+  if (!props.invitation.pinCode) return
+  try {
+    await navigator.clipboard.writeText(props.invitation.pinCode)
+    pinCopySuccess.value = true
+    setTimeout(() => { pinCopySuccess.value = false }, 2000)
   } catch {}
 }
 
@@ -167,6 +177,14 @@ async function handleSendEmail() {
         <span v-if="invitation.emailSentAt" class="guest-row__sent-badge" :title="t('editor.guests.emailSent')">
           <Icon name="lucide:mail-check" size="12" />
         </span>
+        <button
+          v-if="invitation.pinCode"
+          class="guest-row__action-btn"
+          :title="pinCopySuccess ? t('editor.guests.pinCopied') : `PIN: ${invitation.pinCode}`"
+          @click="copyPin"
+        >
+          <Icon :name="pinCopySuccess ? 'lucide:check' : 'lucide:key-round'" size="14" />
+        </button>
         <button
           class="guest-row__action-btn guest-row__action-btn--send"
           :title="invitation.emailSentAt ? t('editor.guests.resendInvite') : t('editor.guests.sendInvite')"

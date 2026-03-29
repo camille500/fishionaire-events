@@ -42,13 +42,25 @@ async function handleOneTimePurchase() {
   }
 }
 
-async function onDelete(rsvp) {
+const deleteTarget = ref(null)
+const deleteLoading = ref(false)
+
+function requestDelete(rsvp) {
+  deleteTarget.value = rsvp
+}
+
+async function confirmDelete() {
+  if (!deleteTarget.value) return
+  deleteLoading.value = true
   try {
-    await $fetch(`/api/rsvps/${rsvp.id}`, { method: 'DELETE' })
+    await $fetch(`/api/rsvps/${deleteTarget.value.id}`, { method: 'DELETE' })
     toast.add({ title: t('rsvp.deleted'), icon: 'i-lucide-check', color: 'green' })
+    deleteTarget.value = null
     refresh()
   } catch {
     toast.add({ title: t('rsvp.deleteError'), icon: 'i-lucide-alert-circle', color: 'red' })
+  } finally {
+    deleteLoading.value = false
   }
 }
 
@@ -96,7 +108,7 @@ function formatDate(date) {
             <span class="rsvp-card__date">{{ formatDate(rsvp.createdAt) }}</span>
           </div>
         </div>
-        <button class="rsvp-card__delete" @click.stop="onDelete(rsvp)" :title="t('rsvp.delete')">
+        <button class="rsvp-card__delete" @click.stop="requestDelete(rsvp)" :title="t('rsvp.delete')">
           <Icon name="lucide:trash-2" size="14" />
         </button>
       </div>
@@ -180,6 +192,17 @@ function formatDate(date) {
         </div>
       </div>
     </Transition>
+    <ConfirmModal
+      :visible="!!deleteTarget"
+      :title="t('rsvp.deleteConfirm.title')"
+      :message="t('rsvp.deleteConfirm.message')"
+      :confirm-text="t('rsvp.deleteConfirm.confirmText')"
+      :confirm-label="t('rsvp.deleteConfirm.confirm')"
+      variant="danger"
+      :loading="deleteLoading"
+      @confirm="confirmDelete"
+      @close="deleteTarget = null"
+    />
   </div>
 </template>
 

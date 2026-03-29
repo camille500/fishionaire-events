@@ -172,7 +172,7 @@ onMounted(fetchPoll)
           <AppButton variant="ghost" size="sm" :loading="saving" @click="togglePoll">
             {{ poll.isActive ? t('editor.datePoll.closePoll') : t('editor.datePoll.reopenPoll') }}
           </AppButton>
-          <AppButton variant="ghost" size="sm" @click="deletePoll">
+          <AppButton variant="ghost" size="sm" @click="showDeleteConfirm = true">
             <Icon name="lucide:trash-2" size="14" />
           </AppButton>
         </div>
@@ -244,6 +244,18 @@ onMounted(fetchPoll)
         </div>
       </div>
     </template>
+
+    <ConfirmModal
+      :visible="showDeleteConfirm"
+      :title="t('editor.datePoll.deletePoll.title')"
+      :message="t('editor.datePoll.deletePoll.message')"
+      :confirm-text="t('editor.datePoll.deletePoll.confirmText')"
+      :confirm-label="t('editor.datePoll.deletePoll.confirm')"
+      variant="danger"
+      :loading="saving"
+      @confirm="confirmDeletePoll"
+      @close="showDeleteConfirm = false"
+    />
   </div>
 </template>
 

@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import LlmSettingsController from './llmSettingsController'
+import { AI_MODEL } from '../utils/aiConfig'
 
 type Tone = 'formeel' | 'vriendelijk' | 'speels' | 'professioneel' | 'feestelijk' | 'casual' | 'custom'
 type Length = 'kort' | 'middel' | 'lang'
@@ -94,7 +95,7 @@ export default class AiController {
     ].filter(Boolean).join('\n')
   }
 
-  static async *generateDescriptionStream({
+  static generateDescriptionStream({
     prompt,
     tone,
     toneCustom,
@@ -106,69 +107,80 @@ export default class AiController {
     previousText = '',
     clerkId,
     eventId,
-  }: GenerateDescriptionParams): AsyncGenerator<string> {
+  }: GenerateDescriptionParams): { stream: AsyncGenerator<string>, getTokensUsed: () => number } {
     if (!prompt || !prompt.trim()) {
       throw createError({ statusCode: 400, statusMessage: 'A prompt is required' })
     }
 
-    // Resolve LLM settings: per-request > event > account > default
-    let resolvedTone: Tone = tone || 'vriendelijk'
-    let resolvedToneCustom: string | null = toneCustom || null
-    let resolvedExtraContext: string | null = null
+    let tokensUsed = 0
 
-    if (clerkId) {
-      const settings = await LlmSettingsController.resolveSettings(clerkId, eventId)
-      if (!tone) resolvedTone = settings.tone as Tone
-      if (!toneCustom) resolvedToneCustom = settings.toneCustom
-      resolvedExtraContext = settings.extraContext
-    }
+    const self = this
+    async function* generate(): AsyncGenerator<string> {
+      // Resolve LLM settings: per-request > event > account > default
+      let resolvedTone: Tone = tone || 'vriendelijk'
+      let resolvedToneCustom: string | null = toneCustom || null
+      let resolvedExtraContext: string | null = null
 
-    if (resolvedTone && !VALID_TONES.includes(resolvedTone)) {
-      throw createError({ statusCode: 400, statusMessage: `Invalid tone. Must be one of: ${VALID_TONES.join(', ')}` })
-    }
+      if (clerkId) {
+        const settings = await LlmSettingsController.resolveSettings(clerkId, eventId)
+        if (!tone) resolvedTone = settings.tone as Tone
+        if (!toneCustom) resolvedToneCustom = settings.toneCustom
+        resolvedExtraContext = settings.extraContext
+      }
 
-    if (length && !VALID_LENGTHS.includes(length)) {
-      throw createError({ statusCode: 400, statusMessage: `Invalid length. Must be one of: ${VALID_LENGTHS.join(', ')}` })
-    }
+      if (resolvedTone && !VALID_TONES.includes(resolvedTone)) {
+        throw createError({ statusCode: 400, statusMessage: `Invalid tone. Must be one of: ${VALID_TONES.join(', ')}` })
+      }
 
-    const client = this.#getClient()
-    const systemPrompt = this.buildSystemPrompt({ tone: resolvedTone, toneCustom: resolvedToneCustom, language, length, eventType, includeEmojis, extraContext: resolvedExtraContext })
+      if (length && !VALID_LENGTHS.includes(length)) {
+        throw createError({ statusCode: 400, statusMessage: `Invalid length. Must be one of: ${VALID_LENGTHS.join(', ')}` })
+      }
 
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt.trim() },
-    ]
+      const client = self.#getClient()
+      const systemPrompt = self.buildSystemPrompt({ tone: resolvedTone, toneCustom: resolvedToneCustom, language, length, eventType, includeEmojis, extraContext: resolvedExtraContext })
 
-    if (previousText && refineInstruction) {
-      messages.push(
-        { role: 'assistant', content: previousText },
-        { role: 'user', content: `Please adjust the description above: ${refineInstruction}` }
-      )
-    }
+      const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt.trim() },
+      ]
 
-    try {
-      const stream = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages,
-        stream: true,
-        max_tokens: 500,
-        temperature: 0.8,
-      })
+      if (previousText && refineInstruction) {
+        messages.push(
+          { role: 'assistant', content: previousText },
+          { role: 'user', content: `Please adjust the description above: ${refineInstruction}` }
+        )
+      }
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content
-        if (content) {
-          yield content
+      try {
+        const stream = await client.chat.completions.create({
+          model: AI_MODEL,
+          messages,
+          stream: true,
+          stream_options: { include_usage: true },
+          max_tokens: 500,
+          temperature: 0.8,
+        })
+
+        for await (const chunk of stream) {
+          if (chunk.usage) {
+            tokensUsed = chunk.usage.total_tokens
+          }
+          const content = chunk.choices[0]?.delta?.content
+          if (content) {
+            yield content
+          }
         }
+      } catch (err: any) {
+        if (err.status === 401) {
+          throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
+        }
+        if (err.status === 429) {
+          throw createError({ statusCode: 429, statusMessage: 'AI service is busy, please try again later' })
+        }
+        throw createError({ statusCode: 502, statusMessage: 'AI service unavailable' })
       }
-    } catch (err: any) {
-      if (err.status === 401) {
-        throw createError({ statusCode: 502, statusMessage: 'AI service configuration error' })
-      }
-      if (err.status === 429) {
-        throw createError({ statusCode: 429, statusMessage: 'AI service is busy, please try again later' })
-      }
-      throw createError({ statusCode: 502, statusMessage: 'AI service unavailable' })
     }
+
+    return { stream: generate(), getTokensUsed: () => tokensUsed }
   }
 }

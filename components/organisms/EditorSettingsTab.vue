@@ -178,8 +178,9 @@ onMounted(() => {
       :visible="showArchiveConfirm"
       :title="t('editor.settings.archiveEvent')"
       :message="t('editor.settings.archiveConfirm')"
-      variant="danger"
+      :confirm-text="t('editor.settings.archiveConfirmText')"
       :confirm-label="t('editor.settings.archiveEvent')"
+      variant="danger"
       @confirm="archiveEvent"
       @close="showArchiveConfirm = false"
     />

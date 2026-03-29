@@ -742,7 +742,9 @@
       "duplicated": "Event duplicated",
       "archiveEvent": "Archive",
       "confirmArchiveTitle": "Archive event",
-      "confirmArchiveMessage": "This event will be archived and hidden from your dashboard. You can restore it later.",
+      "confirmArchiveMessage": "This event will be archived and hidden from your dashboard. All guest data, RSVPs, and settings will be removed. This action cannot be undone.",
+      "confirmArchiveText": "delete event",
+      "confirmArchiveLabel": "Delete event",
       "paidEventWarning": "This is a paid event. Archiving will hide it but your purchase is preserved.",
       "restoreEvent": "Restore",
       "saveAsTemplate": "Save as template",
@@ -967,7 +969,8 @@
       "templateDesc": "Save this setup as a reusable template",
       "archiveEvent": "Archive event",
       "archiveDesc": "Hide this event from your dashboard. You can restore it later.",
-      "archiveConfirm": "Are you sure you want to archive this event? You can restore it later from the archived events section."
+      "archiveConfirm": "This will permanently delete this event, all guest data, RSVPs, and settings. This action cannot be undone.",
+      "archiveConfirmText": "delete event"
     },
     "ai": {
       "suggestTitle": "Suggest titles",
@@ -1040,6 +1043,7 @@
       "dietaryNote": "Guest will be asked about dietary preferences",
       "musicNote": "Guest can request songs",
       "copyInviteLink": "Copy invite link",
+      "pinCopied": "PIN copied!",
       "shareWhatsApp": "Share via WhatsApp",
       "whatsappMessage": "You're invited! Check it out here: {link}",
       "downloadTemplate": "Download template",
@@ -2125,6 +2129,12 @@
     "deleted": "RSVP deleted",
     "delete": "Delete",
     "deleteError": "Failed to delete",
+    "deleteConfirm": {
+      "title": "Delete RSVP",
+      "message": "This will permanently delete this RSVP, all date options, and all guest votes. This action cannot be undone.",
+      "confirmText": "delete rsvp",
+      "confirm": "Delete RSVP"
+    },
     "copied": "Copied!",
     "copyLink": "Copy link",
     "copyError": "Failed to copy",
@@ -2207,6 +2217,13 @@
       "benefit3": "Manage all your invitations in one place",
       "signUp": "Sign up free",
       "login": "Log in"
+    }
+  },
+  "ai": {
+    "usage": {
+      "label": "AI tokens today",
+      "limitReached": "Daily AI limit reached. Resets at midnight.",
+      "upgrade": "Upgrade for more AI tokens"
     }
   }
 }
